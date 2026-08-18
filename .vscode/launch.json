@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "深度看见: see",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/see",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "OPENAI_BASE_URL": "https://ops-ai-gateway.yc345.tv/v1",
+        "OPENAI_MODEL": "gpt-5.6-sol",
+        "ROOM_ADDR": "127.0.0.1:8787"
+      }
+    }
+  ]
+}

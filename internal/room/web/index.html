@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Deep-Seeing · 谈话室</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <div class="identity">
+      <div class="living-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div>
+        <h1>Deep-Seeing</h1>
+        <p>安静、诚实、允许时间留下痕迹的谈话室</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <nav class="page-nav" aria-label="空间切换">
+        <a class="active" href="/">沟通</a>
+        <a href="/mind">心智活动</a>
+      </nav>
+      <div class="runtime-line">
+        <span class="status-dot" id="runtime-dot"></span>
+        <span id="runtime-text">正在看见此刻的运行状态…</span>
+        <time id="room-time"></time>
+      </div>
+    </div>
+  </header>
+
+  <main class="room-shell">
+    <section class="conversation-pane" aria-label="谈话">
+      <div class="pane-heading">
+        <div>
+          <span class="eyebrow">CONVERSATION</span>
+          <h2>隔桌而谈</h2>
+        </div>
+        <button class="quiet-button" id="review-button" title="提供一次安静回看的机会">
+          <span class="button-symbol">◌</span> 回看
+        </button>
+      </div>
+
+      <div class="messages" id="messages" aria-live="polite">
+        <div class="empty-conversation" id="empty-conversation">
+          <div class="empty-mark">◯</div>
+          <p>屋子已经亮起。这里不会催促你们开始。</p>
+          <small>写下第一句话；记忆与工具痕迹会在右边更新。更完整的思考与自主活动见「心智活动」。</small>
+        </div>
+      </div>
+
+      <div class="activity-strip" id="activity-strip" hidden>
+        <span class="activity-pulse"></span>
+        <span id="activity-text">正在思考</span>
+      </div>
+
+      <form class="composer" id="composer">
+        <label for="message-input" class="sr-only">输入消息</label>
+        <textarea id="message-input" rows="1" placeholder="想说些什么…" autocomplete="off"></textarea>
+        <div class="composer-footer">
+          <span>Enter 发送 · Shift + Enter 换行</span>
+          <button type="submit" id="send-button" aria-label="发送">
+            <span>发送</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 13-7-4 7 4 7-13-7Zm9 0H5"/></svg>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="memory-pane" aria-label="记忆">
+      <div class="memory-header">
+        <div>
+          <span class="eyebrow">CONTINUITY</span>
+          <h2>记忆留下的形状</h2>
+        </div>
+        <button class="icon-button" id="refresh-button" title="刷新记忆" aria-label="刷新记忆">
+          <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+        </button>
+      </div>
+
+      <nav class="memory-tabs" aria-label="记忆层">
+        <button class="memory-tab active" data-view="graph">
+          <span>图谱</span><small>L2 · 整体</small>
+        </button>
+        <button class="memory-tab" data-view="episodes">
+          <span>经历</span><small>L1 · 事件</small>
+        </button>
+        <button class="memory-tab" data-view="mutations">
+          <span>变化</span><small>为何成为</small>
+        </button>
+        <button class="memory-tab" data-view="traces">
+          <span>痕迹</span><small>本轮做了什么</small>
+        </button>
+      </nav>
+
+      <div class="memory-content">
+        <section class="memory-view active" id="view-graph">
+          <div class="graph-intro">
+            <div>
+              <strong>Context Graph</strong>
+              <span id="graph-summary">正在读取 Neo4j…</span>
+            </div>
+            <div class="graph-legend" aria-label="图例">
+              <span><i class="legend-self"></i>Self</span>
+              <span><i class="legend-person"></i>Person</span>
+              <span><i class="legend-episode-self"></i>关于自己</span>
+              <span><i class="legend-episode"></i>关于他人</span>
+            </div>
+          </div>
+          <div class="graph-stage" id="graph-stage">
+            <svg id="memory-graph" role="img" aria-label="Self、Person、Bond 与 Episode 的关系图"></svg>
+            <div class="graph-empty" id="graph-empty" hidden>
+              <div class="empty-mark">⟡</div>
+              <strong>图还没有长出更多枝叶</strong>
+              <span>这不是缺失。关系会从真正发生的经历里慢慢形成。</span>
+            </div>
+            <div class="graph-hint">点击节点或关系，看它保存了什么</div>
+          </div>
+          <article class="detail-card" id="graph-detail">
+            <div class="detail-placeholder">
+              <span>选择图中的一个节点</span>
+              <p>这里会诚实地区分实体、关系、证据与当前解释。</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="memory-view" id="view-episodes">
+          <div class="view-toolbar">
+            <div class="segmented" aria-label="经历状态">
+              <button class="active" data-status="all">全部</button>
+              <button data-status="active">现行</button>
+              <button data-status="archived">归档</button>
+              <button data-status="invalid">失效</button>
+            </div>
+            <span id="episode-count">0 条经历</span>
+          </div>
+          <div class="memory-list" id="episode-list"></div>
+        </section>
+
+        <section class="memory-view" id="view-mutations">
+          <div class="view-note">
+            <span class="note-icon">↝</span>
+            <p><strong>Graph 是此刻，Ledger 是变化史。</strong><br>这里保存“为什么变成现在这样”，而不是监视隐藏推理。</p>
+          </div>
+          <div class="section-label">
+            <span>尚未决定的提案</span>
+            <button class="text-button" id="dream-button">提供 Dream 机会</button>
+          </div>
+          <div class="memory-list proposal-list" id="proposal-list"></div>
+          <div class="section-label"><span>已经发生的变化</span></div>
+          <div class="memory-list timeline-list" id="mutation-list"></div>
+        </section>
+
+        <section class="memory-view" id="view-traces">
+          <div class="view-actions">
+            <div class="view-note compact">
+              <span class="note-icon">⌁</span>
+              <p>只记录结构化外部轨迹：召回、工具、结果与错误。回合结束后会刷新。</p>
+            </div>
+            <button class="quiet-button" id="backup-button">备份此刻</button>
+          </div>
+          <div class="memory-list" id="trace-list"></div>
+        </section>
+      </div>
+    </aside>
+  </main>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

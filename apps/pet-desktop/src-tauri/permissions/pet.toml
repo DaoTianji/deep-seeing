@@ -1,0 +1,14 @@
+[[permission]]
+identifier = "allow-set-pet-mode-orb"
+description = "Allow shrinking the window to orb size"
+commands.allow = ["set_pet_mode_orb"]
+
+[[permission]]
+identifier = "allow-set-pet-mode-panel"
+description = "Allow expanding the window to panel size"
+commands.allow = ["set_pet_mode_panel"]
+
+[[permission]]
+identifier = "allow-open-full-room"
+description = "Allow opening the full Room in the default browser"
+commands.allow = ["open_full_room"]

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Notes</title>
+  <link rel="stylesheet" href="/pet.css">
+</head>
+<body class="pet-body">
+  <button type="button" class="pet-orb" id="pet-orb" aria-label="打开终端" aria-expanded="false" title="Notes" data-tauri-drag-region>
+    <span class="pet-orb-halo" aria-hidden="true" data-tauri-drag-region></span>
+    <span class="pet-orb-face" aria-hidden="true" data-tauri-drag-region>
+      <span class="pet-eye pet-eye-left"></span>
+      <span class="pet-eye pet-eye-right"></span>
+    </span>
+  </button>
+
+  <div class="pet-panel" id="pet-panel" hidden>
+    <header class="pet-panel-head" data-tauri-drag-region>
+      <span class="pet-panel-mark" aria-hidden="true" data-tauri-drag-region></span>
+      <div class="pet-panel-identity" data-tauri-drag-region>
+        <strong data-tauri-drag-region>Notes</strong>
+        <span class="pet-status" id="pet-status" aria-live="polite">已连接</span>
+      </div>
+      <nav class="pet-actions" aria-label="窗口操作">
+        <button type="button" id="pet-open-room" title="打开完整界面" aria-label="打开完整界面">
+          <span aria-hidden="true">↗</span>
+        </button>
+        <button type="button" id="pet-clear" title="清空当前视图" aria-label="清空当前视图">
+          <span aria-hidden="true">⌫</span>
+        </button>
+        <button type="button" id="pet-close" title="收起" aria-label="收起">
+          <span aria-hidden="true">—</span>
+        </button>
+      </nav>
+    </header>
+
+    <div class="pet-log" id="pet-log" role="log" aria-live="polite">
+      <div class="pet-empty" id="pet-empty">
+        <span class="pet-empty-mark" aria-hidden="true">·</span>
+        <p>说点什么吧。</p>
+        <small>这里仅保留当前窗口里的对话。</small>
+      </div>
+    </div>
+
+    <form class="pet-form" id="pet-form">
+      <label class="pet-prompt" for="pet-input" aria-hidden="true">&gt;</label>
+      <textarea id="pet-input" name="message" rows="1" autocomplete="off" spellcheck="false" placeholder="说一句…（Shift + Enter 换行）"></textarea>
+      <button type="submit" class="pet-send" id="pet-send" aria-label="发送" title="发送">
+        <span aria-hidden="true">↑</span>
+      </button>
+    </form>
+
+    <button type="button" class="pet-resize-grip" id="pet-resize-grip" aria-label="拖拽调整窗口大小" title="拖拽调整大小">
+      <span aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <script src="/pet.js" defer></script>
+</body>
+</html>

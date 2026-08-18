@@ -1,0 +1,15 @@
+.env
+.env.local
+bin/
+*.exe
+.DS_Store
+data/
+.vscode/*.log
+_ref/
+.tools/
+apps/pet-desktop/node_modules/
+apps/pet-desktop/src-tauri/target/
+apps/pet-desktop/src-tauri/gen/
+apps/pet-desktop/dist/
+*.log
+**/__debug_bin*

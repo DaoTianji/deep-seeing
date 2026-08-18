@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Start the Go Room and Tauri pet together for local development.
+set -Eeuo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+ROOM_URL="${PET_ROOM_URL:-http://127.0.0.1:8787}"
+ROOM_PID=""
+TAURI_PID=""
+
+export no_proxy="${no_proxy:+$no_proxy,}127.0.0.1,::1,localhost"
+export NO_PROXY="$no_proxy"
+
+room_ready() {
+  curl --noproxy "*" --silent --fail --max-time 2 \
+    "$ROOM_URL/api/runtime" >/dev/null 2>&1
+}
+
+terminate_tree() {
+  local pid="$1"
+  local child
+  while IFS= read -r child; do
+    [[ -n "$child" ]] && terminate_tree "$child"
+  done < <(pgrep -P "$pid" 2>/dev/null || true)
+  kill -TERM "$pid" 2>/dev/null || true
+}
+
+cleanup() {
+  trap - EXIT HUP INT TERM
+  if [[ -n "$TAURI_PID" ]] && kill -0 "$TAURI_PID" 2>/dev/null; then
+    terminate_tree "$TAURI_PID"
+    wait "$TAURI_PID" 2>/dev/null || true
+  fi
+  if [[ -n "$ROOM_PID" ]] && kill -0 "$ROOM_PID" 2>/dev/null; then
+    terminate_tree "$ROOM_PID"
+    wait "$ROOM_PID" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT HUP INT TERM
+
+cd "$ROOT"
+if room_ready; then
+  echo "Room 已运行：$ROOM_URL"
+else
+  echo "正在启动 Room：$ROOM_URL"
+  go run ./cmd/see &
+  ROOM_PID=$!
+
+  for _ in {1..60}; do
+    if room_ready; then
+      break
+    fi
+    if ! kill -0 "$ROOM_PID" 2>/dev/null; then
+      echo "Room 启动失败。" >&2
+      exit 1
+    fi
+    sleep 0.5
+  done
+
+  if ! room_ready; then
+    echo "等待 Room 就绪超时：$ROOM_URL" >&2
+    exit 1
+  fi
+fi
+
+echo "正在启动桌宠…"
+"$ROOT/apps/pet-desktop/dev.sh" &
+TAURI_PID=$!
+wait "$TAURI_PID"

@@ -1,0 +1,23 @@
+[package]
+name = "pet-desktop"
+version = "0.1.0"
+description = "Desktop pet shell for deep-seeing"
+authors = ["deep-seeing"]
+edition = "2021"
+
+[lib]
+name = "pet_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-opener = "2"
+
+[patch.crates-io]
+bit-vec = { path = "../vendor/bit-vec" }
+bit-set = { path = "../vendor/bit-set" }

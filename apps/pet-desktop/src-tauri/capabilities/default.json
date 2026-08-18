@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2/capability",
+  "identifier": "main-capability",
+  "description": "Pet desktop window permissions including remote Room /pet",
+  "windows": ["main"],
+  "remote": {
+    "urls": ["http://127.0.0.1:8787/*", "http://localhost:8787/*"]
+  },
+  "permissions": [
+    "core:default",
+    "core:window:allow-set-size",
+    "core:window:allow-set-position",
+    "core:window:allow-outer-size",
+    "core:window:allow-outer-position",
+    "core:window:allow-start-dragging",
+    "core:window:allow-current-monitor",
+    "core:window:allow-primary-monitor",
+    "core:window:allow-scale-factor",
+    "core:window:allow-start-resize-dragging",
+    "allow-set-pet-mode-orb",
+    "allow-set-pet-mode-panel",
+    "allow-open-full-room"
+  ]
+}
