@@ -13,3 +13,4 @@ apps/pet-desktop/src-tauri/gen/
 apps/pet-desktop/dist/
 *.log
 **/__debug_bin*
+__debug_bin*
