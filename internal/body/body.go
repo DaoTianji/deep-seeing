@@ -69,6 +69,7 @@ func BuildSnapshot(scope identity.TenantScope, sessionID, model string, stores m
 			"workspace": "persistent",
 			"intent":    "persistent",
 			"source":    "persistent",
+			"scene":     "persistent",
 		},
 		FirstBoot: firstBoot,
 	}
@@ -85,7 +86,7 @@ type Capability struct {
 }
 
 // Catalog is the thin capability table (not dumped into system prompt).
-func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld bool) []Capability {
+func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes bool) []Capability {
 	out := []Capability{
 		{Name: "inspect_runtime", Ability: "查看当前身体/版本/持久性", Persistence: "none", SideEffect: "只读", Permission: "observe",
 			Help: "返回 agent_id、当前对话者、时间、模型与各存储是否可用。"},
@@ -157,24 +158,38 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 		}
 	}
 	if hasProposals {
-		out = append(out, Capability{Name: "propose_bond_update", Ability: "提议改变长期理解", Persistence: "delayed", SideEffect: "入提案队列，慢变", Permission: "internal",
-			Help: "性格/边界/策略等只能提案；Dream 才可能采纳。"})
+		out = append(out, Capability{Name: "propose_bond_update", Ability: "提议改变长期认识", Persistence: "delayed", SideEffect: "入提案队列，慢变", Permission: "internal",
+			Help: "slot+claim 提案：basics|interaction|boundaries|priorities|baseline；不可提案 strategy。Dream 才可能采纳。"})
+	}
+	if hasScenes {
+		out = append(out,
+			Capability{Name: "list_scene_norms", Ability: "列出场景常模", Persistence: "none", SideEffect: "只读", Permission: "observe",
+				Help: "按人列出 SceneNorm；非全局 Bond。"},
+			Capability{Name: "read_scene_norm", Ability: "读取场景常模", Persistence: "none", SideEffect: "只读", Permission: "observe",
+				Help: "按 id 读场景常模正文与关键词。"},
+			Capability{Name: "write_scene_norm", Ability: "写入场景常模", Persistence: "cross-session", SideEffect: "写本地 SceneNorm", Permission: "internal",
+				Help: "须 keywords；仅关键词命中时旁路注入；去掉场景后不应仍当全局真理。"},
+		)
 	}
 	if hasGraph {
 		out = append(out,
 			Capability{Name: "recall_bond", Ability: "看关系常模", Persistence: "none", SideEffect: "只读", Permission: "observe",
-				Help: "读取 Bond + 称谓等。"},
-			Capability{Name: "set_explicit_bond_fact", Ability: "记录明确低风险事实", Persistence: "cross-session", SideEffect: "写 CALLS 或短 basics", Permission: "internal",
+				Help: "读取 Bond compact（Item SoT；Strategy 派生缓存版本匹配时注入）。"},
+			Capability{Name: "set_explicit_bond_fact", Ability: "记录明确低风险事实", Persistence: "cross-session", SideEffect: "写 CALLS 或 basics Item", Permission: "internal",
 				Help: "仅用于对方明确说出的事实（如称呼）；不可改性格/信任/边界。"},
+			Capability{Name: "append_bond_boundary", Ability: "重大错误快写边界", Persistence: "cross-session", SideEffect: "直写 Boundaries Item", Permission: "internal",
+				Help: "唯一允许直写的常模槽；他指或自发现的不可再犯结论。"},
+			Capability{Name: "set_bond_strategy_cache", Ability: "刷新 Strategy 派生缓存", Persistence: "cross-session", SideEffect: "写 strategy_cache（非 SoT）", Permission: "internal",
+				Help: "绑定当前 bond_version；Item 变更后需重刷才会再注入。"},
 		)
 	}
 	return out
 }
 
 // FindCapability looks up one tool in the catalog.
-func FindCapability(name string, hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld bool) (Capability, bool) {
+func FindCapability(name string, hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes bool) (Capability, bool) {
 	name = strings.TrimSpace(name)
-	for _, c := range Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld) {
+	for _, c := range Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes) {
 		if c.Name == name {
 			return c, true
 		}

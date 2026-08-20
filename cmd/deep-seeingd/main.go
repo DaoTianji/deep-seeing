@@ -31,7 +31,7 @@ func main() {
 
 	addr := strings.TrimSpace(os.Getenv("ROOM_ADDR"))
 	if addr == "" {
-		addr = "127.0.0.1:8787"
+		addr = "127.0.0.1:3319"
 	}
 	server := &room.Server{App: application, Addr: addr}
 	handler, err := server.Handler()

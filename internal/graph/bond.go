@@ -41,6 +41,8 @@ ON CREATE SET
   b.strategy = '',
   b.style = '',
   b.boundaries = '',
+  b.items_json = '[]',
+  b.bond_version = 0,
   b.confidence = 0.0,
   b.source_episode_ids = [],
   b.created_at = $now
@@ -84,6 +86,10 @@ LIMIT 1
 		}
 		role, _ := rec.Get("role_at_origin")
 		call, _ := rec.Get("call_name")
+		items, err := DecodeItemsJSON(asString(props["items_json"]))
+		if err != nil {
+			return fmt.Errorf("bond items_json: %w", err)
+		}
 		out = Bond{
 			SelfID:           scope.AgentID,
 			PersonID:         personID,
@@ -93,6 +99,10 @@ LIMIT 1
 			Strategy:         asString(props["strategy"]),
 			Style:            asString(props["style"]),
 			Boundaries:       asString(props["boundaries"]),
+			Items:            items,
+			Version:          asInt64(props["bond_version"]),
+			StrategyCache:    asString(props["strategy_cache"]),
+			StrategyCacheVer: asInt64(props["strategy_cache_version"]),
 			Confidence:       asFloat(props["confidence"]),
 			LastConfirmedAt:  asTime(props["last_confirmed_at"]),
 			SourceEpisodeIDs: asStringSlice(props["source_episode_ids"]),
@@ -110,7 +120,7 @@ LIMIT 1
 	return out, nil
 }
 
-// PatchBond applies a subject patch with high-threshold append discipline.
+// PatchBond applies a subject patch. Prefer item SoT appends; strategy stays prose-only (not SoT).
 func (s *Store) PatchBond(ctx context.Context, scope identity.TenantScope, personID string, patch BondPatch) (Bond, error) {
 	if s == nil {
 		return Bond{}, fmt.Errorf("neo4j: nil store")
@@ -127,54 +137,43 @@ func (s *Store) PatchBond(ctx context.Context, scope identity.TenantScope, perso
 		return Bond{}, err
 	}
 
-	style, err := ApplyHighField(cur.Style, patch.Style, patch.StyleMode)
-	if err != nil {
-		return Bond{}, err
+	type step struct {
+		slot string
+		text string
 	}
-	boundaries, err := ApplyHighField(cur.Boundaries, patch.Boundaries, patch.BoundMode)
-	if err != nil {
-		return Bond{}, err
+	steps := []step{
+		{SlotBasics, patch.Basics},
+		{SlotInteraction, patch.Style},
+		{SlotBoundaries, patch.Boundaries},
+		{SlotPriorities, patch.Concerns},
+		{SlotBaseline, patch.Baseline},
 	}
-	basics := MergeMedium(cur.Basics, patch.Basics)
-	concerns := MergeMedium(cur.Concerns, patch.Concerns)
-	baseline := MergeMedium(cur.Baseline, patch.Baseline)
-	strategy := MergeMedium(cur.Strategy, patch.Strategy)
-	sources := MergeSourceIDs(cur.SourceEpisodeIDs, patch.SourceEpisodeID)
-	now := time.Now().UTC().Format(time.RFC3339)
-	conf := cur.Confidence
-	if conf < 0.2 {
-		conf = 0.2
+	for _, st := range steps {
+		text := strings.TrimSpace(st.text)
+		if text == "" {
+			continue
+		}
+		next, _, err := PrepareAppendItem(cur, AppendItemSpec{
+			Slot:            st.slot,
+			Claim:           text,
+			Source:          "patch",
+			SourceEpisodeID: patch.SourceEpisodeID,
+		})
+		if err != nil {
+			if strings.Contains(err.Error(), "item limit") {
+				// fall back: mirror prose only
+				mirrorProse(&cur, st.slot, text)
+				continue
+			}
+			return Bond{}, err
+		}
+		cur = next
 	}
-
-	err = s.write(ctx, `
-MATCH (self:Self {id: $self_id})-[b:BOND]->(p:Person {id: $person_id})
-SET b.basics = $basics,
-    b.concerns = $concerns,
-    b.baseline = $baseline,
-    b.strategy = $strategy,
-    b.style = $style,
-    b.boundaries = $boundaries,
-    b.confidence = $confidence,
-    b.last_confirmed_at = $now,
-    b.source_episode_ids = $sources,
-    b.updated_at = $now
-`, map[string]any{
-		"self_id":    scope.AgentID,
-		"person_id":  personID,
-		"basics":     basics,
-		"concerns":   concerns,
-		"baseline":   baseline,
-		"strategy":   strategy,
-		"style":      style,
-		"boundaries": boundaries,
-		"confidence": conf,
-		"now":        now,
-		"sources":    sources,
-	})
-	if err != nil {
-		return Bond{}, err
+	if strat := strings.TrimSpace(patch.Strategy); strat != "" {
+		cur.Strategy = MergeMedium(cur.Strategy, strat)
+		cur.Version++
 	}
-	return s.GetBond(ctx, scope, personID)
+	return s.PersistBondState(ctx, scope, personID, cur)
 }
 
 func (s *Store) ensurePersonBond(ctx context.Context, selfID, personID string) error {
@@ -188,7 +187,8 @@ ON CREATE SET k.created_at = $now
 MERGE (self)-[b:BOND]->(p)
 ON CREATE SET
   b.basics = '', b.concerns = '', b.baseline = '', b.strategy = '',
-  b.style = '', b.boundaries = '', b.confidence = 0.0,
+  b.style = '', b.boundaries = '', b.items_json = '[]', b.bond_version = 0,
+  b.confidence = 0.0,
   b.source_episode_ids = [], b.created_at = $now
 `, map[string]any{
 		"self_id":      selfID,
@@ -265,19 +265,19 @@ FOREACH (pid IN $person_ids |
   MERGE (self)-[:KNOWS]->(p)
 )
 `, map[string]any{
-		"self_id":          scope.AgentID,
-		"id":               ep.ID,
-		"kind":             ep.Kind,
-		"summary":          ep.Summary,
-		"doc_uri":          ep.DocURI,
-		"session_id":       ep.SessionID,
-		"created_at":       created.UTC().Format(time.RFC3339),
-		"now":              time.Now().UTC().Format(time.RFC3339),
-		"about_self":       aboutSelf,
-		"experience_mode":  mode,
-		"status":           status,
-		"valid":            status == "active",
-		"person_ids":       persons,
+		"self_id":         scope.AgentID,
+		"id":              ep.ID,
+		"kind":            ep.Kind,
+		"summary":         ep.Summary,
+		"doc_uri":         ep.DocURI,
+		"session_id":      ep.SessionID,
+		"created_at":      created.UTC().Format(time.RFC3339),
+		"now":             time.Now().UTC().Format(time.RFC3339),
+		"about_self":      aboutSelf,
+		"experience_mode": mode,
+		"status":          status,
+		"valid":           status == "active",
+		"person_ids":      persons,
 	})
 }
 

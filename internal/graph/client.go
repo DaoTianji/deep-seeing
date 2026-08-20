@@ -188,6 +188,24 @@ func asFloat(v any) float64 {
 	}
 }
 
+func asInt64(v any) int64 {
+	switch t := v.(type) {
+	case nil:
+		return 0
+	case int64:
+		return t
+	case int:
+		return int64(t)
+	case float64:
+		return int64(t)
+	case string:
+		n, _ := strconv.ParseInt(t, 10, 64)
+		return n
+	default:
+		return 0
+	}
+}
+
 func asTime(v any) time.Time {
 	switch t := v.(type) {
 	case time.Time:

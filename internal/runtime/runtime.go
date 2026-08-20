@@ -158,12 +158,41 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 
 	recallLines := []string{}
 	var recallIDs []string
+	var bondNorm string
+	var bondSlots, bondItemIDs, sceneIDs []string
+	var bondPlaceholder bool
 	if s.SideQuery != nil {
 		recs, err := s.SideQuery.SelectForTurn(ctx, s.Scope, userText, 5)
 		if err != nil {
 			log.Printf("side query skipped: %v", err)
 		} else {
 			for _, r := range recs {
+				kind := r.Metadata["kind"]
+				if kind == "bond" || kind == "scene_norm" {
+					if bondNorm == "" {
+						bondNorm = r.Content
+					} else {
+						bondNorm = bondNorm + "\n\n" + r.Content
+					}
+					if kind == "bond" {
+						if r.Metadata["placeholder"] == "1" {
+							bondPlaceholder = true
+						}
+						if slots := r.Metadata["bond_slots"]; slots != "" {
+							bondSlots = strings.Split(slots, ",")
+						}
+						if ids := r.Metadata["bond_item_ids"]; ids != "" {
+							bondItemIDs = strings.Split(ids, ",")
+						}
+					}
+					if ids := r.Metadata["scene_ids"]; ids != "" {
+						sceneIDs = append(sceneIDs, strings.Split(ids, ",")...)
+					}
+					if r.ID != "" {
+						recallIDs = append(recallIDs, r.ID)
+					}
+					continue
+				}
 				tag := r.ID
 				if tag == "" {
 					tag = r.Key
@@ -187,6 +216,7 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 		Soul:          s.Soul,
 		Capability:    s.Capability,
 		OriginContext: s.Origin,
+		BondNorm:      bondNorm,
 		MemoryRecall:  prompt.FormatMemoryRecall(recallLines),
 	})
 	if err != nil {
@@ -263,16 +293,20 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 
 	if s.Journal != nil {
 		_ = s.Journal.Append(observe.TurnTrace{
-			SessionID:     s.SessionID,
-			AgentID:       s.Scope.AgentID,
-			PersonID:      s.Scope.PersonID(),
-			ModelVersion:  s.Model,
-			RuntimeVer:    body.ToolsetVersion,
-			UserText:      observe.Preview(userText, 120),
-			RecallIDs:     recallIDs,
-			ToolStarts:    toolStarts,
-			Errors:        turnErrors,
-			AnswerPreview: observe.Preview(final, 200),
+			SessionID:       s.SessionID,
+			AgentID:         s.Scope.AgentID,
+			PersonID:        s.Scope.PersonID(),
+			ModelVersion:    s.Model,
+			RuntimeVer:      body.ToolsetVersion,
+			UserText:        observe.Preview(userText, 120),
+			RecallIDs:       recallIDs,
+			BondSlots:       bondSlots,
+			BondItemIDs:     bondItemIDs,
+			BondPlaceholder: bondPlaceholder,
+			SceneIDs:        sceneIDs,
+			ToolStarts:      toolStarts,
+			Errors:          turnErrors,
+			AnswerPreview:   observe.Preview(final, 200),
 		})
 	}
 

@@ -12,19 +12,23 @@ import (
 // TurnTrace is a structured external trajectory for one conversational turn.
 // Not chain-of-thought — recall, tools, writes, errors only.
 type TurnTrace struct {
-	Timestamp     time.Time `json:"timestamp"`
-	SessionID     string    `json:"session_id"`
-	AgentID       string    `json:"agent_id,omitempty"`
-	PersonID      string    `json:"person_id,omitempty"`
-	ModelVersion  string    `json:"model_version,omitempty"`
-	RuntimeVer    string    `json:"toolset_version,omitempty"`
-	UserText      string    `json:"user_text,omitempty"`
-	RecallIDs     []string  `json:"recall_ids,omitempty"`
-	ToolStarts    []string  `json:"tool_starts,omitempty"`
-	MemoryWrites  []string  `json:"memory_writes,omitempty"`
-	Proposals     []string  `json:"proposals,omitempty"`
-	Errors        []string  `json:"errors,omitempty"`
-	AnswerPreview string    `json:"answer_preview,omitempty"`
+	Timestamp       time.Time `json:"timestamp"`
+	SessionID       string    `json:"session_id"`
+	AgentID         string    `json:"agent_id,omitempty"`
+	PersonID        string    `json:"person_id,omitempty"`
+	ModelVersion    string    `json:"model_version,omitempty"`
+	RuntimeVer      string    `json:"toolset_version,omitempty"`
+	UserText        string    `json:"user_text,omitempty"`
+	RecallIDs       []string  `json:"recall_ids,omitempty"`
+	BondSlots       []string  `json:"bond_slots,omitempty"`
+	BondItemIDs     []string  `json:"bond_item_ids,omitempty"`
+	BondPlaceholder bool      `json:"bond_placeholder,omitempty"`
+	SceneIDs        []string  `json:"scene_ids,omitempty"`
+	ToolStarts      []string  `json:"tool_starts,omitempty"`
+	MemoryWrites    []string  `json:"memory_writes,omitempty"`
+	Proposals       []string  `json:"proposals,omitempty"`
+	Errors          []string  `json:"errors,omitempty"`
+	AnswerPreview   string    `json:"answer_preview,omitempty"`
 }
 
 // Journal appends JSONL turn traces.

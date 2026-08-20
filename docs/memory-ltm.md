@@ -1,7 +1,7 @@
 # 长期记忆（LTM）— 实现现状
 
-> 状态：**Phase 1–4 已落地**；**P5–P8 已落地**（Self / Workspace / Agency / World）  
-> 目标架构：[design-ltm.md](./design-ltm.md) · 认知共识：[memory-cognition.md](./memory-cognition.md) · Roadmap：[roadmap-p5-p8.md](./roadmap-p5-p8.md) · 契约：[p5.0-contracts.md](./p5.0-contracts.md) · Workspace：[workspace.md](./workspace.md) · Agency：[agency.md](./agency.md) · World：[world.md](./world.md) · 出生门槛：[birth-gate.md](./birth-gate.md)  
+> 状态：**Phase 1–4 已落地**；**P5–P8 已落地**（Self / Workspace / Agency / World）；**T1 常模参与对话已落地**，当前进入 T2 状态条件召回讨论（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
+> 目标架构：[design-ltm.md](./design-ltm.md) · 认知共识：[memory-cognition.md](./memory-cognition.md) · Roadmap：[roadmap-p5-p8.md](./roadmap-p5-p8.md) · v0.9：[roadmap-v0.9.md](./roadmap-v0.9.md) · 契约：[p5.0-contracts.md](./p5.0-contracts.md) · Workspace：[workspace.md](./workspace.md) · Agency：[agency.md](./agency.md) · World：[world.md](./world.md) · 出生门槛：[birth-gate.md](./birth-gate.md)
 > 关联：[memory-stm.md](./memory-stm.md) · [`seed/SOUL.md`](../seed/SOUL.md) · [`seed/origin/`](../seed/origin/) · [`internal/graph`](../internal/graph/)
 
 ## 1. 当前实现（Phase 1 + 2 + 3）
@@ -47,12 +47,13 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 | Observability | `data/memory/traces/*.jsonl` |
 | 提案队列 | `data/memory/proposals/open|done` |
 | 回合后 Extractor | **默认 Noop** |
-| 旁路 | Bond → 开放提案 → Episode |
+| 旁路 | Bond → SceneNorm（关键词）→ 开放提案 → Episode |
 
 ### 1.5 与设计的差距
 
 - 无 External 工具 Interrupt UI、Restore 需人工演练  
 - 完整 Know→Act Birth Test 仍需带模型跑一遍（清单见 birth-gate）  
+- **T1（常模参与对话，已落地）**：`FormatCompactRecall` 优先级注入；Bond `items_json` + `bond_version` 为 Item SoT；`append_bond_boundary` / `propose_bond_update` / `set_explicit_bond_fact`；SceneNorm 文件旁路（`list/read/write_scene_norm`，关键词命中注入）；Strategy 派生缓存（`set_bond_strategy_cache`，绑定 `bond_version`）。旧 `Strategy` 散文非 SoT。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 

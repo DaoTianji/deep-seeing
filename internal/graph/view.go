@@ -57,29 +57,59 @@ func (s *Store) Visualization(ctx context.Context, scope identity.TenantScope, l
 	personNode := ViewNode{
 		ID: personID, Kind: "Person", Title: displayNameFromPersonID(personID), Subtitle: "当前相识的人",
 	}
-	out := View{
-		Available: true,
-		Nodes:     []ViewNode{selfNode, personNode},
-		Edges:     []ViewEdge{},
-	}
+	out := View{Available: true, Edges: []ViewEdge{}}
 
 	bond, err := s.GetBond(ctx, scope, personID)
 	if err != nil {
 		return View{}, err
 	}
+	// Items live in the BOND relationship's items_json, not as graph nodes.
+	// Surface them as a readable text block on Person instead of synthesizing nodes.
+	personNode.Properties = map[string]any{
+		"person_id":    personID,
+		"bond_version": bond.Version,
+	}
+	if normText := FormatBondNormText(bond); normText != "" {
+		personNode.Properties["常模（Bond items）"] = normText
+	}
+	if bond.CallName != "" {
+		personNode.Properties["call_name"] = bond.CallName
+	}
+	out.Nodes = []ViewNode{selfNode, personNode}
+
 	if bond.RoleAtOrigin != "" {
 		out.Edges = append(out.Edges, ViewEdge{
 			ID: "knows:" + scope.AgentID + ":" + personID, Source: scope.AgentID, Target: personID, Kind: "KNOWS",
 			Properties: map[string]any{"role_at_origin": bond.RoleAtOrigin},
 		})
 	}
+	bondProps := map[string]any{
+		"bond_version": bond.Version,
+		"confidence":   bond.Confidence,
+	}
+	for k, v := range map[string]string{
+		"basics（旧散文）": bond.Basics, "concerns（旧散文）": bond.Concerns,
+		"baseline（旧散文）": bond.Baseline, "style（旧散文）": bond.Style,
+		"boundaries（旧散文）": bond.Boundaries, "strategy（旧散文·非SoT）": bond.Strategy,
+	} {
+		if strings.TrimSpace(v) != "" {
+			bondProps[k] = v
+		}
+	}
+	if strings.TrimSpace(bond.StrategyCache) != "" {
+		status := "stale（版本失配，不注入）"
+		if bond.StrategyCacheVer == bond.Version {
+			status = "active（注入中）"
+		}
+		bondProps["strategy_cache"] = bond.StrategyCache
+		bondProps["strategy_cache_status"] = status
+	}
+	if len(bond.SourceEpisodeIDs) > 0 {
+		bondProps["source_episode_ids"] = bond.SourceEpisodeIDs
+	}
 	out.Edges = append(out.Edges, ViewEdge{
 		ID: "bond:" + scope.AgentID + ":" + personID, Source: scope.AgentID, Target: personID, Kind: "BOND",
-		Properties: map[string]any{
-			"basics": bond.Basics, "concerns": bond.Concerns, "baseline": bond.Baseline,
-			"strategy": bond.Strategy, "style": bond.Style, "boundaries": bond.Boundaries,
-			"confidence": bond.Confidence, "source_episode_ids": bond.SourceEpisodeIDs,
-		},
+		Properties: bondProps,
 	})
 	if bond.CallName != "" {
 		out.Edges = append(out.Edges, ViewEdge{

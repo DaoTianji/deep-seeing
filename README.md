@@ -27,7 +27,7 @@ cp .env.example .env
 
 # 在仓库根目录执行（不要在 cmd/see 子目录里）
 go run ./cmd/see
-# 打开 http://127.0.0.1:8787
+# 打开 http://127.0.0.1:3319
 ```
 
 `cmd/see` **默认启动谈话室**（内嵌 `embed.FS`，无独立前端构建）。终端 REPL 用：

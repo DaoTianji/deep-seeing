@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start Tauri pet shell. Room must already listen on 127.0.0.1:8787.
+# Start Tauri pet shell. Room must already listen on 127.0.0.1:3319.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 APP="$(cd "$(dirname "$0")" && pwd)"
@@ -11,7 +11,7 @@ if [[ -d "$ROOT/.tools/cargo/bin" ]]; then
 fi
 
 # Make sure localhost bypasses any HTTP proxy, otherwise `tauri dev` gets stuck
-# waiting for the frontend dev server (its health check to 127.0.0.1:8787
+# waiting for the frontend dev server (its health check to 127.0.0.1:3319
 # would be routed through the proxy).
 LOCAL_NO_PROXY="127.0.0.1,::1,localhost"
 if [[ -n "${no_proxy:-}" ]]; then

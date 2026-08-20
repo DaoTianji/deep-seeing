@@ -4,7 +4,7 @@
   "description": "Pet desktop window permissions including remote Room /pet",
   "windows": ["main"],
   "remote": {
-    "urls": ["http://127.0.0.1:8787/*", "http://localhost:8787/*"]
+    "urls": ["http://127.0.0.1:3319/*", "http://localhost:3319/*"]
   },
   "permissions": [
     "core:default",

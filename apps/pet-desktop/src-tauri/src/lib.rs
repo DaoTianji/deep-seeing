@@ -86,7 +86,7 @@ fn set_pet_mode_panel(app: AppHandle, state: State<'_, PetWindowState>) -> Resul
 #[tauri::command]
 fn open_full_room(app: AppHandle) -> Result<(), String> {
     app.opener()
-        .open_url("http://127.0.0.1:8787/", None::<&str>)
+        .open_url("http://127.0.0.1:3319/", None::<&str>)
         .map_err(|e| e.to_string())
 }
 

@@ -1,7 +1,7 @@
 # 桌宠终端（Pet）
 
-> 状态：Web MVP 与 Tauri 日常可用壳已落地。  
-> Web 入口：`http://127.0.0.1:8787/pet`  
+> 状态：Web MVP 与 Tauri 日常可用壳已落地。
+> Web 入口：`http://127.0.0.1:3319/pet`
 > 桌面壳：[`apps/pet-desktop`](../apps/pet-desktop)
 
 ## 定位
@@ -18,7 +18,7 @@
 ## 浏览器用法（调试）
 
 1. 启动 Room（例如 `go run ./cmd/see`）
-2. 浏览器打开 `http://127.0.0.1:8787/pet`
+2. 浏览器打开 `http://127.0.0.1:3319/pet`
 3. 点击右下角挂件展开终端；再点挂件或按 `Esc` / `×` 收起
 
 ## Tauri 桌面壳
@@ -42,7 +42,7 @@
 
 启动器会：
 
-- 复用已经运行的 `http://127.0.0.1:8787` Room
+- 复用已经运行的 `http://127.0.0.1:3319` Room
 - Room 未运行时启动 `go run ./cmd/see` 并等待就绪
 - 自动设置仓库内 Rust 工具链与 `no_proxy`
 - 启动 Tauri；退出时只清理由它启动的子进程
@@ -70,11 +70,11 @@ apps/pet-desktop/dev.sh
 - 圆球与面板标题栏可拖拽（`data-tauri-drag-region`）
 - 顶部 `↗` 在系统浏览器打开完整 Room；`⌫` 只清空当前轻量视图，不清后端记忆
 
-覆盖 Room 地址：改 [`apps/pet-desktop/src-tauri/tauri.conf.json`](../apps/pet-desktop/src-tauri/tauri.conf.json) 里的 `build.devUrl` 与 `app.windows[0].url`（默认 `http://127.0.0.1:8787/pet`）。
+覆盖 Room 地址：改 [`apps/pet-desktop/src-tauri/tauri.conf.json`](../apps/pet-desktop/src-tauri/tauri.conf.json) 里的 `build.devUrl` 与 `app.windows[0].url`（默认 `http://127.0.0.1:3319/pet`）。
 
 ### 常见问题：一直卡在 `Waiting for your frontend dev server...`
 
-若终端设了 `http_proxy` / `https_proxy`（如 `127.0.0.1:7897`）但没有 `no_proxy`，`tauri dev` 探测 `http://127.0.0.1:8787/pet` 的请求会被丢给代理，健康检查过不去，窗口（圆球）不弹出。解决：让本机绕过代理。
+若终端设了 `http_proxy` / `https_proxy`（如 `127.0.0.1:7897`）但没有 `no_proxy`，`tauri dev` 探测 `http://127.0.0.1:3319/pet` 的请求会被丢给代理，健康检查过不去，窗口（圆球）不弹出。解决：让本机绕过代理。
 
 ```bash
 export no_proxy="127.0.0.1,::1,localhost"

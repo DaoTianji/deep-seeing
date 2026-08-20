@@ -15,9 +15,13 @@ type Bond struct {
 	Basics           string
 	Concerns         string
 	Baseline         string
-	Strategy         string
-	Style            string
+	Strategy         string // legacy prose; NOT SoT for T1 compact inject
+	Style            string // legacy Interaction prose
 	Boundaries       string
+	Items            []BondItem // T1 SoT claims; empty → project from legacy prose
+	Version          int64      // bumps on successful SoT write
+	StrategyCache    string     // derived policy text; not SoT
+	StrategyCacheVer int64      // must equal Version to inject
 	Confidence       float64
 	LastConfirmedAt  time.Time
 	SourceEpisodeIDs []string
@@ -36,32 +40,11 @@ func (b Bond) Empty() bool {
 		strings.TrimSpace(b.CallName) == ""
 }
 
-// FormatRecall renders bond for SideQuery / system injection.
+// FormatRecall renders a T1 compact bond view (no query → no conditional slots).
+// Legacy Strategy prose is not treated as SoT and is omitted.
 func (b Bond) FormatRecall() string {
-	if b.Empty() && b.RoleAtOrigin == "" {
-		return ""
-	}
-	var parts []string
-	add := func(label, v string) {
-		v = strings.TrimSpace(v)
-		if v == "" {
-			return
-		}
-		parts = append(parts, label+": "+v)
-	}
-	add("person", b.PersonID)
-	add("role_at_origin", b.RoleAtOrigin)
-	add("calls_me", b.CallName)
-	add("basics", b.Basics)
-	add("concerns", b.Concerns)
-	add("baseline", b.Baseline)
-	add("strategy", b.Strategy)
-	add("style", b.Style)
-	add("boundaries", b.Boundaries)
-	if b.Confidence > 0 {
-		parts = append(parts, fmt.Sprintf("confidence: %.2f", b.Confidence))
-	}
-	return strings.Join(parts, "\n")
+	text, _ := FormatCompactRecall(b, "")
+	return text
 }
 
 // BondPatch is a subject-driven partial update.

@@ -3,6 +3,7 @@ package memory_test
 import (
 	"context"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"deep-seeing/internal/graph"
@@ -21,25 +22,38 @@ func (m *memGraph) GetBond(_ context.Context, _ identity.TenantScope, personID s
 }
 
 func (m *memGraph) PatchBond(_ context.Context, scope identity.TenantScope, personID string, patch graph.BondPatch) (graph.Bond, error) {
-	if patch.Basics != "" {
-		m.bond.Basics = graph.MergeMedium(m.bond.Basics, patch.Basics)
+	cur := m.bond
+	steps := []struct {
+		slot string
+		text string
+	}{
+		{graph.SlotBasics, patch.Basics},
+		{graph.SlotInteraction, patch.Style},
+		{graph.SlotBoundaries, patch.Boundaries},
+		{graph.SlotPriorities, patch.Concerns},
+		{graph.SlotBaseline, patch.Baseline},
 	}
-	if patch.Style != "" {
-		v, err := graph.ApplyHighField(m.bond.Style, patch.Style, patch.StyleMode)
+	for _, st := range steps {
+		text := strings.TrimSpace(st.text)
+		if text == "" {
+			continue
+		}
+		next, _, err := graph.PrepareAppendItem(cur, graph.AppendItemSpec{Slot: st.slot, Claim: text, Source: "patch"})
 		if err != nil {
+			if strings.Contains(err.Error(), "item limit") {
+				continue
+			}
 			return graph.Bond{}, err
 		}
-		m.bond.Style = v
+		cur = next
 	}
-	if patch.Boundaries != "" {
-		v, err := graph.ApplyHighField(m.bond.Boundaries, patch.Boundaries, patch.BoundMode)
-		if err != nil {
-			return graph.Bond{}, err
-		}
-		m.bond.Boundaries = v
+	if patch.Strategy != "" {
+		cur.Strategy = graph.MergeMedium(cur.Strategy, patch.Strategy)
+		cur.Version++
 	}
-	m.bond.SelfID = scope.AgentID
-	m.bond.PersonID = personID
+	cur.SelfID = scope.AgentID
+	cur.PersonID = personID
+	m.bond = cur
 	return m.bond, nil
 }
 
@@ -98,12 +112,26 @@ func TestDreamSkipsWhenNoProposals(t *testing.T) {
 	}
 }
 
-func TestHighFieldRejectOnDreamPatch(t *testing.T) {
-	g := &memGraph{bond: graph.Bond{Style: "直接"}}
-	_, err := g.PatchBond(context.Background(), identity.LocalCLI(), "user:mudnet", graph.BondPatch{
+func TestPatchBondAppendsInteractionItem(t *testing.T) {
+	g := &memGraph{bond: graph.Bond{
+		Style: "直接",
+		Items: []graph.BondItem{
+			{ID: "interaction:legacy:0", Slot: graph.SlotInteraction, Claim: "直接", Status: "active"},
+		},
+	}}
+	bond, err := g.PatchBond(context.Background(), identity.LocalCLI(), "user:mudnet", graph.BondPatch{
 		Style: "整段覆盖", StyleMode: "replace",
 	})
-	if err == nil {
-		t.Fatal("expected reject")
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, it := range bond.Items {
+		if it.Claim == "整段覆盖" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected append item, got %+v", bond.Items)
 	}
 }

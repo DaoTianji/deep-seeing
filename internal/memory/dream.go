@@ -268,16 +268,18 @@ func (d *Dreamer) applyAcceptSelf(ctx context.Context, scope identity.TenantScop
 
 func proposalToPatch(p BondProposal) graph.BondPatch {
 	patch := graph.BondPatch{}
-	switch p.Field {
+	field := strings.ToLower(strings.TrimSpace(p.Field))
+	switch field {
 	case "basics":
 		patch.Basics = p.SuggestedText
-	case "concerns":
+	case "concerns", "priorities":
 		patch.Concerns = p.SuggestedText
 	case "baseline":
 		patch.Baseline = p.SuggestedText
 	case "strategy":
+		// retained for old proposals only; PreferAppend path should reject new ones
 		patch.Strategy = p.SuggestedText
-	case "style":
+	case "style", "interaction":
 		patch.Style = p.SuggestedText
 		patch.StyleMode = "append"
 	case "boundaries":
@@ -289,23 +291,38 @@ func proposalToPatch(p BondProposal) graph.BondPatch {
 
 func bondFieldMap(b graph.Bond, field string) map[string]any {
 	m := map[string]any{}
+	field = strings.ToLower(strings.TrimSpace(field))
 	switch field {
 	case "basics":
 		m["basics"] = b.Basics
-	case "concerns":
+	case "concerns", "priorities":
 		m["concerns"] = b.Concerns
+		m["priorities_items"] = itemsForSlot(b, graph.SlotPriorities)
 	case "baseline":
 		m["baseline"] = b.Baseline
 	case "strategy":
 		m["strategy"] = b.Strategy
-	case "style":
+	case "style", "interaction":
 		m["style"] = b.Style
+		m["interaction_items"] = itemsForSlot(b, graph.SlotInteraction)
 	case "boundaries":
 		m["boundaries"] = b.Boundaries
+		m["boundary_items"] = itemsForSlot(b, graph.SlotBoundaries)
 	default:
 		m["text"] = b.FormatRecall()
+		m["version"] = b.Version
 	}
 	return m
+}
+
+func itemsForSlot(b graph.Bond, slot string) []string {
+	var out []string
+	for _, it := range graph.EffectiveItems(b) {
+		if it.Slot == slot && (it.Status == "" || it.Status == "active") {
+			out = append(out, it.Claim)
+		}
+	}
+	return out
 }
 
 func nonEmpty(s string) []string {

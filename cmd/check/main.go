@@ -97,7 +97,7 @@ func main() {
 
 	roomAddr := strings.TrimSpace(os.Getenv("ROOM_ADDR"))
 	if roomAddr == "" {
-		roomAddr = "127.0.0.1:8787"
+		roomAddr = "127.0.0.1:3319"
 	}
 	roomURL := "http://" + roomAddr + "/api/runtime"
 	t0 := time.Now()

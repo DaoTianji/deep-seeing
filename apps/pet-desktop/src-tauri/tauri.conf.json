@@ -5,7 +5,7 @@
   "identifier": "tv.yc345.deepseeing.notes",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://127.0.0.1:8787/pet"
+    "devUrl": "http://127.0.0.1:3319/pet"
   },
   "app": {
     "withGlobalTauri": true,
@@ -14,7 +14,7 @@
       {
         "label": "main",
         "title": "Notes",
-        "url": "http://127.0.0.1:8787/pet",
+        "url": "http://127.0.0.1:3319/pet",
         "width": 72,
         "height": 72,
         "resizable": true,

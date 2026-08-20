@@ -10,6 +10,7 @@
 | 长期记忆 **认知共识** | [memory-cognition.md](./memory-cognition.md) | 为何难、人脑近似、State-conditioned Retrieval、遗忘与 Prediction Error |
 | 长期记忆 **现状** | [memory-ltm.md](./memory-ltm.md) | Phase 1–4 + P5–P8：Self、Workspace、Agency、World |
 | P5–P8 Roadmap | [roadmap-p5-p8.md](./roadmap-p5-p8.md) | 自我工作台 → Workspace → Agency → World |
+| **v0.9 议题清单** | [roadmap-v0.9.md](./roadmap-v0.9.md) | D0 地图：常模 → 状态召回 → 复盘/Dream；T4 遗忘/PE 以设计为主 |
 | P5.0 基础契约 | [p5.0-contracts.md](./p5.0-contracts.md) | 存储边界、Proposal Policy、回合隔离、安全 |
 | Workspace | [workspace.md](./workspace.md) | 未完成思考：questions/writings/research/projects |
 | Agency Runtime | [agency.md](./agency.md) | Intent / Scheduler / Daemon / 预算 |

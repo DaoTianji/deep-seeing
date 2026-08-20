@@ -123,6 +123,11 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	if err != nil {
 		return nil, fmt.Errorf("world gateway: %w", err)
 	}
+	sceneDir := envOr("LTM_SCENE_DIR", filepath.Join("data", "memory", "scenes"))
+	sceneStore, err := memory.NewSceneStore(sceneDir)
+	if err != nil {
+		return nil, fmt.Errorf("scene store: %w", err)
+	}
 	traceDir := envOr("LTM_TRACE_DIR", filepath.Join("data", "memory", "traces"))
 	journal, err := observe.NewJournal(traceDir)
 	if err != nil {
@@ -143,7 +148,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		"stm": stmBackend, "episode_store": "available", "context_graph": "unavailable",
 		"proposals": "available", "mutations": "available", "traces": "available",
 		"self_store": "available", "workspace_store": "available", "intent_store": "available",
-		"source_store": "available",
+		"source_store": "available", "scene_store": "available",
 	}
 	if graphStore != nil {
 		stores["context_graph"] = "available"
@@ -151,10 +156,10 @@ func New(ctx context.Context, opt Options) (*App, error) {
 
 	epSide := &memory.LLMSideQuery{Store: episodes, Chat: chat}
 	side := memory.SideQuerySelector(&memory.BondAwareSideQuery{
-		Graph: graphStore, Proposals: proposals, Episodes: epSide,
+		Graph: graphStore, Scenes: sceneStore, Proposals: proposals, Episodes: epSide,
 	})
 	toolList, err := tools.All(tools.Deps{
-		Scope: scope, Episodes: episodes, Graph: graphStore, Proposals: proposals,
+		Scope: scope, Episodes: episodes, Graph: graphStore, Scenes: sceneStore, Proposals: proposals,
 		Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Ledger: ledger, SessionID: sessionID, Model: cfg.Model, Stores: stores, FirstBoot: firstBoot,
 	})

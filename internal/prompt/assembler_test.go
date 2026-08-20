@@ -14,6 +14,7 @@ func TestAssemblerIncludesSoulBodyOriginMemory(t *testing.T) {
 		Scope:         identity.LocalCLI(),
 		Soul:          "soul body",
 		OriginContext: "origin letter",
+		BondNorm:      "对该人常模尚薄，避免臆测人格；优先询问与观察。",
 		MemoryRecall:  prompt.FormatMemoryRecall([]string{"[event/ep] 叫我安"}),
 	})
 	if err != nil {
@@ -23,7 +24,7 @@ func TestAssemblerIncludesSoulBodyOriginMemory(t *testing.T) {
 		t.Fatalf("len=%d", len(msgs))
 	}
 	c := msgs[0].Content
-	for _, want := range []string{"soul body", "origin letter", "叫我安", "Soul", "Origin Introduction", "Body / Capabilities", "list_capabilities"} {
+	for _, want := range []string{"soul body", "origin letter", "叫我安", "Soul", "Origin Introduction", "Body / Capabilities", "list_capabilities", "Bond / Person norm", "常模尚薄"} {
 		if !strings.Contains(c, want) {
 			t.Fatalf("missing %q in %s", want, c)
 		}

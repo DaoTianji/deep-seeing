@@ -24,10 +24,12 @@ import (
 )
 
 // GraphStore is the optional L2 surface for agent tools.
-// Note: full PatchBond is NOT exposed to the main agent — only explicit facts + propose.
+// Note: full arbitrary PatchBond is NOT exposed — explicit facts, boundary fast-write, propose.
 type GraphStore interface {
 	GetBond(ctx context.Context, scope identity.TenantScope, personID string) (graph.Bond, error)
 	PatchBond(ctx context.Context, scope identity.TenantScope, personID string, patch graph.BondPatch) (graph.Bond, error)
+	AppendBondItem(ctx context.Context, scope identity.TenantScope, personID string, spec graph.AppendItemSpec) (graph.Bond, graph.BondItem, error)
+	SetBondStrategyCache(ctx context.Context, scope identity.TenantScope, personID, text string) (graph.Bond, error)
 	UpsertEpisodePointer(ctx context.Context, scope identity.TenantScope, ep graph.EpisodePointer) error
 	UpsertCalls(ctx context.Context, scope identity.TenantScope, personID, name, sourceEpisodeID string) error
 	MarkEpisodeStatus(ctx context.Context, episodeID, status, reason string) error
@@ -38,6 +40,7 @@ type Deps struct {
 	Scope     identity.TenantScope
 	Episodes  *memory.EpisodeStore
 	Graph     GraphStore            // optional
+	Scenes    *memory.SceneStore    // optional — SceneNorm
 	Proposals *memory.ProposalStore // optional
 	Self      *selfmodel.Store      // optional — SelfArtifact file store
 	Workspace *workspace.Store      // optional — unfinished thinking
@@ -63,6 +66,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 	store := deps.Episodes
 	g := deps.Graph
 	hasGraph := g != nil
+	hasScenes := deps.Scenes != nil
 	hasProps := deps.Proposals != nil
 	hasSelf := deps.Self != nil
 	hasWorkspace := deps.Workspace != nil
@@ -89,7 +93,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		"list_capabilities",
 		"列出可用能力摘要（不要依赖 System Prompt 里的完整工具堆）。",
 		func(ctx context.Context, _ struct{}) (string, error) {
-			out, err := json.Marshal(map[string]any{"ok": true, "capabilities": body.Catalog(hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld)})
+			out, err := json.Marshal(map[string]any{"ok": true, "capabilities": body.Catalog(hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes)})
 			return string(out), err
 		},
 	)
@@ -102,7 +106,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		"tool_help",
 		"查询单个工具的用途、持久性与副作用。",
 		func(ctx context.Context, in toolHelpInput) (string, error) {
-			c, ok := body.FindCapability(in.Name, hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld)
+			c, ok := body.FindCapability(in.Name, hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes)
 			if !ok {
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": "unknown tool"})
 				return string(out), nil
@@ -296,17 +300,22 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 	if hasProps {
 		proposeBond, err := utils.InferTool(
 			"propose_bond_update",
-			"提议改变长期理解（性格/边界/策略等）。只入队，不直接写死；Dream 才可能采纳。",
+			"提议改变长期认识（slot+claim）。入提案队列，不直接写死；Dream 才可能采纳。slot: basics|interaction|boundaries|priorities|baseline（兼容 style|concerns）。不可提案 strategy（派生非 SoT）。",
 			func(ctx context.Context, in proposeBondInput) (string, error) {
 				field := strings.TrimSpace(in.Field)
 				text := strings.TrimSpace(in.Text)
 				if field == "" || text == "" {
 					return `{"ok":false,"error":"field 与 text 不能为空"}`, nil
 				}
+				slot, err := graph.NormalizeSlot(field)
+				if err != nil {
+					out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
+					return string(out), nil
+				}
 				p, err := deps.Proposals.Enqueue(ctx, scope, memory.ProposalWrite{
 					PersonID: strings.TrimSpace(in.Person), SessionID: sessionID,
 					Hypothesis: memory.Hypothesis(strings.TrimSpace(in.Hypothesis)),
-					Field:      field, SuggestedText: text, Mode: strings.TrimSpace(in.Mode),
+					Field:      slot, SuggestedText: text, Mode: strings.TrimSpace(in.Mode),
 					Rationale: strings.TrimSpace(in.Rationale), Source: "tool",
 				})
 				if err != nil {
@@ -321,6 +330,76 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 			return nil, err
 		}
 		toolsOut = append(toolsOut, proposeBond)
+	}
+
+	if hasScenes {
+		listScenes, err := utils.InferTool(
+			"list_scene_norms",
+			"列出某人的场景常模（SceneNorm）。场景常模非全局，仅关键词旁路命中时注入。",
+			func(ctx context.Context, in personInput) (string, error) {
+				person := strings.TrimSpace(in.Person)
+				if person == "" {
+					person = scope.PersonID()
+				}
+				list, err := deps.Scenes.List(person, 50)
+				if err != nil {
+					return "", err
+				}
+				out, err := json.Marshal(map[string]any{"ok": true, "scenes": list})
+				return string(out), err
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+		toolsOut = append(toolsOut, listScenes)
+
+		readScene, err := utils.InferTool(
+			"read_scene_norm",
+			"读取一条场景常模。",
+			func(ctx context.Context, in sceneIDInput) (string, error) {
+				person := strings.TrimSpace(in.Person)
+				if person == "" {
+					person = scope.PersonID()
+				}
+				id := strings.TrimSpace(in.ID)
+				if id == "" {
+					return `{"ok":false,"error":"id 不能为空"}`, nil
+				}
+				sc, err := deps.Scenes.Get(person, id)
+				if err != nil {
+					out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
+					return string(out), nil
+				}
+				out, err := json.Marshal(map[string]any{"ok": true, "scene": sc})
+				return string(out), err
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+		toolsOut = append(toolsOut, readScene)
+
+		writeScene, err := utils.InferTool(
+			"write_scene_norm",
+			"写入/更新场景常模。须提供 keywords（用于旁路召回）；body 为场景内有效的规范，去掉该场景后不应仍当全局真理。",
+			func(ctx context.Context, in writeSceneInput) (string, error) {
+				sc, err := deps.Scenes.Write(scope, memory.SceneNorm{
+					ID: strings.TrimSpace(in.ID), PersonID: strings.TrimSpace(in.Person),
+					Title: strings.TrimSpace(in.Title), Keywords: in.Keywords, Body: strings.TrimSpace(in.Body),
+				})
+				if err != nil {
+					out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
+					return string(out), nil
+				}
+				out, err := json.Marshal(map[string]any{"ok": true, "scene": sc})
+				return string(out), err
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+		toolsOut = append(toolsOut, writeScene)
 	}
 
 	if !hasGraph {
@@ -362,24 +441,17 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				out, err := json.Marshal(map[string]any{"ok": true, "kind": "call_name", "value": value})
 				return string(out), err
 			case "basics_fact", "basics":
-				cur, err := g.GetBond(ctx, scope, person)
-				if err != nil {
-					return "", err
-				}
-				merged := strings.TrimSpace(cur.Basics)
-				if merged != "" && !strings.Contains(merged, value) {
-					merged = merged + "\n" + value
-				} else if merged == "" {
-					merged = value
-				}
-				bond, err := g.PatchBond(ctx, scope, person, graph.BondPatch{
-					Basics: merged, SourceEpisodeID: strings.TrimSpace(in.SourceEpisodeID),
+				bond, item, err := g.AppendBondItem(ctx, scope, person, graph.AppendItemSpec{
+					Slot:            graph.SlotBasics,
+					Claim:           value,
+					Source:          "explicit",
+					SourceEpisodeID: strings.TrimSpace(in.SourceEpisodeID),
 				})
 				if err != nil {
 					out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 					return string(out), nil
 				}
-				out, err := json.Marshal(map[string]any{"ok": true, "kind": "basics_fact", "bond": bond})
+				out, err := json.Marshal(map[string]any{"ok": true, "kind": "basics_fact", "item": item, "bond_version": bond.Version})
 				return string(out), err
 			default:
 				return `{"ok":false,"error":"kind 仅支持 call_name|basics_fact"}`, nil
@@ -390,6 +462,62 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		return nil, err
 	}
 	toolsOut = append(toolsOut, setFact)
+
+	fastBound, err := utils.InferTool(
+		"append_bond_boundary",
+		"重大错误/冲突时快写 Boundaries（唯一允许直写的常模槽）。他指或自发现均可；写入 Item + ledger 级证据指针。其他槽请用 propose_bond_update。",
+		func(ctx context.Context, in boundaryFastInput) (string, error) {
+			claim := strings.TrimSpace(in.Claim)
+			if claim == "" {
+				return `{"ok":false,"error":"claim 不能为空"}`, nil
+			}
+			bond, item, err := g.AppendBondItem(ctx, scope, strings.TrimSpace(in.Person), graph.AppendItemSpec{
+				Slot:            graph.SlotBoundaries,
+				Claim:           claim,
+				Source:          "fast_write",
+				SourceEpisodeID: strings.TrimSpace(in.SourceEpisodeID),
+				FastWrite:       true,
+			})
+			if err != nil {
+				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
+				return string(out), nil
+			}
+			out, err := json.Marshal(map[string]any{
+				"ok": true, "item": item, "bond_version": bond.Version,
+				"slots": graph.SlotBoundaries,
+			})
+			return string(out), err
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	toolsOut = append(toolsOut, fastBound)
+
+	setStrat, err := utils.InferTool(
+		"set_bond_strategy_cache",
+		"刷新 Strategy 派生缓存（非 Bond SoT）。绑定当前 bond_version；常模 Item 变更后需重刷才会再注入（≤120 字注入预算）。",
+		func(ctx context.Context, in strategyCacheInput) (string, error) {
+			text := strings.TrimSpace(in.Text)
+			if text == "" {
+				return `{"ok":false,"error":"text 不能为空"}`, nil
+			}
+			bond, err := g.SetBondStrategyCache(ctx, scope, strings.TrimSpace(in.Person), text)
+			if err != nil {
+				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
+				return string(out), nil
+			}
+			out, err := json.Marshal(map[string]any{
+				"ok": true, "bond_version": bond.Version,
+				"strategy_cache_version": bond.StrategyCacheVer,
+			})
+			return string(out), err
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	toolsOut = append(toolsOut, setStrat)
 
 	return toolsOut, nil
 }
@@ -426,7 +554,7 @@ type personInput struct {
 
 type proposeBondInput struct {
 	Person     string `json:"person,omitempty"`
-	Field      string `json:"field" jsonschema:"description=basics|concerns|baseline|strategy|style|boundaries"`
+	Field      string `json:"field" jsonschema:"description=basics|interaction|boundaries|priorities|baseline（兼容 style|concerns）"`
 	Text       string `json:"text"`
 	Mode       string `json:"mode,omitempty"`
 	Hypothesis string `json:"hypothesis,omitempty"`
@@ -438,4 +566,28 @@ type explicitFactInput struct {
 	Kind            string `json:"kind" jsonschema:"description=call_name|basics_fact"`
 	Value           string `json:"value"`
 	SourceEpisodeID string `json:"source_episode_id,omitempty"`
+}
+
+type boundaryFastInput struct {
+	Person          string `json:"person,omitempty"`
+	Claim           string `json:"claim" jsonschema:"description=不可再犯的边界结论短句"`
+	SourceEpisodeID string `json:"source_episode_id,omitempty"`
+}
+
+type sceneIDInput struct {
+	Person string `json:"person,omitempty"`
+	ID     string `json:"id"`
+}
+
+type writeSceneInput struct {
+	Person   string   `json:"person,omitempty"`
+	ID       string   `json:"id,omitempty"`
+	Title    string   `json:"title,omitempty"`
+	Keywords []string `json:"keywords" jsonschema:"description=旁路召回关键词，至少一条"`
+	Body     string   `json:"body"`
+}
+
+type strategyCacheInput struct {
+	Person string `json:"person,omitempty"`
+	Text   string `json:"text" jsonschema:"description=派生策略短文；注入时截断至约120字"`
 }

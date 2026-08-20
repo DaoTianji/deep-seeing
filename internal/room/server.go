@@ -99,7 +99,7 @@ func (s *Server) ListenAndServe() error {
 	}
 	addr := strings.TrimSpace(s.Addr)
 	if addr == "" {
-		addr = "127.0.0.1:8787"
+		addr = "127.0.0.1:3319"
 	}
 	server := &http.Server{
 		Addr: addr, Handler: h, ReadHeaderTimeout: 5 * time.Second,

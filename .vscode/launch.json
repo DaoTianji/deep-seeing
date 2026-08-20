@@ -13,7 +13,7 @@
       "env": {
         "OPENAI_BASE_URL": "https://ops-ai-gateway.yc345.tv/v1",
         "OPENAI_MODEL": "gpt-5.6-sol",
-        "ROOM_ADDR": "127.0.0.1:8787"
+        "ROOM_ADDR": "127.0.0.1:3319"
       }
     }
   ]

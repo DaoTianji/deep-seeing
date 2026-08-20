@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -60,11 +61,15 @@ func TestNeo4jIntegrationOriginSeed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = store.PatchBond(ctx, scope, "", graph.BondPatch{
+	bond2, err := store.PatchBond(ctx, scope, "", graph.BondPatch{
 		Style: "整段覆盖", StyleMode: "replace",
 	})
-	if err == nil {
-		t.Fatal("expected style replace reject")
+	if err != nil {
+		t.Fatal(err)
+	}
+	text, _ := graph.FormatCompactRecall(bond2, "")
+	if !strings.Contains(text, "坦诚") || !strings.Contains(text, "整段覆盖") {
+		t.Fatalf("expected appended interaction items in compact: %s", text)
 	}
 
 	epID := "ep_test_" + time.Now().Format("150405")

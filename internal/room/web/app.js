@@ -6,6 +6,7 @@ const state = {
   mutations: [],
   traces: [],
   episodeFilter: "all",
+  graphPinned: new Map(),
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -510,52 +511,100 @@ function renderGraph() {
   marker.append(svgEl("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: "rgba(122,112,94,.4)" }));
   defs.append(marker);
   svg.append(defs);
-  appendGraphEdges(svg, edges, layout);
-  appendGraphNodes(svg, nodes, layout);
+  const edgeRefs = appendGraphEdges(svg, edges, layout);
+  appendGraphNodes(svg, nodes, layout, edgeRefs, { width, height });
 }
 
 function appendGraphEdges(svg, edges, layout) {
   const edgeLayer = svgEl("g", { class: "edge-layer" });
+  const refs = [];
+  const curvatures = parallelCurvatures(edges);
   for (const edge of edges) {
     const source = layout.get(edge.source);
     const target = layout.get(edge.target);
     if (!source || !target) continue;
-    const line = svgEl("line", {
-      x1: source.x, y1: source.y, x2: target.x, y2: target.y,
-      class: `graph-edge ${edge.kind}`, "marker-end": "url(#arrow)",
+    const curvature = curvatures.get(edge.id) || 0;
+    const geometry = edgeGeometry(source, target, curvature);
+    const line = svgEl("path", {
+      d: geometry.d, class: `graph-edge ${edge.kind}`, "marker-end": "url(#arrow)",
     });
-    line.addEventListener("click", () => showGraphDetail(edge, "edge"));
-    edgeLayer.append(line);
+    // transparent wide path so thin relationships stay clickable
+    const hit = svgEl("path", { d: geometry.d, class: "graph-edge-hit" });
+    hit.addEventListener("click", () => showGraphDetail(edge, "edge"));
+    const ref = { edge, lines: [line, hit], label: null, curvature };
+    edgeLayer.append(line, hit);
     if (["BOND", "KNOWS", "CALLS"].includes(edge.kind)) {
-      const label = svgEl("text", {
-        x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 - 6, class: "edge-label",
-      });
+      const label = svgEl("text", { x: geometry.labelX, y: geometry.labelY, class: "edge-label" });
       label.textContent = edge.kind;
       label.addEventListener("click", () => showGraphDetail(edge, "edge"));
       edgeLayer.append(label);
+      ref.label = label;
     }
+    refs.push(ref);
   }
   svg.append(edgeLayer);
+  return refs;
 }
 
-function appendGraphNodes(svg, nodes, layout) {
+// parallelCurvatures fans out relationships that share the same node pair,
+// so overlapping labels (e.g. BOND + KNOWS) stay readable.
+function parallelCurvatures(edges) {
+  const groups = new Map();
+  for (const edge of edges) {
+    const key = [edge.source, edge.target].sort().join("\u0000");
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(edge);
+  }
+  const result = new Map();
+  for (const group of groups.values()) {
+    group.forEach((edge, index) => {
+      result.set(edge.id, group.length === 1 ? 0 : (index - (group.length - 1) / 2) * 26);
+    });
+  }
+  return result;
+}
+
+function edgeGeometry(source, target, curvature) {
+  const midX = (source.x + target.x) / 2;
+  const midY = (source.y + target.y) / 2;
+  if (!curvature) {
+    return { d: `M ${source.x} ${source.y} L ${target.x} ${target.y}`, labelX: midX, labelY: midY - 6 };
+  }
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  const length = Math.hypot(dx, dy) || 1;
+  const controlX = midX + (-dy / length) * curvature * 2;
+  const controlY = midY + (dx / length) * curvature * 2;
+  return {
+    d: `M ${source.x} ${source.y} Q ${controlX} ${controlY} ${target.x} ${target.y}`,
+    labelX: (source.x + 2 * controlX + target.x) / 4,
+    labelY: (source.y + 2 * controlY + target.y) / 4 - 4,
+  };
+}
+
+function appendGraphNodes(svg, nodes, layout, edgeRefs, bounds) {
   const nodeLayer = svgEl("g", { class: "node-layer" });
   for (const node of nodes) {
     const pos = layout.get(node.id);
     if (!pos) continue;
-    const radius = node.kind === "Self" || node.kind === "Person" ? 27 : 12;
+    const isAnchor = node.kind === "Self" || node.kind === "Person";
+    const radius = isAnchor ? 27 : 12;
     const group = svgEl("g", { class: "node-group", transform: `translate(${pos.x} ${pos.y})`, tabindex: "0" });
     group.append(svgEl("circle", { r: radius + 4, class: "node-halo" }));
     group.append(svgEl("circle", { r: radius, class: `node-core ${node.kind} ${node.status || ""} ${node.anchor === "Self" ? "about-self" : ""}` }));
-    const label = svgEl("text", { y: node.kind === "Episode" ? radius + 14 : 4, class: "node-label" });
-    label.textContent = truncate(node.title, node.kind === "Episode" ? 16 : 13);
+    const label = svgEl("text", { y: isAnchor ? 4 : radius + 14, class: "node-label" });
+    label.textContent = truncate(node.title, isAnchor ? 13 : 16);
     group.append(label);
-    if (node.kind !== "Episode") {
+    if (isAnchor) {
       const sub = svgEl("text", { y: radius + 14, class: "node-sub" });
       sub.textContent = node.kind;
       group.append(sub);
     }
     group.addEventListener("click", async () => {
+      if (group.dataset.dragged === "1") {
+        delete group.dataset.dragged;
+        return;
+      }
       $$(".node-group").forEach((item) => item.classList.remove("selected"));
       group.classList.add("selected");
       if (node.kind === "Episode") {
@@ -567,9 +616,73 @@ function appendGraphNodes(svg, nodes, layout) {
         showGraphDetail(node, "node");
       }
     });
+    group.addEventListener("dblclick", () => {
+      state.graphPinned.delete(node.id);
+      renderGraph();
+    });
+    enableNodeDrag(svg, group, node, layout, edgeRefs, bounds, state.graphPinned);
     nodeLayer.append(group);
   }
   svg.append(nodeLayer);
+}
+
+// enableNodeDrag lets a node be repositioned; pinned coordinates survive re-render.
+function enableNodeDrag(svg, group, node, layout, edgeRefs, bounds, pinned) {
+  let active = false;
+  group.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    active = true;
+    delete group.dataset.dragged;
+    group.classList.add("dragging");
+    group.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  });
+  group.addEventListener("pointermove", (event) => {
+    if (!active) return;
+    const point = svgPoint(svg, event);
+    const position = {
+      x: clamp(point.x, 24, bounds.width - 24),
+      y: clamp(point.y, 24, bounds.height - 28),
+    };
+    layout.set(node.id, position);
+    pinned.set(node.id, position);
+    group.setAttribute("transform", `translate(${position.x} ${position.y})`);
+    group.dataset.dragged = "1";
+    updateEdgeGeometry(edgeRefs, layout);
+  });
+  const finish = (event) => {
+    if (!active) return;
+    active = false;
+    group.classList.remove("dragging");
+    group.releasePointerCapture?.(event.pointerId);
+  };
+  group.addEventListener("pointerup", finish);
+  group.addEventListener("pointercancel", finish);
+}
+
+function updateEdgeGeometry(edgeRefs, layout) {
+  for (const ref of edgeRefs) {
+    const source = layout.get(ref.edge.source);
+    const target = layout.get(ref.edge.target);
+    if (!source || !target) continue;
+    const geometry = edgeGeometry(source, target, ref.curvature);
+    for (const line of ref.lines) line.setAttribute("d", geometry.d);
+    if (ref.label) {
+      ref.label.setAttribute("x", geometry.labelX);
+      ref.label.setAttribute("y", geometry.labelY);
+    }
+  }
+}
+
+function svgPoint(svg, event) {
+  const rect = svg.getBoundingClientRect();
+  const box = svg.viewBox.baseVal;
+  const scaleX = box && box.width ? box.width / rect.width : 1;
+  const scaleY = box && box.height ? box.height / rect.height : 1;
+  return {
+    x: (event.clientX - rect.left) * scaleX,
+    y: (event.clientY - rect.top) * scaleY,
+  };
 }
 
 function semanticLayout(nodes, width, height) {
@@ -585,6 +698,9 @@ function semanticLayout(nodes, width, height) {
   const aroundPerson = nodes.filter((node) => node.kind === "Episode" && node.anchor !== "Self");
   placeEpisodeRing(result, aroundSelf, selfPos.x, selfPos.y, width, height, true);
   placeEpisodeRing(result, aroundPerson, personPos.x, personPos.y, width, height, false);
+  for (const [id, position] of state.graphPinned) {
+    if (result.has(id)) result.set(id, position);
+  }
   return result;
 }
 
@@ -631,9 +747,10 @@ function showGraphDetail(item, type) {
   const grid = create("dl", "property-grid");
   for (const [key, value] of Object.entries(props)) {
     if (value === "" || value === null || value === undefined || (Array.isArray(value) && value.length === 0)) continue;
-    const wrap = create("div", "property");
+    const text = printable(value);
+    const wrap = create("div", text.includes("\n") ? "property wide" : "property");
     wrap.append(create("dt", "", key.replaceAll("_", " ")));
-    wrap.append(create("dd", "", printable(value)));
+    wrap.append(create("dd", "", text));
     grid.append(wrap);
   }
   card.append(grid);

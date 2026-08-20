@@ -288,6 +288,8 @@
 .detail-meta div { padding: 9px; border: 1px solid var(--line); border-radius: 8px; }
 .detail-meta dt { color: var(--faint); font-size: 8px; letter-spacing: .06em; }
 .detail-meta dd { margin: 4px 0 0; color: var(--muted); font-size: 10px; overflow-wrap: anywhere; }
+.detail-meta div.wide { grid-column: 1 / -1; }
+.detail-meta div.wide dd { white-space: pre-wrap; line-height: 1.75; max-height: 280px; overflow-y: auto; }
 .detail-links { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 13px; }
 .detail-links span { padding: 4px 7px; border-radius: 999px; background: rgba(95, 114, 120, .08); color: var(--ink-blue); font-size: 8px; }
 .detail-revisions { margin-top: 17px; padding-top: 13px; border-top: 1px solid var(--line); }

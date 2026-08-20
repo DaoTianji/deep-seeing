@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-ROOM_URL="${PET_ROOM_URL:-http://127.0.0.1:8787}"
+ROOM_URL="${PET_ROOM_URL:-http://127.0.0.1:3319}"
 ROOM_PID=""
 TAURI_PID=""
 
