@@ -1,6 +1,6 @@
 # Deep-Seeing
 
-> 版本：**v0.8.0**（第一阶段构建完成）
+> 版本：**v0.8.1**（T1 常模与 Context Graph 更新）
 
 用 [Eino](https://github.com/cloudwego/eino) 的 **ReAct Agent** 做编排壳；记忆机制参考 Claude Code / ascentia：明文文件 + 旁路选型，不用向量库。
 
