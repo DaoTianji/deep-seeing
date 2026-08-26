@@ -10,7 +10,7 @@
 
 - **STM**：Redis 会话（TTL）+ 摘要式 Compaction，失败回退内存/trim（详见 [docs/memory-stm.md](./docs/memory-stm.md)）
 - **LTM**：Episode + Bond + Review/Dream 机会 + Mutation Ledger；Origin 仅 first_boot；见 [docs/birth-gate.md](./docs/birth-gate.md)  
-- **旁路召回**：Bond → 开放提案 → Episode  
+- **召回模式**：`legacy` 为 Bond → 场景常模 → 开放提案 → Episode 固定旁路；`agent` 为完整 Bond 背景 + Agent 自主使用记忆工具
 - **能力**：`inspect_runtime` / `list_capabilities`；命令 `/review` `/dream` `/backup`
 
 ## 其它
@@ -24,6 +24,7 @@
 cp .env.example .env
 # 填写 OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL
 # 可选：NEO4J_* 启用 L2 图
+# 可选：RECALL_MODE=agent 试用 T2 自主召回（默认 legacy）
 
 # 在仓库根目录执行（不要在 cmd/see 子目录里）
 go run ./cmd/see
@@ -60,7 +61,7 @@ cmd/see/                 默认谈话室；--cli 为终端 REPL
 cmd/room/                兼容入口（等同默认 see）
 internal/app/            运行时装配
 internal/room/           HTTP API + embed.FS 页面
-internal/runtime/        Prepare → SideQuery → Eino → STM → PostTurn
+internal/runtime/        Prepare → Norm/Recall mode → Eino → STM → PostTurn
 internal/agent/          Eino ReAct 工厂
 internal/soul/           Soul 加载（embed 后备）
 internal/origin/         Origin Context 加载

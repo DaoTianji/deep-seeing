@@ -47,13 +47,14 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 | Observability | `data/memory/traces/*.jsonl` |
 | 提案队列 | `data/memory/proposals/open|done` |
 | 回合后 Extractor | **默认 Noop** |
-| 旁路 | Bond → SceneNorm（关键词）→ 开放提案 → Episode |
+| 召回 | `legacy`：Bond → SceneNorm（关键词）→ 开放提案 → Episode；`agent`：完整 Bond + Agent 自主调用 Episode 工具 |
 
 ### 1.5 与设计的差距
 
 - 无 External 工具 Interrupt UI、Restore 需人工演练  
 - 完整 Know→Act Birth Test 仍需带模型跑一遍（清单见 birth-gate）  
 - **T1（常模参与对话，已落地）**：`FormatCompactRecall` 优先级注入；Bond `items_json` + `bond_version` 为 Item SoT；`append_bond_boundary` / `propose_bond_update` / `set_explicit_bond_fact`；SceneNorm 文件旁路（`list/read/write_scene_norm`，关键词命中注入）；Strategy 派生缓存（`set_bond_strategy_cache`，绑定 `bond_version`）。旧 `Strategy` 散文非 SoT。
+- **T2 第一轮（自主召回验证）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；主 Agent 自主调用 `search_episodes` / `read_episode`。默认仍为 `legacy`，暂未引入候选卡片和 Recall Broker。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 
