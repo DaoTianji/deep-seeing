@@ -25,6 +25,7 @@ type Snapshot struct {
 	Now           string            `json:"now"`
 	Timezone      string            `json:"timezone"`
 	Model         string            `json:"model"`
+	RecallMode    string            `json:"recall_mode,omitempty"`
 	Versions      map[string]string `json:"versions"`
 	Stores        map[string]string `json:"stores"`
 	Persistence   map[string]string `json:"persistence"`
