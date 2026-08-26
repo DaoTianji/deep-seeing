@@ -93,6 +93,16 @@ func LegacyItemsFromBond(b Bond) []BondItem {
 // FormatBondNormText renders the full norm for display (no injection budgets).
 // Items are grouped by slot in frozen order; legacy prose is projected when Items is empty.
 func FormatBondNormText(b Bond) string {
+	return formatBondNormText(b, true)
+}
+
+// FormatFullNormRecall renders all active norm items for model injection.
+// Unlike the display view, it omits a stale Strategy Cache entirely.
+func FormatFullNormRecall(b Bond) string {
+	return formatBondNormText(b, false)
+}
+
+func formatBondNormText(b Bond, includeStaleStrategy bool) string {
 	active := filterActive(EffectiveItems(b))
 	var sections []string
 	for _, slot := range []string{SlotBasics, SlotInteraction, SlotBoundaries, SlotPriorities, SlotBaseline} {
@@ -117,11 +127,14 @@ func FormatBondNormText(b Bond) string {
 	header := fmt.Sprintf("bond_version=%d · 共 %d 条结论", b.Version, len(active))
 	body := header + "\n\n" + strings.Join(sections, "\n\n")
 	if strat := strings.TrimSpace(b.StrategyCache); strat != "" {
-		status := "stale，需重刷后才注入"
-		if b.StrategyCacheVer == b.Version {
-			status = "active，本轮会注入"
+		valid := b.StrategyCacheVer == b.Version
+		if valid || includeStaleStrategy {
+			status := "stale，需重刷后才注入"
+			if valid {
+				status = "active，本轮会注入"
+			}
+			body += "\n\n[strategy · 派生缓存，非 SoT]\n- " + strat + "\n  （" + status + "）"
 		}
-		body += "\n\n[strategy · 派生缓存，非 SoT]\n- " + strat + "\n  （" + status + "）"
 	}
 	return body
 }

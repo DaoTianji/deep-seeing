@@ -100,3 +100,23 @@ func TestFormatCompactRecallStrategyCache(t *testing.T) {
 		t.Fatalf("stale leaked: %s", text2)
 	}
 }
+
+func TestFormatFullNormRecallOmitsOnlyStaleStrategy(t *testing.T) {
+	b := graph.Bond{
+		PersonID: "user:mudnet", Version: 2,
+		Items:         []graph.BondItem{{ID: "p", Slot: graph.SlotPriorities, Claim: "长期关注 Agent", Status: "active"}},
+		StrategyCache: "旧策略", StrategyCacheVer: 1,
+	}
+	text := graph.FormatFullNormRecall(b)
+	if !strings.Contains(text, "长期关注 Agent") {
+		t.Fatalf("full active norm missing: %s", text)
+	}
+	if strings.Contains(text, "旧策略") {
+		t.Fatalf("stale strategy leaked: %s", text)
+	}
+	b.StrategyCache = "有效策略"
+	b.StrategyCacheVer = 2
+	if text = graph.FormatFullNormRecall(b); !strings.Contains(text, "有效策略") {
+		t.Fatalf("valid strategy missing: %s", text)
+	}
+}
