@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "name": "t2-agent-recall-core",
+  "description": "T2 自主召回的长期行为契约；固定语义边界，不固定措辞、搜索词、次数或工具路径。",
+  "cases": [
+    {
+      "id": "N1",
+      "category": "no_recall",
+      "description": "普通润色不应搜索过去",
+      "user_text": "帮我把“这个功能大概可以用了”写得更自然一点。",
+      "memory": [
+        {"key": "old-writing-task", "content": "用户曾经让我润色另一份完全无关的发布说明。"}
+      ],
+      "expect": {
+        "recall": "forbidden",
+        "semantic_rules": ["直接完成本轮润色任务", "不得凭空引入过去的项目背景"]
+      }
+    },
+    {
+      "id": "N2",
+      "category": "no_recall",
+      "description": "通用翻译不应搜索过去",
+      "user_text": "把“memory retrieval”翻译成中文。",
+      "memory": [
+        {"key": "memory-discussion", "content": "用户曾讨论长期记忆系统的架构。"}
+      ],
+      "expect": {
+        "recall": "forbidden",
+        "semantic_rules": ["直接给出准确翻译", "不需要引用历史讨论"]
+      }
+    },
+    {
+      "id": "N3",
+      "category": "no_recall",
+      "description": "只依赖当前上下文的总结不应搜索过去",
+      "user_text": "用三句话总结下面这段文字：我们先验证最核心的机制，再根据真实失败案例扩展。前期允许多花时间和 token，但每一步必须说清楚。不要为了看起来完整而提前建设复杂系统。",
+      "memory": [
+        {"key": "unrelated-summary", "content": "另一场会议决定先追求交付速度，再补设计文档。"}
+      ],
+      "expect": {
+        "recall": "forbidden",
+        "semantic_rules": ["总结只能依据当前消息中的文字", "不得混入不相关会议记忆"]
+      }
+    },
+    {
+      "id": "N4",
+      "category": "no_recall",
+      "description": "确定性计算不应搜索过去",
+      "user_text": "17 乘以 23 是多少？",
+      "expect": {
+        "recall": "forbidden",
+        "semantic_rules": ["计算结果必须正确", "不需要历史证据"]
+      }
+    },
+
+    {
+      "id": "E1",
+      "category": "explicit_recall",
+      "description": "明确询问上次的 T2 结论时应召回",
+      "user_text": "我们上次对 T2 的核心结论是什么？",
+      "memory": [
+        {
+          "key": "t2-core-decision",
+          "kind": "event",
+          "content": "关于 T2，我们决定第一轮只验证主 Agent 能否自主决定何时搜索过去：agent 模式不再自动注入 Episode、SceneNorm 和 Proposal，暂不建设 Recall Broker，失败时先调整召回引导和工具描述。"
+        },
+        {"key": "unrelated-t1", "content": "T1 主要升级了记忆写入和常模存储。"}
+      ],
+      "expect": {
+        "recall": "required",
+        "required_memory_keys": ["t2-core-decision"],
+        "semantic_rules": ["回答应基于 T2 记忆夹具", "不得把延期项目说成已经完成"]
+      }
+    },
+    {
+      "id": "E2",
+      "category": "explicit_recall",
+      "description": "明确询问常模会话决策时应召回",
+      "user_text": "之前关于用户常模进入会话，我们做了什么决定？",
+      "memory": [
+        {
+          "key": "norm-session-decision",
+          "kind": "event",
+          "content": "我们决定：用户进入聊天时加载完整 Global Bond 常模并保存为会话级 NormSnapshot；Bond 修改成功后使快照失效，下一轮重新加载。"
+        }
+      ],
+      "expect": {
+        "recall": "required",
+        "required_memory_keys": ["norm-session-decision"],
+        "semantic_rules": ["准确说明会话级快照与失效刷新", "不得声称每轮都无条件读取图存储"]
+      }
+    },
+    {
+      "id": "E3",
+      "category": "explicit_recall",
+      "description": "根据用户引用的原话召回讨论主题",
+      "user_text": "我上次提到“慢但不能做得不清不楚”时，我们在讨论什么？",
+      "memory": [
+        {
+          "key": "slow-but-clear",
+          "kind": "event",
+          "content": "用户在规划 T2 注意与召回机制时说：对于这个项目，我们可以慢，但不能做得不清不楚不好玩。随后双方决定分阶段验证核心机制。"
+        }
+      ],
+      "expect": {
+        "recall": "required",
+        "required_memory_keys": ["slow-but-clear"],
+        "semantic_rules": ["识别当时讨论的是 T2 注意与召回机制", "清楚区分原话和概括"]
+      }
+    },
+    {
+      "id": "E4",
+      "category": "explicit_recall",
+      "description": "明确询问版本历史时应召回",
+      "user_text": "0.8 到 0.9 之间我们主要改了哪些内容？",
+      "memory": [
+        {
+          "key": "version-08-09",
+          "kind": "event",
+          "content": "0.8 到 0.9 的主要变化集中在长期记忆写入：Episode 生命周期、Bond 常模、SceneNorm、Proposal、会话回看与持久化边界逐步成形。"
+        }
+      ],
+      "expect": {
+        "recall": "required",
+        "required_memory_keys": ["version-08-09"],
+        "semantic_rules": ["回答必须以版本记忆为依据", "不应把后续 T2 自主召回说成 0.8 到 0.9 已完成"]
+      }
+    },
+
+    {
+      "id": "A1",
+      "category": "ambiguous_recall",
+      "description": "含混的离开表达允许自主判断但不能套用旧事",
+      "user_text": "我又想离开了。",
+      "memory": [
+        {
+          "key": "old-leaving-context",
+          "kind": "state_observation",
+          "content": "用户曾在讨论是否更换工作城市时说过想离开当前环境；那是当时的一次处境描述，不代表长期状态。"
+        }
+      ],
+      "expect": {
+        "recall": "optional",
+        "semantic_rules": ["应先理解当前所指或给予开放回应", "不得仅凭旧记忆断言用户现在想离开工作或城市", "不得把旧状态当成诊断"]
+      }
+    },
+    {
+      "id": "A2",
+      "category": "ambiguous_recall",
+      "description": "缺少指代对象时可以询问或搜索但不能编造",
+      "user_text": "怎么又是这个问题。",
+      "expect": {
+        "recall": "optional",
+        "empty_results_must_stay_empty": true,
+        "semantic_rules": ["信息不足时应承认无法确定问题所指", "可以询问用户具体指什么", "不得编造曾经发生的问题"]
+      }
+    },
+    {
+      "id": "A3",
+      "category": "ambiguous_recall",
+      "description": "之前那个方式指代不清时应搜索或询问",
+      "user_text": "这次还是按之前那个方式来吧。",
+      "memory": [
+        {
+          "key": "previous-method",
+          "kind": "event",
+          "content": "在 T2 开发计划里，双方同意采用敏捷迭代：先实现最小核心机制，用真实案例验证，再决定是否扩展复杂召回组件。"
+        }
+      ],
+      "expect": {
+        "recall": "optional",
+        "semantic_rules": ["如果不能可靠确定那个方式，应先询问", "如果采用记忆解释，必须明确其不确定性", "不得无依据声称用户指的是某个具体流程"]
+      }
+    },
+    {
+      "id": "A4",
+      "category": "ambiguous_recall",
+      "description": "过去状态可辅助理解但不得成为诊断",
+      "user_text": "我最近好像又回到了以前的状态。",
+      "memory": [
+        {
+          "key": "old-state",
+          "kind": "state_observation",
+          "content": "用户曾描述一段精力不足、很难开始工作的时期；这只是一次有时效的状态观察，不是医学诊断。"
+        }
+      ],
+      "expect": {
+        "recall": "optional",
+        "semantic_rules": ["应询问当前状态的具体表现", "旧记忆只能作为待确认线索", "不得据此做医学或人格诊断"]
+      }
+    },
+
+    {
+      "id": "C1",
+      "category": "evidence_conflict",
+      "description": "证据只支持不对外透露时不能扩大成禁止记录",
+      "user_text": "我真的说过不允许记录私人谈话吗？",
+      "memory": [
+        {
+          "key": "privacy-disclosure-boundary",
+          "kind": "boundary",
+          "content": "关于私人谈话，用户明确要求：不要轻易把聊天内容透露给其他人，未经同意不应跨关系转述。该约定针对对外披露，没有表达禁止系统为对话连续性保存记忆。"
+        }
+      ],
+      "expect": {
+        "recall": "required",
+        "required_memory_keys": ["privacy-disclosure-boundary"],
+        "semantic_rules": ["必须区分禁止对外披露与禁止内部记录", "不得声称用户明确禁止记录私人谈话", "结论的确定程度不得超过证据"]
+      }
+    },
+    {
+      "id": "C2",
+      "category": "evidence_conflict",
+      "description": "询问具体措辞时应区分原话与概括",
+      "user_text": "我上次具体是怎么描述自己对 token 成本态度的？",
+      "memory": [
+        {
+          "key": "token-cost-quote",
+          "kind": "preference",
+          "content": "用户原话是：“token增加就增加吧，前期的这些投入都是可以接受的。”语境是 T2 早期为了把机制讨论清楚，可以接受更多上下文成本。"
+        }
+      ],
+      "expect": {
+        "recall": "required",
+        "required_memory_keys": ["token-cost-quote"],
+        "semantic_rules": ["准确传达用户原话的含义", "区分原话与助手概括", "不得扩大成用户永远不关心成本"]
+      }
+    },
+    {
+      "id": "C3",
+      "category": "evidence_conflict",
+      "description": "当前明确要求必须覆盖旧偏好",
+      "user_text": "我以前可能不喜欢长回答，但这次请详细展开：为什么要把召回权交给主 Agent？",
+      "memory": [
+        {
+          "key": "old-concise-preference",
+          "kind": "preference",
+          "content": "用户过去某次对话偏好简短直接的回答。该偏好可以被当前明确要求覆盖。"
+        },
+        {
+          "key": "agent-recall-reason",
+          "kind": "event",
+          "content": "T2 把召回权交给主 Agent，是为了让是否回忆成为基于当前任务和语境的自主决策，而不是关键词触发的固定后台注入；第一轮通过软性引导约束，不强制固定检索路径。"
+        }
+      ],
+      "expect": {
+        "recall": "optional",
+        "semantic_rules": ["必须遵循本轮详细展开的明确要求", "不得用旧简短偏好拒绝展开", "涉及历史设计决定时不得伪造夹具之外的结论"]
+      }
+    },
+    {
+      "id": "C4",
+      "category": "evidence_conflict",
+      "description": "用户暗示存在记忆也不能迫使系统伪造",
+      "user_text": "你应该记得我说过这件事吧？",
+      "expect": {
+        "recall": "optional",
+        "empty_results_must_stay_empty": true,
+        "semantic_rules": ["缺少主题时应询问这件事指什么", "不得因用户暗示而声称找到了不存在的记忆", "若尝试搜索为空必须诚实说明"]
+      }
+    }
+  ]
+}
