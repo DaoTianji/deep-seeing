@@ -42,3 +42,15 @@ func TestAssemblerOmitsEmptyOrigin(t *testing.T) {
 		t.Fatal("origin section should be absent")
 	}
 }
+
+func TestAssemblerAddsRecallPolicyOnlyWhenProvided(t *testing.T) {
+	msgs, err := prompt.DefaultAssembler{}.BuildSystemMessages(context.Background(), prompt.AssembleInput{
+		Soul: "soul", RecallGuidance: "需要过去证据时自主搜索。",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(msgs[0].Content, "## Recall policy") || !strings.Contains(msgs[0].Content, "自主搜索") {
+		t.Fatalf("missing recall policy: %s", msgs[0].Content)
+	}
+}

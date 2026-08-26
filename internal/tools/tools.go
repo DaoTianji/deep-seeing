@@ -18,6 +18,7 @@ import (
 	"deep-seeing/internal/identity"
 	"deep-seeing/internal/intent"
 	"deep-seeing/internal/memory"
+	"deep-seeing/internal/observe"
 	"deep-seeing/internal/selfmodel"
 	"deep-seeing/internal/workspace"
 	"deep-seeing/internal/world"
@@ -37,20 +38,22 @@ type GraphStore interface {
 
 // Deps wires tool backends.
 type Deps struct {
-	Scope     identity.TenantScope
-	Episodes  *memory.EpisodeStore
-	Graph     GraphStore            // optional
-	Scenes    *memory.SceneStore    // optional — SceneNorm
-	Proposals *memory.ProposalStore // optional
-	Self      *selfmodel.Store      // optional — SelfArtifact file store
-	Workspace *workspace.Store      // optional — unfinished thinking
-	Intents   *intent.Store         // optional — agency intents
-	World     *world.Gateway        // optional — web gateway
-	Ledger    *memory.MutationLedger
-	SessionID string
-	Model     string
-	Stores    map[string]string // stm/episode/graph availability
-	FirstBoot bool
+	Scope         identity.TenantScope
+	Episodes      *memory.EpisodeStore
+	Graph         GraphStore            // optional
+	Scenes        *memory.SceneStore    // optional — SceneNorm
+	Proposals     *memory.ProposalStore // optional
+	Self          *selfmodel.Store      // optional — SelfArtifact file store
+	Workspace     *workspace.Store      // optional — unfinished thinking
+	Intents       *intent.Store         // optional — agency intents
+	World         *world.Gateway        // optional — web gateway
+	Ledger        *memory.MutationLedger
+	SessionID     string
+	Model         string
+	Stores        map[string]string // stm/episode/graph availability
+	FirstBoot     bool
+	RecallMode    string
+	OnBondChanged func()
 }
 
 // All returns agent tools: body/capabilities + memory (+ restricted bond).
@@ -80,6 +83,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		"查看当前 Runtime：时间、对话者、模型版本、存储可用性与持久性约定。",
 		func(ctx context.Context, _ struct{}) (string, error) {
 			snap := body.BuildSnapshot(scope, sessionID, deps.Model, deps.Stores, deps.FirstBoot)
+			snap.RecallMode = deps.RecallMode
 			out, err := json.Marshal(map[string]any{"ok": true, "runtime": snap})
 			return string(out), err
 		},
@@ -214,8 +218,18 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 			}
 			eps, err := store.Search(ctx, scope, memory.Query{Text: strings.TrimSpace(in.Query), Limit: limit})
 			if err != nil {
+				observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
+					Query: in.Query, Limit: limit, Error: err.Error(),
+				})
 				return "", err
 			}
+			ids := make([]string, 0, len(eps))
+			for _, ep := range eps {
+				ids = append(ids, ep.ID)
+			}
+			observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
+				Query: in.Query, Limit: limit, ResultCount: len(eps), ResultIDs: ids,
+			})
 			out, err := json.Marshal(map[string]any{"ok": true, "episodes": eps})
 			return string(out), err
 		},
@@ -438,6 +452,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				if err := g.UpsertCalls(ctx, scope, person, value, strings.TrimSpace(in.SourceEpisodeID)); err != nil {
 					return "", err
 				}
+				notifyBondChanged(deps.OnBondChanged)
 				out, err := json.Marshal(map[string]any{"ok": true, "kind": "call_name", "value": value})
 				return string(out), err
 			case "basics_fact", "basics":
@@ -451,6 +466,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 					out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 					return string(out), nil
 				}
+				notifyBondChanged(deps.OnBondChanged)
 				out, err := json.Marshal(map[string]any{"ok": true, "kind": "basics_fact", "item": item, "bond_version": bond.Version})
 				return string(out), err
 			default:
@@ -482,6 +498,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 				return string(out), nil
 			}
+			notifyBondChanged(deps.OnBondChanged)
 			out, err := json.Marshal(map[string]any{
 				"ok": true, "item": item, "bond_version": bond.Version,
 				"slots": graph.SlotBoundaries,
@@ -507,6 +524,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 				return string(out), nil
 			}
+			notifyBondChanged(deps.OnBondChanged)
 			out, err := json.Marshal(map[string]any{
 				"ok": true, "bond_version": bond.Version,
 				"strategy_cache_version": bond.StrategyCacheVer,
@@ -520,6 +538,12 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 	toolsOut = append(toolsOut, setStrat)
 
 	return toolsOut, nil
+}
+
+func notifyBondChanged(fn func()) {
+	if fn != nil {
+		fn()
+	}
 }
 
 type toolHelpInput struct {

@@ -31,6 +31,8 @@ type Service struct {
 	SessionID  string
 	STM        memory.SessionStore
 	SideQuery  memory.SideQuerySelector
+	RecallMode RecallMode
+	Norms      *NormSnapshotCache
 	Assembler  prompt.Assembler
 	Compactor  compaction.Compactor
 	Agent      *react.Agent
@@ -52,6 +54,8 @@ type Options struct {
 	SessionID  string
 	STM        memory.SessionStore
 	SideQuery  memory.SideQuerySelector
+	RecallMode RecallMode
+	Norms      *NormSnapshotCache
 	Assembler  prompt.Assembler
 	Compactor  compaction.Compactor
 	Agent      *react.Agent
@@ -97,11 +101,21 @@ func New(opt Options) (*Service, error) {
 		persona = deepagent.DefaultSoul()
 	}
 	origin := opt.Origin
+	recallMode := opt.RecallMode
+	if recallMode != RecallModeAgent {
+		recallMode = RecallModeLegacy
+	}
+	norms := opt.Norms
+	if recallMode == RecallModeAgent && norms == nil {
+		norms = NewNormSnapshotCache(nil, scope)
+	}
 	return &Service{
 		Scope:      scope,
 		SessionID:  sessionID,
 		STM:        opt.STM,
 		SideQuery:  opt.SideQuery,
+		RecallMode: recallMode,
+		Norms:      norms,
 		Assembler:  assembler,
 		Compactor:  comp,
 		Agent:      opt.Agent,
@@ -120,6 +134,22 @@ func (s *Service) SystemProvider() string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.sysMsg
+}
+
+// WarmNorm loads the session snapshot before the first agent turn.
+func (s *Service) WarmNorm(ctx context.Context) error {
+	if s == nil || s.RecallMode != RecallModeAgent || s.Norms == nil {
+		return nil
+	}
+	_, err := s.Norms.Snapshot(ctx)
+	return err
+}
+
+// InvalidateNorm refreshes the complete Bond background on the next turn.
+func (s *Service) InvalidateNorm() {
+	if s != nil && s.Norms != nil {
+		s.Norms.Invalidate()
+	}
 }
 
 // TurnResult is the assistant text for one turn.
@@ -156,68 +186,16 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 		history = compactedHistory
 	}
 
-	recallLines := []string{}
-	var recallIDs []string
-	var bondNorm string
-	var bondSlots, bondItemIDs, sceneIDs []string
-	var bondPlaceholder bool
-	if s.SideQuery != nil {
-		recs, err := s.SideQuery.SelectForTurn(ctx, s.Scope, userText, 5)
-		if err != nil {
-			log.Printf("side query skipped: %v", err)
-		} else {
-			for _, r := range recs {
-				kind := r.Metadata["kind"]
-				if kind == "bond" || kind == "scene_norm" {
-					if bondNorm == "" {
-						bondNorm = r.Content
-					} else {
-						bondNorm = bondNorm + "\n\n" + r.Content
-					}
-					if kind == "bond" {
-						if r.Metadata["placeholder"] == "1" {
-							bondPlaceholder = true
-						}
-						if slots := r.Metadata["bond_slots"]; slots != "" {
-							bondSlots = strings.Split(slots, ",")
-						}
-						if ids := r.Metadata["bond_item_ids"]; ids != "" {
-							bondItemIDs = strings.Split(ids, ",")
-						}
-					}
-					if ids := r.Metadata["scene_ids"]; ids != "" {
-						sceneIDs = append(sceneIDs, strings.Split(ids, ",")...)
-					}
-					if r.ID != "" {
-						recallIDs = append(recallIDs, r.ID)
-					}
-					continue
-				}
-				tag := r.ID
-				if tag == "" {
-					tag = r.Key
-				}
-				if k := r.Metadata["kind"]; k != "" {
-					tag = k + "/" + tag
-				}
-				if about := r.Metadata["about"]; about != "" {
-					tag = tag + " about:" + about
-				}
-				recallLines = append(recallLines, fmt.Sprintf("[%s] %s", tag, r.Content))
-				if r.ID != "" {
-					recallIDs = append(recallIDs, r.ID)
-				}
-			}
-		}
-	}
+	turnMemory := s.prepareTurnMemory(ctx, userText)
 	sysMsgs, err := s.Assembler.BuildSystemMessages(ctx, prompt.AssembleInput{
-		Scope:         s.Scope,
-		SessionID:     s.SessionID,
-		Soul:          s.Soul,
-		Capability:    s.Capability,
-		OriginContext: s.Origin,
-		BondNorm:      bondNorm,
-		MemoryRecall:  prompt.FormatMemoryRecall(recallLines),
+		Scope:          s.Scope,
+		SessionID:      s.SessionID,
+		Soul:           s.Soul,
+		Capability:     s.Capability,
+		OriginContext:  s.Origin,
+		BondNorm:       turnMemory.bondNorm,
+		MemoryRecall:   prompt.FormatMemoryRecall(turnMemory.recallLines),
+		RecallGuidance: turnMemory.recallGuidance,
 	})
 	if err != nil {
 		return TurnResult{}, err
@@ -243,7 +221,8 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 		}
 	}
 	opts = append(opts, agent.WithComposeOptions(compose.WithCallbacks(toolStartCallback(toolCB))))
-	sr, err := s.Agent.Stream(ctx, einoMsgs, opts...)
+	turnCtx, recallCollector := observe.WithRecallCollector(ctx)
+	sr, err := s.Agent.Stream(turnCtx, einoMsgs, opts...)
 	if err != nil {
 		return TurnResult{}, fmt.Errorf("agent stream: %w", err)
 	}
@@ -298,12 +277,15 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 			PersonID:        s.Scope.PersonID(),
 			ModelVersion:    s.Model,
 			RuntimeVer:      body.ToolsetVersion,
+			RecallMode:      string(s.RecallMode),
 			UserText:        observe.Preview(userText, 120),
-			RecallIDs:       recallIDs,
-			BondSlots:       bondSlots,
-			BondItemIDs:     bondItemIDs,
-			BondPlaceholder: bondPlaceholder,
-			SceneIDs:        sceneIDs,
+			NormVersion:     turnMemory.normVersion,
+			RecallIDs:       turnMemory.recallIDs,
+			RecallSearches:  recallCollector.Searches(),
+			BondSlots:       turnMemory.bondSlots,
+			BondItemIDs:     turnMemory.bondItemIDs,
+			BondPlaceholder: turnMemory.bondPlaceholder,
+			SceneIDs:        turnMemory.sceneIDs,
 			ToolStarts:      toolStarts,
 			Errors:          turnErrors,
 			AnswerPreview:   observe.Preview(final, 200),

@@ -41,6 +41,7 @@ type App struct {
 	Scope        identity.TenantScope
 	SessionID    string
 	Model        string
+	RecallMode   runtime.RecallMode
 	Service      *runtime.Service
 	STM          memory.SessionStore
 	STMBackend   string
@@ -143,6 +144,8 @@ func New(ctx context.Context, opt Options) (*App, error) {
 
 	stm, stmBackend := openSTM(ctx, scope)
 	graphStore, graphLabel := openGraph(ctx, scope)
+	recallMode := runtime.RecallModeFromEnv()
+	norms := runtime.NewNormSnapshotCache(graphStore, scope)
 
 	stores := map[string]string{
 		"stm": stmBackend, "episode_store": "available", "context_graph": "unavailable",
@@ -158,10 +161,17 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	side := memory.SideQuerySelector(&memory.BondAwareSideQuery{
 		Graph: graphStore, Scenes: sceneStore, Proposals: proposals, Episodes: epSide,
 	})
+	var svc *runtime.Service
 	toolList, err := tools.All(tools.Deps{
 		Scope: scope, Episodes: episodes, Graph: graphStore, Scenes: sceneStore, Proposals: proposals,
 		Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Ledger: ledger, SessionID: sessionID, Model: cfg.Model, Stores: stores, FirstBoot: firstBoot,
+		RecallMode: string(recallMode),
+		OnBondChanged: func() {
+			if svc != nil {
+				svc.InvalidateNorm()
+			}
+		},
 	})
 	if err != nil {
 		if graphStore != nil {
@@ -170,7 +180,6 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		return nil, fmt.Errorf("tools: %w", err)
 	}
 
-	var svc *runtime.Service
 	reactAgent, err := deepagent.New(ctx, cfg, toolList, func() string {
 		if svc == nil {
 			return ""
@@ -185,6 +194,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	}
 	svc, err = runtime.New(runtime.Options{
 		Scope: scope, SessionID: sessionID, STM: stm, SideQuery: side,
+		RecallMode: recallMode, Norms: norms,
 		Assembler: prompt.DefaultAssembler{},
 		Compactor: compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
 		Agent:     reactAgent, PostTurn: memory.NoopPostTurn{},
@@ -197,6 +207,9 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		}
 		return nil, fmt.Errorf("runtime: %w", err)
 	}
+	if err := svc.WarmNorm(ctx); err != nil {
+		log.Printf("norm snapshot warm fallback: %v", err)
+	}
 
 	queue := runtime.NewExecutionQueue(scope.AgentID)
 	runner := &agency.Runner{
@@ -205,7 +218,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	sched := &agency.Scheduler{Runner: runner, AgentID: scope.AgentID, Interval: agencyInterval()}
 
 	app := &App{
-		Scope: scope, SessionID: sessionID, Model: cfg.Model, Service: svc,
+		Scope: scope, SessionID: sessionID, Model: cfg.Model, RecallMode: recallMode, Service: svc,
 		STM: stm, STMBackend: stmBackend, Episodes: episodes, Proposals: proposals,
 		Ledger: ledger, Journal: journal, Graph: graphStore, GraphLabel: graphLabel,
 		Queue: queue, Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
@@ -239,7 +252,9 @@ func (a *App) RuntimeSnapshot() body.Snapshot {
 	if a.World == nil {
 		stores["source_store"] = "unavailable"
 	}
-	return body.BuildSnapshot(a.Scope, a.SessionID, a.Model, stores, a.FirstBoot)
+	snapshot := body.BuildSnapshot(a.Scope, a.SessionID, a.Model, stores, a.FirstBoot)
+	snapshot.RecallMode = string(a.RecallMode)
+	return snapshot
 }
 
 // StartScheduler starts the agency wake loop (daemon mode).
