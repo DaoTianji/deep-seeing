@@ -157,9 +157,23 @@ type TurnResult struct {
 	Answer string
 }
 
+// TurnHooks exposes observable turn activity without exposing hidden reasoning.
+type TurnHooks struct {
+	WriteDelta     func(string)
+	OnToolStart    func(string)
+	OnRecallSearch func(observe.RecallSearchTrace)
+}
+
 // StreamTurn prepares context, runs Eino ReAct streaming, updates STM, and schedules extraction.
 // writeDelta is called for each content chunk (may be empty).
 func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta func(string), onToolStart func(string)) (TurnResult, error) {
+	return s.StreamTurnWithHooks(ctx, userText, TurnHooks{
+		WriteDelta: writeDelta, OnToolStart: onToolStart,
+	})
+}
+
+// StreamTurnWithHooks runs one turn and streams structured external activity.
+func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hooks TurnHooks) (TurnResult, error) {
 	userText = strings.TrimSpace(userText)
 	if userText == "" {
 		return TurnResult{}, fmt.Errorf("empty message")
@@ -216,12 +230,12 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 	opts := []agent.AgentOption{}
 	toolCB := func(name string) {
 		toolStarts = append(toolStarts, name)
-		if onToolStart != nil {
-			onToolStart(name)
+		if hooks.OnToolStart != nil {
+			hooks.OnToolStart(name)
 		}
 	}
 	opts = append(opts, agent.WithComposeOptions(compose.WithCallbacks(toolStartCallback(toolCB))))
-	turnCtx, recallCollector := observe.WithRecallCollector(ctx)
+	turnCtx, recallCollector := observe.WithRecallCollector(ctx, hooks.OnRecallSearch)
 	sr, err := s.Agent.Stream(turnCtx, einoMsgs, opts...)
 	if err != nil {
 		return TurnResult{}, fmt.Errorf("agent stream: %w", err)
@@ -244,8 +258,8 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 		}
 		if msg.Content != "" {
 			answer.WriteString(msg.Content)
-			if writeDelta != nil {
-				writeDelta(msg.Content)
+			if hooks.WriteDelta != nil {
+				hooks.WriteDelta(msg.Content)
 			}
 		}
 	}
@@ -259,8 +273,8 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 		}
 		// Keep partial answer so a timed-out tool retry doesn't erase an otherwise useful reply.
 		note := "\n\n（本轮因超时或中断结束；以上内容已保留。若需继续检索，请再发一句。）"
-		if writeDelta != nil {
-			writeDelta(note)
+		if hooks.WriteDelta != nil {
+			hooks.WriteDelta(note)
 		}
 		final = strings.TrimSpace(final + note)
 		log.Printf("agent recv soft-complete: %v", streamErr)

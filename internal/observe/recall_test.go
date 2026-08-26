@@ -8,7 +8,10 @@ import (
 
 func TestRecallCollectorIsTurnScopedAndTruncates(t *testing.T) {
 	query := strings.Repeat("记", 130)
-	ctx, collector := WithRecallCollector(context.Background())
+	var streamed []RecallSearchTrace
+	ctx, collector := WithRecallCollector(context.Background(), func(event RecallSearchTrace) {
+		streamed = append(streamed, event)
+	})
 	RecordRecallSearch(ctx, RecallSearchTrace{
 		Query: query, Limit: 3, ResultCount: 1, ResultIDs: []string{"ep1"}, Error: strings.Repeat("错", 170),
 	})
@@ -17,6 +20,9 @@ func TestRecallCollectorIsTurnScopedAndTruncates(t *testing.T) {
 	got := collector.Searches()
 	if len(got) != 1 {
 		t.Fatalf("searches=%+v", got)
+	}
+	if len(streamed) != 1 || streamed[0].Query != got[0].Query {
+		t.Fatalf("streamed=%+v got=%+v", streamed, got)
 	}
 	if len([]rune(got[0].Query)) != 121 || !strings.HasSuffix(got[0].Query, "…") {
 		t.Fatalf("query not truncated: %q", got[0].Query)

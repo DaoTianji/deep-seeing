@@ -20,11 +20,12 @@ type recallCollectorKey struct{}
 type RecallCollector struct {
 	mu       sync.Mutex
 	searches []RecallSearchTrace
+	onSearch []func(RecallSearchTrace)
 }
 
 // WithRecallCollector installs a turn-scoped recall collector.
-func WithRecallCollector(ctx context.Context) (context.Context, *RecallCollector) {
-	c := &RecallCollector{}
+func WithRecallCollector(ctx context.Context, onSearch ...func(RecallSearchTrace)) (context.Context, *RecallCollector) {
+	c := &RecallCollector{onSearch: append([]func(RecallSearchTrace){}, onSearch...)}
 	return context.WithValue(ctx, recallCollectorKey{}, c), c
 }
 
@@ -40,6 +41,11 @@ func RecordRecallSearch(ctx context.Context, event RecallSearchTrace) {
 	c.mu.Lock()
 	c.searches = append(c.searches, event)
 	c.mu.Unlock()
+	for _, listener := range c.onSearch {
+		if listener != nil {
+			listener(cloneRecallSearch(event))
+		}
+	}
 }
 
 // Searches returns a stable copy of events collected for this turn.
@@ -51,8 +57,12 @@ func (c *RecallCollector) Searches() []RecallSearchTrace {
 	defer c.mu.Unlock()
 	out := make([]RecallSearchTrace, len(c.searches))
 	for i, event := range c.searches {
-		out[i] = event
-		out[i].ResultIDs = append([]string(nil), event.ResultIDs...)
+		out[i] = cloneRecallSearch(event)
 	}
 	return out
+}
+
+func cloneRecallSearch(event RecallSearchTrace) RecallSearchTrace {
+	event.ResultIDs = append([]string(nil), event.ResultIDs...)
+	return event
 }

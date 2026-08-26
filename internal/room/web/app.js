@@ -7,6 +7,7 @@ const state = {
   traces: [],
   episodeFilter: "all",
   graphPinned: new Map(),
+  recallActivation: { ids: new Set(), query: "", source: "", searches: 0 },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -45,6 +46,7 @@ function bindUI() {
   $("#review-button").addEventListener("click", runReview);
   $("#dream-button").addEventListener("click", runDream);
   $("#backup-button").addEventListener("click", runBackup);
+  $("#clear-recall-activation").addEventListener("click", () => clearRecallActivation());
   window.addEventListener("resize", debounce(() => renderGraph(), 120));
 }
 
@@ -85,6 +87,7 @@ async function sendMessage(event) {
   if (!message) return;
 
   state.busy = true;
+  clearRecallActivation(false);
   setComposerBusy(true);
   input.value = "";
   autoGrowComposer();
@@ -117,6 +120,10 @@ async function sendMessage(event) {
         scrollMessages();
       } else if (eventData.type === "tool") {
         setActivity(`正在使用 ${friendlyTool(eventData.data?.name || "tool")}`);
+      } else if (eventData.type === "recall_search") {
+        activateRecallSearch(eventData.data || {});
+        const count = Number(eventData.data?.result_count || 0);
+        setActivity(count ? `激活了 ${count} 条记忆候选` : "这次搜索没有找到记忆候选");
       } else if (eventData.type === "error") {
         streamError = eventData.data?.message || "对话失败";
       } else if (eventData.type === "done" && !assistant.body.dataset.rawMessage && eventData.data?.answer) {
@@ -177,6 +184,57 @@ function selectView(name) {
   $$(".memory-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.view === name));
   $$(".memory-view").forEach((view) => view.classList.toggle("active", view.id === `view-${name}`));
   if (name === "graph") requestAnimationFrame(renderGraph);
+}
+
+function clearRecallActivation(render = true) {
+  state.recallActivation = { ids: new Set(), query: "", source: "", searches: 0 };
+  if (render) renderGraph();
+  renderRecallActivationStatus();
+}
+
+function activateRecallSearch(search) {
+  const ids = new Set(state.recallActivation.ids);
+  for (const id of search.result_ids || []) ids.add(id);
+  state.recallActivation = {
+    ids,
+    query: search.query || state.recallActivation.query,
+    source: "live",
+    searches: state.recallActivation.searches + 1,
+  };
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
+function replayRecallTrace(trace) {
+  const searches = trace.recall_searches || [];
+  const ids = new Set();
+  for (const search of searches) {
+    for (const id of search.result_ids || []) ids.add(id);
+  }
+  state.recallActivation = {
+    ids,
+    query: searches.map((search) => search.query).filter(Boolean).join(" → "),
+    source: "trace",
+    searches: searches.length,
+  };
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
+function renderRecallActivationStatus() {
+  const banner = $("#recall-activation");
+  if (!banner) return;
+  const activation = state.recallActivation;
+  banner.hidden = !activation.searches;
+  if (!activation.searches) return;
+  const label = activation.source === "trace" ? "回放召回" : "本轮召回";
+  const count = activation.ids.size;
+  const visible = (state.graph.nodes || []).filter((node) => activation.ids.has(node.id)).length;
+  const coverage = visible === count ? `${count} 个候选节点` : `候选 ${count} · 图中可见 ${visible}`;
+  $("#recall-activation-label").textContent = `${label} · ${coverage}`;
+  $("#recall-activation-query").textContent = activation.query
+    ? `搜索：${truncate(activation.query, 58)}`
+    : "搜索没有留下关键词";
 }
 
 function addMessage(role, content, animate = true) {
@@ -498,6 +556,7 @@ function renderGraph() {
     ? `${nodes.length} 个节点 · ${edges.length} 条关系 · 来自 Neo4j`
     : "Neo4j 暂不可用；Episode 文件仍然存在";
   $("#graph-empty").hidden = graph.available && nodes.length > 2;
+  renderRecallActivationStatus();
   if (!graph.available || nodes.length === 0) return;
 
   const rect = svg.getBoundingClientRect();
@@ -526,7 +585,9 @@ function appendGraphEdges(svg, edges, layout) {
     const curvature = curvatures.get(edge.id) || 0;
     const geometry = edgeGeometry(source, target, curvature);
     const line = svgEl("path", {
-      d: geometry.d, class: `graph-edge ${edge.kind}`, "marker-end": "url(#arrow)",
+      d: geometry.d,
+      class: `graph-edge ${edge.kind} ${state.recallActivation.ids.has(edge.source) ? "recall-active" : ""}`,
+      "marker-end": "url(#arrow)",
     });
     // transparent wide path so thin relationships stay clickable
     const hit = svgEl("path", { d: geometry.d, class: "graph-edge-hit" });
@@ -589,7 +650,11 @@ function appendGraphNodes(svg, nodes, layout, edgeRefs, bounds) {
     if (!pos) continue;
     const isAnchor = node.kind === "Self" || node.kind === "Person";
     const radius = isAnchor ? 27 : 12;
-    const group = svgEl("g", { class: "node-group", transform: `translate(${pos.x} ${pos.y})`, tabindex: "0" });
+    const active = state.recallActivation.ids.has(node.id);
+    const group = svgEl("g", {
+      class: `node-group ${active ? "recall-candidate" : ""}`,
+      transform: `translate(${pos.x} ${pos.y})`, tabindex: "0",
+    });
     group.append(svgEl("circle", { r: radius + 4, class: "node-halo" }));
     group.append(svgEl("circle", { r: radius, class: `node-core ${node.kind} ${node.status || ""} ${node.anchor === "Self" ? "about-self" : ""}` }));
     const label = svgEl("text", { y: isAnchor ? 4 : radius + 14, class: "node-label" });
@@ -855,12 +920,24 @@ function renderTraces() {
     top.append(create("time", "item-time", formatDate(trace.timestamp)));
     item.append(top, create("div", "item-content", trace.user_text || "未记录用户文本"));
     const meta = create("div", "item-meta");
+    const searches = trace.recall_searches || [];
+    const candidateIDs = new Set(searches.flatMap((search) => search.result_ids || []));
+    if (searches.length) meta.append(create("span", "", `候选激活 · ${candidateIDs.size} 节点 / ${searches.length} 次搜索`));
     for (const id of trace.recall_ids || []) meta.append(create("span", "", `recall · ${id}`));
     for (const tool of trace.tool_starts || []) meta.append(create("span", "", `tool · ${friendlyTool(tool)}`));
-    if (!(trace.recall_ids || []).length && !(trace.tool_starts || []).length) meta.append(create("span", "", "没有调用工具"));
+    if (!searches.length && !(trace.recall_ids || []).length && !(trace.tool_starts || []).length) meta.append(create("span", "", "没有调用工具"));
     item.append(meta);
     if (trace.answer_preview) {
       item.append(create("div", "trace-answer", `回应 · ${trace.answer_preview}`));
+    }
+    if (searches.length) {
+      item.classList.add("trace-replay");
+      item.tabIndex = 0;
+      item.title = "点击在图中回放本轮召回候选";
+      item.addEventListener("click", () => replayRecallTrace(trace));
+      item.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") replayRecallTrace(trace);
+      });
     }
     list.append(item);
   }

@@ -110,16 +110,24 @@
               <span><i class="legend-person"></i>Person</span>
               <span><i class="legend-episode-self"></i>关于自己</span>
               <span><i class="legend-episode"></i>关于他人</span>
+              <span><i class="legend-recall"></i>本轮候选</span>
             </div>
           </div>
           <div class="graph-stage" id="graph-stage">
             <svg id="memory-graph" role="img" aria-label="Self、Person、Bond 与 Episode 的关系图"></svg>
+            <div class="recall-activation" id="recall-activation" hidden>
+              <div>
+                <strong id="recall-activation-label">本轮召回</strong>
+                <span id="recall-activation-query"></span>
+              </div>
+              <button id="clear-recall-activation" type="button" aria-label="清除召回高亮">×</button>
+            </div>
             <div class="graph-empty" id="graph-empty" hidden>
               <div class="empty-mark">⟡</div>
               <strong>图还没有长出更多枝叶</strong>
               <span>这不是缺失。关系会从真正发生的经历里慢慢形成。</span>
             </div>
-            <div class="graph-hint">点击节点或关系，看它保存了什么</div>
+            <div class="graph-hint">点击节点看记忆；点击痕迹可回放召回候选</div>
           </div>
           <article class="detail-card" id="graph-detail">
             <div class="detail-placeholder">

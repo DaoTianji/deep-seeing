@@ -16,6 +16,7 @@ import (
 	"deep-seeing/internal/app"
 	"deep-seeing/internal/backup"
 	"deep-seeing/internal/graph"
+	"deep-seeing/internal/observe"
 	"deep-seeing/internal/runtime"
 	"deep-seeing/internal/workspace"
 )
@@ -338,10 +339,13 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	emit("start", map[string]any{"at": time.Now().Format(time.RFC3339)})
 	var answer string
 	err := s.queue().RunCognitive(r.Context(), "chat", func(ctx context.Context) error {
-		result, err := s.App.Service.StreamTurn(ctx, input.Message,
-			func(delta string) { emit("delta", delta) },
-			func(name string) { emit("tool", map[string]any{"name": name}) },
-		)
+		result, err := s.App.Service.StreamTurnWithHooks(ctx, input.Message, runtime.TurnHooks{
+			WriteDelta:  func(delta string) { emit("delta", delta) },
+			OnToolStart: func(name string) { emit("tool", map[string]any{"name": name}) },
+			OnRecallSearch: func(event observe.RecallSearchTrace) {
+				emit("recall_search", event)
+			},
+		})
 		if err != nil {
 			return err
 		}
