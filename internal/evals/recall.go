@@ -13,7 +13,7 @@ import (
 	"deep-seeing/internal/observe"
 )
 
-const RecallSuiteSchemaVersion = 1
+const RecallSuiteSchemaVersion = 2
 
 type RecallPolicy string
 
@@ -55,6 +55,8 @@ type MemoryFixture struct {
 type RecallExpect struct {
 	Recall                    RecallPolicy `json:"recall"`
 	RequiredMemoryKeys        []string     `json:"required_memory_keys,omitempty"`
+	RequiredReadMemoryKeys    []string     `json:"required_read_memory_keys,omitempty"`
+	RequiredUsedMemoryKeys    []string     `json:"required_used_memory_keys,omitempty"`
 	ForbiddenMemoryKeys       []string     `json:"forbidden_memory_keys,omitempty"`
 	EmptyResultsMustStayEmpty bool         `json:"empty_results_must_stay_empty,omitempty"`
 	SemanticRules             []string     `json:"semantic_rules"`
@@ -62,16 +64,25 @@ type RecallExpect struct {
 
 // RecallObservation is the public evidence available after one run.
 type RecallObservation struct {
-	CaseID        string                      `json:"case_id"`
-	Run           int                         `json:"run"`
-	RecallMode    string                      `json:"recall_mode"`
-	Searches      []observe.RecallSearchTrace `json:"recall_searches,omitempty"`
-	CandidateIDs  []string                    `json:"candidate_ids,omitempty"`
-	CandidateKeys []string                    `json:"candidate_keys,omitempty"`
-	ToolStarts    []string                    `json:"tool_starts,omitempty"`
-	Answer        string                      `json:"answer,omitempty"`
-	Duration      time.Duration               `json:"duration_ns,omitempty"`
-	Error         string                      `json:"error,omitempty"`
+	CaseID        string                        `json:"case_id"`
+	Run           int                           `json:"run"`
+	RecallMode    string                        `json:"recall_mode"`
+	Searches      []observe.RecallSearchTrace   `json:"recall_searches,omitempty"`
+	Reads         []observe.RecallReadTrace     `json:"recall_reads,omitempty"`
+	Evidence      []observe.RecallEvidenceTrace `json:"recall_evidence,omitempty"`
+	CandidateIDs  []string                      `json:"candidate_ids,omitempty"`
+	CandidateKeys []string                      `json:"candidate_keys,omitempty"`
+	ReadIDs       []string                      `json:"read_ids,omitempty"`
+	ReadKeys      []string                      `json:"read_keys,omitempty"`
+	UsedIDs       []string                      `json:"used_ids,omitempty"`
+	UsedKeys      []string                      `json:"used_keys,omitempty"`
+	DismissedIDs  []string                      `json:"dismissed_ids,omitempty"`
+	DismissedKeys []string                      `json:"dismissed_keys,omitempty"`
+	ToolStarts    []string                      `json:"tool_starts,omitempty"`
+	Answer        string                        `json:"answer,omitempty"`
+	Duration      time.Duration                 `json:"duration_ns,omitempty"`
+	TokenUsage    observe.TokenUsageTrace       `json:"token_usage,omitempty"`
+	Error         string                        `json:"error,omitempty"`
 }
 
 // Check is one deterministic assertion result.
@@ -184,7 +195,11 @@ func (s RecallSuite) Validate() error {
 			}
 			fixtureKeys[fixture.Key] = true
 		}
-		for _, key := range append(append([]string(nil), c.Expect.RequiredMemoryKeys...), c.Expect.ForbiddenMemoryKeys...) {
+		referenced := append([]string(nil), c.Expect.RequiredMemoryKeys...)
+		referenced = append(referenced, c.Expect.RequiredReadMemoryKeys...)
+		referenced = append(referenced, c.Expect.RequiredUsedMemoryKeys...)
+		referenced = append(referenced, c.Expect.ForbiddenMemoryKeys...)
+		for _, key := range referenced {
 			if !fixtureKeys[key] {
 				return fmt.Errorf("%s expectation references missing memory key %q", c.ID, key)
 			}
@@ -219,6 +234,14 @@ func EvaluateRecallRules(c RecallCase, obs RecallObservation) RuleResult {
 	for _, key := range c.Expect.RequiredMemoryKeys {
 		checks = append(checks, Check{Name: "required_memory:" + key, Passed: candidates[key]})
 	}
+	read := stringSet(obs.ReadKeys)
+	for _, key := range c.Expect.RequiredReadMemoryKeys {
+		checks = append(checks, Check{Name: "required_read_memory:" + key, Passed: read[key]})
+	}
+	used := stringSet(obs.UsedKeys)
+	for _, key := range c.Expect.RequiredUsedMemoryKeys {
+		checks = append(checks, Check{Name: "required_used_memory:" + key, Passed: used[key]})
+	}
 	for _, key := range c.Expect.ForbiddenMemoryKeys {
 		checks = append(checks, Check{Name: "forbidden_memory:" + key, Passed: !candidates[key]})
 	}
@@ -233,6 +256,7 @@ func EvaluateRecallRules(c RecallCase, obs RecallObservation) RuleResult {
 		passed := !allEmpty || len(obs.CandidateIDs) == 0
 		checks = append(checks, Check{Name: "empty_results_stay_empty", Passed: passed, Detail: fmt.Sprintf("all_empty=%t candidates=%d", allEmpty, len(obs.CandidateIDs))})
 	}
+	checks = append(checks, Check{Name: "evidence_lifecycle_valid", Passed: validEvidenceLifecycle(obs)})
 	passed := true
 	for _, check := range checks {
 		if !check.Passed {
@@ -241,6 +265,25 @@ func EvaluateRecallRules(c RecallCase, obs RecallObservation) RuleResult {
 		}
 	}
 	return RuleResult{Passed: passed, Checks: checks}
+}
+
+func validEvidenceLifecycle(obs RecallObservation) bool {
+	candidates := stringSet(obs.CandidateIDs)
+	read := stringSet(obs.ReadIDs)
+	decided := map[string]bool{}
+	for _, event := range obs.Evidence {
+		if !candidates[event.EpisodeID] || decided[event.EpisodeID] {
+			return false
+		}
+		decided[event.EpisodeID] = true
+		if event.Status == "used" && !read[event.EpisodeID] {
+			return false
+		}
+		if event.Status != "used" && event.Status != "dismissed" {
+			return false
+		}
+	}
+	return true
 }
 
 // CandidateIDs flattens and de-duplicates search result IDs in first-seen order.

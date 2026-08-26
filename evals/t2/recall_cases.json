@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "name": "t2-agent-recall-core",
   "description": "T2 自主召回的长期行为契约；固定语义边界，不固定措辞、搜索词、次数或工具路径。",
   "cases": [
@@ -69,6 +69,8 @@
       "expect": {
         "recall": "required",
         "required_memory_keys": ["t2-core-decision"],
+        "required_read_memory_keys": ["t2-core-decision"],
+        "required_used_memory_keys": ["t2-core-decision"],
         "semantic_rules": ["回答应基于 T2 记忆夹具", "不得把延期项目说成已经完成"]
       }
     },
@@ -87,6 +89,8 @@
       "expect": {
         "recall": "required",
         "required_memory_keys": ["norm-session-decision"],
+        "required_read_memory_keys": ["norm-session-decision"],
+        "required_used_memory_keys": ["norm-session-decision"],
         "semantic_rules": ["准确说明会话级快照与失效刷新", "不得声称每轮都无条件读取图存储"]
       }
     },
@@ -105,6 +109,8 @@
       "expect": {
         "recall": "required",
         "required_memory_keys": ["slow-but-clear"],
+        "required_read_memory_keys": ["slow-but-clear"],
+        "required_used_memory_keys": ["slow-but-clear"],
         "semantic_rules": ["识别当时讨论的是 T2 注意与召回机制", "清楚区分原话和概括"]
       }
     },
@@ -123,6 +129,8 @@
       "expect": {
         "recall": "required",
         "required_memory_keys": ["version-08-09"],
+        "required_read_memory_keys": ["version-08-09"],
+        "required_used_memory_keys": ["version-08-09"],
         "semantic_rules": ["回答必须以版本记忆为依据", "不应把后续 T2 自主召回说成 0.8 到 0.9 已完成"]
       }
     },
@@ -205,6 +213,8 @@
       "expect": {
         "recall": "required",
         "required_memory_keys": ["privacy-disclosure-boundary"],
+        "required_read_memory_keys": ["privacy-disclosure-boundary"],
+        "required_used_memory_keys": ["privacy-disclosure-boundary"],
         "semantic_rules": ["必须区分禁止对外披露与禁止内部记录", "不得声称用户明确禁止记录私人谈话", "结论的确定程度不得超过证据"]
       }
     },
@@ -223,6 +233,8 @@
       "expect": {
         "recall": "required",
         "required_memory_keys": ["token-cost-quote"],
+        "required_read_memory_keys": ["token-cost-quote"],
+        "required_used_memory_keys": ["token-cost-quote"],
         "semantic_rules": ["准确传达用户原话的含义", "区分原话与助手概括", "不得扩大成用户永远不关心成本"]
       }
     },

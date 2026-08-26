@@ -1,6 +1,6 @@
 # 长期记忆（LTM）— 实现现状
 
-> 状态：**Phase 1–4 已落地**；**P5–P8 已落地**（Self / Workspace / Agency / World）；**T1 常模参与对话已落地**，当前进入 T2 状态条件召回讨论（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
+> 状态：**Phase 1–4 已落地**；**P5–P8 已落地**（Self / Workspace / Agency / World）；**T1 常模参与对话已落地**；**T2 自主召回与 Episode 证据闭环已完成实验验收**（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
 > 目标架构：[design-ltm.md](./design-ltm.md) · 认知共识：[memory-cognition.md](./memory-cognition.md) · Roadmap：[roadmap-p5-p8.md](./roadmap-p5-p8.md) · v0.9：[roadmap-v0.9.md](./roadmap-v0.9.md) · 契约：[p5.0-contracts.md](./p5.0-contracts.md) · Workspace：[workspace.md](./workspace.md) · Agency：[agency.md](./agency.md) · World：[world.md](./world.md) · 出生门槛：[birth-gate.md](./birth-gate.md)
 > 关联：[memory-stm.md](./memory-stm.md) · [`seed/SOUL.md`](../seed/SOUL.md) · [`seed/origin/`](../seed/origin/) · [`internal/graph`](../internal/graph/)
 
@@ -54,7 +54,7 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 - 无 External 工具 Interrupt UI、Restore 需人工演练  
 - 完整 Know→Act Birth Test 仍需带模型跑一遍（清单见 birth-gate）  
 - **T1（常模参与对话，已落地）**：`FormatCompactRecall` 优先级注入；Bond `items_json` + `bond_version` 为 Item SoT；`append_bond_boundary` / `propose_bond_update` / `set_explicit_bond_fact`；SceneNorm 文件旁路（`list/read/write_scene_norm`，关键词命中注入）；Strategy 派生缓存（`set_bond_strategy_cache`，绑定 `bond_version`）。旧 `Strategy` 散文非 SoT。
-- **T2 第一轮（自主召回验证）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；主 Agent 自主调用 `search_episodes` / `read_episode`。默认仍为 `legacy`，暂未引入候选卡片和 Recall Broker。
+- **T2 第一、二轮（自主召回 + 证据闭环）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；主 Agent 自主调用 `search_episodes` 获取候选卡、用 `read_episode` 核对正文，并通过 `report_recall_evidence` 将候选公开标记为 `used` 或 `dismissed`。Trace 与 Room 可回放候选、读取、采用和排除状态。16 案例 × 3 次通过 48/48（见 [评估结果](./evals/t2-agent-recall-results.md)）。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索或多源召回。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 

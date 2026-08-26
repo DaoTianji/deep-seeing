@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -35,6 +36,15 @@ type runReport struct {
 	Rules       evals.RuleResult        `json:"rules"`
 	Semantic    *evals.SemanticResult   `json:"semantic,omitempty"`
 	JudgeError  string                  `json:"judge_error,omitempty"`
+}
+
+type categoryStats struct {
+	Total      int
+	Passed     int
+	Searches   int
+	Candidates int
+	Tokens     int
+	Durations  []time.Duration
 }
 
 func main() {
@@ -95,9 +105,11 @@ func main() {
 
 	var judgeModel *memory.ChatClient
 	if *judge == "model" {
-		judgeModel = &memory.ChatClient{APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 256}
+		// Reasoning-capable judges may spend part of this budget before emitting the tiny JSON verdict.
+		judgeModel = &memory.ChatClient{APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 1024}
 	}
 	total, passed := 0, 0
+	stats := map[string]*categoryStats{}
 	for _, c := range selected {
 		for run := 1; run <= *repeat; run++ {
 			total++
@@ -125,6 +137,19 @@ func main() {
 			if runPassed {
 				passed++
 			}
+			categoryStat := stats[c.Category]
+			if categoryStat == nil {
+				categoryStat = &categoryStats{}
+				stats[c.Category] = categoryStat
+			}
+			categoryStat.Total++
+			if runPassed {
+				categoryStat.Passed++
+			}
+			categoryStat.Searches += len(obs.Searches)
+			categoryStat.Candidates += len(obs.CandidateIDs)
+			categoryStat.Tokens += obs.TokenUsage.TotalTokens
+			categoryStat.Durations = append(categoryStat.Durations, obs.Duration)
 			semanticLabel := "not-run"
 			if report.JudgeError != "" {
 				semanticLabel = "error"
@@ -145,6 +170,7 @@ func main() {
 			}
 		}
 	}
+	printCategoryStats(stats)
 	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% judge=%s model=%s\n", passed, total, 100*float64(passed)/float64(total), *judge, cfg.Model)
 	if passed != total {
 		os.Exit(1)
@@ -206,6 +232,8 @@ func runCase(ctx context.Context, cfg deepagent.Config, c evals.RecallCase, run 
 		return evals.RecallObservation{}, err
 	}
 	var searches []observe.RecallSearchTrace
+	var reads []observe.RecallReadTrace
+	var evidence []observe.RecallEvidenceTrace
 	var toolStarts []string
 	started := time.Now()
 	result, turnErr := service.StreamTurnWithHooks(ctx, c.UserText, runtime.TurnHooks{
@@ -213,10 +241,15 @@ func runCase(ctx context.Context, cfg deepagent.Config, c evals.RecallCase, run 
 		OnRecallSearch: func(search observe.RecallSearchTrace) {
 			searches = append(searches, search)
 		},
+		OnRecallRead: func(read observe.RecallReadTrace) { reads = append(reads, read) },
+		OnRecallEvidence: func(event observe.RecallEvidenceTrace) {
+			evidence = append(evidence, event)
+		},
 	})
 	obs := evals.RecallObservation{
 		CaseID: c.ID, Run: run, RecallMode: string(runtime.RecallModeAgent), Searches: searches,
-		ToolStarts: toolStarts, Answer: result.Answer, Duration: time.Since(started),
+		Reads: reads, Evidence: evidence, ToolStarts: toolStarts,
+		Answer: result.Answer, Duration: time.Since(started), TokenUsage: result.TokenUsage,
 	}
 	if turnErr != nil {
 		obs.Error = turnErr.Error()
@@ -227,7 +260,37 @@ func runCase(ctx context.Context, cfg deepagent.Config, c evals.RecallCase, run 
 			obs.CandidateKeys = append(obs.CandidateKeys, key)
 		}
 	}
+	for _, event := range reads {
+		if event.Error == "" && event.EpisodeID != "" {
+			obs.ReadIDs = appendUnique(obs.ReadIDs, event.EpisodeID)
+			if key := idToKey[event.EpisodeID]; key != "" {
+				obs.ReadKeys = appendUnique(obs.ReadKeys, key)
+			}
+		}
+	}
+	for _, event := range evidence {
+		if event.Status == "used" {
+			obs.UsedIDs = appendUnique(obs.UsedIDs, event.EpisodeID)
+			if key := idToKey[event.EpisodeID]; key != "" {
+				obs.UsedKeys = appendUnique(obs.UsedKeys, key)
+			}
+		} else if event.Status == "dismissed" {
+			obs.DismissedIDs = appendUnique(obs.DismissedIDs, event.EpisodeID)
+			if key := idToKey[event.EpisodeID]; key != "" {
+				obs.DismissedKeys = appendUnique(obs.DismissedKeys, key)
+			}
+		}
+	}
 	return obs, nil
+}
+
+func appendUnique(values []string, value string) []string {
+	for _, existing := range values {
+		if existing == value {
+			return values
+		}
+	}
+	return append(values, value)
 }
 
 func selectCases(cases []evals.RecallCase, caseID, category string) []evals.RecallCase {
@@ -263,4 +326,30 @@ func printFailures(report runReport) {
 	if report.Semantic != nil && !report.Semantic.Passed {
 		fmt.Printf("  semantic: %s\n", report.Semantic.Reason)
 	}
+}
+
+func printCategoryStats(stats map[string]*categoryStats) {
+	keys := make([]string, 0, len(stats))
+	for key := range stats {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	fmt.Println("category summary:")
+	for _, key := range keys {
+		stat := stats[key]
+		sort.Slice(stat.Durations, func(i, j int) bool { return stat.Durations[i] < stat.Durations[j] })
+		fmt.Printf("  %s: passed=%d/%d rate=%.1f%% searches=%.2f/run candidates=%.2f/run tokens=%.1f/run latency_p50=%s latency_p95=%s\n",
+			key, stat.Passed, stat.Total, 100*float64(stat.Passed)/float64(stat.Total),
+			float64(stat.Searches)/float64(stat.Total), float64(stat.Candidates)/float64(stat.Total),
+			float64(stat.Tokens)/float64(stat.Total),
+			percentile(stat.Durations, 0.50).Round(time.Millisecond), percentile(stat.Durations, 0.95).Round(time.Millisecond))
+	}
+}
+
+func percentile(sorted []time.Duration, quantile float64) time.Duration {
+	if len(sorted) == 0 {
+		return 0
+	}
+	index := int(float64(len(sorted)-1) * quantile)
+	return sorted[index]
 }

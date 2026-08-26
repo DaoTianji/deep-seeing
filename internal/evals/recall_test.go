@@ -41,12 +41,16 @@ func TestEvaluateRecallRules(t *testing.T) {
 	c := RecallCase{
 		ID: "E", Expect: RecallExpect{
 			Recall: RecallRequired, RequiredMemoryKeys: []string{"target"},
+			RequiredReadMemoryKeys: []string{"target"}, RequiredUsedMemoryKeys: []string{"target"},
 			ForbiddenMemoryKeys: []string{"distractor"}, EmptyResultsMustStayEmpty: true,
 		},
 	}
 	obs := RecallObservation{
 		Searches:     []observe.RecallSearchTrace{{Query: "target", ResultCount: 1, ResultIDs: []string{"ep1"}}},
-		CandidateIDs: []string{"ep1"}, CandidateKeys: []string{"target"},
+		Reads:        []observe.RecallReadTrace{{EpisodeID: "ep1"}},
+		Evidence:     []observe.RecallEvidenceTrace{{EpisodeID: "ep1", Status: "used"}},
+		CandidateIDs: []string{"ep1"}, CandidateKeys: []string{"target"}, ReadIDs: []string{"ep1"},
+		ReadKeys: []string{"target"}, UsedIDs: []string{"ep1"}, UsedKeys: []string{"target"},
 	}
 	got := EvaluateRecallRules(c, obs)
 	if !got.Passed {
@@ -57,6 +61,17 @@ func TestEvaluateRecallRules(t *testing.T) {
 	got = EvaluateRecallRules(c, obs)
 	if got.Passed {
 		t.Fatalf("required/forbidden mismatch passed: %+v", got)
+	}
+}
+
+func TestEvaluateRecallRulesRejectsUsedWithoutRead(t *testing.T) {
+	c := RecallCase{Expect: RecallExpect{Recall: RecallOptional}}
+	obs := RecallObservation{
+		CandidateIDs: []string{"ep1"}, UsedIDs: []string{"ep1"},
+		Evidence: []observe.RecallEvidenceTrace{{EpisodeID: "ep1", Status: "used"}},
+	}
+	if got := EvaluateRecallRules(c, obs); got.Passed {
+		t.Fatalf("invalid lifecycle passed: %+v", got)
 	}
 }
 

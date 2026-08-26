@@ -7,7 +7,7 @@ const state = {
   traces: [],
   episodeFilter: "all",
   graphPinned: new Map(),
-  recallActivation: { ids: new Set(), query: "", source: "", searches: 0 },
+  recallActivation: emptyRecallActivation(),
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -124,6 +124,12 @@ async function sendMessage(event) {
         activateRecallSearch(eventData.data || {});
         const count = Number(eventData.data?.result_count || 0);
         setActivity(count ? `激活了 ${count} 条记忆候选` : "这次搜索没有找到记忆候选");
+      } else if (eventData.type === "recall_read") {
+        activateRecallRead(eventData.data || {});
+        setActivity(eventData.data?.error ? "候选正文读取失败" : "正在核对一条记忆正文");
+      } else if (eventData.type === "recall_evidence") {
+        activateRecallEvidence(eventData.data || {});
+        setActivity(eventData.data?.status === "used" ? "确认了一条回答证据" : "排除了一条记忆候选");
       } else if (eventData.type === "error") {
         streamError = eventData.data?.message || "对话失败";
       } else if (eventData.type === "done" && !assistant.body.dataset.rawMessage && eventData.data?.answer) {
@@ -187,36 +193,62 @@ function selectView(name) {
 }
 
 function clearRecallActivation(render = true) {
-  state.recallActivation = { ids: new Set(), query: "", source: "", searches: 0 };
+  state.recallActivation = emptyRecallActivation();
   if (render) renderGraph();
   renderRecallActivationStatus();
 }
 
-function activateRecallSearch(search) {
-  const ids = new Set(state.recallActivation.ids);
-  for (const id of search.result_ids || []) ids.add(id);
-  state.recallActivation = {
-    ids,
-    query: search.query || state.recallActivation.query,
-    source: "live",
-    searches: state.recallActivation.searches + 1,
+function emptyRecallActivation() {
+  return {
+    candidates: new Set(), read: new Set(), used: new Set(), dismissed: new Set(),
+    query: "", source: "", searches: 0,
   };
+}
+
+function activateRecallSearch(search) {
+
+  for (const id of search.result_ids || []) state.recallActivation.candidates.add(id);
+  state.recallActivation.query = search.query || state.recallActivation.query;
+  state.recallActivation.source = "live";
+  state.recallActivation.searches += 1;
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
+function activateRecallRead(read) {
+  if (read.episode_id && !read.error) state.recallActivation.read.add(read.episode_id);
+  state.recallActivation.source = "live";
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
+function activateRecallEvidence(event) {
+  if (!event.episode_id) return;
+  if (event.status === "used") state.recallActivation.used.add(event.episode_id);
+  if (event.status === "dismissed") state.recallActivation.dismissed.add(event.episode_id);
+  state.recallActivation.source = "live";
   selectView("graph");
   requestAnimationFrame(renderGraph);
 }
 
 function replayRecallTrace(trace) {
   const searches = trace.recall_searches || [];
-  const ids = new Set();
+
+  const activation = emptyRecallActivation();
   for (const search of searches) {
-    for (const id of search.result_ids || []) ids.add(id);
+    for (const id of search.result_ids || []) activation.candidates.add(id);
   }
-  state.recallActivation = {
-    ids,
-    query: searches.map((search) => search.query).filter(Boolean).join(" → "),
-    source: "trace",
-    searches: searches.length,
-  };
+  for (const read of trace.recall_reads || []) {
+    if (read.episode_id && !read.error) activation.read.add(read.episode_id);
+  }
+  for (const event of trace.recall_evidence || []) {
+    if (event.status === "used") activation.used.add(event.episode_id);
+    if (event.status === "dismissed") activation.dismissed.add(event.episode_id);
+  }
+  activation.query = searches.map((search) => search.query).filter(Boolean).join(" → ");
+  activation.source = "trace";
+  activation.searches = searches.length;
+  state.recallActivation = activation;
   selectView("graph");
   requestAnimationFrame(renderGraph);
 }
@@ -225,16 +257,27 @@ function renderRecallActivationStatus() {
   const banner = $("#recall-activation");
   if (!banner) return;
   const activation = state.recallActivation;
-  banner.hidden = !activation.searches;
-  if (!activation.searches) return;
+  const eventCount = activation.searches + activation.read.size + activation.used.size + activation.dismissed.size;
+  banner.hidden = !eventCount;
+  if (!eventCount) return;
   const label = activation.source === "trace" ? "回放召回" : "本轮召回";
-  const count = activation.ids.size;
-  const visible = (state.graph.nodes || []).filter((node) => activation.ids.has(node.id)).length;
-  const coverage = visible === count ? `${count} 个候选节点` : `候选 ${count} · 图中可见 ${visible}`;
-  $("#recall-activation-label").textContent = `${label} · ${coverage}`;
+
+  const count = activation.candidates.size;
+  const visible = (state.graph.nodes || []).filter((node) => activation.candidates.has(node.id)).length;
+  const coverage = visible === count ? `候选 ${count}` : `候选 ${count} / 图中 ${visible}`;
+  $("#recall-activation-label").textContent = `${label} · ${coverage} · 已读 ${activation.read.size} · 采用 ${activation.used.size} · 排除 ${activation.dismissed.size}`;
   $("#recall-activation-query").textContent = activation.query
     ? `搜索：${truncate(activation.query, 58)}`
     : "搜索没有留下关键词";
+}
+
+function recallStatus(id) {
+  const activation = state.recallActivation;
+  if (activation.used.has(id)) return "recall-used";
+  if (activation.dismissed.has(id)) return "recall-dismissed";
+  if (activation.read.has(id)) return "recall-read";
+  if (activation.candidates.has(id)) return "recall-candidate";
+  return "";
 }
 
 function addMessage(role, content, animate = true) {
@@ -586,7 +629,7 @@ function appendGraphEdges(svg, edges, layout) {
     const geometry = edgeGeometry(source, target, curvature);
     const line = svgEl("path", {
       d: geometry.d,
-      class: `graph-edge ${edge.kind} ${state.recallActivation.ids.has(edge.source) ? "recall-active" : ""}`,
+      class: `graph-edge ${edge.kind} ${recallStatus(edge.source)}`,
       "marker-end": "url(#arrow)",
     });
     // transparent wide path so thin relationships stay clickable
@@ -650,9 +693,9 @@ function appendGraphNodes(svg, nodes, layout, edgeRefs, bounds) {
     if (!pos) continue;
     const isAnchor = node.kind === "Self" || node.kind === "Person";
     const radius = isAnchor ? 27 : 12;
-    const active = state.recallActivation.ids.has(node.id);
+    const status = recallStatus(node.id);
     const group = svgEl("g", {
-      class: `node-group ${active ? "recall-candidate" : ""}`,
+      class: `node-group ${status}`,
       transform: `translate(${pos.x} ${pos.y})`, tabindex: "0",
     });
     group.append(svgEl("circle", { r: radius + 4, class: "node-halo" }));
@@ -922,7 +965,10 @@ function renderTraces() {
     const meta = create("div", "item-meta");
     const searches = trace.recall_searches || [];
     const candidateIDs = new Set(searches.flatMap((search) => search.result_ids || []));
-    if (searches.length) meta.append(create("span", "", `候选激活 · ${candidateIDs.size} 节点 / ${searches.length} 次搜索`));
+    const reads = (trace.recall_reads || []).filter((read) => read.episode_id && !read.error);
+    const used = (trace.recall_evidence || []).filter((event) => event.status === "used");
+    const dismissed = (trace.recall_evidence || []).filter((event) => event.status === "dismissed");
+    if (searches.length) meta.append(create("span", "", `召回 · 候选 ${candidateIDs.size} / 已读 ${reads.length} / 采用 ${used.length} / 排除 ${dismissed.length}`));
     for (const id of trace.recall_ids || []) meta.append(create("span", "", `recall · ${id}`));
     for (const tool of trace.tool_starts || []) meta.append(create("span", "", `tool · ${friendlyTool(tool)}`));
     if (!searches.length && !(trace.recall_ids || []).length && !(trace.tool_starts || []).length) meta.append(create("span", "", "没有调用工具"));
@@ -930,7 +976,7 @@ function renderTraces() {
     if (trace.answer_preview) {
       item.append(create("div", "trace-answer", `回应 · ${trace.answer_preview}`));
     }
-    if (searches.length) {
+    if (searches.length || reads.length || used.length || dismissed.length) {
       item.classList.add("trace-replay");
       item.tabIndex = 0;
       item.title = "点击在图中回放本轮召回候选";
