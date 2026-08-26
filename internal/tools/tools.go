@@ -189,16 +189,19 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 	readEp, err := utils.InferTool(
 		"read_episode",
-		"按 episode id 读取经历正文（含归档/失效条目）。",
+		"按候选 episode id 读取经历正文（含归档/失效条目）；需要用过去作为回答证据时，先读取核对。",
 		func(ctx context.Context, in readEpisodeInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
+				observe.RecordRecallRead(ctx, observe.RecallReadTrace{Error: "id 不能为空"})
 				return `{"ok":false,"error":"id 不能为空"}`, nil
 			}
 			ep, err := store.Get(ctx, id)
 			if err != nil {
+				observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Error: err.Error()})
 				return "", err
 			}
+			observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id})
 			out, err := json.Marshal(map[string]any{"ok": true, "episode": ep})
 			return string(out), err
 		},
@@ -210,7 +213,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 	searchEp, err := utils.InferTool(
 		"search_episodes",
-		"按关键词检索经历（默认不含 archived/invalid）。",
+		"按关键词检索经历候选卡（默认不含 archived/invalid）；结果不含完整正文，需要时再用 read_episode 核对。",
 		func(ctx context.Context, in searchEpisodeInput) (string, error) {
 			limit := in.Limit
 			if limit <= 0 {
@@ -230,7 +233,15 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 			observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
 				Query: in.Query, Limit: limit, ResultCount: len(eps), ResultIDs: ids,
 			})
-			out, err := json.Marshal(map[string]any{"ok": true, "episodes": eps})
+			cards := make([]episodeCandidateCard, 0, len(eps))
+			for _, ep := range eps {
+				cards = append(cards, episodeCandidateCard{
+					ID: ep.ID, Kind: ep.Kind, Summary: recallCandidateSummary(ep.Content),
+					ExperienceMode: ep.ExperienceMode, PersonIDs: append([]string(nil), ep.PersonIDs...),
+					CreatedAt: ep.CreatedAt,
+				})
+			}
+			out, err := json.Marshal(map[string]any{"ok": true, "candidates": cards})
 			return string(out), err
 		},
 	)
@@ -238,6 +249,29 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		return nil, err
 	}
 	toolsOut = append(toolsOut, searchEp)
+
+	reportEvidence, err := utils.InferTool(
+		"report_recall_evidence",
+		"公开声明本轮召回候选的证据状态：回答实际依赖的已读经历标为 used；主动排除的候选标为 dismissed 并给结构化 reason。未处理候选可以不声明。",
+		func(ctx context.Context, in reportRecallEvidenceInput) (string, error) {
+			events := make([]observe.RecallEvidenceTrace, 0, len(in.Decisions))
+			for _, decision := range in.Decisions {
+				events = append(events, observe.RecallEvidenceTrace{
+					EpisodeID: decision.ID, Status: decision.Status, Reason: decision.Reason,
+				})
+			}
+			if err := observe.RecordRecallEvidence(ctx, events); err != nil {
+				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
+				return string(out), nil
+			}
+			out, err := json.Marshal(map[string]any{"ok": true, "recorded": len(events)})
+			return string(out), err
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	toolsOut = append(toolsOut, reportEvidence)
 
 	archiveEp, err := utils.InferTool(
 		"archive_episode",
@@ -567,6 +601,25 @@ type searchEpisodeInput struct {
 	Limit int    `json:"limit,omitempty"`
 }
 
+type episodeCandidateCard struct {
+	ID             string                `json:"id"`
+	Kind           memory.EpisodeKind    `json:"kind"`
+	Summary        string                `json:"summary"`
+	ExperienceMode memory.ExperienceMode `json:"experience_mode,omitempty"`
+	PersonIDs      []string              `json:"person_ids,omitempty"`
+	CreatedAt      time.Time             `json:"created_at"`
+}
+
+type reportRecallEvidenceInput struct {
+	Decisions []recallEvidenceDecisionInput `json:"decisions" jsonschema:"description=本轮要公开声明的证据状态；未处理候选可省略"`
+}
+
+type recallEvidenceDecisionInput struct {
+	ID     string `json:"episode_id"`
+	Status string `json:"status" jsonschema:"description=used|dismissed"`
+	Reason string `json:"reason,omitempty" jsonschema:"description=dismissed 必填：irrelevant|conflicting|stale|insufficient|superseded|duplicate；used 省略"`
+}
+
 type statusEpisodeInput struct {
 	ID     string `json:"id"`
 	Reason string `json:"reason,omitempty" jsonschema:"description=invalidate 时必填"`
@@ -614,4 +667,19 @@ type writeSceneInput struct {
 type strategyCacheInput struct {
 	Person string `json:"person,omitempty"`
 	Text   string `json:"text" jsonschema:"description=派生策略短文；注入时截断至约120字"`
+}
+
+func recallCandidateSummary(content string) string {
+	runes := []rune(strings.TrimSpace(content))
+	if len(runes) == 0 {
+		return "（空摘要）"
+	}
+	limit := 160
+	if len(runes) <= limit {
+		limit = len(runes) * 3 / 4
+		if limit < 12 {
+			return "（短经历；请读取正文核对）"
+		}
+	}
+	return string(runes[:limit]) + "…"
 }

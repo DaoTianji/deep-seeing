@@ -32,8 +32,15 @@ func TestSearchEpisodesRecordsIDsWithoutContent(t *testing.T) {
 	}
 	search := findInvokableTool(t, all, "search_episodes")
 	ctx, collector := observe.WithRecallCollector(context.Background())
-	if _, err := search.InvokableRun(ctx, `{"query":"项目暗号","limit":3}`); err != nil {
+	searchOut, err := search.InvokableRun(ctx, `{"query":"项目暗号","limit":3}`)
+	if err != nil {
 		t.Fatal(err)
+	}
+	if strings.Contains(searchOut, "SECRET_EPISODE_BODY") || strings.Contains(searchOut, `"content"`) {
+		t.Fatalf("search leaked episode body: %s", searchOut)
+	}
+	if !strings.Contains(searchOut, `"candidates"`) || strings.Contains(searchOut, `"episodes"`) {
+		t.Fatalf("search did not return candidate cards: %s", searchOut)
 	}
 	if _, err := search.InvokableRun(ctx, `{"query":"🦄🪐","limit":3}`); err != nil {
 		t.Fatal(err)
@@ -52,6 +59,43 @@ func TestSearchEpisodesRecordsIDsWithoutContent(t *testing.T) {
 	}
 	if strings.Contains(string(raw), "SECRET_EPISODE_BODY") {
 		t.Fatalf("episode body leaked into trace: %s", raw)
+	}
+}
+
+func TestReadEpisodeAndEvidenceDeclarationAreRecorded(t *testing.T) {
+	scope := identity.LocalCLI()
+	store, err := memory.NewEpisodeStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ep, err := store.WriteEpisode(context.Background(), scope, memory.EpisodeWrite{Content: "T2 证据正文"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	all, err := All(Deps{Scope: scope, Episodes: store, RecallMode: "agent"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, collector := observe.WithRecallCollector(context.Background())
+	search := findInvokableTool(t, all, "search_episodes")
+	if _, err := search.InvokableRun(ctx, `{"query":"T2","limit":3}`); err != nil {
+		t.Fatal(err)
+	}
+	read := findInvokableTool(t, all, "read_episode")
+	if _, err := read.InvokableRun(ctx, `{"id":"`+ep.ID+`"}`); err != nil {
+		t.Fatal(err)
+	}
+	report := findInvokableTool(t, all, "report_recall_evidence")
+	out, err := report.InvokableRun(ctx, `{"decisions":[{"episode_id":"`+ep.ID+`","status":"used"}]}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, `"ok":true`) || len(collector.Reads()) != 1 || len(collector.Evidence()) != 1 {
+		t.Fatalf("out=%s reads=%+v evidence=%+v", out, collector.Reads(), collector.Evidence())
+	}
+	raw, _ := json.Marshal(observe.TurnTrace{RecallReads: collector.Reads(), RecallEvidence: collector.Evidence()})
+	if strings.Contains(string(raw), "T2 证据正文") {
+		t.Fatalf("trace leaked body: %s", raw)
 	}
 }
 

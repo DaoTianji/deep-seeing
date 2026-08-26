@@ -345,6 +345,12 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			OnRecallSearch: func(event observe.RecallSearchTrace) {
 				emit("recall_search", event)
 			},
+			OnRecallRead: func(event observe.RecallReadTrace) {
+				emit("recall_read", event)
+			},
+			OnRecallEvidence: func(event observe.RecallEvidenceTrace) {
+				emit("recall_evidence", event)
+			},
 		})
 		if err != nil {
 			return err

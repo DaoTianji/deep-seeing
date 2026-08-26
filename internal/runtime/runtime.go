@@ -10,10 +10,12 @@ import (
 	"sync"
 
 	"github.com/cloudwego/eino/callbacks"
+	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/flow/agent"
 	"github.com/cloudwego/eino/flow/agent/react"
 	"github.com/cloudwego/eino/schema"
+	callbackutils "github.com/cloudwego/eino/utils/callbacks"
 
 	deepagent "deep-seeing/internal/agent"
 	"deep-seeing/internal/body"
@@ -154,14 +156,17 @@ func (s *Service) InvalidateNorm() {
 
 // TurnResult is the assistant text for one turn.
 type TurnResult struct {
-	Answer string
+	Answer     string
+	TokenUsage observe.TokenUsageTrace
 }
 
 // TurnHooks exposes observable turn activity without exposing hidden reasoning.
 type TurnHooks struct {
-	WriteDelta     func(string)
-	OnToolStart    func(string)
-	OnRecallSearch func(observe.RecallSearchTrace)
+	WriteDelta       func(string)
+	OnToolStart      func(string)
+	OnRecallSearch   func(observe.RecallSearchTrace)
+	OnRecallRead     func(observe.RecallReadTrace)
+	OnRecallEvidence func(observe.RecallEvidenceTrace)
 }
 
 // StreamTurn prepares context, runs Eino ReAct streaming, updates STM, and schedules extraction.
@@ -228,14 +233,17 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 	einoMsgs := toSchemaMessages(msgs)
 	var toolStarts []string
 	opts := []agent.AgentOption{}
+	tokenCounter := &turnTokenCounter{}
 	toolCB := func(name string) {
 		toolStarts = append(toolStarts, name)
 		if hooks.OnToolStart != nil {
 			hooks.OnToolStart(name)
 		}
 	}
-	opts = append(opts, agent.WithComposeOptions(compose.WithCallbacks(toolStartCallback(toolCB))))
-	turnCtx, recallCollector := observe.WithRecallCollector(ctx, hooks.OnRecallSearch)
+	opts = append(opts, agent.WithComposeOptions(compose.WithCallbacks(toolStartCallback(toolCB), tokenUsageCallback(tokenCounter))))
+	turnCtx, recallCollector := observe.WithRecallHooks(ctx, observe.RecallHooks{
+		OnSearch: hooks.OnRecallSearch, OnRead: hooks.OnRecallRead, OnEvidence: hooks.OnRecallEvidence,
+	})
 	sr, err := s.Agent.Stream(turnCtx, einoMsgs, opts...)
 	if err != nil {
 		return TurnResult{}, fmt.Errorf("agent stream: %w", err)
@@ -296,6 +304,8 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 			NormVersion:     turnMemory.normVersion,
 			RecallIDs:       turnMemory.recallIDs,
 			RecallSearches:  recallCollector.Searches(),
+			RecallReads:     recallCollector.Reads(),
+			RecallEvidence:  recallCollector.Evidence(),
 			BondSlots:       turnMemory.bondSlots,
 			BondItemIDs:     turnMemory.bondItemIDs,
 			BondPlaceholder: turnMemory.bondPlaceholder,
@@ -303,6 +313,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 			ToolStarts:      toolStarts,
 			Errors:          turnErrors,
 			AnswerPreview:   observe.Preview(final, 200),
+			TokenUsage:      tokenCounter.Snapshot(),
 		})
 	}
 
@@ -313,7 +324,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 		}
 	}()
 
-	return TurnResult{Answer: final}, nil
+	return TurnResult{Answer: final, TokenUsage: tokenCounter.Snapshot()}, nil
 }
 
 func toSchemaMessages(msgs []transcript.Message) []*schema.Message {
@@ -349,4 +360,60 @@ func toolStartCallback(onStart func(string)) callbacks.Handler {
 		return ctx
 	})
 	return builder.Build()
+}
+
+type turnTokenCounter struct {
+	mu    sync.Mutex
+	usage observe.TokenUsageTrace
+}
+
+func (c *turnTokenCounter) Add(usage *model.TokenUsage) {
+	if c == nil || usage == nil {
+		return
+	}
+	c.mu.Lock()
+	c.usage.PromptTokens += usage.PromptTokens
+	c.usage.CompletionTokens += usage.CompletionTokens
+	c.usage.ReasoningTokens += usage.CompletionTokensDetails.ReasoningTokens
+	c.usage.TotalTokens += usage.TotalTokens
+	c.mu.Unlock()
+}
+
+func (c *turnTokenCounter) Snapshot() observe.TokenUsageTrace {
+	if c == nil {
+		return observe.TokenUsageTrace{}
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.usage
+}
+
+func tokenUsageCallback(counter *turnTokenCounter) callbacks.Handler {
+	return callbackutils.NewHandlerHelper().ChatModel(&callbackutils.ModelCallbackHandler{
+		OnEnd: func(ctx context.Context, _ *callbacks.RunInfo, output *model.CallbackOutput) context.Context {
+			if output != nil {
+				counter.Add(output.TokenUsage)
+			}
+			return ctx
+		},
+		OnEndWithStreamOutput: func(ctx context.Context, _ *callbacks.RunInfo, output *schema.StreamReader[*model.CallbackOutput]) context.Context {
+			if output == nil {
+				return ctx
+			}
+			defer output.Close()
+			for {
+				chunk, err := output.Recv()
+				if errors.Is(err, io.EOF) {
+					break
+				}
+				if err != nil {
+					break
+				}
+				if chunk != nil {
+					counter.Add(chunk.TokenUsage)
+				}
+			}
+			return ctx
+		},
+	}).Handler()
 }

@@ -12,7 +12,7 @@ import (
 const (
 	SoulVersion        = "0.2"
 	OriginVersion      = "0.1"
-	ToolsetVersion     = "1.0"
+	ToolsetVersion     = "1.1"
 	GraphSchemaVersion = "0.3"
 	CapabilityCatalogV = "1.0"
 )
@@ -102,7 +102,9 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 		{Name: "read_episode", Ability: "读取一条经历", Persistence: "none", SideEffect: "只读", Permission: "observe",
 			Help: "按 id 读正文，含已归档/失效条目。"},
 		{Name: "search_episodes", Ability: "搜索过去经历", Persistence: "none", SideEffect: "只读", Permission: "observe",
-			Help: "字面检索；默认不含 archived/invalid。"},
+			Help: "字面检索候选卡；默认不含 archived/invalid；正文须用 read_episode 核对。"},
+		{Name: "report_recall_evidence", Ability: "声明召回证据状态", Persistence: "session", SideEffect: "只写本轮公开轨迹", Permission: "observe",
+			Help: "将实际依赖的已读候选标为 used；可将排除候选标为 dismissed 并使用结构化原因码。"},
 		{Name: "archive_episode", Ability: "归档经历（软忘记）", Persistence: "cross-session", SideEffect: "降权，不物理删除", Permission: "internal",
 			Help: "status=archived；召回默认跳过。"},
 		{Name: "invalidate_episode", Ability: "判定经历无效", Persistence: "cross-session", SideEffect: "降权+原因", Permission: "internal",

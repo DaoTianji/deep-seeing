@@ -35,3 +35,56 @@ func TestRecallCollectorIsTurnScopedAndTruncates(t *testing.T) {
 		t.Fatal("collector returned mutable result IDs")
 	}
 }
+
+func TestRecallCollectorTracksReadAndEvidenceLifecycle(t *testing.T) {
+	var reads []RecallReadTrace
+	var evidence []RecallEvidenceTrace
+	ctx, collector := WithRecallHooks(context.Background(), RecallHooks{
+		OnRead: func(event RecallReadTrace) { reads = append(reads, event) },
+		OnEvidence: func(event RecallEvidenceTrace) {
+			evidence = append(evidence, event)
+		},
+	})
+	RecordRecallSearch(ctx, RecallSearchTrace{ResultCount: 2, ResultIDs: []string{"ep1", "ep2"}})
+	RecordRecallRead(ctx, RecallReadTrace{EpisodeID: "ep1"})
+	if err := RecordRecallEvidence(ctx, []RecallEvidenceTrace{
+		{EpisodeID: "ep1", Status: "used"},
+		{EpisodeID: "ep2", Status: "dismissed", Reason: "irrelevant"},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if len(collector.Reads()) != 1 || len(reads) != 1 || reads[0].EpisodeID != "ep1" {
+		t.Fatalf("reads collector=%+v callback=%+v", collector.Reads(), reads)
+	}
+	if len(collector.Evidence()) != 2 || len(evidence) != 2 {
+		t.Fatalf("evidence collector=%+v callback=%+v", collector.Evidence(), evidence)
+	}
+}
+
+func TestRecallEvidenceValidation(t *testing.T) {
+	newTurn := func(read bool) context.Context {
+		ctx, _ := WithRecallCollector(context.Background())
+		RecordRecallSearch(ctx, RecallSearchTrace{ResultCount: 1, ResultIDs: []string{"ep1"}})
+		if read {
+			RecordRecallRead(ctx, RecallReadTrace{EpisodeID: "ep1"})
+		}
+		return ctx
+	}
+	cases := []struct {
+		name   string
+		ctx    context.Context
+		events []RecallEvidenceTrace
+	}{
+		{name: "unsearched", ctx: newTurn(true), events: []RecallEvidenceTrace{{EpisodeID: "other", Status: "used"}}},
+		{name: "unread used", ctx: newTurn(false), events: []RecallEvidenceTrace{{EpisodeID: "ep1", Status: "used"}}},
+		{name: "invalid reason", ctx: newTurn(false), events: []RecallEvidenceTrace{{EpisodeID: "ep1", Status: "dismissed", Reason: "because"}}},
+		{name: "conflicting duplicate", ctx: newTurn(true), events: []RecallEvidenceTrace{{EpisodeID: "ep1", Status: "used"}, {EpisodeID: "ep1", Status: "dismissed", Reason: "stale"}}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := RecordRecallEvidence(tc.ctx, tc.events); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
