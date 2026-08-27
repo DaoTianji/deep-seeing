@@ -27,6 +27,7 @@ type AssembleInput struct {
 	OriginContext  string // first_boot only
 	BondNorm       string // T1 compact person norm (priority-truncated)
 	MemoryRecall   string // episodes / proposals etc.
+	TaskContext    string // ephemeral task/project fact cards; no bodies or inference
 	RecallGuidance string // agent-owned recall policy; empty in legacy mode
 }
 
@@ -64,6 +65,7 @@ func (DefaultAssembler) BuildSystemMessages(_ context.Context, in AssembleInput)
 	add("Origin Introduction", in.OriginContext) // only when first_boot provided
 	add("Bond / Person norm", in.BondNorm)
 	add("Memory recall", in.MemoryRecall)
+	add("Task context snapshot", in.TaskContext)
 	add("Recall policy", in.RecallGuidance)
 	content := strings.TrimSpace(b.String())
 	if content == "" {

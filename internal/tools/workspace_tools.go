@@ -8,6 +8,7 @@ import (
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
 
+	"deep-seeing/internal/observe"
 	"deep-seeing/internal/workspace"
 )
 
@@ -55,13 +56,16 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 		func(ctx context.Context, in readWorkspaceInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Error: "id 不能为空"})
 				return `{"ok":false,"error":"id 不能为空"}`, nil
 			}
 			d, err := store.Get(id)
 			if err != nil {
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", ID: id, Error: err.Error()})
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 				return string(out), nil
 			}
+			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", ID: id})
 			out, err := json.Marshal(map[string]any{"ok": true, "document": d})
 			return string(out), err
 		},

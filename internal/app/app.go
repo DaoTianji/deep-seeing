@@ -195,9 +195,10 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	svc, err = runtime.New(runtime.Options{
 		Scope: scope, SessionID: sessionID, STM: stm, SideQuery: side,
 		RecallMode: recallMode, Norms: norms,
-		Assembler: prompt.DefaultAssembler{},
-		Compactor: compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
-		Agent:     reactAgent, PostTurn: memory.NoopPostTurn{},
+		TaskContext: runtime.NewStoreTaskContextProvider(wsStore, intentStore),
+		Assembler:   prompt.DefaultAssembler{},
+		Compactor:   compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
+		Agent:       reactAgent, PostTurn: memory.NoopPostTurn{},
 		Soul: soulText, Origin: originText, Capability: prompt.CapabilityBlurb,
 		FirstBoot: firstBoot, Model: cfg.Model, Journal: journal,
 	})

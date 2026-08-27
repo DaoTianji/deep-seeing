@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "name": "t2-task-context-core",
+  "description": "T2 任务/项目处境薄快照行为契约；快照只提供事实卡片，Agent 按需展开，不做情绪推断。",
+  "cases": [
+    {
+      "id": "TCN1",
+      "category": "no_expand",
+      "description": "普通计算不应被活跃项目打扰",
+      "user_text": "17 乘以 23 是多少？",
+      "workspaces": [
+        {
+          "key": "unrelated-project",
+          "type": "project",
+          "status": "in_progress",
+          "title": "虚构的植物浇水实验",
+          "summary": "研究不同光照下的浇水频率",
+          "body": "这是虚构测试项目。下一步是记录第三组植物的含水量。"
+        }
+      ],
+      "expect": {
+        "forbid_context_expansion": true,
+        "forbid_episode_search": true
+      }
+    },
+    {
+      "id": "TCW1",
+      "category": "workspace_expand",
+      "description": "明确要求继续当前项目时展开对应 Workspace",
+      "user_text": "继续任务处境建模这个项目吧。请先打开对应的 Workspace，再告诉我下一步是什么。",
+      "workspaces": [
+        {
+          "key": "task-context-project",
+          "type": "project",
+          "status": "in_progress",
+          "title": "T2 任务处境建模",
+          "summary": "实现事实薄快照与按需展开",
+          "body": "这是虚构测试项目。已完成快照契约，下一步是验证同一句输入在不同项目下读取不同 Workspace。"
+        }
+      ],
+      "expect": {
+        "required_workspace_keys": ["task-context-project"]
+      }
+    },
+    {
+      "id": "TCI1",
+      "category": "intent_expand",
+      "description": "明确询问未来安排时展开对应 Intent",
+      "user_text": "我给未来的自己留了什么 T2 安排？请先打开对应的 Intent 核对。",
+      "intents": [
+        {
+          "key": "t2-review-intent",
+          "kind": "one_shot",
+          "title": "复查 T2 任务处境案例",
+          "body": "这是虚构测试 Intent：完成行为评估后复查失败类型。"
+        }
+      ],
+      "expect": {
+        "required_intent_keys": ["t2-review-intent"]
+      }
+    },
+    {
+      "id": "TCS1",
+      "category": "context_switch",
+      "description": "相同输入在植物项目处境下展开植物 Workspace",
+      "user_text": "继续这个项目吧。请先打开当前项目资料，再告诉我下一步。",
+      "workspaces": [
+        {
+          "key": "plant-project",
+          "type": "project",
+          "status": "in_progress",
+          "title": "虚构的植物浇水实验",
+          "summary": "植物项目",
+          "body": "这是虚构测试项目。下一步是给第二组植物称重。"
+        }
+      ],
+      "expect": {
+        "required_workspace_keys": ["plant-project"]
+      }
+    },
+    {
+      "id": "TCS2",
+      "category": "context_switch",
+      "description": "相同输入在召回项目处境下展开召回 Workspace",
+      "user_text": "继续这个项目吧。请先打开当前项目资料，再告诉我下一步。",
+      "workspaces": [
+        {
+          "key": "recall-project",
+          "type": "project",
+          "status": "in_progress",
+          "title": "虚构的 T2 召回实验",
+          "summary": "召回项目",
+          "body": "这是虚构测试项目。下一步是检查候选、读取与采用的公开轨迹。"
+        }
+      ],
+      "expect": {
+        "required_workspace_keys": ["recall-project"]
+      }
+    }
+  ]
+}

@@ -351,6 +351,12 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			OnRecallEvidence: func(event observe.RecallEvidenceTrace) {
 				emit("recall_evidence", event)
 			},
+			OnTaskContext: func(event observe.TaskContextTrace) {
+				emit("task_context", event)
+			},
+			OnContextExpand: func(event observe.TaskContextExpansionTrace) {
+				emit("task_context_expand", event)
+			},
 		})
 		if err != nil {
 			return err

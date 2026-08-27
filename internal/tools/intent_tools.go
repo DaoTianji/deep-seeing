@@ -10,6 +10,7 @@ import (
 	"github.com/cloudwego/eino/components/tool/utils"
 
 	"deep-seeing/internal/intent"
+	"deep-seeing/internal/observe"
 )
 
 func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]tool.BaseTool, error) {
@@ -45,13 +46,16 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 		func(ctx context.Context, in readIntentInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Error: "id 不能为空"})
 				return `{"ok":false,"error":"id 不能为空"}`, nil
 			}
 			it, err := store.Get(ctx, id)
 			if err != nil {
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", ID: id, Error: err.Error()})
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 				return string(out), nil
 			}
+			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", ID: id})
 			wakes, _ := store.ListWakeJobs(ctx, id, 10)
 			out, err := json.Marshal(map[string]any{"ok": true, "intent": it, "wake_jobs": wakes})
 			return string(out), err

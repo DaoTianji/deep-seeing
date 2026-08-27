@@ -12,7 +12,7 @@ import (
 const (
 	SoulVersion        = "0.2"
 	OriginVersion      = "0.1"
-	ToolsetVersion     = "1.1"
+	ToolsetVersion     = "1.2"
 	GraphSchemaVersion = "0.3"
 	CapabilityCatalogV = "1.0"
 )
@@ -113,9 +113,9 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 	if hasWorkspace {
 		out = append(out,
 			Capability{Name: "list_workspace", Ability: "列出未完成思考", Persistence: "none", SideEffect: "只读", Permission: "observe",
-				Help: "question/writing/research/project；与 SelfArtifact 分立。"},
+				Help: "浏览任务处境快照之外的 question/writing/research/project；与 SelfArtifact 分立。"},
 			Capability{Name: "read_workspace", Ability: "读取 Workspace 文档", Persistence: "none", SideEffect: "只读", Permission: "observe",
-				Help: "含正文、修订史、关联 Episode。"},
+				Help: "按任务处境快照中的 ID 主动展开正文、修订史和关联 Episode；展开进入公开轨迹。"},
 			Capability{Name: "write_workspace", Ability: "创建或续写 Workspace", Persistence: "cross-session", SideEffect: "写文件", Permission: "internal",
 				Help: "未完成思考草稿；更新追加 revision。不是 Self 结晶。"},
 			Capability{Name: "link_workspace_episode", Ability: "关联 Episode 到 Workspace", Persistence: "cross-session", SideEffect: "写链接", Permission: "internal",
@@ -125,9 +125,9 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 	if hasIntents {
 		out = append(out,
 			Capability{Name: "list_intents", Ability: "列出未来 Intent", Persistence: "none", SideEffect: "只读", Permission: "observe",
-				Help: "活跃的 one_shot/recurring 唤醒约定。"},
+				Help: "浏览任务处境快照之外的活跃 one_shot/recurring 唤醒约定。"},
 			Capability{Name: "read_intent", Ability: "读取 Intent 与 wake 历史", Persistence: "none", SideEffect: "只读", Permission: "observe",
-				Help: "含 catch-up 后的 wake_jobs。"},
+				Help: "按任务处境快照中的 ID 主动展开 Intent 与 catch-up 后的 wake_jobs；展开进入公开轨迹。"},
 			Capability{Name: "create_intent", Ability: "留下未来 Intent", Persistence: "cross-session", SideEffect: "写 runtime.db", Permission: "internal",
 				Help: "默认不主动联系人；周期 Intent 需 interval。"},
 			Capability{Name: "cancel_intent", Ability: "取消 Intent", Persistence: "cross-session", SideEffect: "改状态", Permission: "internal",

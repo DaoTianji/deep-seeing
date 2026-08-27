@@ -120,6 +120,13 @@ async function sendMessage(event) {
         scrollMessages();
       } else if (eventData.type === "tool") {
         setActivity(`正在使用 ${friendlyTool(eventData.data?.name || "tool")}`);
+      } else if (eventData.type === "task_context") {
+        const workspaces = eventData.data?.workspace_ids?.length || 0;
+        const intents = eventData.data?.intent_ids?.length || 0;
+        setActivity(`已准备任务处境快照 · Workspace ${workspaces} / Intent ${intents}`);
+      } else if (eventData.type === "task_context_expand") {
+        const source = eventData.data?.source === "intent" ? "Intent" : "Workspace";
+        setActivity(eventData.data?.error ? `${source} 展开失败` : `正在展开 ${source} 处境`);
       } else if (eventData.type === "recall_search") {
         activateRecallSearch(eventData.data || {});
         const count = Number(eventData.data?.result_count || 0);
@@ -968,6 +975,10 @@ function renderTraces() {
     const reads = (trace.recall_reads || []).filter((read) => read.episode_id && !read.error);
     const used = (trace.recall_evidence || []).filter((event) => event.status === "used");
     const dismissed = (trace.recall_evidence || []).filter((event) => event.status === "dismissed");
+    const taskContext = trace.task_context;
+    const contextExpands = trace.task_context_expansions || [];
+    if (taskContext) meta.append(create("span", "", `处境 · Workspace ${(taskContext.workspace_ids || []).length} / Intent ${(taskContext.intent_ids || []).length}`));
+    if (contextExpands.length) meta.append(create("span", "", `处境展开 · ${contextExpands.length}`));
     if (searches.length) meta.append(create("span", "", `召回 · 候选 ${candidateIDs.size} / 已读 ${reads.length} / 采用 ${used.length} / 排除 ${dismissed.length}`));
     for (const id of trace.recall_ids || []) meta.append(create("span", "", `recall · ${id}`));
     for (const tool of trace.tool_starts || []) meta.append(create("span", "", `tool · ${friendlyTool(tool)}`));
