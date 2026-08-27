@@ -1,6 +1,7 @@
 package evals_test
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -42,4 +43,27 @@ func TestMultiSourceSuiteRejectsUnknownExpectation(t *testing.T) {
 	if _, err := evals.LoadMultiSourceSuite(path); err == nil {
 		t.Fatal("accepted expectation for missing fixture")
 	}
+
+}
+func TestJudgeMultiSourceSemanticsParsesWrappedJSON(t *testing.T) {
+	judge := multiSourceCompleter{out: "~~~json\n{\"passed\":true,\"reason\":\"语义满足且没有把计划写成事件\"}\n~~~"}
+	result, err := evals.JudgeMultiSourceSemantics(context.Background(), judge, evals.MultiSourceCase{
+		ID: "MSI1", Description: "Intent 是计划，不代表已经发生", UserText: "完成了吗？",
+		Intents: []evals.TaskIntentFixture{{Key: "future", Title: "未来计划"}},
+		Expect:  evals.MultiSourceExpect{AnswerMustContain: []string{"不能确认"}},
+	}, evals.MultiSourceObservation{
+		ReadKeys: []string{"intent:future"}, UsedKeys: []string{"intent:future"}, Answer: "没有完成记录。",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.Passed || result.Reason == "" {
+		t.Fatalf("result=%+v", result)
+	}
+}
+
+type multiSourceCompleter struct{ out string }
+
+func (f multiSourceCompleter) Complete(context.Context, string, string) (string, error) {
+	return f.out, nil
 }

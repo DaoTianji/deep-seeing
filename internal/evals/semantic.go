@@ -57,6 +57,61 @@ func JudgeRecallSemantics(ctx context.Context, chat Completer, c RecallCase, obs
 	return result, nil
 }
 
+// JudgeMultiSourceSemantics evaluates answer meaning while structured lifecycle
+// requirements remain enforced by EvaluateMultiSourceRules.
+func JudgeMultiSourceSemantics(ctx context.Context, chat Completer, c MultiSourceCase, obs MultiSourceObservation) (SemanticResult, error) {
+	if chat == nil {
+		return SemanticResult{}, fmt.Errorf("semantic judge requires a model")
+	}
+	system := `你是多来源上下文召回的严格语义评估器。只判断回答含义是否满足案例目标，不评价文风，也不要求固定措辞。
+六种来源角色固定：Bond=baseline，SceneNorm=guidance，Workspace=task，Intent=plan，Proposal=hypothesis，Episode=evidence。Intent 的 active、attempt=0 或无 wake 记录都只能说明“系统内没有完成证据”，不能证明已经完成或尚未完成；Proposal 不能升级为事实；用户当前明确表达优先于旧 Episode。
+回答只能把 used_keys 中的来源作为实质结论依据；dismissed_keys 只能用于说明候选被排除、证据不足或与当前要求冲突。候选卡的标题、类型和状态可以用于列出选项并向用户消歧，这不要求 used；但未处理来源不得暗中支持正文结论。Bond 是自动提供的 baseline，不需要 used。评估夹具不记录运行器自动生成的 Intent due_at；回答引用 read_intent 返回的日期或谨慎指出它与正文可能冲突，不应仅因日期未出现在夹具中判为幻觉。回答声称执行了写入或更新时，以 tool_starts 中对应的 write/create/link 工具为公开操作证据。
+expect.answer_must_contain 表示必须覆盖的语义概念，不要求逐字包含；answer_must_not_contain 表示不得肯定该结论，如果回答明确否定同一短语，不算违反。require_question 表示必须向用户提出可识别的问题。
+结构化 candidate/read/use/dismissed 门槛由程序另行判断；你只判断回答语义。只输出 JSON：{"passed":true|false,"reason":"简短理由"}。`
+	payload := struct {
+		CaseID        string                 `json:"case_id"`
+		Description   string                 `json:"case_goal"`
+		UserText      string                 `json:"user_text"`
+		Bond          []BondFixture          `json:"bond,omitempty"`
+		Scenes        []SceneFixture         `json:"scenes,omitempty"`
+		Workspaces    []TaskWorkspaceFixture `json:"workspaces,omitempty"`
+		Intents       []TaskIntentFixture    `json:"intents,omitempty"`
+		Proposals     []ProposalFixture      `json:"proposals,omitempty"`
+		Episodes      []MemoryFixture        `json:"episodes,omitempty"`
+		CandidateKeys []string               `json:"candidate_keys,omitempty"`
+		ReadKeys      []string               `json:"read_keys,omitempty"`
+		UsedKeys      []string               `json:"used_keys,omitempty"`
+		DismissedKeys []string               `json:"dismissed_keys,omitempty"`
+		Expect        MultiSourceExpect      `json:"expect"`
+		ToolStarts    []string               `json:"tool_starts,omitempty"`
+		Answer        string                 `json:"answer"`
+	}{
+		CaseID: c.ID, Description: c.Description, UserText: c.UserText,
+		Bond: c.Bond, Scenes: c.Scenes, Workspaces: c.Workspaces, Intents: c.Intents,
+		Proposals: c.Proposals, Episodes: c.Episodes,
+		CandidateKeys: obs.CandidateKeys, ReadKeys: obs.ReadKeys,
+		UsedKeys: obs.UsedKeys, DismissedKeys: obs.DismissedKeys,
+		ToolStarts: obs.ToolStarts,
+		Expect:     c.Expect, Answer: obs.Answer,
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return SemanticResult{}, err
+	}
+	out, err := chat.Complete(ctx, system, string(raw))
+	if err != nil {
+		return SemanticResult{}, err
+	}
+	var result SemanticResult
+	if err := json.Unmarshal(extractJSONObject(out), &result); err != nil {
+		return SemanticResult{}, fmt.Errorf("decode multi-source semantic verdict: %w", err)
+	}
+	if strings.TrimSpace(result.Reason) == "" {
+		return SemanticResult{}, fmt.Errorf("semantic verdict reason required")
+	}
+	return result, nil
+}
+
 func extractJSONObject(raw string) []byte {
 	raw = strings.TrimSpace(raw)
 	start := strings.Index(raw, "{")

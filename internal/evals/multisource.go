@@ -76,6 +76,7 @@ type MultiSourceObservation struct {
 	Reads         []observe.ContextReadTrace      `json:"context_reads,omitempty"`
 	Uses          []observe.ContextUseTrace       `json:"context_uses,omitempty"`
 	CandidateKeys []string                        `json:"candidate_keys,omitempty"`
+	ToolStarts    []string                        `json:"tool_starts,omitempty"`
 	ReadKeys      []string                        `json:"read_keys,omitempty"`
 	UsedKeys      []string                        `json:"used_keys,omitempty"`
 	DismissedKeys []string                        `json:"dismissed_keys,omitempty"`

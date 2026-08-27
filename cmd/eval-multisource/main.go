@@ -34,8 +34,11 @@ type runReport struct {
 	Schema      int                          `json:"schema_version"`
 	Category    string                       `json:"category"`
 	Model       string                       `json:"model"`
+	Judge       string                       `json:"judge"`
 	Observation evals.MultiSourceObservation `json:"observation"`
 	Rules       evals.RuleResult             `json:"rules"`
+	Semantic    *evals.SemanticResult        `json:"semantic,omitempty"`
+	JudgeError  string                       `json:"judge_error,omitempty"`
 }
 
 type staticBondReader struct{ bond graph.Bond }
@@ -50,6 +53,7 @@ func main() {
 		live      = flag.Bool("live", false, "run the real Agent in isolated synthetic sandboxes")
 		repeat    = flag.Int("repeat", 1, "runs per case")
 		caseID    = flag.String("case", "", "run one case ID")
+		judge     = flag.String("judge", "rules", "rules or model")
 		outPath   = flag.String("out", "", "optional ignored JSONL report path")
 		timeout   = flag.Duration("timeout", 5*time.Minute, "timeout per live case")
 	)
@@ -65,6 +69,9 @@ func main() {
 	}
 	if *repeat < 1 {
 		log.Fatal("repeat must be at least 1")
+	}
+	if *judge != "rules" && *judge != "model" {
+		log.Fatal("judge must be rules or model")
 	}
 	fmt.Printf("suite=%s schema=%d cases=%d selected=%d\n", suite.Name, suite.SchemaVersion, len(suite.Cases), len(selected))
 	if !*live {
@@ -89,6 +96,10 @@ func main() {
 		}
 		defer reportFile.Close()
 	}
+	var judgeModel *memory.ChatClient
+	if *judge == "model" {
+		judgeModel = &memory.ChatClient{APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 1024}
+	}
 
 	total, passed, totalTokens := 0, 0, 0
 	for _, c := range selected {
@@ -96,38 +107,82 @@ func main() {
 			total++
 			ctx, cancel := context.WithTimeout(context.Background(), *timeout)
 			obs, runErr := runCase(ctx, cfg, c, run)
-			cancel()
 			if runErr != nil {
+				cancel()
 				log.Fatalf("%s run %d setup: %v", c.ID, run, runErr)
 			}
-			rules := evals.EvaluateMultiSourceRules(c, obs)
-			if rules.Passed {
+			report := runReport{
+				Timestamp: time.Now().UTC(), Suite: suite.Name, Schema: suite.SchemaVersion,
+				Category: c.Category, Model: cfg.Model, Judge: *judge,
+				Observation: obs, Rules: evals.EvaluateMultiSourceRules(c, obs),
+			}
+			if judgeModel != nil {
+				if strings.TrimSpace(obs.Answer) == "" {
+					report.JudgeError = "answer empty"
+				} else {
+					verdict, judgeErr := evals.JudgeMultiSourceSemantics(ctx, judgeModel, c, obs)
+					if judgeErr != nil {
+						report.JudgeError = judgeErr.Error()
+					} else {
+						report.Semantic = &verdict
+					}
+				}
+			}
+			cancel()
+
+			runPassed := report.Rules.Passed
+			semanticLabel := "not-run"
+			if judgeModel != nil {
+				runPassed = structuralRulesPassed(report.Rules) && report.JudgeError == "" &&
+					report.Semantic != nil && report.Semantic.Passed
+				if report.JudgeError != "" {
+					semanticLabel = "error"
+				} else if report.Semantic != nil && report.Semantic.Passed {
+					semanticLabel = "pass"
+				} else {
+					semanticLabel = "fail"
+				}
+			}
+			if runPassed {
 				passed++
 			}
 			totalTokens += obs.TokenUsage.TotalTokens
-			fmt.Printf("%s %s run=%d candidates=%d reads=%d uses=%d tokens=%d duration=%s\n",
-				passLabel(rules.Passed), c.ID, run, len(obs.CandidateKeys), len(obs.ReadKeys), len(obs.UsedKeys)+len(obs.DismissedKeys),
+			fmt.Printf("%s %s run=%d rules=%t semantic=%s candidates=%d reads=%d uses=%d tokens=%d duration=%s\n",
+				passLabel(runPassed), c.ID, run, report.Rules.Passed, semanticLabel,
+				len(obs.CandidateKeys), len(obs.ReadKeys), len(obs.UsedKeys)+len(obs.DismissedKeys),
 				obs.TokenUsage.TotalTokens, obs.Duration.Round(time.Millisecond))
-			if !rules.Passed {
-				for _, check := range rules.Checks {
+			if !runPassed {
+				for _, check := range report.Rules.Checks {
 					if !check.Passed {
 						fmt.Printf("  rule %s: %s\n", check.Name, check.Detail)
 					}
 				}
+				if report.JudgeError != "" {
+					fmt.Printf("  judge error: %s\n", report.JudgeError)
+				} else if report.Semantic != nil && !report.Semantic.Passed {
+					fmt.Printf("  semantic: %s\n", report.Semantic.Reason)
+				}
 			}
 			if reportFile != nil {
-				report := runReport{Timestamp: time.Now().UTC(), Suite: suite.Name, Schema: suite.SchemaVersion,
-					Category: c.Category, Model: cfg.Model, Observation: obs, Rules: rules}
 				raw, _ := json.Marshal(report)
 				_, _ = reportFile.Write(append(raw, '\n'))
 			}
 		}
 	}
-	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% avg_tokens=%.1f model=%s\n",
-		passed, total, 100*float64(passed)/float64(total), float64(totalTokens)/float64(total), cfg.Model)
+	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% avg_tokens=%.1f judge=%s model=%s\n",
+		passed, total, 100*float64(passed)/float64(total), float64(totalTokens)/float64(total), *judge, cfg.Model)
 	if passed != total {
 		os.Exit(1)
 	}
+}
+
+func structuralRulesPassed(result evals.RuleResult) bool {
+	for _, check := range result.Checks {
+		if !check.Passed && !strings.HasPrefix(check.Name, "answer_") {
+			return false
+		}
+	}
+	return true
 }
 
 func runCase(ctx context.Context, cfg deepagent.Config, c evals.MultiSourceCase, run int) (evals.MultiSourceObservation, error) {
@@ -267,6 +322,7 @@ func runCase(ctx context.Context, cfg deepagent.Config, c evals.MultiSourceCase,
 	started := time.Now()
 	result, turnErr := service.StreamTurnWithHooks(ctx, c.UserText, runtime.TurnHooks{
 		OnContextSource:    func(event observe.ContextSourceTrace) { obs.Sources = append(obs.Sources, event) },
+		OnToolStart:        func(name string) { obs.ToolStarts = append(obs.ToolStarts, name) },
 		OnContextCandidate: func(event observe.ContextCandidateTrace) { obs.Candidates = append(obs.Candidates, event) },
 		OnContextRead:      func(event observe.ContextReadTrace) { obs.Reads = append(obs.Reads, event) },
 		OnContextUse:       func(event observe.ContextUseTrace) { obs.Uses = append(obs.Uses, event) },
