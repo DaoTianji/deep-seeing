@@ -429,6 +429,10 @@ button { color: inherit; }
 .node-group { cursor: grab; touch-action: none; }
 .node-group.dragging { cursor: grabbing; }
 .node-halo { fill: transparent; stroke: transparent; stroke-width: 7; transition: stroke .2s; }
+.attention-ring { fill: none; pointer-events: none; }
+.attention-ring.center { stroke: #8b5fbf; stroke-width: 3; filter: drop-shadow(0 0 4px rgba(139,95,191,.45)); }
+.attention-ring.support { stroke: #5f7e9c; stroke-width: 2.2; stroke-dasharray: 6 3; }
+.attention-ring.periphery { stroke: #a39a8c; stroke-width: 1.5; stroke-dasharray: 2 4; opacity: .72; }
 .node-group:hover .node-halo, .node-group.selected .node-halo { stroke: rgba(154,122,78,.18); }
 .node-group.recall-candidate .node-halo {
   fill: rgba(216,154,59,.1); stroke: rgba(216,154,59,.72);

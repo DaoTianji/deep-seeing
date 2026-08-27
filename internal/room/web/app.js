@@ -146,6 +146,12 @@ async function sendMessage(event) {
         activateContextRead(eventData.data || {});
       } else if (eventData.type === "context_use") {
         activateContextUse(eventData.data || {});
+		} else if (eventData.type === "attention_snapshot") {
+			activateAttentionSnapshot(eventData.data || {});
+			setActivity(`注意工作区 · ${(eventData.data?.items || []).length} 个保留线索`);
+		} else if (eventData.type === "attention_decision") {
+			activateAttentionDecision(eventData.data || {});
+			setActivity(`注意焦点调整 · ${eventData.data?.to || "unknown"}`);
       } else if (eventData.type === "recall_search") {
         activateRecallSearch(eventData.data || {});
         const count = Number(eventData.data?.result_count || 0);
@@ -227,7 +233,7 @@ function clearRecallActivation(render = true) {
 function emptyRecallActivation() {
   return {
     candidates: new Set(), read: new Set(), used: new Set(), dismissed: new Set(), focus: new Set(),
-    sourceByID: new Map(), sources: new Map(), query: "", source: "", searches: 0,
+    sourceByID: new Map(), sources: new Map(), attentionByID: new Map(), query: "", source: "", searches: 0,
   };
 }
 
@@ -299,6 +305,34 @@ function activateContextUse(event) {
   requestAnimationFrame(renderGraph);
 }
 
+function activateAttentionSnapshot(snapshot) {
+  const activation = state.recallActivation;
+  activation.attentionByID.clear();
+  for (const item of snapshot.items || []) {
+    if (!item.id || !item.tier) continue;
+    activation.attentionByID.set(item.id, item.tier);
+    activation.sourceByID.set(item.id, item.source || "context");
+  }
+  activation.source = "live";
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
+function activateAttentionDecision(event) {
+  const activation = state.recallActivation;
+  if (event.replaced_id) {
+    activation.attentionByID.delete(event.replaced_id);
+  }
+  if (event.id) {
+    if (event.to === "drop") activation.attentionByID.delete(event.id);
+    else if (event.to) activation.attentionByID.set(event.id, event.to);
+    activation.sourceByID.set(event.id, event.source || "context");
+  }
+  activation.source = "live";
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
 function replayRecallTrace(trace) {
   const activation = emptyRecallActivation();
   const contextCandidates = trace.context_candidates || [];
@@ -306,6 +340,19 @@ function replayRecallTrace(trace) {
   for (const source of trace.context_sources || []) {
     if (source.source) activation.sources.set(source.source, source.state || "unknown");
   }
+  for (const item of trace.attention?.items || []) {
+    if (!item.id || !item.tier) continue;
+    activation.attentionByID.set(item.id, item.tier);
+    activation.sourceByID.set(item.id, item.source || "context");
+  }
+  for (const event of trace.attention_decisions || []) {
+    if (event.replaced_id) activation.attentionByID.delete(event.replaced_id);
+    if (!event.id) continue;
+    if (event.to === "drop") activation.attentionByID.delete(event.id);
+    else if (event.to) activation.attentionByID.set(event.id, event.to);
+    activation.sourceByID.set(event.id, event.source || "context");
+  }
+
   if (unified) {
     for (const event of contextCandidates) {
       for (const id of event.result_ids || []) {
@@ -356,13 +403,13 @@ function renderRecallActivationStatus() {
   if (!banner) return;
   const activation = state.recallActivation;
   const eventCount = activation.candidates.size + activation.read.size + activation.used.size +
-    activation.dismissed.size + activation.focus.size + activation.sources.size;
+    activation.dismissed.size + activation.focus.size + activation.sources.size + activation.attentionByID.size;
   banner.hidden = !eventCount;
   if (!eventCount) return;
   const label = activation.source === "trace" ? "回放上下文激活" : "本轮上下文激活";
   const sourceNames = [...new Set([...activation.sourceByID.values()])].map(friendlyContextSource);
   $("#recall-activation-label").textContent =
-    `${label} · 候选 ${activation.candidates.size} · 已读 ${activation.read.size} · 采用 ${activation.used.size} · 焦点 ${activation.focus.size} · 排除 ${activation.dismissed.size}`;
+    `${label} · 候选 ${activation.candidates.size} · 已读 ${activation.read.size} · 采用 ${activation.used.size} · 焦点 ${activation.focus.size} · 排除 ${activation.dismissed.size} · 注意 ${activation.attentionByID.size}`;
   $("#recall-activation-query").textContent = activation.query
     ? `${sourceNames.join(" + ") || "上下文"}：${truncate(activation.query, 58)}`
     : `来源：${sourceNames.join(" + ") || [...activation.sources.keys()].map(friendlyContextSource).join(" + ") || "Bond 基线"}`;
@@ -404,6 +451,7 @@ function contextGraphView(graph) {
   const activeIDs = new Set([
     ...state.recallActivation.candidates, ...state.recallActivation.read,
     ...state.recallActivation.used, ...state.recallActivation.dismissed, ...state.recallActivation.focus,
+    ...state.recallActivation.attentionByID.keys(),
   ]);
   if (!nodes.length && activeIDs.size) {
     nodes.push({ id: "context:turn", kind: "Self", title: "本轮问题", status: "context-anchor" });
@@ -844,6 +892,10 @@ function appendGraphNodes(svg, nodes, layout, edgeRefs, bounds) {
       transform: `translate(${pos.x} ${pos.y})`, tabindex: "0",
     });
     group.append(svgEl("circle", { r: radius + 4, class: "node-halo" }));
+    const attentionTier = state.recallActivation.attentionByID.get(node.id);
+    if (attentionTier) {
+      group.append(svgEl("circle", { r: radius + 10, class: `attention-ring ${attentionTier}` }));
+    }
     group.append(svgEl("circle", { r: radius, class: `node-core ${node.kind} ${node.status || ""} ${node.anchor === "Self" ? "about-self" : ""}` }));
     if (node.context_source) {
       const glyph = svgEl("text", { y: 4, class: "node-glyph" });
@@ -1143,6 +1195,15 @@ function renderTraces() {
     const taskContext = trace.task_context;
     const contextExpands = trace.task_context_expansions || [];
     const contextFocus = trace.task_context_focus;
+    const attentionItems = trace.attention?.items || [];
+    const attentionDecisions = trace.attention_decisions || [];
+    const attentionState = new Map(attentionItems.map((entry) => [entry.id, entry.tier]));
+    for (const event of attentionDecisions) {
+      if (event.replaced_id) attentionState.delete(event.replaced_id);
+      if (event.to === "drop") attentionState.delete(event.id);
+      else if (event.id && event.to) attentionState.set(event.id, event.to);
+    }
+
     if (taskContext) {
       const focused = taskContext.focus_workspace_id || taskContext.focus_intent_id;
       meta.append(create("span", "", `处境 · Workspace ${(taskContext.workspace_ids || []).length} / Intent ${(taskContext.intent_ids || []).length}${focused ? ` / 焦点 ${focused}` : ""}`));
@@ -1162,14 +1223,21 @@ function renderTraces() {
     } else if (searches.length) {
       meta.append(create("span", "", `召回 · 候选 ${candidateIDs.size} / 已读 ${reads.length} / 采用 ${used.length} / 排除 ${dismissed.length}`));
     }
+    if (attentionItems.length || attentionDecisions.length) {
+      const center = [...attentionState.values()].filter((tier) => tier === "center").length;
+      const support = [...attentionState.values()].filter((tier) => tier === "support").length;
+      const periphery = [...attentionState.values()].filter((tier) => tier === "periphery").length;
+      meta.append(create("span", "", `注意 · 中心 ${center} / 支撑 ${support} / 外围 ${periphery} / 调整 ${attentionDecisions.length}`));
+    }
+
     for (const id of trace.recall_ids || []) meta.append(create("span", "", `recall · ${id}`));
     for (const tool of trace.tool_starts || []) meta.append(create("span", "", `tool · ${friendlyTool(tool)}`));
-    if (!hasUnifiedContext && !searches.length && !(trace.recall_ids || []).length && !(trace.tool_starts || []).length) meta.append(create("span", "", "没有调用工具"));
+    if (!hasUnifiedContext && !searches.length && !attentionItems.length && !attentionDecisions.length && !(trace.recall_ids || []).length && !(trace.tool_starts || []).length) meta.append(create("span", "", "没有调用工具"));
     item.append(meta);
     if (trace.answer_preview) {
       item.append(create("div", "trace-answer", `回应 · ${trace.answer_preview}`));
     }
-    if (hasUnifiedContext || searches.length || reads.length || used.length || dismissed.length) {
+    if (hasUnifiedContext || searches.length || reads.length || used.length || dismissed.length || attentionItems.length || attentionDecisions.length) {
       item.classList.add("trace-replay");
       item.tabIndex = 0;
       item.title = "点击在图中回放本轮召回候选";

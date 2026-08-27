@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"deep-seeing/internal/app"
+	"deep-seeing/internal/attention"
 	"deep-seeing/internal/backup"
 	"deep-seeing/internal/graph"
 	"deep-seeing/internal/observe"
@@ -371,6 +372,12 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			},
 			OnContextUse: func(event observe.ContextUseTrace) {
 				emit("context_use", event)
+			},
+			OnAttentionSnapshot: func(event attention.Snapshot) {
+				emit("attention_snapshot", event)
+			},
+			OnAttentionDecision: func(event observe.AttentionDecisionTrace) {
+				emit("attention_decision", event)
 			},
 		})
 		if err != nil {
