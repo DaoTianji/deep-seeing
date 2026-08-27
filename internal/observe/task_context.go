@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"deep-seeing/internal/contextsource"
 )
 
 // TaskContextTrace records the bounded factual leads presented to the Agent.
@@ -85,6 +87,14 @@ func RecordTaskContextExpansion(ctx context.Context, event TaskContextExpansionT
 	if c.onExpand != nil {
 		c.onExpand(event)
 	}
+	source := contextsource.Source(event.Source)
+	if event.Operation == "list" {
+		RecordContextCandidate(ctx, ContextCandidateTrace{
+			Source: source, Operation: "list", ResultIDs: event.ResultIDs, Error: event.Error,
+		})
+	} else {
+		RecordContextRead(ctx, ContextReadTrace{Source: source, ID: event.ID, Error: event.Error})
+	}
 }
 
 // RecordTaskContextFocus validates and records one public focus conclusion.
@@ -114,6 +124,22 @@ func RecordTaskContextFocus(ctx context.Context, event TaskContextFocusTrace, cu
 	c.mu.Unlock()
 	if c.onFocus != nil {
 		c.onFocus(copy)
+	}
+	disposition := "used"
+	if copy.Action == "continue" || copy.Action == "switch" {
+		disposition = "focus"
+	}
+	if copy.WorkspaceID != "" {
+		_ = RecordContextUse(ctx, ContextUseTrace{
+			Source: contextsource.Workspace, ID: copy.WorkspaceID,
+			Role: contextsource.Task, Disposition: disposition,
+		})
+	}
+	if copy.IntentID != "" {
+		_ = RecordContextUse(ctx, ContextUseTrace{
+			Source: contextsource.Intent, ID: copy.IntentID,
+			Role: contextsource.Plan, Disposition: disposition,
+		})
 	}
 	return copy, nil
 }

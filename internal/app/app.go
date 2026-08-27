@@ -16,6 +16,7 @@ import (
 	deepagent "deep-seeing/internal/agent"
 	"deep-seeing/internal/body"
 	"deep-seeing/internal/compaction"
+	"deep-seeing/internal/contextsource"
 	"deep-seeing/internal/graph"
 	"deep-seeing/internal/identity"
 	"deep-seeing/internal/intent"
@@ -208,6 +209,14 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Agent:       reactAgent, PostTurn: memory.NoopPostTurn{},
 		Soul: soulText, Origin: originText, Capability: prompt.CapabilityBlurb,
 		FirstBoot: firstBoot, Model: cfg.Model, Journal: journal,
+		ContextSources: map[contextsource.Source]string{
+			contextsource.Bond:      stores["context_graph"],
+			contextsource.SceneNorm: stores["scene_store"],
+			contextsource.Workspace: stores["workspace_store"],
+			contextsource.Intent:    stores["intent_store"],
+			contextsource.Proposal:  stores["proposals"],
+			contextsource.Episode:   stores["episode_store"],
+		},
 	})
 	if err != nil {
 		if graphStore != nil {

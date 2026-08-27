@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"deep-seeing/internal/contextsource"
 )
 
 // RecallSearchTrace is the observable, non-content result of one episode search.
@@ -81,6 +83,10 @@ func RecordRecallSearch(ctx context.Context, event RecallSearchTrace) {
 			listener(cloneRecallSearch(event))
 		}
 	}
+	RecordContextCandidate(ctx, ContextCandidateTrace{
+		Source: contextsource.Episode, Operation: "search", Query: event.Query,
+		ResultIDs: event.ResultIDs, Error: event.Error,
+	})
 }
 
 // RecordRecallRead records whether an Episode body was successfully opened.
@@ -97,6 +103,9 @@ func RecordRecallRead(ctx context.Context, event RecallReadTrace) {
 	if c.onRead != nil {
 		c.onRead(event)
 	}
+	RecordContextRead(ctx, ContextReadTrace{
+		Source: contextsource.Episode, ID: event.EpisodeID, Error: event.Error,
+	})
 }
 
 // RecordRecallEvidence validates and records public used/dismissed declarations.
@@ -166,6 +175,13 @@ func RecordRecallEvidence(ctx context.Context, events []RecallEvidenceTrace) err
 		for _, event := range clean {
 			c.onEvidence(event)
 		}
+	}
+	for _, event := range clean {
+		_ = RecordContextUse(ctx, ContextUseTrace{
+			Source: contextsource.Episode, ID: event.EpisodeID,
+			Role: contextsource.Evidence, Disposition: event.Status,
+			ReasonCode: event.Reason,
+		})
 	}
 	return nil
 }

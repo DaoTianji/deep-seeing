@@ -20,6 +20,7 @@ import (
 	deepagent "deep-seeing/internal/agent"
 	"deep-seeing/internal/body"
 	"deep-seeing/internal/compaction"
+	"deep-seeing/internal/contextsource"
 	"deep-seeing/internal/identity"
 	"deep-seeing/internal/memory"
 	"deep-seeing/internal/observe"
@@ -29,23 +30,24 @@ import (
 
 // Service runs one conversational turn with STM + SideQuery + Eino + PostTurn.
 type Service struct {
-	Scope       identity.TenantScope
-	SessionID   string
-	STM         memory.SessionStore
-	SideQuery   memory.SideQuerySelector
-	RecallMode  RecallMode
-	Norms       *NormSnapshotCache
-	TaskContext TaskContextProvider
-	Assembler   prompt.Assembler
-	Compactor   compaction.Compactor
-	Agent       *react.Agent
-	PostTurn    memory.PostTurnExtractor
-	Soul        string
-	Origin      string // may be empty after first_boot
-	Capability  string
-	FirstBoot   bool
-	Model       string
-	Journal     *observe.Journal
+	Scope          identity.TenantScope
+	SessionID      string
+	STM            memory.SessionStore
+	SideQuery      memory.SideQuerySelector
+	RecallMode     RecallMode
+	Norms          *NormSnapshotCache
+	TaskContext    TaskContextProvider
+	Assembler      prompt.Assembler
+	Compactor      compaction.Compactor
+	Agent          *react.Agent
+	PostTurn       memory.PostTurnExtractor
+	Soul           string
+	Origin         string // may be empty after first_boot
+	Capability     string
+	FirstBoot      bool
+	Model          string
+	Journal        *observe.Journal
+	ContextSources map[contextsource.Source]string
 
 	mu     sync.Mutex
 	sysMsg string
@@ -53,23 +55,24 @@ type Service struct {
 
 // Options configures a Service.
 type Options struct {
-	Scope       identity.TenantScope
-	SessionID   string
-	STM         memory.SessionStore
-	SideQuery   memory.SideQuerySelector
-	RecallMode  RecallMode
-	Norms       *NormSnapshotCache
-	TaskContext TaskContextProvider
-	Assembler   prompt.Assembler
-	Compactor   compaction.Compactor
-	Agent       *react.Agent
-	PostTurn    memory.PostTurnExtractor
-	Soul        string
-	Origin      string
-	Capability  string
-	FirstBoot   bool
-	Model       string
-	Journal     *observe.Journal
+	Scope          identity.TenantScope
+	SessionID      string
+	STM            memory.SessionStore
+	SideQuery      memory.SideQuerySelector
+	RecallMode     RecallMode
+	Norms          *NormSnapshotCache
+	TaskContext    TaskContextProvider
+	Assembler      prompt.Assembler
+	Compactor      compaction.Compactor
+	Agent          *react.Agent
+	PostTurn       memory.PostTurnExtractor
+	Soul           string
+	Origin         string
+	Capability     string
+	FirstBoot      bool
+	Model          string
+	Journal        *observe.Journal
+	ContextSources map[contextsource.Source]string
 }
 
 // New builds a runtime service.
@@ -114,23 +117,24 @@ func New(opt Options) (*Service, error) {
 		norms = NewNormSnapshotCache(nil, scope)
 	}
 	return &Service{
-		Scope:       scope,
-		SessionID:   sessionID,
-		STM:         opt.STM,
-		SideQuery:   opt.SideQuery,
-		RecallMode:  recallMode,
-		Norms:       norms,
-		TaskContext: opt.TaskContext,
-		Assembler:   assembler,
-		Compactor:   comp,
-		Agent:       opt.Agent,
-		PostTurn:    post,
-		Soul:        persona,
-		Origin:      origin,
-		Capability:  opt.Capability,
-		FirstBoot:   opt.FirstBoot,
-		Model:       opt.Model,
-		Journal:     opt.Journal,
+		Scope:          scope,
+		SessionID:      sessionID,
+		STM:            opt.STM,
+		SideQuery:      opt.SideQuery,
+		RecallMode:     recallMode,
+		Norms:          norms,
+		TaskContext:    opt.TaskContext,
+		Assembler:      assembler,
+		Compactor:      comp,
+		Agent:          opt.Agent,
+		PostTurn:       post,
+		Soul:           persona,
+		Origin:         origin,
+		Capability:     opt.Capability,
+		FirstBoot:      opt.FirstBoot,
+		Model:          opt.Model,
+		Journal:        opt.Journal,
+		ContextSources: cloneContextSourceStates(opt.ContextSources),
 	}, nil
 }
 
@@ -165,14 +169,18 @@ type TurnResult struct {
 
 // TurnHooks exposes observable turn activity without exposing hidden reasoning.
 type TurnHooks struct {
-	WriteDelta       func(string)
-	OnToolStart      func(string)
-	OnRecallSearch   func(observe.RecallSearchTrace)
-	OnRecallRead     func(observe.RecallReadTrace)
-	OnRecallEvidence func(observe.RecallEvidenceTrace)
-	OnTaskContext    func(observe.TaskContextTrace)
-	OnContextExpand  func(observe.TaskContextExpansionTrace)
-	OnContextFocus   func(observe.TaskContextFocusTrace)
+	WriteDelta         func(string)
+	OnToolStart        func(string)
+	OnRecallSearch     func(observe.RecallSearchTrace)
+	OnRecallRead       func(observe.RecallReadTrace)
+	OnRecallEvidence   func(observe.RecallEvidenceTrace)
+	OnTaskContext      func(observe.TaskContextTrace)
+	OnContextExpand    func(observe.TaskContextExpansionTrace)
+	OnContextFocus     func(observe.TaskContextFocusTrace)
+	OnContextSource    func(observe.ContextSourceTrace)
+	OnContextCandidate func(observe.ContextCandidateTrace)
+	OnContextRead      func(observe.ContextReadTrace)
+	OnContextUse       func(observe.ContextUseTrace)
 }
 
 // StreamTurn prepares context, runs Eino ReAct streaming, updates STM, and schedules extraction.
@@ -211,13 +219,41 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 		history = compactedHistory
 	}
 
-	turnMemory := s.prepareTurnMemory(ctx, userText)
+	turnCtx, contextCollector := observe.WithContextHooks(ctx, observe.ContextHooks{
+		OnSource: hooks.OnContextSource, OnCandidate: hooks.OnContextCandidate,
+		OnRead: hooks.OnContextRead, OnUse: hooks.OnContextUse,
+	})
+	turnCtx, recallCollector := observe.WithRecallHooks(turnCtx, observe.RecallHooks{
+		OnSearch: hooks.OnRecallSearch, OnRead: hooks.OnRecallRead, OnEvidence: hooks.OnRecallEvidence,
+	})
+	turnCtx, taskContextCollector := observe.WithTaskContextHooks(turnCtx, observe.TaskContextHooks{
+		OnExpand: hooks.OnContextExpand, OnFocus: hooks.OnContextFocus,
+	})
+
+	if s.RecallMode == RecallModeAgent {
+		for _, source := range contextsource.OrderedSources() {
+			if state, ok := s.ContextSources[source]; ok {
+				observe.RecordContextSource(turnCtx, observe.ContextSourceTrace{Source: source, State: state})
+			}
+		}
+	}
+	turnMemory := s.prepareTurnMemory(turnCtx, userText)
+	if s.RecallMode == RecallModeAgent {
+		state := "available"
+		if turnMemory.bondPlaceholder {
+			state = "unavailable"
+		}
+		observe.RecordContextSource(turnCtx, observe.ContextSourceTrace{
+			Source: contextsource.Bond, State: state, Version: fmt.Sprint(turnMemory.normVersion),
+		})
+	}
 	taskContextText := ""
 	var taskContextTrace *observe.TaskContextTrace
-	if snapshot, ok := s.prepareTaskContext(ctx); ok {
+	if snapshot, ok := s.prepareTaskContext(turnCtx); ok {
 		taskContextText = snapshot.PromptText()
 		trace := snapshot.Trace()
 		taskContextTrace = &trace
+		recordTaskContextSources(turnCtx, trace)
 		if hooks.OnTaskContext != nil {
 			hooks.OnTaskContext(trace)
 		}
@@ -258,13 +294,6 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 		}
 	}
 	opts = append(opts, agent.WithComposeOptions(compose.WithCallbacks(toolStartCallback(toolCB), tokenUsageCallback(tokenCounter))))
-	turnCtx, recallCollector := observe.WithRecallHooks(ctx, observe.RecallHooks{
-		OnSearch: hooks.OnRecallSearch, OnRead: hooks.OnRecallRead, OnEvidence: hooks.OnRecallEvidence,
-	})
-	turnCtx, taskContextCollector := observe.WithTaskContextHooks(turnCtx, observe.TaskContextHooks{
-		OnExpand: hooks.OnContextExpand,
-		OnFocus:  hooks.OnContextFocus,
-	})
 	sr, err := s.Agent.Stream(turnCtx, einoMsgs, opts...)
 	if err != nil {
 		return TurnResult{}, fmt.Errorf("agent stream: %w", err)
@@ -315,29 +344,33 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 
 	if s.Journal != nil {
 		_ = s.Journal.Append(observe.TurnTrace{
-			SessionID:       s.SessionID,
-			AgentID:         s.Scope.AgentID,
-			PersonID:        s.Scope.PersonID(),
-			ModelVersion:    s.Model,
-			RuntimeVer:      body.ToolsetVersion,
-			RecallMode:      string(s.RecallMode),
-			UserText:        observe.Preview(userText, 120),
-			NormVersion:     turnMemory.normVersion,
-			RecallIDs:       turnMemory.recallIDs,
-			RecallSearches:  recallCollector.Searches(),
-			RecallReads:     recallCollector.Reads(),
-			RecallEvidence:  recallCollector.Evidence(),
-			TaskContext:     taskContextTrace,
-			ContextExpands:  taskContextCollector.Expansions(),
-			ContextFocus:    taskContextCollector.Focus(),
-			BondSlots:       turnMemory.bondSlots,
-			BondItemIDs:     turnMemory.bondItemIDs,
-			BondPlaceholder: turnMemory.bondPlaceholder,
-			SceneIDs:        turnMemory.sceneIDs,
-			ToolStarts:      toolStarts,
-			Errors:          turnErrors,
-			AnswerPreview:   observe.Preview(final, 200),
-			TokenUsage:      tokenCounter.Snapshot(),
+			SessionID:         s.SessionID,
+			AgentID:           s.Scope.AgentID,
+			PersonID:          s.Scope.PersonID(),
+			ModelVersion:      s.Model,
+			RuntimeVer:        body.ToolsetVersion,
+			RecallMode:        string(s.RecallMode),
+			UserText:          observe.Preview(userText, 120),
+			NormVersion:       turnMemory.normVersion,
+			RecallIDs:         turnMemory.recallIDs,
+			RecallSearches:    recallCollector.Searches(),
+			RecallReads:       recallCollector.Reads(),
+			RecallEvidence:    recallCollector.Evidence(),
+			TaskContext:       taskContextTrace,
+			ContextExpands:    taskContextCollector.Expansions(),
+			ContextFocus:      taskContextCollector.Focus(),
+			ContextSources:    contextCollector.Sources(),
+			ContextCandidates: contextCollector.Candidates(),
+			ContextReads:      contextCollector.Reads(),
+			ContextUses:       contextCollector.Uses(),
+			BondSlots:         turnMemory.bondSlots,
+			BondItemIDs:       turnMemory.bondItemIDs,
+			BondPlaceholder:   turnMemory.bondPlaceholder,
+			SceneIDs:          turnMemory.sceneIDs,
+			ToolStarts:        toolStarts,
+			Errors:            turnErrors,
+			AnswerPreview:     observe.Preview(final, 200),
+			TokenUsage:        tokenCounter.Snapshot(),
 		})
 	}
 
@@ -349,6 +382,32 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 	}()
 
 	return TurnResult{Answer: final, TokenUsage: tokenCounter.Snapshot()}, nil
+}
+
+func recordTaskContextSources(ctx context.Context, trace observe.TaskContextTrace) {
+	observe.RecordContextSource(ctx, observe.ContextSourceTrace{Source: contextsource.Workspace, State: trace.WorkspaceStatus})
+	observe.RecordContextSource(ctx, observe.ContextSourceTrace{Source: contextsource.Intent, State: trace.IntentStatus})
+	if len(trace.WorkspaceIDs) > 0 {
+		observe.RecordContextCandidate(ctx, observe.ContextCandidateTrace{
+			Source: contextsource.Workspace, Operation: "snapshot", ResultIDs: trace.WorkspaceIDs,
+		})
+	}
+	if len(trace.IntentIDs) > 0 {
+		observe.RecordContextCandidate(ctx, observe.ContextCandidateTrace{
+			Source: contextsource.Intent, Operation: "snapshot", ResultIDs: trace.IntentIDs,
+		})
+	}
+}
+
+func cloneContextSourceStates(in map[contextsource.Source]string) map[contextsource.Source]string {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make(map[contextsource.Source]string, len(in))
+	for source, state := range in {
+		out[source] = state
+	}
+	return out
 }
 
 func toSchemaMessages(msgs []transcript.Message) []*schema.Message {
