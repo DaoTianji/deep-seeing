@@ -29,9 +29,20 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 			}
 			items, err := store.ListActive(ctx, agentID, limit)
 			if err != nil {
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Operation: "list", Error: err.Error()})
 				return "", err
 			}
-			out, err := json.Marshal(map[string]any{"ok": true, "intents": items})
+			cards := make([]intentContextCard, 0, len(items))
+			ids := make([]string, 0, len(items))
+			for _, item := range items {
+				cards = append(cards, intentContextCard{
+					ID: item.ID, Kind: item.Kind, Status: item.Status, Title: item.Title,
+					DueAt: item.DueAt, UpdatedAt: item.UpdatedAt,
+				})
+				ids = append(ids, item.ID)
+			}
+			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Operation: "list", ResultIDs: ids})
+			out, err := json.Marshal(map[string]any{"ok": true, "intents": cards})
 			return string(out), err
 		},
 	)
@@ -46,16 +57,16 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 		func(ctx context.Context, in readIntentInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
-				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Error: "id 不能为空"})
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Operation: "read", Error: "id 不能为空"})
 				return `{"ok":false,"error":"id 不能为空"}`, nil
 			}
 			it, err := store.Get(ctx, id)
 			if err != nil {
-				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", ID: id, Error: err.Error()})
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Operation: "read", ID: id, Error: err.Error()})
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 				return string(out), nil
 			}
-			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", ID: id})
+			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Operation: "read", ID: id})
 			wakes, _ := store.ListWakeJobs(ctx, id, 10)
 			out, err := json.Marshal(map[string]any{"ok": true, "intent": it, "wake_jobs": wakes})
 			return string(out), err
@@ -125,6 +136,15 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 		return nil, err
 	}
 	return append(toolsOut, cancelInt), nil
+}
+
+type intentContextCard struct {
+	ID        string            `json:"id"`
+	Kind      intent.IntentKind `json:"kind"`
+	Status    intent.Status     `json:"status"`
+	Title     string            `json:"title"`
+	DueAt     time.Time         `json:"due_at"`
+	UpdatedAt time.Time         `json:"updated_at"`
 }
 
 type listIntentsInput struct {

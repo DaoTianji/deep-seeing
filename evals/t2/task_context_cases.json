@@ -1,101 +1,158 @@
 {
-  "schema_version": 1,
-  "name": "t2-task-context-core",
-  "description": "T2 任务/项目处境薄快照行为契约；快照只提供事实卡片，Agent 按需展开，不做情绪推断。",
+  "schema_version": 2,
+  "name": "t2-task-context-complete",
+  "description": "T2.3 多轮任务处境闭环：无关抑制、明确选择、会话连续、切换、歧义询问、快照溢出发现、Intent 与清除焦点。全部数据均为虚构夹具。",
   "cases": [
     {
       "id": "TCN1",
-      "category": "no_expand",
-      "description": "普通计算不应被活跃项目打扰",
-      "user_text": "17 乘以 23 是多少？",
+      "category": "no_context",
+      "description": "普通知识任务不调查、不声明焦点、不搜索 Episode。",
       "workspaces": [
-        {
-          "key": "unrelated-project",
-          "type": "project",
-          "status": "in_progress",
-          "title": "虚构的植物浇水实验",
-          "summary": "研究不同光照下的浇水频率",
-          "body": "这是虚构测试项目。下一步是记录第三组植物的含水量。"
-        }
+        {"key": "unrelated", "type": "project", "status": "in_progress", "title": "虚构植物称重项目", "body": "下一步是给第二组植物称重。"}
       ],
-      "expect": {
-        "forbid_context_expansion": true,
-        "forbid_episode_search": true
-      }
+      "turns": [
+        {
+          "user_text": "计算 17 乘以 23，只给结果。",
+          "expect": {"forbid_context_expansion": true, "forbid_focus_declaration": true, "forbid_episode_search": true}
+        }
+      ]
     },
     {
       "id": "TCW1",
-      "category": "workspace_expand",
-      "description": "明确要求继续当前项目时展开对应 Workspace",
-      "user_text": "继续任务处境建模这个项目吧。请先打开对应的 Workspace，再告诉我下一步是什么。",
+      "category": "explicit_workspace",
+      "description": "明确延续项目时读取正文并公开选择焦点。",
       "workspaces": [
-        {
-          "key": "task-context-project",
-          "type": "project",
-          "status": "in_progress",
-          "title": "T2 任务处境建模",
-          "summary": "实现事实薄快照与按需展开",
-          "body": "这是虚构测试项目。已完成快照契约，下一步是验证同一句输入在不同项目下读取不同 Workspace。"
-        }
+        {"key": "target", "type": "project", "status": "in_progress", "title": "虚构任务处境建模", "body": "已完成薄快照，下一步是验证多轮焦点保持。"},
+        {"key": "other", "type": "project", "status": "in_progress", "title": "虚构植物观察", "body": "下一步是记录叶片颜色。"}
       ],
-      "expect": {
-        "required_workspace_keys": ["task-context-project"]
-      }
+      "turns": [
+        {
+          "user_text": "继续‘虚构任务处境建模’项目。请先读取对应 Workspace，再告诉我下一步。",
+          "expect": {"required_workspace_keys": ["target"], "focus_workspace_key": "target", "focus_action": "continue", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        }
+      ]
+    },
+    {
+      "id": "TCC1",
+      "category": "session_continuity",
+      "description": "首轮选中的项目在后续省略名称时保持为会话焦点。",
+      "workspaces": [
+        {"key": "target", "type": "project", "status": "in_progress", "title": "虚构海岸采样项目", "body": "当前目标是采集第三个潮池的盐度；下一步先校准盐度计。"},
+        {"key": "other", "type": "project", "status": "in_progress", "title": "虚构山地采样项目", "body": "下一步检查海拔计。"}
+      ],
+      "turns": [
+        {
+          "user_text": "继续‘虚构海岸采样项目’，先打开项目资料并确认当前焦点。",
+          "expect": {"required_workspace_keys": ["target"], "focus_workspace_key": "target", "focus_action": "continue", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        },
+        {
+          "user_text": "那就开始吧。请根据当前项目资料告诉我第一步。",
+          "expect": {"snapshot_focus_workspace_key": "target", "required_workspace_keys": ["target"], "focus_workspace_key": "target", "focus_action": "continue", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        }
+      ]
+    },
+    {
+      "id": "TCSW1",
+      "category": "explicit_switch",
+      "description": "用户明确切换项目时，当前表达覆盖旧会话焦点。",
+      "workspaces": [
+        {"key": "alpha", "type": "project", "status": "in_progress", "title": "虚构阿尔法发布", "body": "下一步是核对阿尔法变更清单。"},
+        {"key": "beta", "type": "project", "status": "in_progress", "title": "虚构贝塔发布", "body": "下一步是运行贝塔冒烟测试。"}
+      ],
+      "turns": [
+        {
+          "user_text": "继续‘虚构阿尔法发布’，读取资料并把它作为当前焦点。",
+          "expect": {"required_workspace_keys": ["alpha"], "focus_workspace_key": "alpha", "focus_action": "continue", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        },
+        {
+          "user_text": "现在切换到‘虚构贝塔发布’，读取它并告诉我下一步。",
+          "expect": {"snapshot_focus_workspace_key": "alpha", "required_workspace_keys": ["beta"], "focus_workspace_key": "beta", "focus_action": "switch", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        }
+      ]
+    },
+    {
+      "id": "TCA1",
+      "category": "ambiguous_reference",
+      "description": "没有会话焦点且指代不明时公开声明歧义并询问，不武断选择。",
+      "workspaces": [
+        {"key": "red", "type": "project", "status": "in_progress", "title": "虚构红队复盘", "body": "下一步整理攻击路径。"},
+        {"key": "blue", "type": "project", "status": "in_progress", "title": "虚构蓝队复盘", "body": "下一步整理防御缺口。"}
+      ],
+      "turns": [
+        {
+          "user_text": "继续那个复盘项目吧。",
+          "expect": {"focus_action": "clarify", "focus_certainty": "ambiguous", "needs_user_confirmation": true, "require_question": true, "forbid_episode_search": true}
+        }
+      ]
+    },
+    {
+      "id": "TCO1",
+      "category": "snapshot_overflow",
+      "description": "目标不在前四张薄卡片时，通过列表发现后读取并选择。",
+      "workspaces": [
+        {"key": "target", "type": "project", "status": "in_progress", "title": "虚构季度复盘", "body": "下一步是汇总第三季度的三个异常指标。"},
+        {"key": "d1", "type": "project", "status": "in_progress", "title": "虚构新项目一", "body": "无关内容一。"},
+        {"key": "d2", "type": "project", "status": "in_progress", "title": "虚构新项目二", "body": "无关内容二。"},
+        {"key": "d3", "type": "project", "status": "in_progress", "title": "虚构新项目三", "body": "无关内容三。"},
+        {"key": "d4", "type": "project", "status": "in_progress", "title": "虚构新项目四", "body": "无关内容四。"},
+        {"key": "d5", "type": "project", "status": "in_progress", "title": "虚构新项目五", "body": "无关内容五。"}
+      ],
+      "turns": [
+        {
+          "user_text": "继续‘虚构季度复盘’。如果薄快照里没有它，请先列出 Workspace 找到它，再读取正文并确认焦点。",
+          "expect": {"required_workspace_list_keys": ["target"], "required_workspace_keys": ["target"], "focus_workspace_key": "target", "focus_action": "continue", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        }
+      ]
     },
     {
       "id": "TCI1",
-      "category": "intent_expand",
-      "description": "明确询问未来安排时展开对应 Intent",
-      "user_text": "我给未来的自己留了什么 T2 安排？请先打开对应的 Intent 核对。",
+      "category": "explicit_intent",
+      "description": "明确核对未来约定时读取 Intent 并公开 check 结论。",
       "intents": [
-        {
-          "key": "t2-review-intent",
-          "kind": "one_shot",
-          "title": "复查 T2 任务处境案例",
-          "body": "这是虚构测试 Intent：完成行为评估后复查失败类型。"
-        }
+        {"key": "target", "kind": "one_shot", "title": "虚构发布前检查", "body": "发布前必须检查回滚开关。"},
+        {"key": "other", "kind": "one_shot", "title": "虚构植物浇水", "body": "周五给植物浇水。"}
       ],
-      "expect": {
-        "required_intent_keys": ["t2-review-intent"]
-      }
+      "turns": [
+        {
+          "user_text": "核对‘虚构发布前检查’这个未来约定。请读取对应 Intent 后回答。",
+          "expect": {"required_intent_keys": ["target"], "focus_intent_key": "target", "focus_action": "check", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        }
+      ]
     },
     {
-      "id": "TCS1",
-      "category": "context_switch",
-      "description": "相同输入在植物项目处境下展开植物 Workspace",
-      "user_text": "继续这个项目吧。请先打开当前项目资料，再告诉我下一步。",
+      "id": "TCWI1",
+      "category": "workspace_and_intent",
+      "description": "项目和约定同时实质相关时读取二者并公开联合焦点。",
       "workspaces": [
-        {
-          "key": "plant-project",
-          "type": "project",
-          "status": "in_progress",
-          "title": "虚构的植物浇水实验",
-          "summary": "植物项目",
-          "body": "这是虚构测试项目。下一步是给第二组植物称重。"
-        }
+        {"key": "project", "type": "project", "status": "in_progress", "title": "虚构灯塔发布", "body": "发布步骤第一项是运行离线检查。"}
       ],
-      "expect": {
-        "required_workspace_keys": ["plant-project"]
-      }
+      "intents": [
+        {"key": "reminder", "kind": "one_shot", "title": "虚构灯塔回滚提醒", "body": "发布前确认回滚开关处于启用状态。"}
+      ],
+      "turns": [
+        {
+          "user_text": "继续‘虚构灯塔发布’，同时核对‘虚构灯塔回滚提醒’。请读取两份资料再说明第一步。",
+          "expect": {"required_workspace_keys": ["project"], "required_intent_keys": ["reminder"], "focus_workspace_key": "project", "focus_intent_key": "reminder", "focus_action": "continue", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        }
+      ]
     },
     {
-      "id": "TCS2",
-      "category": "context_switch",
-      "description": "相同输入在召回项目处境下展开召回 Workspace",
-      "user_text": "继续这个项目吧。请先打开当前项目资料，再告诉我下一步。",
+      "id": "TCLR1",
+      "category": "clear_focus",
+      "description": "用户明确离开项目时清除会话焦点，并直接处理无关任务。",
       "workspaces": [
-        {
-          "key": "recall-project",
-          "type": "project",
-          "status": "in_progress",
-          "title": "虚构的 T2 召回实验",
-          "summary": "召回项目",
-          "body": "这是虚构测试项目。下一步是检查候选、读取与采用的公开轨迹。"
-        }
+        {"key": "target", "type": "project", "status": "in_progress", "title": "虚构风洞项目", "body": "下一步检查传感器。"}
       ],
-      "expect": {
-        "required_workspace_keys": ["recall-project"]
-      }
+      "turns": [
+        {
+          "user_text": "继续‘虚构风洞项目’，读取资料并确认焦点。",
+          "expect": {"required_workspace_keys": ["target"], "focus_workspace_key": "target", "focus_action": "continue", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_episode_search": true}
+        },
+        {
+          "user_text": "先不聊这个项目了，清除当前项目焦点。然后只回答 8 加 9 等于多少。",
+          "expect": {"snapshot_focus_workspace_key": "target", "focus_action": "clear", "focus_certainty": "clear", "needs_user_confirmation": false, "forbid_context_expansion": true, "forbid_episode_search": true}
+        }
+      ]
     }
   ]
 }

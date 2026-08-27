@@ -54,7 +54,7 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 - 无 External 工具 Interrupt UI、Restore 需人工演练  
 - 完整 Know→Act Birth Test 仍需带模型跑一遍（清单见 birth-gate）  
 - **T1（常模参与对话，已落地）**：`FormatCompactRecall` 优先级注入；Bond `items_json` + `bond_version` 为 Item SoT；`append_bond_boundary` / `propose_bond_update` / `set_explicit_bond_fact`；SceneNorm 文件旁路（`list/read/write_scene_norm`，关键词命中注入）；Strategy 派生缓存（`set_bond_strategy_cache`，绑定 `bond_version`）。旧 `Strategy` 散文非 SoT。
-- **T2 第一至三轮（自主召回 + 证据闭环 + 任务处境薄快照）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；主 Agent 自主调用 `search_episodes` 获取候选卡、用 `read_episode` 核对正文，并通过 `report_recall_evidence` 将候选公开标记为 `used` 或 `dismissed`。每轮另提供最多 4 个 active Workspace/Intent 事实卡片，Agent 需要时才展开正文；快照不进入 LTM，Trace 只存 ID 和展开事件。完整计划见 [t2-recall.md](./t2-recall.md)。16 案例 × 3 次召回证据评估通过 48/48（见 [评估结果](./evals/t2-agent-recall-results.md)）。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索或完整多源召回。
+- **T2.1–T2.3（自主召回 + 证据闭环 + 当前任务处境）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；主 Agent 自主调用 `search_episodes` 获取候选卡、用 `read_episode` 核对正文，并通过 `report_recall_evidence` 将候选公开标记为 `used` 或 `dismissed`。每轮另提供最多 4 个 active Workspace/Intent 事实卡片；目标不在快照时可 list，正文必须 read。`report_context_focus` 公开声明继续、切换、核对、比较、歧义或清除；continue/switch 只写进程内会话焦点，不进入 LTM。Trace 只存 ID、list/read 与焦点状态。完整计划见 [t2-recall.md](./t2-recall.md)。16 案例 × 3 次召回证据评估通过 48/48；T2.3 完整多轮行为复验通过 27/27（36 Turn），且持久化数据零变化。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索或完整多源召回。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 

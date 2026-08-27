@@ -9,10 +9,11 @@
 | 长期记忆 **设计** | [design-ltm.md](./design-ltm.md) | **完整目标架构**：三层权威、Graph/Episode/Raw、Writer、常模与双假设、召回、分期与评测 |
 | 长期记忆 **认知共识** | [memory-cognition.md](./memory-cognition.md) | 为何难、人脑近似、State-conditioned Retrieval、遗忘与 Prediction Error |
 | 长期记忆 **现状** | [memory-ltm.md](./memory-ltm.md) | Phase 1–4 + P5–P8：Self、Workspace、Agency、World |
-| T2 完整计划与状态 | [t2-recall.md](./t2-recall.md) | 自主召回 → 证据闭环 → 当前处境 → 多源 → 注意竞争 → 上线 |
+| T2 完整计划与状态 | [t2-recall.md](./t2-recall.md) | 自主召回 → 证据闭环 → 当前处境（薄快照/会话焦点/消歧）→ 多源 → 注意竞争 → 上线 |
 | T2 自主召回评估 | [evals/t2-agent-recall.md](./evals/t2-agent-recall.md) | 16 条机器可读案例、隔离沙箱、证据闭环、结构规则与语义评分 |
 | T2 评估结果 | [evals/t2-agent-recall-results.md](./evals/t2-agent-recall-results.md) | 改造前基线与 48/48 证据闭环聚合结果 |
 | T2 任务处境结果 | [evals/t2-task-context-results.md](./evals/t2-task-context-results.md) | 薄快照、按需展开与同句不同项目的 15/15 行为结果 |
+| T2.3 处境闭环结果 | [evals/t2-task-context-complete-results.md](./evals/t2-task-context-complete-results.md) | 会话焦点、切换、消歧、溢出发现与完整验收状态 |
 | P5–P8 Roadmap | [roadmap-p5-p8.md](./roadmap-p5-p8.md) | 自我工作台 → Workspace → Agency → World |
 | **v0.9 议题清单** | [roadmap-v0.9.md](./roadmap-v0.9.md) | D0 地图：常模 → 状态召回 → 复盘/Dream；T4 遗忘/PE 以设计为主 |
 | P5.0 基础契约 | [p5.0-contracts.md](./p5.0-contracts.md) | 存储边界、Proposal Policy、回合隔离、安全 |

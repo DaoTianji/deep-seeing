@@ -123,10 +123,21 @@ async function sendMessage(event) {
       } else if (eventData.type === "task_context") {
         const workspaces = eventData.data?.workspace_ids?.length || 0;
         const intents = eventData.data?.intent_ids?.length || 0;
-        setActivity(`已准备任务处境快照 · Workspace ${workspaces} / Intent ${intents}`);
+        const focused = eventData.data?.focus_workspace_id || eventData.data?.focus_intent_id;
+        setActivity(`已准备任务处境快照 · Workspace ${workspaces} / Intent ${intents}${focused ? " · 含会话焦点" : ""}`);
       } else if (eventData.type === "task_context_expand") {
         const source = eventData.data?.source === "intent" ? "Intent" : "Workspace";
-        setActivity(eventData.data?.error ? `${source} 展开失败` : `正在展开 ${source} 处境`);
+        const operation = eventData.data?.operation === "list" ? "调查" : "展开";
+        setActivity(eventData.data?.error ? `${source} ${operation}失败` : `正在${operation} ${source} 处境`);
+      } else if (eventData.type === "task_context_focus") {
+        const focus = eventData.data || {};
+        if (focus.action === "clarify") {
+          setActivity("当前处境仍有歧义，准备向你确认");
+        } else if (focus.action === "clear") {
+          setActivity("已清除当前会话焦点");
+        } else {
+          setActivity(`已确认当前焦点 · ${focus.workspace_id || focus.intent_id || focus.action}`);
+        }
       } else if (eventData.type === "recall_search") {
         activateRecallSearch(eventData.data || {});
         const count = Number(eventData.data?.result_count || 0);
@@ -977,8 +988,21 @@ function renderTraces() {
     const dismissed = (trace.recall_evidence || []).filter((event) => event.status === "dismissed");
     const taskContext = trace.task_context;
     const contextExpands = trace.task_context_expansions || [];
-    if (taskContext) meta.append(create("span", "", `处境 · Workspace ${(taskContext.workspace_ids || []).length} / Intent ${(taskContext.intent_ids || []).length}`));
-    if (contextExpands.length) meta.append(create("span", "", `处境展开 · ${contextExpands.length}`));
+    const contextFocus = trace.task_context_focus;
+    if (taskContext) {
+      const focused = taskContext.focus_workspace_id || taskContext.focus_intent_id;
+      meta.append(create("span", "", `处境 · Workspace ${(taskContext.workspace_ids || []).length} / Intent ${(taskContext.intent_ids || []).length}${focused ? ` / 焦点 ${focused}` : ""}`));
+    }
+    if (contextExpands.length) {
+      const lists = contextExpands.filter((event) => event.operation === "list").length;
+      const reads = contextExpands.filter((event) => !event.operation || event.operation === "read").length;
+      meta.append(create("span", "", `处境调查 · 列表 ${lists} / 展开 ${reads}`));
+    }
+    if (contextFocus) {
+      const selected = contextFocus.workspace_id || contextFocus.intent_id || "未选择";
+      const label = contextFocus.action === "clarify" ? "需要确认" : selected;
+      meta.append(create("span", "", `处境结论 · ${contextFocus.action} / ${label}`));
+    }
     if (searches.length) meta.append(create("span", "", `召回 · 候选 ${candidateIDs.size} / 已读 ${reads.length} / 采用 ${used.length} / 排除 ${dismissed.length}`));
     for (const id of trace.recall_ids || []) meta.append(create("span", "", `recall · ${id}`));
     for (const tool of trace.tool_starts || []) meta.append(create("span", "", `tool · ${friendlyTool(tool)}`));

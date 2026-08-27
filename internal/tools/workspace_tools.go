@@ -35,12 +35,16 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 			}
 			list, err := store.List(filter)
 			if err != nil {
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Operation: "list", Error: err.Error()})
 				return "", err
 			}
 			ovs := make([]workspace.Overview, 0, len(list))
+			ids := make([]string, 0, len(list))
 			for _, d := range list {
 				ovs = append(ovs, workspace.ToOverview(d))
+				ids = append(ids, d.ID)
 			}
+			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Operation: "list", ResultIDs: ids})
 			out, err := json.Marshal(map[string]any{"ok": true, "items": ovs})
 			return string(out), err
 		},
@@ -56,16 +60,16 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 		func(ctx context.Context, in readWorkspaceInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
-				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Error: "id 不能为空"})
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Operation: "read", Error: "id 不能为空"})
 				return `{"ok":false,"error":"id 不能为空"}`, nil
 			}
 			d, err := store.Get(id)
 			if err != nil {
-				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", ID: id, Error: err.Error()})
+				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Operation: "read", ID: id, Error: err.Error()})
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 				return string(out), nil
 			}
-			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", ID: id})
+			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Operation: "read", ID: id})
 			out, err := json.Marshal(map[string]any{"ok": true, "document": d})
 			return string(out), err
 		},

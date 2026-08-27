@@ -357,6 +357,9 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			OnContextExpand: func(event observe.TaskContextExpansionTrace) {
 				emit("task_context_expand", event)
 			},
+			OnContextFocus: func(event observe.TaskContextFocusTrace) {
+				emit("task_context_focus", event)
+			},
 		})
 		if err != nil {
 			return err

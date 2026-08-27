@@ -146,6 +146,13 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	graphStore, graphLabel := openGraph(ctx, scope)
 	recallMode := runtime.RecallModeFromEnv()
 	norms := runtime.NewNormSnapshotCache(graphStore, scope)
+	var taskFocusController tools.TaskContextFocusController
+	var taskFocusReader runtime.TaskContextFocusReader
+	if recallMode == runtime.RecallModeAgent {
+		taskFocus := runtime.NewSessionTaskContextFocusStore()
+		taskFocusController = taskFocus
+		taskFocusReader = taskFocus
+	}
 
 	stores := map[string]string{
 		"stm": stmBackend, "episode_store": "available", "context_graph": "unavailable",
@@ -166,7 +173,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Scope: scope, Episodes: episodes, Graph: graphStore, Scenes: sceneStore, Proposals: proposals,
 		Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Ledger: ledger, SessionID: sessionID, Model: cfg.Model, Stores: stores, FirstBoot: firstBoot,
-		RecallMode: string(recallMode),
+		RecallMode: string(recallMode), TaskContextFocus: taskFocusController,
 		OnBondChanged: func() {
 			if svc != nil {
 				svc.InvalidateNorm()
@@ -195,7 +202,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	svc, err = runtime.New(runtime.Options{
 		Scope: scope, SessionID: sessionID, STM: stm, SideQuery: side,
 		RecallMode: recallMode, Norms: norms,
-		TaskContext: runtime.NewStoreTaskContextProvider(wsStore, intentStore),
+		TaskContext: runtime.NewStoreTaskContextProvider(wsStore, intentStore, taskFocusReader),
 		Assembler:   prompt.DefaultAssembler{},
 		Compactor:   compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
 		Agent:       reactAgent, PostTurn: memory.NoopPostTurn{},

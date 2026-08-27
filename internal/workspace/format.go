@@ -14,8 +14,8 @@ func formatDocument(d Document) string {
 	fmt.Fprintf(&b, "status: %s\n", d.Status)
 	fmt.Fprintf(&b, "title: %q\n", d.Title)
 	fmt.Fprintf(&b, "summary: %q\n", d.Summary)
-	fmt.Fprintf(&b, "created_at: %s\n", d.CreatedAt.UTC().Format(time.RFC3339))
-	fmt.Fprintf(&b, "updated_at: %s\n", d.UpdatedAt.UTC().Format(time.RFC3339))
+	fmt.Fprintf(&b, "created_at: %s\n", d.CreatedAt.UTC().Format(time.RFC3339Nano))
+	fmt.Fprintf(&b, "updated_at: %s\n", d.UpdatedAt.UTC().Format(time.RFC3339Nano))
 	if len(d.EpisodeIDs) > 0 {
 		fmt.Fprintf(&b, "episode_ids: [%s]\n", strings.Join(quoteAll(d.EpisodeIDs), ", "))
 	}
@@ -27,7 +27,7 @@ func formatDocument(d Document) string {
 	b.WriteString(strings.TrimSpace(d.Body))
 	b.WriteString("\n\n## Revisions\n\n")
 	for _, r := range d.Revisions {
-		fmt.Fprintf(&b, "- %s | %s | %s\n", r.At.UTC().Format(time.RFC3339), r.Actor, r.Summary)
+		fmt.Fprintf(&b, "- %s | %s | %s\n", r.At.UTC().Format(time.RFC3339Nano), r.Actor, r.Summary)
 	}
 	return b.String()
 }
@@ -62,12 +62,12 @@ func parseDocument(fallbackID, raw string) (Document, error) {
 					d.RelatedSelfIDs = parseList(after)
 				}
 				if after, ok := strings.CutPrefix(line, "created_at:"); ok {
-					if t, err := time.Parse(time.RFC3339, strings.TrimSpace(after)); err == nil {
+					if t, err := parseWorkspaceTime(strings.TrimSpace(after)); err == nil {
 						d.CreatedAt = t
 					}
 				}
 				if after, ok := strings.CutPrefix(line, "updated_at:"); ok {
-					if t, err := time.Parse(time.RFC3339, strings.TrimSpace(after)); err == nil {
+					if t, err := parseWorkspaceTime(strings.TrimSpace(after)); err == nil {
 						d.UpdatedAt = t
 					}
 				}
@@ -101,10 +101,17 @@ func splitBodyRevisions(raw string) (string, []Revision) {
 		if len(parts) < 3 {
 			continue
 		}
-		at, _ := time.Parse(time.RFC3339, strings.TrimSpace(parts[0]))
+		at, _ := parseWorkspaceTime(strings.TrimSpace(parts[0]))
 		revs = append(revs, Revision{At: at, Actor: strings.TrimSpace(parts[1]), Summary: strings.TrimSpace(parts[2])})
 	}
 	return strings.TrimSpace(bodyPart), revs
+}
+
+func parseWorkspaceTime(raw string) (time.Time, error) {
+	if t, err := time.Parse(time.RFC3339Nano, raw); err == nil {
+		return t, nil
+	}
+	return time.Parse(time.RFC3339, raw)
 }
 
 func quoteAll(xs []string) []string {

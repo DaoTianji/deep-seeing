@@ -172,6 +172,7 @@ type TurnHooks struct {
 	OnRecallEvidence func(observe.RecallEvidenceTrace)
 	OnTaskContext    func(observe.TaskContextTrace)
 	OnContextExpand  func(observe.TaskContextExpansionTrace)
+	OnContextFocus   func(observe.TaskContextFocusTrace)
 }
 
 // StreamTurn prepares context, runs Eino ReAct streaming, updates STM, and schedules extraction.
@@ -262,6 +263,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 	})
 	turnCtx, taskContextCollector := observe.WithTaskContextHooks(turnCtx, observe.TaskContextHooks{
 		OnExpand: hooks.OnContextExpand,
+		OnFocus:  hooks.OnContextFocus,
 	})
 	sr, err := s.Agent.Stream(turnCtx, einoMsgs, opts...)
 	if err != nil {
@@ -327,6 +329,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 			RecallEvidence:  recallCollector.Evidence(),
 			TaskContext:     taskContextTrace,
 			ContextExpands:  taskContextCollector.Expansions(),
+			ContextFocus:    taskContextCollector.Focus(),
 			BondSlots:       turnMemory.bondSlots,
 			BondItemIDs:     turnMemory.bondItemIDs,
 			BondPlaceholder: turnMemory.bondPlaceholder,

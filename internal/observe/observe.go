@@ -27,6 +27,7 @@ type TurnTrace struct {
 	RecallEvidence  []RecallEvidenceTrace       `json:"recall_evidence,omitempty"`
 	TaskContext     *TaskContextTrace           `json:"task_context,omitempty"`
 	ContextExpands  []TaskContextExpansionTrace `json:"task_context_expansions,omitempty"`
+	ContextFocus    *TaskContextFocusTrace      `json:"task_context_focus,omitempty"`
 	BondSlots       []string                    `json:"bond_slots,omitempty"`
 	BondItemIDs     []string                    `json:"bond_item_ids,omitempty"`
 	BondPlaceholder bool                        `json:"bond_placeholder,omitempty"`

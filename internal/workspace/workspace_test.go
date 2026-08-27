@@ -106,3 +106,32 @@ func TestListByType(t *testing.T) {
 		t.Fatalf("list=%v", list)
 	}
 }
+
+func TestRapidCreatesPreserveTimestampOrder(t *testing.T) {
+	store, err := workspace.NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, err := store.Create(workspace.Write{Type: workspace.TypeProject, Title: "first", Body: "old"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := store.Create(workspace.Write{Type: workspace.TypeProject, Title: "second", Body: "new"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	gotFirst, err := store.Get(first.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !gotFirst.UpdatedAt.Equal(first.UpdatedAt) {
+		t.Fatalf("timestamp precision lost: wrote=%s read=%s", first.UpdatedAt, gotFirst.UpdatedAt)
+	}
+	list, err := store.List(workspace.ListFilter{Status: workspace.StatusOpen, Limit: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(list) != 2 || list[0].ID != second.ID || list[1].ID != first.ID {
+		t.Fatalf("rapid create order is unstable: %+v", list)
+	}
+}

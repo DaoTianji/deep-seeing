@@ -38,22 +38,23 @@ type GraphStore interface {
 
 // Deps wires tool backends.
 type Deps struct {
-	Scope         identity.TenantScope
-	Episodes      *memory.EpisodeStore
-	Graph         GraphStore            // optional
-	Scenes        *memory.SceneStore    // optional — SceneNorm
-	Proposals     *memory.ProposalStore // optional
-	Self          *selfmodel.Store      // optional — SelfArtifact file store
-	Workspace     *workspace.Store      // optional — unfinished thinking
-	Intents       *intent.Store         // optional — agency intents
-	World         *world.Gateway        // optional — web gateway
-	Ledger        *memory.MutationLedger
-	SessionID     string
-	Model         string
-	Stores        map[string]string // stm/episode/graph availability
-	FirstBoot     bool
-	RecallMode    string
-	OnBondChanged func()
+	Scope            identity.TenantScope
+	Episodes         *memory.EpisodeStore
+	Graph            GraphStore            // optional
+	Scenes           *memory.SceneStore    // optional — SceneNorm
+	Proposals        *memory.ProposalStore // optional
+	Self             *selfmodel.Store      // optional — SelfArtifact file store
+	Workspace        *workspace.Store      // optional — unfinished thinking
+	Intents          *intent.Store         // optional — agency intents
+	World            *world.Gateway        // optional — web gateway
+	Ledger           *memory.MutationLedger
+	SessionID        string
+	Model            string
+	Stores           map[string]string // stm/episode/graph availability
+	FirstBoot        bool
+	RecallMode       string
+	OnBondChanged    func()
+	TaskContextFocus TaskContextFocusController
 }
 
 // All returns agent tools: body/capabilities + memory (+ restricted bond).
@@ -75,6 +76,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 	hasWorkspace := deps.Workspace != nil
 	hasIntents := deps.Intents != nil
 	hasWorld := deps.World != nil
+	hasTaskContext := deps.TaskContextFocus != nil && strings.EqualFold(strings.TrimSpace(deps.RecallMode), "agent")
 
 	toolsOut := []tool.BaseTool{}
 
@@ -97,7 +99,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		"list_capabilities",
 		"列出可用能力摘要（不要依赖 System Prompt 里的完整工具堆）。",
 		func(ctx context.Context, _ struct{}) (string, error) {
-			out, err := json.Marshal(map[string]any{"ok": true, "capabilities": body.Catalog(hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes)})
+			out, err := json.Marshal(map[string]any{"ok": true, "capabilities": body.Catalog(hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext)})
 			return string(out), err
 		},
 	)
@@ -110,7 +112,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		"tool_help",
 		"查询单个工具的用途、持久性与副作用。",
 		func(ctx context.Context, in toolHelpInput) (string, error) {
-			c, ok := body.FindCapability(in.Name, hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes)
+			c, ok := body.FindCapability(in.Name, hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext)
 			if !ok {
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": "unknown tool"})
 				return string(out), nil
@@ -336,6 +338,11 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 	}
 
 	toolsOut, err = appendIntentTools(toolsOut, deps, scope.AgentID)
+	if err != nil {
+		return nil, err
+	}
+
+	toolsOut, err = appendTaskContextFocusTool(toolsOut, deps)
 	if err != nil {
 		return nil, err
 	}
