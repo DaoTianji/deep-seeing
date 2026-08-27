@@ -70,7 +70,7 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 
 	readWS, err := utils.InferTool(
 		"read_workspace",
-		"读取一条 Workspace 任务正文、修订史与关联 Episode；它描述当前工作，不是历史经历证据。",
+		"读取一条 Workspace 任务正文、修订史与关联 Episode；它描述当前工作，不是历史经历证据。若正文影响回答，回答前须用 report_context_focus 声明任务焦点。",
 		func(ctx context.Context, in readWorkspaceInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {

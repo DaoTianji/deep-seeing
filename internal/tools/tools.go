@@ -274,7 +274,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 	reportEvidence, err := utils.InferTool(
 		"report_recall_evidence",
-		"公开声明本轮召回候选的证据状态：回答实际依赖的已读经历标为 used；主动排除的候选标为 dismissed 并给结构化 reason。未处理候选可以不声明。",
+		"公开声明本轮召回候选的证据状态：回答实际依赖的已读经历标为 used；主动排除的候选标为 dismissed 并给结构化 reason。未处理候选可以不声明。若同一回答还依赖已读 Workspace/Intent，先确认已用 report_context_focus 同时声明对应 ID。",
 		func(ctx context.Context, in reportRecallEvidenceInput) (string, error) {
 			events := make([]observe.RecallEvidenceTrace, 0, len(in.Decisions))
 			for _, decision := range in.Decisions {

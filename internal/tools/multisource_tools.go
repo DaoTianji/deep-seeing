@@ -103,7 +103,7 @@ func appendMultiSourceContextTools(toolsOut []tool.BaseTool, deps Deps, scope id
 	}
 	reportUse, err := utils.InferTool(
 		"report_context_use",
-		"公开声明本轮如何处理已出现的 SceneNorm 指导或 Proposal 假设。used 必须先读取；dismissed 必须给结构化原因。不会写长期记忆。",
+		"公开声明本轮如何处理已出现的 SceneNorm 指导或 Proposal 假设。used 必须先读取；dismissed 必须给结构化原因。声明后仍须继续给出面向用户的最终回答；不会写长期记忆。",
 		func(ctx context.Context, in reportContextUseInput) (string, error) {
 			source := contextsource.Source(strings.ToLower(strings.TrimSpace(in.Source)))
 			if source != contextsource.SceneNorm && source != contextsource.Proposal {

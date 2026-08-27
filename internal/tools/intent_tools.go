@@ -66,7 +66,7 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 
 	readInt, err := utils.InferTool(
 		"read_intent",
-		"读取一条 Intent 与近期 wake 历史；Intent 是未来计划，不能仅凭 active 状态声称已经完成。",
+		"读取一条 Intent 与近期 wake 历史；Intent 是未来计划，active、attempt=0 或无 wake 记录既不能证明已完成，也不能证明尚未完成。没有明确完成证据时只能说无法确认。若正文影响回答，回答前须用 report_context_focus 声明计划焦点。",
 		func(ctx context.Context, in readIntentInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
