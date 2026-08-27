@@ -210,6 +210,28 @@ func (c *ContextCollector) Uses() []ContextUseTrace {
 	return append([]ContextUseTrace(nil), c.uses...)
 }
 
+// ContextCandidateKnown exposes only the public candidate lifecycle to tools.
+func ContextCandidateKnown(ctx context.Context, source contextsource.Source, id string) bool {
+	c := contextCollectorFromContext(ctx)
+	if c == nil {
+		return false
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.wasCandidateLocked(source, strings.TrimSpace(id))
+}
+
+// ContextReadKnown exposes only successful public reads to tools.
+func ContextReadKnown(ctx context.Context, source contextsource.Source, id string) bool {
+	c := contextCollectorFromContext(ctx)
+	if c == nil {
+		return false
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.wasReadLocked(source, strings.TrimSpace(id))
+}
+
 func (c *ContextCollector) wasCandidateLocked(source contextsource.Source, id string) bool {
 	for _, event := range c.candidates {
 		if event.Source != source {

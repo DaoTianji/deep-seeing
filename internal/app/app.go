@@ -14,6 +14,7 @@ import (
 
 	"deep-seeing/internal/agency"
 	deepagent "deep-seeing/internal/agent"
+	"deep-seeing/internal/attention"
 	"deep-seeing/internal/body"
 	"deep-seeing/internal/compaction"
 	"deep-seeing/internal/contextsource"
@@ -149,10 +150,12 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	norms := runtime.NewNormSnapshotCache(graphStore, scope)
 	var taskFocusController tools.TaskContextFocusController
 	var taskFocusReader runtime.TaskContextFocusReader
+	var attentionStore *attention.SessionStore
 	if recallMode == runtime.RecallModeAgent {
 		taskFocus := runtime.NewSessionTaskContextFocusStore()
 		taskFocusController = taskFocus
 		taskFocusReader = taskFocus
+		attentionStore = attention.NewSessionStore(attention.DefaultCapacity())
 	}
 
 	stores := map[string]string{
@@ -175,6 +178,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Ledger: ledger, SessionID: sessionID, Model: cfg.Model, Stores: stores, FirstBoot: firstBoot,
 		RecallMode: string(recallMode), TaskContextFocus: taskFocusController,
+		Attention: attentionStore,
 		OnBondChanged: func() {
 			if svc != nil {
 				svc.InvalidateNorm()
@@ -204,6 +208,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Scope: scope, SessionID: sessionID, STM: stm, SideQuery: side,
 		RecallMode: recallMode, Norms: norms,
 		TaskContext: runtime.NewStoreTaskContextProvider(wsStore, intentStore, taskFocusReader),
+		Attention:   attentionStore,
 		Assembler:   prompt.DefaultAssembler{},
 		Compactor:   compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
 		Agent:       reactAgent, PostTurn: memory.NoopPostTurn{},

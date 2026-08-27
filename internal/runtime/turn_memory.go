@@ -21,7 +21,7 @@ type turnMemoryContext struct {
 
 func (s *Service) prepareTurnMemory(ctx context.Context, query string) turnMemoryContext {
 	if s.RecallMode == RecallModeAgent {
-		out := turnMemoryContext{recallGuidance: promptAgentContextSourceGuidance + "\n" + promptAgentRecallGuidance}
+		out := turnMemoryContext{recallGuidance: promptAgentContextSourceGuidance + "\n" + promptAgentAttentionGuidance + "\n" + promptAgentRecallGuidance}
 		if s.Norms == nil {
 			out.bondPlaceholder = true
 			return out
@@ -91,6 +91,10 @@ func (s *Service) prepareTurnMemory(ctx context.Context, query string) turnMemor
 const promptAgentContextSourceGuidance = `你可以自主决定是否展开六种上下文来源；它们不是同一种“记忆”，角色固定：Bond 是已自动提供的关系 baseline；SceneNorm 是当前场景 guidance；Workspace 是仍在进行的 task；Intent 是面向未来的 plan；open Proposal 是尚未确认的 hypothesis；Episode 才是过去经历的 evidence。一个问题可以同时需要多个来源，也可以一个都不需要。候选卡只是线索，依赖内容前先调用对应 read 工具；不要仅凭标题、状态或摘要补全正文。
 当前用户明确表达始终优先。Intent active 不表示事情已经发生；active、attempt=0 或没有 wake/完成记录也不能证明事情尚未完成，只能回答“系统内没有完成证据，无法确认是否已经完成”，除非存在明确完成证据。Proposal 不得当成事实或证据，SceneNorm 不得扩大为全局真理。SceneNorm 或 Proposal 实质参与回答时，用 report_context_use 公开声明 used；只有候选与回答无关、完全不依赖其内容时才声明 dismissed。若回答引用 Proposal 的内容，或依据“它只是未确认假设”得出结论，仍属于 used，而不是 dismissed。凡是已经读取且正文实质影响回答的 Workspace/Intent，都要在回答前用 report_context_focus 公开声明对应焦点；两者同时影响回答时，在同一次调用中同时填写 workspace_id 和 intent_id。多来源调查结束后，先盘点最终回答实际依赖的全部已读来源，完成各自的公开声明，再给回答。公开声明只是工具轨迹，不能代替面向用户的最终回答；完成工具调用后必须继续给出回答。公开轨迹只说明工具与证据状态，不是隐藏思维过程。
 `
+const promptAgentAttentionGuidance = `注意工作区只用于跨回合维持有限焦点，不是事实来源，也不替代候选、读取和采用声明。单轮任务通常不需要 manage_attention；只有预计后续回合仍会重要的来源项目才保留。center 是少量核心焦点，support 是可能补充的已读材料，periphery 是尚未展开的弱线索。idle_turns 只表示多久没有被主动触碰，不等于相关性或可信度。
+新增 center/support 项目前必须读取，新增 periphery 项目必须先成为候选。槽位满时不要让系统替你淘汰；根据用户当前目标明确指定 replace_source/replace_id。当前用户表达始终优先，注意层级不能改变来源角色或把 Proposal/Intent 变成事实。注意调整是公开工作状态，不是隐藏思维，也不会写入长期记忆。
+`
+
 const promptAgentRecallGuidance = `任务处境快照只提供当前活跃 Workspace / Intent 的事实卡片，不是相关性判定或历史证据。会话焦点只是连续性线索，用户当前明确表达优先。当前任务确实需要延续某个条目时，按 ID 主动使用 read_workspace / read_intent 展开；目标不在薄快照时，可以使用 list_workspace / list_intents 调查。不要仅凭标题猜测正文，也不要为了使用快照而展开。如果薄快照已经显示多个都可能符合指代的候选，而用户没有提供区分信息，不要逐条读取来猜；直接用现有候选标题询问用户。任务处境实质影响回答时，用 report_context_focus 公开声明：continue 表示延续同一会话焦点，或用户明确要求继续一个已有任务且没有替换其他焦点；switch 只在已有会话焦点被不同 ID 替换时使用；check 表示只核对；compare 只在比较条目本身时使用，项目加辅助提醒仍按主要任务 continue。新焦点必须先读取。用户明确要求读取、打开或核对 Workspace/Intent 时，必须在同一轮先实际调用对应 read 工具；同时要求两份资料就读取两份，不能只回复“我会读取”而不执行。调查后仍无法可靠区分时，用 clarify/ambiguous 声明并直接询问用户，不要猜测。
 过去的具体事实、约定、经历或既有设计决定会实质影响回答时，可以主动使用 search_episodes。用户询问“我们/当前项目为什么采用某个设计”时，即使你能从一般原理推演，也应先搜索项目经历，并区分已召回结论与当前重构。搜索只返回候选卡；需要依赖某条过去信息时，必须先使用 read_episode 核对正文。
 润色、创作和一般知识任务通常不需要搜索。空结果是正常结果；同一轮最多换词重试一次，不要为了使用工具而搜索。

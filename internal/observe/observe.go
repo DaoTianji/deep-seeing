@@ -7,41 +7,45 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"deep-seeing/internal/attention"
 )
 
 // TurnTrace is a structured external trajectory for one conversational turn.
 // Not chain-of-thought — recall, tools, writes, errors only.
 type TurnTrace struct {
-	Timestamp         time.Time                   `json:"timestamp"`
-	SessionID         string                      `json:"session_id"`
-	AgentID           string                      `json:"agent_id,omitempty"`
-	PersonID          string                      `json:"person_id,omitempty"`
-	ModelVersion      string                      `json:"model_version,omitempty"`
-	RuntimeVer        string                      `json:"toolset_version,omitempty"`
-	RecallMode        string                      `json:"recall_mode,omitempty"`
-	UserText          string                      `json:"user_text,omitempty"`
-	NormVersion       int64                       `json:"norm_version,omitempty"`
-	RecallIDs         []string                    `json:"recall_ids,omitempty"`
-	RecallSearches    []RecallSearchTrace         `json:"recall_searches,omitempty"`
-	RecallReads       []RecallReadTrace           `json:"recall_reads,omitempty"`
-	RecallEvidence    []RecallEvidenceTrace       `json:"recall_evidence,omitempty"`
-	TaskContext       *TaskContextTrace           `json:"task_context,omitempty"`
-	ContextExpands    []TaskContextExpansionTrace `json:"task_context_expansions,omitempty"`
-	ContextFocus      *TaskContextFocusTrace      `json:"task_context_focus,omitempty"`
-	ContextSources    []ContextSourceTrace        `json:"context_sources,omitempty"`
-	ContextCandidates []ContextCandidateTrace     `json:"context_candidates,omitempty"`
-	ContextReads      []ContextReadTrace          `json:"context_reads,omitempty"`
-	ContextUses       []ContextUseTrace           `json:"context_uses,omitempty"`
-	BondSlots         []string                    `json:"bond_slots,omitempty"`
-	BondItemIDs       []string                    `json:"bond_item_ids,omitempty"`
-	BondPlaceholder   bool                        `json:"bond_placeholder,omitempty"`
-	SceneIDs          []string                    `json:"scene_ids,omitempty"`
-	ToolStarts        []string                    `json:"tool_starts,omitempty"`
-	MemoryWrites      []string                    `json:"memory_writes,omitempty"`
-	Proposals         []string                    `json:"proposals,omitempty"`
-	Errors            []string                    `json:"errors,omitempty"`
-	AnswerPreview     string                      `json:"answer_preview,omitempty"`
-	TokenUsage        TokenUsageTrace             `json:"token_usage,omitempty"`
+	Timestamp          time.Time                   `json:"timestamp"`
+	SessionID          string                      `json:"session_id"`
+	AgentID            string                      `json:"agent_id,omitempty"`
+	PersonID           string                      `json:"person_id,omitempty"`
+	ModelVersion       string                      `json:"model_version,omitempty"`
+	RuntimeVer         string                      `json:"toolset_version,omitempty"`
+	RecallMode         string                      `json:"recall_mode,omitempty"`
+	UserText           string                      `json:"user_text,omitempty"`
+	NormVersion        int64                       `json:"norm_version,omitempty"`
+	RecallIDs          []string                    `json:"recall_ids,omitempty"`
+	RecallSearches     []RecallSearchTrace         `json:"recall_searches,omitempty"`
+	RecallReads        []RecallReadTrace           `json:"recall_reads,omitempty"`
+	RecallEvidence     []RecallEvidenceTrace       `json:"recall_evidence,omitempty"`
+	TaskContext        *TaskContextTrace           `json:"task_context,omitempty"`
+	ContextExpands     []TaskContextExpansionTrace `json:"task_context_expansions,omitempty"`
+	ContextFocus       *TaskContextFocusTrace      `json:"task_context_focus,omitempty"`
+	ContextSources     []ContextSourceTrace        `json:"context_sources,omitempty"`
+	ContextCandidates  []ContextCandidateTrace     `json:"context_candidates,omitempty"`
+	ContextReads       []ContextReadTrace          `json:"context_reads,omitempty"`
+	ContextUses        []ContextUseTrace           `json:"context_uses,omitempty"`
+	Attention          *attention.Snapshot         `json:"attention,omitempty"`
+	AttentionDecisions []AttentionDecisionTrace    `json:"attention_decisions,omitempty"`
+	BondSlots          []string                    `json:"bond_slots,omitempty"`
+	BondItemIDs        []string                    `json:"bond_item_ids,omitempty"`
+	BondPlaceholder    bool                        `json:"bond_placeholder,omitempty"`
+	SceneIDs           []string                    `json:"scene_ids,omitempty"`
+	ToolStarts         []string                    `json:"tool_starts,omitempty"`
+	MemoryWrites       []string                    `json:"memory_writes,omitempty"`
+	Proposals          []string                    `json:"proposals,omitempty"`
+	Errors             []string                    `json:"errors,omitempty"`
+	AnswerPreview      string                      `json:"answer_preview,omitempty"`
+	TokenUsage         TokenUsageTrace             `json:"token_usage,omitempty"`
 }
 
 type TokenUsageTrace struct {

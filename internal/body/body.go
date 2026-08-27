@@ -12,9 +12,9 @@ import (
 const (
 	SoulVersion        = "0.2"
 	OriginVersion      = "0.1"
-	ToolsetVersion     = "1.4"
+	ToolsetVersion     = "1.5"
 	GraphSchemaVersion = "0.3"
-	CapabilityCatalogV = "1.2"
+	CapabilityCatalogV = "1.3"
 )
 
 // Snapshot is what inspect_runtime returns — existence facts, not philosophy.
@@ -87,7 +87,7 @@ type Capability struct {
 }
 
 // Catalog is the thin capability table (not dumped into system prompt).
-func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode bool) []Capability {
+func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, hasAttention, agentMode bool) []Capability {
 	out := []Capability{
 		{Name: "inspect_runtime", Ability: "查看当前身体/版本/持久性", Persistence: "none", SideEffect: "只读", Permission: "observe",
 			Help: "返回 agent_id、当前对话者、时间、模型与各存储是否可用。"},
@@ -113,6 +113,10 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 	if hasTaskContext {
 		out = append(out, Capability{Name: "report_context_focus", Ability: "公开声明当前任务焦点或歧义", Persistence: "session", SideEffect: "更新会话焦点和本轮公开轨迹", Permission: "observe",
 			Help: "任务处境实质影响回答时使用；新焦点必须先 read。continue/switch 在当前会话保持，clarify 只声明歧义并要求用户确认；不写长期记忆。"})
+	}
+	if hasAttention && agentMode {
+		out = append(out, Capability{Name: "manage_attention", Ability: "维护会话级注意工作区", Persistence: "session", SideEffect: "调整中心、支撑和外围槽位并写公开轨迹", Permission: "observe",
+			Help: "只保留预计后续回合仍重要的来源项目；center/support 新项目必须先 read，periphery 必须先成为候选。满载时明确指定替换项；不写长期记忆，也不赋予事实资格。"})
 	}
 	if agentMode && (hasScenes || hasProposals) {
 		out = append(out, Capability{Name: "report_context_use", Ability: "声明指导或假设的采用状态", Persistence: "session", SideEffect: "只写本轮公开轨迹", Permission: "observe",
@@ -206,9 +210,9 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 }
 
 // FindCapability looks up one tool in the catalog.
-func FindCapability(name string, hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode bool) (Capability, bool) {
+func FindCapability(name string, hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, hasAttention, agentMode bool) (Capability, bool) {
 	name = strings.TrimSpace(name)
-	for _, c := range Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode) {
+	for _, c := range Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, hasAttention, agentMode) {
 		if c.Name == name {
 			return c, true
 		}

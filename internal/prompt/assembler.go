@@ -20,15 +20,16 @@ const CapabilityBlurb = `你可以使用工具观察和影响环境。工具已�
 
 // AssembleInput carries modular prompt pieces.
 type AssembleInput struct {
-	Scope          identity.TenantScope
-	SessionID      string
-	Soul           string // every boot
-	Capability     string // thin body hint; empty → CapabilityBlurb
-	OriginContext  string // first_boot only
-	BondNorm       string // T1 compact person norm (priority-truncated)
-	MemoryRecall   string // episodes / proposals etc.
-	TaskContext    string // ephemeral task/project fact cards; no bodies or inference
-	RecallGuidance string // agent-owned recall policy; empty in legacy mode
+	Scope            identity.TenantScope
+	SessionID        string
+	Soul             string // every boot
+	Capability       string // thin body hint; empty → CapabilityBlurb
+	OriginContext    string // first_boot only
+	BondNorm         string // T1 compact person norm (priority-truncated)
+	MemoryRecall     string // episodes / proposals etc.
+	TaskContext      string // ephemeral task/project fact cards; no bodies or inference
+	AttentionContext string // session-only center/support/periphery identifiers; no bodies
+	RecallGuidance   string // agent-owned recall policy; empty in legacy mode
 }
 
 // Assembler builds system messages from fragments.
@@ -66,6 +67,7 @@ func (DefaultAssembler) BuildSystemMessages(_ context.Context, in AssembleInput)
 	add("Bond / Person norm", in.BondNorm)
 	add("Memory recall", in.MemoryRecall)
 	add("Task context snapshot", in.TaskContext)
+	add("Attention workspace", in.AttentionContext)
 	add("Recall policy", in.RecallGuidance)
 	content := strings.TrimSpace(b.String())
 	if content == "" {
