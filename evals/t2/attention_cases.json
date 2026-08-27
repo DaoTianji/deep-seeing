@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "name": "t2-attention-workspace",
+  "description": "T2.5 高干扰、多回合焦点维持与显式槽位替换。全部内容均为虚构夹具，不包含正式记忆。",
+  "cases": [
+    {
+      "id": "ATN1",
+      "category": "no_persistence",
+      "description": "单轮一般问题不应污染跨回合注意工作区。",
+      "workspaces": [{"key":"noise","type":"project","status":"in_progress","title":"虚构苔藓计数","body":"继续清点第七盒苔藓。"}],
+      "turns": [
+        {
+          "user_text": "只回答 27 加 15 的结果，这个问题不需要后续继续。",
+          "expect": {
+            "forbidden_tools": ["manage_attention"],
+            "max_reads": 0,
+            "semantic_rules": ["回答 42，不借用虚构项目。"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ATC1",
+      "category": "center_continuity",
+      "description": "明确跨回合继续的项目进入中心，插入无关问题后仍可恢复。",
+      "workspaces": [{"key":"aurora","type":"project","status":"in_progress","title":"虚构极光温室","body":"当前完成传感器接线，下一步校准湿度阈值。"}],
+      "turns": [
+        {
+          "user_text": "接下来几轮都继续‘虚构极光温室’。先读取项目，告诉我下一步，并把它保留为核心焦点。",
+          "expect": {
+            "required_tools": ["manage_attention"],
+            "required_reads": ["workspace:aurora"],
+            "required_uses": ["workspace:aurora"],
+            "required_attention": {"workspace:aurora":"center"},
+            "semantic_rules": ["下一步是校准湿度阈值。"]
+          }
+        },
+        {
+          "user_text": "中间只回答 8 乘 7；不要改变刚才的项目焦点。",
+          "expect": {
+            "forbidden_tools": ["read_workspace","manage_attention"],
+            "required_attention": {"workspace:aurora":"center"},
+            "semantic_rules": ["回答 56，不展开项目正文。"]
+          }
+        },
+        {
+          "user_text": "回到核心项目，读取后告诉我刚才的下一步是什么。",
+          "expect": {
+            "required_reads": ["workspace:aurora"],
+            "required_uses": ["workspace:aurora"],
+            "required_attention": {"workspace:aurora":"center"},
+            "semantic_rules": ["恢复虚构极光温室并回答校准湿度阈值。"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ATS1",
+      "category": "center_and_support",
+      "description": "当前任务在中心，辅助未来计划留在支撑区。",
+      "workspaces": [{"key":"harbor","type":"project","status":"in_progress","title":"虚构港湾地图","body":"当前绘制主航道，下一步标注浅滩。"}],
+      "intents": [{"key":"review","kind":"one_shot","title":"虚构周五地图复核","body":"周五邀请第二人复核浅滩标注。"}],
+      "turns": [
+        {
+          "user_text": "未来几轮继续‘虚构港湾地图’，并记得‘虚构周五地图复核’是辅助计划。读取两者，给出当前下一步。",
+          "expect": {
+            "required_tools": ["manage_attention"],
+            "required_reads": ["workspace:harbor","intent:review"],
+            "required_uses": ["workspace:harbor","intent:review"],
+            "required_attention": {"workspace:harbor":"center","intent:review":"support"},
+            "semantic_rules": ["当前先标注浅滩，周五复核只是未来辅助计划。"]
+          }
+        },
+        {
+          "user_text": "只核对辅助计划是什么，不要把它说成已经发生。",
+          "expect": {
+            "required_reads": ["intent:review"],
+            "required_uses": ["intent:review"],
+            "required_attention": {"workspace:harbor":"center","intent:review":"support"},
+            "semantic_rules": ["说明周五复核是未来计划，不声称已经发生。"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ATP1",
+      "category": "periphery_requires_candidate",
+      "description": "不确定且未读取的弱线索最多进入外围，不能被当作中心或事实。",
+      "proposals": [{"key":"quiet","field":"interaction","text":"对方可能希望所有讨论都非常安静克制。","rationale":"一次虚构观察","hypothesis":"H1"}],
+      "turns": [
+        {
+          "user_text": "列出关于互动方式的待确认假设，但先不要读取正文。它可能以后有用，可以放在外围，不能当成事实。",
+          "expect": {
+            "required_tools": ["list_proposals","manage_attention"],
+            "forbidden_tools": ["read_proposal"],
+            "required_attention": {"proposal:quiet":"periphery"},
+            "forbidden_center": ["proposal:quiet"],
+            "max_reads": 0,
+            "semantic_rules": ["只称其为尚未确认的候选，不断言为用户事实。"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ATR1",
+      "category": "explicit_replacement",
+      "description": "中心满载时必须由 Agent 明确选择替换项。",
+      "workspaces": [
+        {"key":"old_a","type":"project","status":"in_progress","title":"虚构旧任务甲","body":"甲任务等待整理。"},
+        {"key":"old_b","type":"project","status":"in_progress","title":"虚构旧任务乙","body":"乙任务等待整理。"},
+        {"key":"old_c","type":"project","status":"in_progress","title":"虚构旧任务丙","body":"丙任务等待整理。"},
+        {"key":"old_d","type":"project","status":"in_progress","title":"虚构旧任务丁","body":"丁任务等待整理。"},
+        {"key":"new_core","type":"project","status":"in_progress","title":"虚构紧急潮汐图","body":"当前必须先修复潮位刻度。"}
+      ],
+      "seed_attention": [
+        {"key":"workspace:old_a","tier":"center"},
+        {"key":"workspace:old_b","tier":"center"},
+        {"key":"workspace:old_c","tier":"center"},
+        {"key":"workspace:old_d","tier":"center"}
+      ],
+      "turns": [
+        {
+          "user_text": "现在‘虚构紧急潮汐图’必须成为核心。读取它；如果中心已满，请明确选择一个旧任务替换，不要静默淘汰。",
+          "expect": {
+            "required_tools": ["manage_attention"],
+            "required_reads": ["workspace:new_core"],
+            "required_attention": {"workspace:new_core":"center"},
+            "center_count": 4,
+            "require_explicit_replacement": true,
+            "semantic_rules": ["说明当前先修复潮位刻度。"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ATSW1",
+      "category": "explicit_switch",
+      "description": "用户明确切换时，新任务进入中心，旧中心不能继续主导回答。",
+      "workspaces": [
+        {"key":"old","type":"project","status":"in_progress","title":"虚构旧钟楼","body":"旧钟楼下一步清点齿轮。"},
+        {"key":"new","type":"project","status":"in_progress","title":"虚构新灯塔","body":"新灯塔下一步校验旋转灯。"}
+      ],
+      "seed_attention": [{"key":"workspace:old","tier":"center"}],
+      "turns": [
+        {
+          "user_text": "先告诉我当前是否保留了一个 Workspace 中心线索；不要读取，也不要猜它的标题或正文。",
+          "expect": {
+            "required_attention": {"workspace:old":"center"},
+            "max_reads": 0,
+            "semantic_rules": ["确认存在一个 Workspace 中心线索；由于注意快照只有来源和 ID，不猜测其标题或正文。"]
+          }
+        },
+        {
+          "user_text": "现在明确切换到‘虚构新灯塔’，读取它并把它作为核心；旧钟楼不要继续主导。",
+          "expect": {
+            "required_tools": ["manage_attention"],
+            "required_reads": ["workspace:new"],
+            "required_uses": ["workspace:new"],
+            "required_attention": {"workspace:new":"center"},
+            "forbidden_center": ["workspace:old"],
+            "semantic_rules": ["回答新灯塔下一步校验旋转灯，不沿用旧钟楼内容。"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ATH1",
+      "category": "high_distractor",
+      "description": "大量跨来源干扰下只读取明确目标，不逐条展开。",
+      "workspaces": [
+        {"key":"target","type":"project","status":"in_progress","title":"虚构银杏桥","body":"当前已完成桥面，下一步安装风速计。"},
+        {"key":"w01","type":"project","status":"in_progress","title":"虚构干扰项目 01","body":"干扰正文 01。"},
+        {"key":"w02","type":"project","status":"in_progress","title":"虚构干扰项目 02","body":"干扰正文 02。"},
+        {"key":"w03","type":"project","status":"in_progress","title":"虚构干扰项目 03","body":"干扰正文 03。"},
+        {"key":"w04","type":"project","status":"in_progress","title":"虚构干扰项目 04","body":"干扰正文 04。"},
+        {"key":"w05","type":"project","status":"in_progress","title":"虚构干扰项目 05","body":"干扰正文 05。"},
+        {"key":"w06","type":"project","status":"in_progress","title":"虚构干扰项目 06","body":"干扰正文 06。"},
+        {"key":"w07","type":"project","status":"in_progress","title":"虚构干扰项目 07","body":"干扰正文 07。"},
+        {"key":"w08","type":"project","status":"in_progress","title":"虚构干扰项目 08","body":"干扰正文 08。"},
+        {"key":"w09","type":"project","status":"in_progress","title":"虚构干扰项目 09","body":"干扰正文 09。"},
+        {"key":"w10","type":"project","status":"in_progress","title":"虚构干扰项目 10","body":"干扰正文 10。"},
+        {"key":"w11","type":"project","status":"in_progress","title":"虚构干扰项目 11","body":"干扰正文 11。"}
+      ],
+      "intents": [
+        {"key":"i01","kind":"one_shot","title":"虚构干扰提醒 01","body":"干扰计划 01。"},
+        {"key":"i02","kind":"one_shot","title":"虚构干扰提醒 02","body":"干扰计划 02。"},
+        {"key":"i03","kind":"one_shot","title":"虚构干扰提醒 03","body":"干扰计划 03。"},
+        {"key":"i04","kind":"one_shot","title":"虚构干扰提醒 04","body":"干扰计划 04。"}
+      ],
+      "episodes": [
+        {"key":"e01","kind":"event","content":"虚构干扰经历 01。"},
+        {"key":"e02","kind":"event","content":"虚构干扰经历 02。"},
+        {"key":"e03","kind":"event","content":"虚构干扰经历 03。"},
+        {"key":"e04","kind":"event","content":"虚构干扰经历 04。"}
+      ],
+      "turns": [
+        {
+          "user_text": "在这些虚构条目中只继续‘虚构银杏桥’。找到并读取它，把它放进中心，然后告诉我下一步；不要逐条读取其他项目、计划或经历。",
+          "expect": {
+            "required_tools": ["manage_attention"],
+            "required_reads": ["workspace:target"],
+            "required_uses": ["workspace:target"],
+            "required_attention": {"workspace:target":"center"},
+            "max_reads": 3,
+            "semantic_rules": ["只依据目标 Workspace 回答安装风速计，不引用干扰正文。"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ATD1",
+      "category": "visible_decay_signal",
+      "description": "跨回合闲置只增加可见时间信号，不自动淘汰中心。",
+      "workspaces": [{"key":"seed","type":"project","status":"in_progress","title":"虚构月桂档案","body":"下一步制作人物索引。"}],
+      "seed_attention": [{"key":"workspace:seed","tier":"center"}],
+      "turns": [
+        {
+          "user_text": "只回答 3 加 4，不要触碰当前中心。",
+          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"max_reads":0,"semantic_rules":["回答 7。"]}
+        },
+        {
+          "user_text": "只回答 5 加 6，仍然不要触碰当前中心。",
+          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"max_reads":0,"semantic_rules":["回答 11。"]}
+        },
+        {
+          "user_text": "只回答 7 加 8，继续让中心闲置。",
+          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"max_reads":0,"semantic_rules":["回答 15。"]}
+        },
+        {
+          "user_text": "恢复当前中心项目，读取它并告诉我下一步。",
+          "expect": {"required_reads":["workspace:seed"],"required_uses":["workspace:seed"],"required_attention":{"workspace:seed":"center"},"semantic_rules":["恢复虚构月桂档案并回答制作人物索引。"]}
+        }
+      ]
+    }
+  ]
+}

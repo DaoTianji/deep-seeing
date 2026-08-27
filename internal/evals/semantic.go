@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"deep-seeing/internal/attention"
 )
 
 // Completer is the small model surface needed by the semantic judge.
@@ -105,6 +107,62 @@ expect.answer_must_contain 表示必须覆盖的语义概念，不要求逐字�
 	var result SemanticResult
 	if err := json.Unmarshal(extractJSONObject(out), &result); err != nil {
 		return SemanticResult{}, fmt.Errorf("decode multi-source semantic verdict: %w", err)
+	}
+	if strings.TrimSpace(result.Reason) == "" {
+		return SemanticResult{}, fmt.Errorf("semantic verdict reason required")
+	}
+	return result, nil
+}
+
+// JudgeAttentionSemantics evaluates one turn of a multi-turn attention case.
+// Structural lifecycle and tier requirements remain enforced by
+// EvaluateAttentionTurnRules.
+func JudgeAttentionSemantics(ctx context.Context, chat Completer, c AttentionCase, turnIndex int, obs AttentionTurnObservation) (SemanticResult, error) {
+	if chat == nil {
+		return SemanticResult{}, fmt.Errorf("semantic judge requires a model")
+	}
+	if turnIndex < 0 || turnIndex >= len(c.Turns) {
+		return SemanticResult{}, fmt.Errorf("attention turn index %d out of range", turnIndex)
+	}
+	turn := c.Turns[turnIndex]
+	system := `你是会话注意工作区的严格语义评估器。只判断本轮回答含义是否满足案例规则，不评价文风，也不要求固定措辞。
+注意工作区只包含来源、ID、层级和 idle_turns，是公开的跨回合连续性线索，不包含标题或正文，不是事实证明，也不能代替 read/use。回答只能把 used_keys 中的来源作为实质结论依据；Bond 是自动 baseline，不参与注意槽位。Intent 仍是计划，Proposal 仍是假设，用户当前明确表达优先于旧内容。注意层级本身不能证明内容真实或已经发生。
+结构化的工具、读取、采用、层级、容量和显式替换门槛由程序另行判断；你只判断回答语义。只输出 JSON：{"passed":true|false,"reason":"简短理由"}。`
+	payload := struct {
+		CaseID      string                    `json:"case_id"`
+		Turn        int                       `json:"turn"`
+		Description string                    `json:"case_goal"`
+		UserText    string                    `json:"user_text"`
+		Bond        []BondFixture             `json:"bond,omitempty"`
+		Scenes      []SceneFixture            `json:"scenes,omitempty"`
+		Workspaces  []TaskWorkspaceFixture    `json:"workspaces,omitempty"`
+		Intents     []TaskIntentFixture       `json:"intents,omitempty"`
+		Proposals   []ProposalFixture         `json:"proposals,omitempty"`
+		Episodes    []MemoryFixture           `json:"episodes,omitempty"`
+		ReadKeys    []string                  `json:"read_keys,omitempty"`
+		UsedKeys    []string                  `json:"used_keys,omitempty"`
+		Attention   map[string]attention.Tier `json:"attention,omitempty"`
+		Rules       []string                  `json:"semantic_rules"`
+		ToolStarts  []string                  `json:"tool_starts,omitempty"`
+		Answer      string                    `json:"answer"`
+	}{
+		CaseID: c.ID, Turn: turnIndex + 1, Description: c.Description, UserText: turn.UserText,
+		Bond: c.Bond, Scenes: c.Scenes, Workspaces: c.Workspaces, Intents: c.Intents,
+		Proposals: c.Proposals, Episodes: c.Episodes, ReadKeys: obs.ReadKeys,
+		UsedKeys: obs.UsedKeys, Attention: obs.Attention, Rules: turn.Expect.SemanticRules,
+		ToolStarts: obs.ToolStarts, Answer: obs.Answer,
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return SemanticResult{}, err
+	}
+	out, err := chat.Complete(ctx, system, string(raw))
+	if err != nil {
+		return SemanticResult{}, err
+	}
+	var result SemanticResult
+	if err := json.Unmarshal(extractJSONObject(out), &result); err != nil {
+		return SemanticResult{}, fmt.Errorf("decode attention semantic verdict: %w", err)
 	}
 	if strings.TrimSpace(result.Reason) == "" {
 		return SemanticResult{}, fmt.Errorf("semantic verdict reason required")
