@@ -9,6 +9,7 @@ import (
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
 
+	"deep-seeing/internal/contextsource"
 	"deep-seeing/internal/intent"
 	"deep-seeing/internal/observe"
 )
@@ -18,10 +19,11 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 		return toolsOut, nil
 	}
 	store := deps.Intents
+	agentMode := strings.EqualFold(strings.TrimSpace(deps.RecallMode), "agent")
 
 	listInt, err := utils.InferTool(
 		"list_intents",
-		"列出活跃 Intent（留给未来自己的待办/周期唤醒）。",
+		"列出活跃 Intent 计划候选卡；active 只表示未来安排存在，不代表已经执行，正文需用 read_intent。",
 		func(ctx context.Context, in listIntentsInput) (string, error) {
 			limit := in.Limit
 			if limit <= 0 {
@@ -32,17 +34,28 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Operation: "list", Error: err.Error()})
 				return "", err
 			}
-			cards := make([]intentContextCard, 0, len(items))
+			cards := make([]contextsource.Candidate, 0, len(items))
+			legacyCards := make([]intentContextCard, 0, len(items))
 			ids := make([]string, 0, len(items))
 			for _, item := range items {
-				cards = append(cards, intentContextCard{
+				legacyCards = append(legacyCards, intentContextCard{
 					ID: item.ID, Kind: item.Kind, Status: item.Status, Title: item.Title,
 					DueAt: item.DueAt, UpdatedAt: item.UpdatedAt,
+				})
+				cards = append(cards, contextsource.Candidate{
+					Source: contextsource.Intent, ID: item.ID, Kind: string(item.Kind),
+					Metadata: map[string]any{"due_at": item.DueAt},
+					Title:    item.Title, Role: contextsource.Plan, Status: string(item.Status),
+					UpdatedAt: item.UpdatedAt, ReadRequired: true,
 				})
 				ids = append(ids, item.ID)
 			}
 			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "intent", Operation: "list", ResultIDs: ids})
-			out, err := json.Marshal(map[string]any{"ok": true, "intents": cards})
+			key, payload := "candidates", any(cards)
+			if !agentMode {
+				key, payload = "intents", legacyCards
+			}
+			out, err := json.Marshal(map[string]any{"ok": true, key: payload})
 			return string(out), err
 		},
 	)
@@ -53,7 +66,7 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 
 	readInt, err := utils.InferTool(
 		"read_intent",
-		"读取一条 Intent 与近期 wake 历史。",
+		"读取一条 Intent 与近期 wake 历史；Intent 是未来计划，不能仅凭 active 状态声称已经完成。",
 		func(ctx context.Context, in readIntentInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {

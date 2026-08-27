@@ -8,6 +8,7 @@ import (
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
 
+	"deep-seeing/internal/contextsource"
 	"deep-seeing/internal/observe"
 	"deep-seeing/internal/workspace"
 )
@@ -17,10 +18,11 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 		return toolsOut, nil
 	}
 	store := deps.Workspace
+	agentMode := strings.EqualFold(strings.TrimSpace(deps.RecallMode), "agent")
 
 	listWS, err := utils.InferTool(
 		"list_workspace",
-		"列出 Workspace 未完成思考：question / writing / research / project。",
+		"列出 Workspace 任务候选卡（当前项目、材料与未完成思考）；候选不含正文，需要时用 read_workspace。",
 		func(ctx context.Context, in listWorkspaceInput) (string, error) {
 			limit := in.Limit
 			if limit <= 0 {
@@ -38,14 +40,26 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 				observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Operation: "list", Error: err.Error()})
 				return "", err
 			}
-			ovs := make([]workspace.Overview, 0, len(list))
+			cards := make([]contextsource.Candidate, 0, len(list))
+			legacyItems := make([]workspace.Overview, 0, len(list))
 			ids := make([]string, 0, len(list))
 			for _, d := range list {
-				ovs = append(ovs, workspace.ToOverview(d))
+				overview := workspace.ToOverview(d)
+				legacyItems = append(legacyItems, overview)
+				cards = append(cards, contextsource.Candidate{
+					Source: contextsource.Workspace, ID: overview.ID, Kind: string(overview.Type),
+					Title: overview.Title, Preview: candidatePreview(overview.Summary, 120),
+					Role: contextsource.Task, Status: string(overview.Status),
+					UpdatedAt: overview.UpdatedAt, ReadRequired: true,
+				})
 				ids = append(ids, d.ID)
 			}
 			observe.RecordTaskContextExpansion(ctx, observe.TaskContextExpansionTrace{Source: "workspace", Operation: "list", ResultIDs: ids})
-			out, err := json.Marshal(map[string]any{"ok": true, "items": ovs})
+			key, payload := "candidates", any(cards)
+			if !agentMode {
+				key, payload = "items", legacyItems
+			}
+			out, err := json.Marshal(map[string]any{"ok": true, key: payload})
 			return string(out), err
 		},
 	)
@@ -56,7 +70,7 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 
 	readWS, err := utils.InferTool(
 		"read_workspace",
-		"读取一条 Workspace 文档全文、修订史与关联 Episode。",
+		"读取一条 Workspace 任务正文、修订史与关联 Episode；它描述当前工作，不是历史经历证据。",
 		func(ctx context.Context, in readWorkspaceInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {

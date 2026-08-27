@@ -12,9 +12,9 @@ import (
 const (
 	SoulVersion        = "0.2"
 	OriginVersion      = "0.1"
-	ToolsetVersion     = "1.3"
+	ToolsetVersion     = "1.4"
 	GraphSchemaVersion = "0.3"
-	CapabilityCatalogV = "1.1"
+	CapabilityCatalogV = "1.2"
 )
 
 // Snapshot is what inspect_runtime returns — existence facts, not philosophy.
@@ -87,7 +87,7 @@ type Capability struct {
 }
 
 // Catalog is the thin capability table (not dumped into system prompt).
-func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext bool) []Capability {
+func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode bool) []Capability {
 	out := []Capability{
 		{Name: "inspect_runtime", Ability: "查看当前身体/版本/持久性", Persistence: "none", SideEffect: "只读", Permission: "observe",
 			Help: "返回 agent_id、当前对话者、时间、模型与各存储是否可用。"},
@@ -113,6 +113,10 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 	if hasTaskContext {
 		out = append(out, Capability{Name: "report_context_focus", Ability: "公开声明当前任务焦点或歧义", Persistence: "session", SideEffect: "更新会话焦点和本轮公开轨迹", Permission: "observe",
 			Help: "任务处境实质影响回答时使用；新焦点必须先 read。continue/switch 在当前会话保持，clarify 只声明歧义并要求用户确认；不写长期记忆。"})
+	}
+	if agentMode && (hasScenes || hasProposals) {
+		out = append(out, Capability{Name: "report_context_use", Ability: "声明指导或假设的采用状态", Persistence: "session", SideEffect: "只写本轮公开轨迹", Permission: "observe",
+			Help: "仅处理 SceneNorm guidance 与 Proposal hypothesis；used 必须先 read，Proposal 永远不是事实证据。"})
 	}
 	if hasWorkspace {
 		out = append(out,
@@ -168,14 +172,22 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 		out = append(out, Capability{Name: "propose_bond_update", Ability: "提议改变长期认识", Persistence: "delayed", SideEffect: "入提案队列，慢变", Permission: "internal",
 			Help: "slot+claim 提案：basics|interaction|boundaries|priorities|baseline；不可提案 strategy。Dream 才可能采纳。"})
 	}
+	if agentMode && hasProposals {
+		out = append(out,
+			Capability{Name: "list_proposals", Ability: "列出未裁决关系假设", Persistence: "none", SideEffect: "只读", Permission: "observe",
+				Help: "只返回当前对话者的 open Bond Proposal 候选卡；accepted 已进入 Bond，rejected 不返回。"},
+			Capability{Name: "read_proposal", Ability: "读取未裁决关系假设", Persistence: "none", SideEffect: "只读", Permission: "observe",
+				Help: "按 id 展开 open Bond Proposal；只能作为 hypothesis，不能当作事实或 Episode 证据。"},
+		)
+	}
 	if hasScenes {
 		out = append(out,
-			Capability{Name: "list_scene_norms", Ability: "列出场景常模", Persistence: "none", SideEffect: "只读", Permission: "observe",
-				Help: "按人列出 SceneNorm；非全局 Bond。"},
+			Capability{Name: "list_scene_norms", Ability: "列出场景指导候选", Persistence: "none", SideEffect: "只读", Permission: "observe",
+				Help: "Agent 模式返回可按 query 匹配的薄候选卡；Legacy 保留完整列表行为。"},
 			Capability{Name: "read_scene_norm", Ability: "读取场景常模", Persistence: "none", SideEffect: "只读", Permission: "observe",
-				Help: "按 id 读场景常模正文与关键词。"},
+				Help: "按 id 读 SceneNorm 正文；它是场景 guidance，不是经历或全局事实。"},
 			Capability{Name: "write_scene_norm", Ability: "写入场景常模", Persistence: "cross-session", SideEffect: "写本地 SceneNorm", Permission: "internal",
-				Help: "须 keywords；仅关键词命中时旁路注入；去掉场景后不应仍当全局真理。"},
+				Help: "须 keywords；用于场景内指导，去掉场景后不应仍当全局真理。"},
 		)
 	}
 	if hasGraph {
@@ -194,9 +206,9 @@ func Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld
 }
 
 // FindCapability looks up one tool in the catalog.
-func FindCapability(name string, hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext bool) (Capability, bool) {
+func FindCapability(name string, hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode bool) (Capability, bool) {
 	name = strings.TrimSpace(name)
-	for _, c := range Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext) {
+	for _, c := range Catalog(hasGraph, hasProposals, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode) {
 		if c.Name == name {
 			return c, true
 		}

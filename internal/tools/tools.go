@@ -14,6 +14,7 @@ import (
 	"github.com/cloudwego/eino/components/tool/utils"
 
 	"deep-seeing/internal/body"
+	"deep-seeing/internal/contextsource"
 	"deep-seeing/internal/graph"
 	"deep-seeing/internal/identity"
 	"deep-seeing/internal/intent"
@@ -76,7 +77,8 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 	hasWorkspace := deps.Workspace != nil
 	hasIntents := deps.Intents != nil
 	hasWorld := deps.World != nil
-	hasTaskContext := deps.TaskContextFocus != nil && strings.EqualFold(strings.TrimSpace(deps.RecallMode), "agent")
+	agentMode := strings.EqualFold(strings.TrimSpace(deps.RecallMode), "agent")
+	hasTaskContext := deps.TaskContextFocus != nil && agentMode
 
 	toolsOut := []tool.BaseTool{}
 
@@ -99,7 +101,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		"list_capabilities",
 		"列出可用能力摘要（不要依赖 System Prompt 里的完整工具堆）。",
 		func(ctx context.Context, _ struct{}) (string, error) {
-			out, err := json.Marshal(map[string]any{"ok": true, "capabilities": body.Catalog(hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext)})
+			out, err := json.Marshal(map[string]any{"ok": true, "capabilities": body.Catalog(hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode)})
 			return string(out), err
 		},
 	)
@@ -112,7 +114,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		"tool_help",
 		"查询单个工具的用途、持久性与副作用。",
 		func(ctx context.Context, in toolHelpInput) (string, error) {
-			c, ok := body.FindCapability(in.Name, hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext)
+			c, ok := body.FindCapability(in.Name, hasGraph, hasProps, hasSelf, hasWorkspace, hasIntents, hasWorld, hasScenes, hasTaskContext, agentMode)
 			if !ok {
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": "unknown tool"})
 				return string(out), nil
@@ -235,13 +237,31 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 			observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
 				Query: in.Query, Limit: limit, ResultCount: len(eps), ResultIDs: ids,
 			})
-			cards := make([]episodeCandidateCard, 0, len(eps))
-			for _, ep := range eps {
-				cards = append(cards, episodeCandidateCard{
-					ID: ep.ID, Kind: ep.Kind, Summary: recallCandidateSummary(ep.Content),
-					ExperienceMode: ep.ExperienceMode, PersonIDs: append([]string(nil), ep.PersonIDs...),
-					CreatedAt: ep.CreatedAt,
-				})
+			var cards any
+			if agentMode {
+				unified := make([]contextsource.Candidate, 0, len(eps))
+				for _, ep := range eps {
+					unified = append(unified, contextsource.Candidate{
+						Source: contextsource.Episode, ID: ep.ID, Kind: string(ep.Kind),
+						Preview: recallCandidateSummary(ep.Content), Role: contextsource.Evidence,
+						Metadata: map[string]any{
+							"experience_mode": ep.ExperienceMode,
+							"person_ids":      append([]string(nil), ep.PersonIDs...),
+						},
+						Status: string(ep.Status), UpdatedAt: ep.CreatedAt, ReadRequired: true,
+					})
+				}
+				cards = unified
+			} else {
+				legacy := make([]episodeCandidateCard, 0, len(eps))
+				for _, ep := range eps {
+					legacy = append(legacy, episodeCandidateCard{
+						ID: ep.ID, Kind: ep.Kind, Summary: recallCandidateSummary(ep.Content),
+						ExperienceMode: ep.ExperienceMode, PersonIDs: append([]string(nil), ep.PersonIDs...),
+						CreatedAt: ep.CreatedAt,
+					})
+				}
+				cards = legacy
 			}
 			out, err := json.Marshal(map[string]any{"ok": true, "candidates": cards})
 			return string(out), err
@@ -386,21 +406,59 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 		}
 		toolsOut = append(toolsOut, proposeBond)
 	}
+	toolsOut, err = appendMultiSourceContextTools(toolsOut, deps, scope, agentMode)
+	if err != nil {
+		return nil, err
+	}
 
 	if hasScenes {
 		listScenes, err := utils.InferTool(
 			"list_scene_norms",
-			"列出某人的场景常模（SceneNorm）。场景常模非全局，仅关键词旁路命中时注入。",
-			func(ctx context.Context, in personInput) (string, error) {
+			"列出 SceneNorm 指导候选卡；候选只含标题与关键词，不含正文，需要时用 read_scene_norm。Agent 模式不会自动关键词注入。",
+			func(ctx context.Context, in listSceneInput) (string, error) {
 				person := strings.TrimSpace(in.Person)
 				if person == "" {
 					person = scope.PersonID()
 				}
-				list, err := deps.Scenes.List(person, 50)
+				if !agentMode {
+					list, err := deps.Scenes.List(person, 50)
+					if err != nil {
+						return "", err
+					}
+					out, err := json.Marshal(map[string]any{"ok": true, "scenes": list})
+					return string(out), err
+				}
+				limit := in.Limit
+				if limit <= 0 || limit > 50 {
+					limit = 12
+				}
+				var list []memory.SceneNorm
+				var err error
+				if strings.TrimSpace(in.Query) == "" {
+					list, err = deps.Scenes.List(person, limit)
+				} else {
+					list, err = deps.Scenes.MatchQuery(person, in.Query, limit)
+				}
 				if err != nil {
+					observe.RecordContextCandidate(ctx, observe.ContextCandidateTrace{
+						Source: contextsource.SceneNorm, Operation: "list", Query: in.Query, Error: err.Error(),
+					})
 					return "", err
 				}
-				out, err := json.Marshal(map[string]any{"ok": true, "scenes": list})
+				cards := make([]contextsource.Candidate, 0, len(list))
+				ids := make([]string, 0, len(list))
+				for _, scene := range list {
+					cards = append(cards, contextsource.Candidate{
+						Source: contextsource.SceneNorm, ID: scene.ID, Kind: "scene_norm",
+						Title: scene.Title, Preview: candidatePreview(strings.Join(scene.Keywords, ", "), 120),
+						Role: contextsource.Guidance, Status: "active", UpdatedAt: scene.UpdatedAt, ReadRequired: true,
+					})
+					ids = append(ids, scene.ID)
+				}
+				observe.RecordContextCandidate(ctx, observe.ContextCandidateTrace{
+					Source: contextsource.SceneNorm, Operation: "list", Query: in.Query, ResultIDs: ids,
+				})
+				out, err := json.Marshal(map[string]any{"ok": true, "candidates": cards})
 				return string(out), err
 			},
 		)
@@ -411,7 +469,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 		readScene, err := utils.InferTool(
 			"read_scene_norm",
-			"读取一条场景常模。",
+			"读取一条 SceneNorm 正文；它是场景指导，不是用户经历或全局事实。",
 			func(ctx context.Context, in sceneIDInput) (string, error) {
 				person := strings.TrimSpace(in.Person)
 				if person == "" {
@@ -419,13 +477,16 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				}
 				id := strings.TrimSpace(in.ID)
 				if id == "" {
+					observe.RecordContextRead(ctx, observe.ContextReadTrace{Source: contextsource.SceneNorm, Error: "id 不能为空"})
 					return `{"ok":false,"error":"id 不能为空"}`, nil
 				}
 				sc, err := deps.Scenes.Get(person, id)
 				if err != nil {
+					observe.RecordContextRead(ctx, observe.ContextReadTrace{Source: contextsource.SceneNorm, ID: id, Error: err.Error()})
 					out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error()})
 					return string(out), nil
 				}
+				observe.RecordContextRead(ctx, observe.ContextReadTrace{Source: contextsource.SceneNorm, ID: id})
 				out, err := json.Marshal(map[string]any{"ok": true, "scene": sc})
 				return string(out), err
 			},
@@ -607,7 +668,6 @@ type searchEpisodeInput struct {
 	Query string `json:"query"`
 	Limit int    `json:"limit,omitempty"`
 }
-
 type episodeCandidateCard struct {
 	ID             string                `json:"id"`
 	Kind           memory.EpisodeKind    `json:"kind"`
@@ -634,6 +694,12 @@ type statusEpisodeInput struct {
 
 type personInput struct {
 	Person string `json:"person,omitempty"`
+}
+
+type listSceneInput struct {
+	Person string `json:"person,omitempty"`
+	Query  string `json:"query,omitempty"`
+	Limit  int    `json:"limit,omitempty"`
 }
 
 type proposeBondInput struct {
@@ -687,6 +753,17 @@ func recallCandidateSummary(content string) string {
 		if limit < 12 {
 			return "（短经历；请读取正文核对）"
 		}
+	}
+	return string(runes[:limit]) + "…"
+}
+
+func candidatePreview(value string, limit int) string {
+	runes := []rune(strings.TrimSpace(value))
+	if limit <= 0 {
+		limit = 120
+	}
+	if len(runes) <= limit {
+		return string(runes)
 	}
 	return string(runes[:limit]) + "…"
 }

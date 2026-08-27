@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"deep-seeing/internal/graph"
 	"deep-seeing/internal/identity"
 )
 
@@ -277,17 +278,19 @@ func FormatOpenRecall(props []BondProposal) string {
 }
 
 func normalizeProposalField(raw string) string {
-	switch strings.ToLower(strings.TrimSpace(raw)) {
-	case "basics", "concerns", "baseline", "strategy", "style", "boundaries":
-		return strings.ToLower(strings.TrimSpace(raw))
-	default:
+	if strings.EqualFold(strings.TrimSpace(raw), "strategy") {
+		return "strategy" // preserve old queued proposals during parsing.
+	}
+	slot, err := graph.NormalizeSlot(raw)
+	if err != nil {
 		return ""
 	}
+	return slot
 }
 
 func normalizeProposalMode(field, mode string) string {
 	mode = strings.ToLower(strings.TrimSpace(mode))
-	if field == "style" || field == "boundaries" {
+	if field == "style" || field == "interaction" || field == "boundaries" {
 		if mode == "replace" {
 			return "append" // Phase 3 proposals never ask Dream to hard-replace high fields from one session
 		}

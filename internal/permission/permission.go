@@ -19,6 +19,8 @@ func Classify(toolName string) Level {
 	switch toolName {
 	case "inspect_runtime", "list_capabilities", "tool_help", "get_time",
 		"read_episode", "search_episodes", "recall_bond",
+		"report_recall_evidence", "report_context_focus", "report_context_use",
+		"list_proposals", "read_proposal",
 		"list_scene_norms", "read_scene_norm",
 		"inspect_self", "trace_self_belief", "list_self_tensions",
 		"list_workspace", "read_workspace",
