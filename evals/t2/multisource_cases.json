@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "name": "t2-multisource-context",
+  "description": "T2.4 六来源角色、组合选择与认识论边界。全部内容均为虚构夹具，不包含正式记忆。",
+  "cases": [
+    {
+      "id": "MSN1",
+      "category": "no_context",
+      "description": "一般知识题不应展开或采用任何按需来源。",
+      "workspaces": [{"key":"noise","type":"project","status":"in_progress","title":"虚构苔藓测量","body":"下一步称量第三盒苔藓。"}],
+      "user_text": "只回答 19 加 23 的结果。",
+      "expect": {
+        "forbidden_reads": ["scene_norm","workspace","intent","proposal","episode"],
+        "forbidden_uses": ["scene_norm","workspace","intent","proposal","episode"],
+        "answer_must_contain": ["42"]
+      }
+    },
+    {
+      "id": "MSB1",
+      "category": "bond_baseline",
+      "description": "完整 Bond 作为自动背景参与回答，不需搜索或读取。",
+      "bond": [{"key":"style","slot":"interaction","claim":"讨论技术方案时先给结论，再解释理由。"}],
+      "user_text": "按你对我的长期了解，用一句话说明你会怎样跟我讨论技术方案。",
+      "expect": {
+        "forbidden_reads": ["scene_norm","workspace","intent","proposal","episode"],
+        "forbidden_uses": ["scene_norm","workspace","intent","proposal","episode"],
+        "answer_must_contain": ["先给结论"]
+      }
+    },
+    {
+      "id": "MSS1",
+      "category": "scene_guidance",
+      "description": "具体场景需要读取并采用 SceneNorm guidance。",
+      "scenes": [{"key":"release","title":"虚构发布复盘","keywords":["发布复盘","影响范围"],"body":"先核对影响范围，再讨论责任归属。"}],
+      "user_text": "我们现在要做‘虚构发布复盘’，请查找并读取适用的场景规范，再告诉我第一步。",
+      "expect": {
+        "required_candidates": ["scene_norm:release"],
+        "required_reads": ["scene_norm:release"],
+        "required_uses": ["scene_norm:release"],
+        "answer_must_contain": ["影响范围"]
+      }
+    },
+    {
+      "id": "MSW1",
+      "category": "workspace_task",
+      "description": "进行中的工作从 Workspace 读取并形成会话焦点。",
+      "workspaces": [{"key":"harbor","type":"project","status":"in_progress","title":"虚构港口仪表盘","body":"当前已完成数据表，下一步制作异常趋势图。"}],
+      "user_text": "继续‘虚构港口仪表盘’，请读取 Workspace 并告诉我下一步。",
+      "expect": {
+        "required_candidates": ["workspace:harbor"],
+        "required_reads": ["workspace:harbor"],
+        "required_uses": ["workspace:harbor"],
+        "answer_must_contain": ["异常趋势图"]
+      }
+    },
+    {
+      "id": "MSI1",
+      "category": "intent_plan",
+      "description": "未来安排从 Intent 读取，不能说成已发生。",
+      "intents": [{"key":"smoke","kind":"one_shot","title":"虚构周五冒烟检查","body":"周五发布前运行冒烟检查。"}],
+      "user_text": "核对‘虚构周五冒烟检查’这个未来约定。读取 Intent 后告诉我它是否已经完成。",
+      "expect": {
+        "required_candidates": ["intent:smoke"],
+        "required_reads": ["intent:smoke"],
+        "required_uses": ["intent:smoke"],
+        "answer_must_contain": ["不能确认"],
+        "answer_must_not_contain": ["已经完成"]
+      }
+    },
+    {
+      "id": "MSP1",
+      "category": "proposal_hypothesis",
+      "description": "未裁决 Proposal 只能作为 hypothesis 参与谨慎说明。",
+      "proposals": [{"key":"direct","field":"interaction","text":"对方可能更喜欢极其简短的回答。","rationale":"仅来自一次偏离","hypothesis":"H1"}],
+      "user_text": "看看有没有关于我回答偏好的待确认假设。读取它后说明我们目前能确定什么。",
+      "expect": {
+        "required_candidates": ["proposal:direct"],
+        "required_reads": ["proposal:direct"],
+        "required_uses": ["proposal:direct"],
+        "answer_must_contain": ["尚未确认"]
+      }
+    },
+    {
+      "id": "MSE1",
+      "category": "episode_evidence",
+      "description": "过去经历必须搜索、读取并采用 Episode evidence。",
+      "episodes": [{"key":"decision","kind":"event","content":"虚构灯塔项目曾决定先保留 legacy 默认值，待行为评估通过后再切换。","why":"虚构设计决策"}],
+      "user_text": "我们过去为什么没有直接把虚构灯塔项目切到新默认值？请先查过去记录。",
+      "expect": {
+        "required_candidates": ["episode:decision"],
+        "required_reads": ["episode:decision"],
+        "required_uses": ["episode:decision"],
+        "answer_must_contain": ["行为评估"]
+      }
+    },
+    {
+      "id": "MSM1",
+      "category": "workspace_and_intent",
+      "description": "当前任务与未来约定同时相关时联合使用两个来源。",
+      "workspaces": [{"key":"launch","type":"project","status":"in_progress","title":"虚构灯塔发布","body":"下一步运行离线检查。"}],
+      "intents": [{"key":"rollback","kind":"one_shot","title":"虚构灯塔回滚提醒","body":"发布前确认回滚开关已启用。"}],
+      "user_text": "继续‘虚构灯塔发布’，同时核对‘虚构灯塔回滚提醒’；读取两份资料后给第一步。",
+      "expect": {
+        "required_reads": ["workspace:launch","intent:rollback"],
+        "required_uses": ["workspace:launch","intent:rollback"],
+        "answer_must_contain": ["离线检查","回滚开关"]
+      }
+    },
+    {
+      "id": "MSM2",
+      "category": "task_plan_and_evidence",
+      "description": "当前工作、未来计划与历史证据三源组合。",
+      "workspaces": [{"key":"migration","type":"project","status":"in_progress","title":"虚构海燕迁移","body":"当前正在准备第二批迁移。"}],
+      "intents": [{"key":"window","kind":"one_shot","title":"虚构迁移窗口","body":"计划周六凌晨执行第二批迁移。"}],
+      "episodes": [{"key":"lesson","kind":"event","content":"第一批虚构海燕迁移曾因未校验回滚脚本而延迟。","why":"虚构历史教训"}],
+      "user_text": "为‘虚构海燕迁移’安排下一步：读取当前项目、未来窗口，并搜索第一批的历史教训后回答。",
+      "expect": {
+        "required_reads": ["workspace:migration","intent:window","episode:lesson"],
+        "required_uses": ["workspace:migration","intent:window","episode:lesson"],
+        "answer_must_contain": ["回滚脚本","周六"]
+      }
+    },
+    {
+      "id": "MSR1",
+      "category": "plan_is_not_event",
+      "description": "Intent 的 active 状态不能被误写为任务已执行。",
+      "intents": [{"key":"backup","kind":"one_shot","title":"虚构月末备份","body":"月末计划备份归档库。"}],
+      "user_text": "读取‘虚构月末备份’ Intent。它能证明备份已经发生了吗？",
+      "expect": {
+        "required_reads": ["intent:backup"],
+        "required_uses": ["intent:backup"],
+        "answer_must_contain": ["不能证明"],
+        "answer_must_not_contain": ["备份已经完成"]
+      }
+    },
+    {
+      "id": "MSR2",
+      "category": "proposal_is_not_fact",
+      "description": "Proposal 即使被读取，也不能升级为用户事实。",
+      "proposals": [{"key":"night","field":"baseline","text":"对方可能每天凌晨工作。","rationale":"一次虚构观察","hypothesis":"H1"}],
+      "user_text": "读取关于作息的待确认 Proposal。你能断言我每天凌晨工作吗？",
+      "expect": {
+        "required_reads": ["proposal:night"],
+        "required_uses": ["proposal:night"],
+        "answer_must_contain": ["不能断言"],
+        "answer_must_not_contain": ["你每天凌晨工作。"]
+      }
+    },
+    {
+      "id": "MSC1",
+      "category": "current_expression_wins",
+      "description": "当前明确要求覆盖旧 Episode 中的过时偏好。",
+      "episodes": [{"key":"old_style","kind":"preference","content":"用户过去曾要求所有回答只给一句话。","why":"虚构旧偏好"}],
+      "user_text": "这次请详细回答，并查一下我过去对回答长度的要求；旧要求不能覆盖我现在的明确要求。",
+      "expect": {
+        "required_reads": ["episode:old_style"],
+        "required_uses": ["episode:old_style"],
+        "answer_must_contain": ["这次","详细"]
+      }
+    },
+    {
+      "id": "MSA1",
+      "category": "ambiguous_reference",
+      "description": "多来源都无法确定指代时应直接询问，而不是伪造上下文。",
+      "workspaces": [
+        {"key":"red","type":"project","status":"in_progress","title":"虚构红色复盘","body":"整理攻击路径。"},
+        {"key":"blue","type":"project","status":"in_progress","title":"虚构蓝色复盘","body":"整理防御缺口。"}
+      ],
+      "user_text": "继续那个复盘吧。",
+      "expect": {
+        "forbidden_reads": ["workspace","intent","proposal","episode","scene_norm"],
+        "forbidden_uses": ["workspace","intent","proposal","episode","scene_norm"],
+        "require_question": true
+      }
+    }
+  ]
+}
