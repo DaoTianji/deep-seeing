@@ -13,7 +13,7 @@ T2 要把召回从“哪段文字和当前输入相似”推进到：
 | T2.1 自主召回 | Agent 自己决定是否搜索 Episode；Legacy 可回退 | 已完成 |
 | T2.2 证据闭环 | 候选不等于证据；必须读取后声明采用/排除 | 已完成，48/48 |
 | T2.3 当前处境 | 任务薄快照、按需调查、会话焦点、切换和歧义询问 | 已完成，真实 Agent 27/27（36 Turn）通过 |
-| T2.4 多源候选 | Bond、SceneNorm、Workspace、Intent、Proposal、Episode 统一成为可选来源 | 未开始 |
+| T2.4 多源候选 | 六类来源统一候选、语义角色、公开轨迹与激活回放 | 工程完成；真实 Agent 13 × 3 复验待新夹具授权 |
 | T2.5 注意与竞争 | 根据目标、关系、状态、时间和可信度动态排序，处理上下文槽位满载 | 未开始 |
 | T2.6 稳定上线 | 长期回归、成本和延迟优化、降级，评估是否默认启用 Agent 模式 | 未开始 |
 
@@ -144,3 +144,38 @@ T2.3 只有同时满足以下条件才标记完成：
 - 处境快照和会话焦点没有写入长期记忆。
 
 通过后进入 T2.4 多源候选；不在 T2.3 中加入情绪状态、统一多源召回、动态排序、向量搜索或图扩散。
+
+## 5. T2.4 统一多源召回
+
+T2.4 已冻结为架构驱动的完整多源方案，不再以“先证明现状失败”作为是否开发的门槛。测试用于验证实现正确和行为改善，而不是决定是否建设统一架构。完整开发契约见 [t2-multisource.md](./t2-multisource.md)。
+
+本轮统一六种上下文来源：
+
+- Bond：自动提供的 `baseline`。
+- SceneNorm：按需读取的 `guidance`。
+- Workspace：当前工作的 `task`。
+- Intent：未来安排的 `plan`。
+- Proposal：未确认认识的 `hypothesis`。
+- Episode：历史经历的 `evidence`。
+
+实施原则：
+
+- 建立统一 `ContextCandidate`，但保留来源专用 list/search/read 工具。
+- Agent 自主选择调查来源，可以同轮组合多个来源。
+- 建立统一 candidate → read → use/dismiss/focus 的公开轨迹和 Room 回放。
+- Bond 保持完整自动加载；Proposal 只读 pending 且不能作为事实证据。
+- Legacy 与默认 `RECALL_MODE=legacy` 保持不变。
+- 不在本轮实现统一搜索入口、Recall Broker、跨来源评分、向量、图扩散或注意竞争。
+
+当前代码已经实现统一协议、来源适配、公开轨迹、Room 激活回放与隔离评估器。机器可读案例位于 `evals/t2/multisource_cases.json`：
+
+~~~bash
+# 离线校验，不访问模型
+go run ./cmd/eval-multisource
+
+# 新夹具经用户明确授权后才可运行
+go run ./cmd/eval-multisource -live -repeat 3 \
+  -out data/evals/t2-multisource-v1.jsonl
+~~~
+
+工程实现与确定性测试已完成；真实 Agent 13 类 × 3 次行为复验尚待新夹具授权。详见 [T2.4 评估状态](./evals/t2-multisource-results.md)。
