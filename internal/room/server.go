@@ -360,6 +360,18 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			OnContextFocus: func(event observe.TaskContextFocusTrace) {
 				emit("task_context_focus", event)
 			},
+			OnContextSource: func(event observe.ContextSourceTrace) {
+				emit("context_source", event)
+			},
+			OnContextCandidate: func(event observe.ContextCandidateTrace) {
+				emit("context_candidate", event)
+			},
+			OnContextRead: func(event observe.ContextReadTrace) {
+				emit("context_read", event)
+			},
+			OnContextUse: func(event observe.ContextUseTrace) {
+				emit("context_use", event)
+			},
 		})
 		if err != nil {
 			return err

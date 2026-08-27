@@ -138,6 +138,14 @@ async function sendMessage(event) {
         } else {
           setActivity(`已确认当前焦点 · ${focus.workspace_id || focus.intent_id || focus.action}`);
         }
+      } else if (eventData.type === "context_source") {
+        activateContextSource(eventData.data || {});
+      } else if (eventData.type === "context_candidate") {
+        activateContextCandidate(eventData.data || {});
+      } else if (eventData.type === "context_read") {
+        activateContextRead(eventData.data || {});
+      } else if (eventData.type === "context_use") {
+        activateContextUse(eventData.data || {});
       } else if (eventData.type === "recall_search") {
         activateRecallSearch(eventData.data || {});
         const count = Number(eventData.data?.result_count || 0);
@@ -218,14 +226,15 @@ function clearRecallActivation(render = true) {
 
 function emptyRecallActivation() {
   return {
-    candidates: new Set(), read: new Set(), used: new Set(), dismissed: new Set(),
-    query: "", source: "", searches: 0,
+    candidates: new Set(), read: new Set(), used: new Set(), dismissed: new Set(), focus: new Set(),
+    sourceByID: new Map(), sources: new Map(), query: "", source: "", searches: 0,
   };
 }
 
 function activateRecallSearch(search) {
 
   for (const id of search.result_ids || []) state.recallActivation.candidates.add(id);
+  for (const id of search.result_ids || []) state.recallActivation.sourceByID.set(id, "episode");
   state.recallActivation.query = search.query || state.recallActivation.query;
   state.recallActivation.source = "live";
   state.recallActivation.searches += 1;
@@ -235,6 +244,7 @@ function activateRecallSearch(search) {
 
 function activateRecallRead(read) {
   if (read.episode_id && !read.error) state.recallActivation.read.add(read.episode_id);
+  if (read.episode_id) state.recallActivation.sourceByID.set(read.episode_id, "episode");
   state.recallActivation.source = "live";
   selectView("graph");
   requestAnimationFrame(renderGraph);
@@ -242,30 +252,100 @@ function activateRecallRead(read) {
 
 function activateRecallEvidence(event) {
   if (!event.episode_id) return;
+  state.recallActivation.sourceByID.set(event.episode_id, "episode");
   if (event.status === "used") state.recallActivation.used.add(event.episode_id);
   if (event.status === "dismissed") state.recallActivation.dismissed.add(event.episode_id);
   state.recallActivation.source = "live";
   selectView("graph");
   requestAnimationFrame(renderGraph);
 }
+function activateContextSource(event) {
+  if (!event.source) return;
+  state.recallActivation.sources.set(event.source, event.state || "unknown");
+  state.recallActivation.source = "live";
+  renderRecallActivationStatus();
+}
+
+function activateContextCandidate(event) {
+  if (event.source === "episode") return;
+  for (const id of event.result_ids || []) {
+    state.recallActivation.candidates.add(id);
+    state.recallActivation.sourceByID.set(id, event.source || "context");
+  }
+  state.recallActivation.query = event.query || state.recallActivation.query;
+  state.recallActivation.searches += event.operation === "snapshot" ? 0 : 1;
+  state.recallActivation.source = "live";
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
+function activateContextRead(event) {
+  if (event.source === "episode" || !event.id) return;
+  state.recallActivation.sourceByID.set(event.id, event.source || "context");
+  if (event.ok && !event.error) state.recallActivation.read.add(event.id);
+  state.recallActivation.source = "live";
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
+
+function activateContextUse(event) {
+  if (event.source === "episode" || !event.id) return;
+  state.recallActivation.sourceByID.set(event.id, event.source || "context");
+  if (event.disposition === "used") state.recallActivation.used.add(event.id);
+  if (event.disposition === "dismissed") state.recallActivation.dismissed.add(event.id);
+  if (event.disposition === "focus") state.recallActivation.focus.add(event.id);
+  state.recallActivation.source = "live";
+  selectView("graph");
+  requestAnimationFrame(renderGraph);
+}
 
 function replayRecallTrace(trace) {
-  const searches = trace.recall_searches || [];
-
   const activation = emptyRecallActivation();
-  for (const search of searches) {
-    for (const id of search.result_ids || []) activation.candidates.add(id);
+  const contextCandidates = trace.context_candidates || [];
+  const unified = contextCandidates.length || (trace.context_reads || []).length || (trace.context_uses || []).length;
+  for (const source of trace.context_sources || []) {
+    if (source.source) activation.sources.set(source.source, source.state || "unknown");
   }
-  for (const read of trace.recall_reads || []) {
-    if (read.episode_id && !read.error) activation.read.add(read.episode_id);
+  if (unified) {
+    for (const event of contextCandidates) {
+      for (const id of event.result_ids || []) {
+        activation.candidates.add(id);
+        activation.sourceByID.set(id, event.source || "context");
+      }
+    }
+    for (const event of trace.context_reads || []) {
+      if (!event.id) continue;
+      activation.sourceByID.set(event.id, event.source || "context");
+      if (event.ok && !event.error) activation.read.add(event.id);
+    }
+    for (const event of trace.context_uses || []) {
+      if (!event.id) continue;
+      activation.sourceByID.set(event.id, event.source || "context");
+      if (event.disposition === "used") activation.used.add(event.id);
+      if (event.disposition === "dismissed") activation.dismissed.add(event.id);
+      if (event.disposition === "focus") activation.focus.add(event.id);
+    }
+    activation.query = contextCandidates.map((event) => event.query).filter(Boolean).join(" → ");
+    activation.searches = contextCandidates.filter((event) => event.operation !== "snapshot").length;
+  } else {
+    const searches = trace.recall_searches || [];
+    for (const search of searches) {
+      for (const id of search.result_ids || []) {
+        activation.candidates.add(id);
+        activation.sourceByID.set(id, "episode");
+      }
+    }
+    for (const read of trace.recall_reads || []) {
+      if (read.episode_id && !read.error) activation.read.add(read.episode_id);
+    }
+    for (const event of trace.recall_evidence || []) {
+      if (event.status === "used") activation.used.add(event.episode_id);
+      if (event.status === "dismissed") activation.dismissed.add(event.episode_id);
+    }
+    activation.query = searches.map((search) => search.query).filter(Boolean).join(" → ");
+    activation.searches = searches.length;
   }
-  for (const event of trace.recall_evidence || []) {
-    if (event.status === "used") activation.used.add(event.episode_id);
-    if (event.status === "dismissed") activation.dismissed.add(event.episode_id);
-  }
-  activation.query = searches.map((search) => search.query).filter(Boolean).join(" → ");
   activation.source = "trace";
-  activation.searches = searches.length;
   state.recallActivation = activation;
   selectView("graph");
   requestAnimationFrame(renderGraph);
@@ -275,27 +355,74 @@ function renderRecallActivationStatus() {
   const banner = $("#recall-activation");
   if (!banner) return;
   const activation = state.recallActivation;
-  const eventCount = activation.searches + activation.read.size + activation.used.size + activation.dismissed.size;
+  const eventCount = activation.candidates.size + activation.read.size + activation.used.size +
+    activation.dismissed.size + activation.focus.size + activation.sources.size;
   banner.hidden = !eventCount;
   if (!eventCount) return;
-  const label = activation.source === "trace" ? "回放召回" : "本轮召回";
-
-  const count = activation.candidates.size;
-  const visible = (state.graph.nodes || []).filter((node) => activation.candidates.has(node.id)).length;
-  const coverage = visible === count ? `候选 ${count}` : `候选 ${count} / 图中 ${visible}`;
-  $("#recall-activation-label").textContent = `${label} · ${coverage} · 已读 ${activation.read.size} · 采用 ${activation.used.size} · 排除 ${activation.dismissed.size}`;
+  const label = activation.source === "trace" ? "回放上下文激活" : "本轮上下文激活";
+  const sourceNames = [...new Set([...activation.sourceByID.values()])].map(friendlyContextSource);
+  $("#recall-activation-label").textContent =
+    `${label} · 候选 ${activation.candidates.size} · 已读 ${activation.read.size} · 采用 ${activation.used.size} · 焦点 ${activation.focus.size} · 排除 ${activation.dismissed.size}`;
   $("#recall-activation-query").textContent = activation.query
-    ? `搜索：${truncate(activation.query, 58)}`
-    : "搜索没有留下关键词";
+    ? `${sourceNames.join(" + ") || "上下文"}：${truncate(activation.query, 58)}`
+    : `来源：${sourceNames.join(" + ") || [...activation.sources.keys()].map(friendlyContextSource).join(" + ") || "Bond 基线"}`;
 }
 
 function recallStatus(id) {
   const activation = state.recallActivation;
-  if (activation.used.has(id)) return "recall-used";
-  if (activation.dismissed.has(id)) return "recall-dismissed";
-  if (activation.read.has(id)) return "recall-read";
-  if (activation.candidates.has(id)) return "recall-candidate";
-  return "";
+  let status = "";
+  if (activation.used.has(id)) status = "recall-used";
+  else if (activation.dismissed.has(id)) status = "recall-dismissed";
+  else if (activation.read.has(id)) status = "recall-read";
+  else if (activation.candidates.has(id)) status = "recall-candidate";
+  if (activation.focus.has(id)) status += " context-focus";
+  return status.trim();
+}
+
+function friendlyContextSource(source) {
+  return ({
+    bond: "Bond", scene_norm: "SceneNorm", workspace: "Workspace",
+    intent: "Intent", proposal: "Proposal", episode: "Episode",
+  })[source] || source || "Context";
+}
+
+function contextSourceKind(source) {
+  return ({
+    scene_norm: "SceneNorm", workspace: "Workspace", intent: "Intent",
+    proposal: "Proposal", episode: "Episode",
+  })[source] || "Context";
+}
+
+function contextSourceGlyph(source) {
+  return ({ scene_norm: "◇", workspace: "W", intent: "I", proposal: "?", episode: "E" })[source] || "·";
+}
+
+function contextGraphView(graph) {
+  const nodes = [...(graph.nodes || [])];
+  const edges = [...(graph.edges || [])];
+  const known = new Set(nodes.map((node) => node.id));
+  const activeIDs = new Set([
+    ...state.recallActivation.candidates, ...state.recallActivation.read,
+    ...state.recallActivation.used, ...state.recallActivation.dismissed, ...state.recallActivation.focus,
+  ]);
+  if (!nodes.length && activeIDs.size) {
+    nodes.push({ id: "context:turn", kind: "Self", title: "本轮问题", status: "context-anchor" });
+    known.add("context:turn");
+  }
+  const anchor = nodes.find((node) => node.kind === "Person") || nodes.find((node) => node.kind === "Self");
+  for (const id of activeIDs) {
+    if (known.has(id)) continue;
+    const source = state.recallActivation.sourceByID.get(id) || "episode";
+    nodes.push({
+      id, kind: contextSourceKind(source), title: friendlyContextSource(source),
+      subtitle: id, status: "context-virtual", context_source: source,
+    });
+    known.add(id);
+    if (anchor) {
+      edges.push({ id: `context:${anchor.id}:${id}`, source: anchor.id, target: id, kind: "CONTEXT" });
+    }
+  }
+  return { nodes, edges, available: Boolean(graph.available || activeIDs.size) };
 }
 
 function addMessage(role, content, animate = true) {
@@ -610,13 +737,13 @@ function renderGraph() {
   const svg = $("#memory-graph");
   if (!svg || !$("#view-graph").classList.contains("active")) return;
   svg.replaceChildren();
-  const graph = state.graph;
-  const nodes = graph.nodes || [];
-  const edges = graph.edges || [];
-  $("#graph-summary").textContent = graph.available
-    ? `${nodes.length} 个节点 · ${edges.length} 条关系 · 来自 Neo4j`
-    : "Neo4j 暂不可用；Episode 文件仍然存在";
-  $("#graph-empty").hidden = graph.available && nodes.length > 2;
+  const graph = contextGraphView(state.graph);
+  const nodes = graph.nodes;
+  const edges = graph.edges;
+  $("#graph-summary").textContent = state.graph.available
+    ? `${nodes.length} 个节点 · ${edges.length} 条关系 · 含本轮上下文`
+    : graph.available ? `${nodes.length} 个临时上下文节点` : "Neo4j 暂不可用；Episode 文件仍然存在";
+  $("#graph-empty").hidden = graph.available && nodes.length > 0;
   renderRecallActivationStatus();
   if (!graph.available || nodes.length === 0) return;
 
@@ -647,7 +774,7 @@ function appendGraphEdges(svg, edges, layout) {
     const geometry = edgeGeometry(source, target, curvature);
     const line = svgEl("path", {
       d: geometry.d,
-      class: `graph-edge ${edge.kind} ${recallStatus(edge.source)}`,
+      class: `graph-edge ${edge.kind} ${recallStatus(edge.target) || recallStatus(edge.source)}`,
       "marker-end": "url(#arrow)",
     });
     // transparent wide path so thin relationships stay clickable
@@ -718,6 +845,11 @@ function appendGraphNodes(svg, nodes, layout, edgeRefs, bounds) {
     });
     group.append(svgEl("circle", { r: radius + 4, class: "node-halo" }));
     group.append(svgEl("circle", { r: radius, class: `node-core ${node.kind} ${node.status || ""} ${node.anchor === "Self" ? "about-self" : ""}` }));
+    if (node.context_source) {
+      const glyph = svgEl("text", { y: 4, class: "node-glyph" });
+      glyph.textContent = contextSourceGlyph(node.context_source);
+      group.append(glyph);
+    }
     const label = svgEl("text", { y: isAnchor ? 4 : radius + 14, class: "node-label" });
     label.textContent = truncate(node.title, isAnchor ? 13 : 16);
     group.append(label);
@@ -824,6 +956,8 @@ function semanticLayout(nodes, width, height) {
   const aroundPerson = nodes.filter((node) => node.kind === "Episode" && node.anchor !== "Self");
   placeEpisodeRing(result, aroundSelf, selfPos.x, selfPos.y, width, height, true);
   placeEpisodeRing(result, aroundPerson, personPos.x, personPos.y, width, height, false);
+  const contextNodes = nodes.filter((node) => !["Self", "Person", "Episode"].includes(node.kind));
+  placeContextLane(result, contextNodes, width, height);
   for (const [id, position] of state.graphPinned) {
     if (result.has(id)) result.set(id, position);
   }
@@ -847,6 +981,17 @@ function placeEpisodeRing(result, episodes, cx, cy, width, height, leftSide) {
   });
 }
 
+function placeContextLane(result, nodes, width, height) {
+  const columns = Math.min(Math.max(nodes.length, 1), 6);
+  nodes.forEach((node, index) => {
+    const row = Math.floor(index / columns);
+    const column = index % columns;
+    result.set(node.id, {
+      x: width * ((column + 1) / (columns + 1)),
+      y: clamp(height - 42 - row * 54, 30, height - 28),
+    });
+  });
+}
 function showGraphDetail(item, type) {
   const card = $("#graph-detail");
   card.replaceChildren();
@@ -986,6 +1131,15 @@ function renderTraces() {
     const reads = (trace.recall_reads || []).filter((read) => read.episode_id && !read.error);
     const used = (trace.recall_evidence || []).filter((event) => event.status === "used");
     const dismissed = (trace.recall_evidence || []).filter((event) => event.status === "dismissed");
+    const contextCandidates = trace.context_candidates || [];
+    const contextIDs = new Set(contextCandidates.flatMap((event) => event.result_ids || []));
+    const contextReads = (trace.context_reads || []).filter((event) => event.id && event.ok && !event.error);
+    const contextUses = trace.context_uses || [];
+    const contextUsed = contextUses.filter((event) => event.disposition === "used");
+    const contextDismissed = contextUses.filter((event) => event.disposition === "dismissed");
+    const contextFocused = contextUses.filter((event) => event.disposition === "focus");
+    const contextSources = new Set(contextCandidates.map((event) => event.source).filter(Boolean));
+    const hasUnifiedContext = contextCandidates.length || contextReads.length || contextUses.length;
     const taskContext = trace.task_context;
     const contextExpands = trace.task_context_expansions || [];
     const contextFocus = trace.task_context_focus;
@@ -1003,15 +1157,19 @@ function renderTraces() {
       const label = contextFocus.action === "clarify" ? "需要确认" : selected;
       meta.append(create("span", "", `处境结论 · ${contextFocus.action} / ${label}`));
     }
-    if (searches.length) meta.append(create("span", "", `召回 · 候选 ${candidateIDs.size} / 已读 ${reads.length} / 采用 ${used.length} / 排除 ${dismissed.length}`));
+    if (hasUnifiedContext) {
+      meta.append(create("span", "", `上下文 · ${[...contextSources].map(friendlyContextSource).join(" + ")} · 候选 ${contextIDs.size} / 已读 ${contextReads.length} / 采用 ${contextUsed.length} / 焦点 ${contextFocused.length} / 排除 ${contextDismissed.length}`));
+    } else if (searches.length) {
+      meta.append(create("span", "", `召回 · 候选 ${candidateIDs.size} / 已读 ${reads.length} / 采用 ${used.length} / 排除 ${dismissed.length}`));
+    }
     for (const id of trace.recall_ids || []) meta.append(create("span", "", `recall · ${id}`));
     for (const tool of trace.tool_starts || []) meta.append(create("span", "", `tool · ${friendlyTool(tool)}`));
-    if (!searches.length && !(trace.recall_ids || []).length && !(trace.tool_starts || []).length) meta.append(create("span", "", "没有调用工具"));
+    if (!hasUnifiedContext && !searches.length && !(trace.recall_ids || []).length && !(trace.tool_starts || []).length) meta.append(create("span", "", "没有调用工具"));
     item.append(meta);
     if (trace.answer_preview) {
       item.append(create("div", "trace-answer", `回应 · ${trace.answer_preview}`));
     }
-    if (searches.length || reads.length || used.length || dismissed.length) {
+    if (hasUnifiedContext || searches.length || reads.length || used.length || dismissed.length) {
       item.classList.add("trace-replay");
       item.tabIndex = 0;
       item.title = "点击在图中回放本轮召回候选";
