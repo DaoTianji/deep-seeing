@@ -1,6 +1,6 @@
 # T2.4 统一多源召回：开发方案
 
-> 状态：工程实现与本地确定性验收已完成；新虚构夹具的真实 Agent 13 × 3 复验待用户审阅并明确授权。T2.4 采用架构驱动开发；测试用于验证实现和行为，不再作为“是否开发”的前置门槛。
+> 状态：工程实现、本地确定性验收和真实 Agent 13 × 3 行为复验均已完成，最终 39/39 通过。T2.4 采用架构驱动开发；测试用于验证实现和行为，不再作为“是否开发”的前置门槛。
 
 ## 1. 目标
 
@@ -141,14 +141,14 @@ Room 实时动画和历史回放使用统一状态：黄色候选、蓝色已读
 4. `feat(t2): visualize multi-source activation`
 5. `test(t2): add multi-source recall evaluation`
 
-当前实现、13 类虚构案例、离线命令和待授权行为门槛见 [T2.4 评估状态](./evals/t2-multisource-results.md)。`go run ./cmd/eval-multisource` 只做 schema 与规则校验，不访问模型；`-live` 才会把夹具发到当前模型网关。
+当前实现、13 类虚构案例和 39/39 聚合结果见 [T2.4 评估结果](./evals/t2-multisource-results.md)。`go run ./cmd/eval-multisource` 只做 schema 与规则校验，不访问模型；真实复验使用 `-live -repeat 3 -judge model`，结构轨迹是硬门槛，模型只判断回答语义。
 
 
 自动测试覆盖候选正文隔离、read-before-use、Proposal 权限、Intent 时间语义、重复/冲突声明、Turn 隔离、来源独立降级、Agent/Legacy 兼容、Room 状态和旧 Trace 回放。
 
 行为验收使用纯虚构跨来源项目，覆盖无需召回、六种来源的正确角色、Workspace+Intent、Workspace+Intent+Episode、计划不等于发生、Proposal 不等于事实、当前表达优先、歧义询问和来源降级。每个案例重复 3 次，记录回答、来源选择、读取/采用、token、延迟和工具次数；成本只记录，不设门槛。
 
-新夹具先提交给用户审阅，得到明确授权后才能发送到当前 `ops-ai` 网关；不得读取或发送正式记忆。全部改动只做本地 commit，T2 全部结束前不 push。
+用户已明确授权将仓库内纯虚构夹具发送到当前 `ops-ai` 网关，复验期间没有读取或发送正式记忆。全部改动只做本地 commit，T2 全部结束前不 push。
 
 ## 7. 延期范围
 

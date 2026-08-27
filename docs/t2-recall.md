@@ -13,7 +13,7 @@ T2 要把召回从“哪段文字和当前输入相似”推进到：
 | T2.1 自主召回 | Agent 自己决定是否搜索 Episode；Legacy 可回退 | 已完成 |
 | T2.2 证据闭环 | 候选不等于证据；必须读取后声明采用/排除 | 已完成，48/48 |
 | T2.3 当前处境 | 任务薄快照、按需调查、会话焦点、切换和歧义询问 | 已完成，真实 Agent 27/27（36 Turn）通过 |
-| T2.4 多源候选 | 六类来源统一候选、语义角色、公开轨迹与激活回放 | 工程完成；真实 Agent 13 × 3 复验待新夹具授权 |
+| T2.4 多源候选 | 六类来源统一候选、语义角色、公开轨迹与激活回放 | 已完成，真实 Agent 39/39 通过 |
 | T2.5 注意与竞争 | 根据目标、关系、状态、时间和可信度动态排序，处理上下文槽位满载 | 未开始 |
 | T2.6 稳定上线 | 长期回归、成本和延迟优化、降级，评估是否默认启用 Agent 模式 | 未开始 |
 
@@ -173,9 +173,9 @@ T2.4 已冻结为架构驱动的完整多源方案，不再以“先证明现状
 # 离线校验，不访问模型
 go run ./cmd/eval-multisource
 
-# 新夹具经用户明确授权后才可运行
-go run ./cmd/eval-multisource -live -repeat 3 \
-  -out data/evals/t2-multisource-v1.jsonl
+# 已授权的纯虚构夹具行为复验
+go run ./cmd/eval-multisource -live -repeat 3 -judge model \
+  -out data/evals/t2-multisource-final.jsonl
 ~~~
 
-工程实现与确定性测试已完成；真实 Agent 13 类 × 3 次行为复验尚待新夹具授权。详见 [T2.4 评估状态](./evals/t2-multisource-results.md)。
+工程、确定性测试与真实 Agent 13 类 × 3 次行为复验均已完成，最终 39/39 通过。详见 [T2.4 评估结果](./evals/t2-multisource-results.md)。下一步进入 T2.5 注意与竞争。

@@ -54,7 +54,7 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 - 无 External 工具 Interrupt UI、Restore 需人工演练  
 - 完整 Know→Act Birth Test 仍需带模型跑一遍（清单见 birth-gate）  
 - **T1（常模参与对话，已落地）**：`FormatCompactRecall` 优先级注入；Bond `items_json` + `bond_version` 为 Item SoT；`append_bond_boundary` / `propose_bond_update` / `set_explicit_bond_fact`；SceneNorm 文件旁路（`list/read/write_scene_norm`，关键词命中注入）；Strategy 派生缓存（`set_bond_strategy_cache`，绑定 `bond_version`）。旧 `Strategy` 散文非 SoT。
-- **T2.1–T2.4（自主召回 + 证据闭环 + 当前任务处境 + 多来源）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；Episode、SceneNorm、Workspace、Intent、Proposal 都通过薄候选 → read → use/dismiss/focus 的公开路径参与回答，固定角色分别为 evidence、guidance、task、plan、hypothesis，Bond 为 baseline。Workspace/Intent 仍自动提供最多 4 张 active 薄卡和会话焦点。统一 Trace 只存来源、ID、查询、读取和采用状态，不存正文或隐藏思维；Room 可实时显示并回放跨来源临时节点。T2.1–T2.3 的 48/48 与 27/27 行为验收已完成；T2.4 工程与本地验收完成，13 类 × 3 次新虚构夹具复验待明确授权。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索、图扩散或注意竞争。
+- **T2.1–T2.4（自主召回 + 证据闭环 + 当前任务处境 + 多来源）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；Episode、SceneNorm、Workspace、Intent、Proposal 都通过薄候选 → read → use/dismiss/focus 的公开路径参与回答，固定角色分别为 evidence、guidance、task、plan、hypothesis，Bond 为 baseline。Workspace/Intent 仍自动提供最多 4 张 active 薄卡和会话焦点。统一 Trace 只存来源、ID、查询、读取和采用状态，不存正文或隐藏思维；Room 可实时显示并回放跨来源临时节点。T2.1–T2.3 的 48/48 与 27/27 行为验收已完成；T2.4 的工程、本地验收和 13 类 × 3 次真实 Agent 复验均已完成，最终 39/39 通过。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索、图扩散或注意竞争。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 
