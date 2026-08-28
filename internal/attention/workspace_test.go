@@ -54,6 +54,21 @@ func TestSessionWorkspaceTiersIdleAndIsolation(t *testing.T) {
 	if _, err := store.Apply("s1", []attention.Decision{{Source: contextsource.Bond, ID: "person", Target: attention.Center}}); err == nil {
 		t.Fatal("Bond incorrectly entered candidate competition")
 	}
+	if !store.Touch("s1", contextsource.Workspace, "w1") {
+		t.Fatal("retained item was not touched")
+	}
+	afterTouch := store.Snapshot("s1")
+	for _, item := range afterTouch.Items {
+		if item.ID == "w1" && item.IdleTurns != 0 {
+			t.Fatalf("touch did not reset idle turns: %+v", afterTouch.Items)
+		}
+	}
+	if store.Touch("s1", contextsource.Workspace, "missing") {
+		t.Fatal("missing item reported as touched")
+	}
+	if store.Touch("s1", contextsource.Bond, "person") {
+		t.Fatal("Bond was touched inside attention competition")
+	}
 }
 
 func TestSessionWorkspaceBatchIsAtomic(t *testing.T) {

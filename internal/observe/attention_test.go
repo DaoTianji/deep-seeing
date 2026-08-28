@@ -26,20 +26,23 @@ func TestAttentionTraceAndContextEligibilityAreTurnScoped(t *testing.T) {
 	}
 
 	snapshot := attention.Snapshot{Version: attention.Version, Revision: 2, Capacity: attention.DefaultCapacity(), Items: []attention.Item{{
-		Source: contextsource.Episode, ID: "ep_1", Role: contextsource.Evidence, Tier: attention.Center,
+		Source: contextsource.Episode, ID: "ep_1", Role: contextsource.Evidence, Tier: attention.Center, IdleTurns: 2,
 	}}}
 	observe.RecordAttentionSnapshot(ctx, snapshot)
+	finalSnapshot := snapshot
+	finalSnapshot.Items = []attention.Item{{Source: contextsource.Episode, ID: "ep_1", Role: contextsource.Evidence, Tier: attention.Center}}
+	observe.RecordAttentionFinalSnapshot(ctx, finalSnapshot)
 	observe.RecordAttentionDecision(ctx, observe.AttentionDecisionTrace{
 		Source: contextsource.Episode, ID: "ep_1", From: attention.Support, To: attention.Center,
 	})
-	if attentionCollector.Snapshot() == nil || len(attentionCollector.Decisions()) != 1 || len(contextCollector.Reads()) != 1 {
-		t.Fatalf("unexpected collectors: snapshot=%+v decisions=%+v reads=%+v", attentionCollector.Snapshot(), attentionCollector.Decisions(), contextCollector.Reads())
+	if attentionCollector.Snapshot() == nil || attentionCollector.FinalSnapshot() == nil || attentionCollector.Snapshot().Items[0].IdleTurns != 2 || attentionCollector.FinalSnapshot().Items[0].IdleTurns != 0 || len(attentionCollector.Decisions()) != 1 || len(contextCollector.Reads()) != 1 {
+		t.Fatalf("unexpected collectors: snapshot=%+v final=%+v decisions=%+v reads=%+v", attentionCollector.Snapshot(), attentionCollector.FinalSnapshot(), attentionCollector.Decisions(), contextCollector.Reads())
 	}
-	raw, err := json.Marshal(observe.TurnTrace{Attention: attentionCollector.Snapshot(), AttentionDecisions: attentionCollector.Decisions()})
+	raw, err := json.Marshal(observe.TurnTrace{Attention: attentionCollector.Snapshot(), AttentionFinal: attentionCollector.FinalSnapshot(), AttentionDecisions: attentionCollector.Decisions()})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(string(raw), "SECRET_BODY") || !strings.Contains(string(raw), `"tier":"center"`) {
+	if strings.Contains(string(raw), "SECRET_BODY") || !strings.Contains(string(raw), `"tier":"center"`) || !strings.Contains(string(raw), `"attention_final"`) {
 		t.Fatalf("invalid attention trace: %s", raw)
 	}
 }

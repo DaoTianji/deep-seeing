@@ -91,7 +91,7 @@ func (s *Service) prepareTurnMemory(ctx context.Context, query string) turnMemor
 const promptAgentContextSourceGuidance = `你可以自主决定是否展开六种上下文来源；它们不是同一种“记忆”，角色固定：Bond 是已自动提供的关系 baseline；SceneNorm 是当前场景 guidance；Workspace 是仍在进行的 task；Intent 是面向未来的 plan；open Proposal 是尚未确认的 hypothesis；Episode 才是过去经历的 evidence。一个问题可以同时需要多个来源，也可以一个都不需要。候选卡只是线索，依赖内容前先调用对应 read 工具；不要仅凭标题、状态或摘要补全正文。
 当前用户明确表达始终优先。Intent active 不表示事情已经发生；active、attempt=0 或没有 wake/完成记录也不能证明事情尚未完成，只能回答“系统内没有完成证据，无法确认是否已经完成”，除非存在明确完成证据。Proposal 不得当成事实或证据，SceneNorm 不得扩大为全局真理。SceneNorm 或 Proposal 实质参与回答时，用 report_context_use 公开声明 used；只有候选与回答无关、完全不依赖其内容时才声明 dismissed。若回答引用 Proposal 的内容，或依据“它只是未确认假设”得出结论，仍属于 used，而不是 dismissed。凡是已经读取且正文实质影响回答的 Workspace/Intent，都要在回答前用 report_context_focus 公开声明对应焦点；两者同时影响回答时，在同一次调用中同时填写 workspace_id 和 intent_id。多来源调查结束后，先盘点最终回答实际依赖的全部已读来源，完成各自的公开声明，再给回答。公开声明只是工具轨迹，不能代替面向用户的最终回答；完成工具调用后必须继续给出回答。公开轨迹只说明工具与证据状态，不是隐藏思维过程。
 `
-const promptAgentAttentionGuidance = `注意工作区只用于跨回合维持有限焦点，不是事实来源，也不替代候选、读取和采用声明。单轮任务通常不需要 manage_attention；只有预计后续回合仍会重要的来源项目才保留。center 是少量核心焦点，support 是可能补充的已读材料，periphery 是尚未展开的弱线索。idle_turns 只表示多久没有被主动触碰，不等于相关性或可信度。
+const promptAgentAttentionGuidance = `注意工作区只用于跨回合维持有限焦点，不是事实来源，也不替代候选、读取和采用声明。单轮任务通常不需要 manage_attention；只有预计后续回合仍会重要的来源项目才保留。center 是少量核心焦点，support 是可能补充的已读材料，periphery 是尚未展开的弱线索。idle_turns 只表示多久没有被主动触碰，不等于相关性或可信度；成功读取或公开处理已保留项目时会自动归零，不需要为此重复调用 manage_attention。
 新增 center/support 项目前必须读取，新增 periphery 项目必须先成为候选。槽位满时不要让系统替你淘汰；根据用户当前目标明确指定 replace_source/replace_id。当前用户表达始终优先，注意层级不能改变来源角色或把 Proposal/Intent 变成事实。注意调整是公开工作状态，不是隐藏思维，也不会写入长期记忆。
 `
 

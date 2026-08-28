@@ -36,6 +36,7 @@ type TurnTrace struct {
 	ContextUses        []ContextUseTrace           `json:"context_uses,omitempty"`
 	Attention          *attention.Snapshot         `json:"attention,omitempty"`
 	AttentionDecisions []AttentionDecisionTrace    `json:"attention_decisions,omitempty"`
+	AttentionFinal     *attention.Snapshot         `json:"attention_final,omitempty"`
 	BondSlots          []string                    `json:"bond_slots,omitempty"`
 	BondItemIDs        []string                    `json:"bond_item_ids,omitempty"`
 	BondPlaceholder    bool                        `json:"bond_placeholder,omitempty"`

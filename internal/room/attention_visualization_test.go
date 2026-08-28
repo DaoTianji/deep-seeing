@@ -16,6 +16,7 @@ func TestRoomWebHandlesAttentionWorkspaceLiveAndReplay(t *testing.T) {
 		`eventData.type === "attention_decision"`,
 		"attentionByID",
 		"trace.attention?.items",
+		"trace.attention_final?.items",
 		"trace.attention_decisions",
 		"attention-ring",
 		"中心 ${center} / 支撑 ${support} / 外围 ${periphery}",

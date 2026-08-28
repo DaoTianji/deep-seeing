@@ -27,10 +27,11 @@ type AttentionHooks struct {
 type attentionCollectorKey struct{}
 
 type AttentionCollector struct {
-	mu        sync.Mutex
-	snapshot  *attention.Snapshot
-	decisions []AttentionDecisionTrace
-	hooks     AttentionHooks
+	mu            sync.Mutex
+	snapshot      *attention.Snapshot
+	finalSnapshot *attention.Snapshot
+	decisions     []AttentionDecisionTrace
+	hooks         AttentionHooks
 }
 
 func WithAttentionHooks(ctx context.Context, hooks AttentionHooks) (context.Context, *AttentionCollector) {
@@ -46,6 +47,23 @@ func RecordAttentionSnapshot(ctx context.Context, snapshot attention.Snapshot) {
 	copy := cloneAttentionSnapshot(snapshot)
 	c.mu.Lock()
 	c.snapshot = &copy
+	c.mu.Unlock()
+	if c.hooks.OnSnapshot != nil {
+		c.hooks.OnSnapshot(cloneAttentionSnapshot(snapshot))
+	}
+}
+
+// RecordAttentionFinalSnapshot stores the public workspace state after the
+// turn. It lets trace replay show recency resets and other end-of-turn changes
+// without replacing the snapshot that was visible when the turn started.
+func RecordAttentionFinalSnapshot(ctx context.Context, snapshot attention.Snapshot) {
+	c := attentionCollectorFromContext(ctx)
+	if c == nil {
+		return
+	}
+	copy := cloneAttentionSnapshot(snapshot)
+	c.mu.Lock()
+	c.finalSnapshot = &copy
 	c.mu.Unlock()
 	if c.hooks.OnSnapshot != nil {
 		c.hooks.OnSnapshot(cloneAttentionSnapshot(snapshot))
@@ -80,6 +98,19 @@ func (c *AttentionCollector) Snapshot() *attention.Snapshot {
 		return nil
 	}
 	copy := cloneAttentionSnapshot(*c.snapshot)
+	return &copy
+}
+
+func (c *AttentionCollector) FinalSnapshot() *attention.Snapshot {
+	if c == nil {
+		return nil
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.finalSnapshot == nil {
+		return nil
+	}
+	copy := cloneAttentionSnapshot(*c.finalSnapshot)
 	return &copy
 }
 

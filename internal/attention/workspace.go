@@ -103,6 +103,33 @@ func (s *SessionStore) Snapshot(sessionID string) Snapshot {
 	return out
 }
 
+// Touch marks an already retained item as active in the current turn. Reads
+// and public use declarations call this automatically; it changes recency only,
+// never tier, evidence role, or persistence.
+func (s *SessionStore) Touch(sessionID string, source contextsource.Source, id string) bool {
+	if s == nil || source == contextsource.Bond || !contextsource.ValidSource(source) {
+		return false
+	}
+	sessionID = strings.TrimSpace(sessionID)
+	id = strings.TrimSpace(id)
+	if sessionID == "" || id == "" {
+		return false
+	}
+	key := itemKey(source, id)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	st := cloneState(s.states[sessionID])
+	item, ok := st.items[key]
+	if !ok || item.IdleTurns == 0 {
+		return false
+	}
+	item.IdleTurns = 0
+	st.items[key] = item
+	st.revision++
+	s.states[sessionID] = st
+	return true
+}
+
 func (s *SessionStore) Apply(sessionID string, decisions []Decision) (Snapshot, error) {
 	if s == nil {
 		return Snapshot{}, fmt.Errorf("attention workspace unavailable")

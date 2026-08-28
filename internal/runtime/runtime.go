@@ -169,6 +169,7 @@ func (s *Service) InvalidateNorm() {
 type TurnResult struct {
 	Answer     string
 	TokenUsage observe.TokenUsageTrace
+	Errors     []string
 }
 
 // TurnHooks exposes observable turn activity without exposing hidden reasoning.
@@ -228,9 +229,27 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 	turnCtx, attentionCollector := observe.WithAttentionHooks(ctx, observe.AttentionHooks{
 		OnSnapshot: hooks.OnAttentionSnapshot, OnDecision: hooks.OnAttentionDecision,
 	})
+	onContextRead := hooks.OnContextRead
+	onContextUse := hooks.OnContextUse
+	if s.RecallMode == RecallModeAgent && s.Attention != nil {
+		onContextRead = func(event observe.ContextReadTrace) {
+			if event.OK {
+				s.Attention.Touch(s.SessionID, event.Source, event.ID)
+			}
+			if hooks.OnContextRead != nil {
+				hooks.OnContextRead(event)
+			}
+		}
+		onContextUse = func(event observe.ContextUseTrace) {
+			s.Attention.Touch(s.SessionID, event.Source, event.ID)
+			if hooks.OnContextUse != nil {
+				hooks.OnContextUse(event)
+			}
+		}
+	}
 	turnCtx, contextCollector := observe.WithContextHooks(turnCtx, observe.ContextHooks{
 		OnSource: hooks.OnContextSource, OnCandidate: hooks.OnContextCandidate,
-		OnRead: hooks.OnContextRead, OnUse: hooks.OnContextUse,
+		OnRead: onContextRead, OnUse: onContextUse,
 	})
 	turnCtx, recallCollector := observe.WithRecallHooks(turnCtx, observe.RecallHooks{
 		OnSearch: hooks.OnRecallSearch, OnRead: hooks.OnRecallRead, OnEvidence: hooks.OnRecallEvidence,
@@ -358,6 +377,10 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 		log.Printf("stm append: %v", err)
 	}
 
+	if s.RecallMode == RecallModeAgent && s.Attention != nil {
+		observe.RecordAttentionFinalSnapshot(turnCtx, s.Attention.Snapshot(s.SessionID))
+	}
+
 	if s.Journal != nil {
 		_ = s.Journal.Append(observe.TurnTrace{
 			SessionID:          s.SessionID,
@@ -380,6 +403,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 			ContextReads:       contextCollector.Reads(),
 			ContextUses:        contextCollector.Uses(),
 			Attention:          attentionCollector.Snapshot(),
+			AttentionFinal:     attentionCollector.FinalSnapshot(),
 			AttentionDecisions: attentionCollector.Decisions(),
 			BondSlots:          turnMemory.bondSlots,
 			BondItemIDs:        turnMemory.bondItemIDs,
@@ -399,7 +423,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 		}
 	}()
 
-	return TurnResult{Answer: final, TokenUsage: tokenCounter.Snapshot()}, nil
+	return TurnResult{Answer: final, TokenUsage: tokenCounter.Snapshot(), Errors: append([]string(nil), turnErrors...)}, nil
 }
 
 func recordTaskContextSources(ctx context.Context, trace observe.TaskContextTrace) {
