@@ -196,7 +196,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 	readEp, err := utils.InferTool(
 		"read_episode",
-		"读取候选 Episode 正文（含归档/失效）；作为历史证据前必须调用。",
+		"读取候选 Episode 正文（含归档/失效）；原样传入候选 id。作为历史证据前必须成功读取；ok=false 时不得采用，可用原候选 id 修正重试一次。",
 		func(ctx context.Context, in readEpisodeInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
@@ -206,7 +206,8 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 			ep, err := store.Get(ctx, id)
 			if err != nil {
 				observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Error: err.Error()})
-				return "", err
+				out, _ := json.Marshal(map[string]any{"ok": false, "episode_id": id, "error": err.Error()})
+				return string(out), nil
 			}
 			observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id})
 			out, err := json.Marshal(map[string]any{"ok": true, "episode": ep})
@@ -231,7 +232,8 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
 					Query: in.Query, Limit: limit, Error: err.Error(),
 				})
-				return "", err
+				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error(), "candidates": []any{}})
+				return string(out), nil
 			}
 			ids := make([]string, 0, len(eps))
 			for _, ep := range eps {

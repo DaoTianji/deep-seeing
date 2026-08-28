@@ -99,6 +99,29 @@ func TestReadEpisodeAndEvidenceDeclarationAreRecorded(t *testing.T) {
 	}
 }
 
+func TestReadEpisodeMissingIDReturnsStructuredError(t *testing.T) {
+	scope := identity.LocalCLI()
+	store, err := memory.NewEpisodeStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	all, err := All(Deps{Scope: scope, Episodes: store, RecallMode: "agent"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, collector := observe.WithRecallCollector(context.Background())
+	out, err := findInvokableTool(t, all, "read_episode").InvokableRun(ctx, `{"id":"ep_missing"}`)
+	if err != nil {
+		t.Fatalf("missing episode escaped as tool error: %v", err)
+	}
+	if !strings.Contains(out, `"ok":false`) || !strings.Contains(out, `"episode_id":"ep_missing"`) {
+		t.Fatalf("missing episode did not return structured failure: %s", out)
+	}
+	reads := collector.Reads()
+	if len(reads) != 1 || reads[0].EpisodeID != "ep_missing" || reads[0].Error == "" {
+		t.Fatalf("missing episode read trace=%+v", reads)
+	}
+}
 func TestInspectRuntimeReportsRecallMode(t *testing.T) {
 	store, err := memory.NewEpisodeStore(t.TempDir())
 	if err != nil {
