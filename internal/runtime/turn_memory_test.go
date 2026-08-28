@@ -82,6 +82,7 @@ func TestAgentRecallGuidanceStaysCompactWithoutLosingBoundaries(t *testing.T) {
 		"Intent=未来 plan", "Proposal=未确认 hypothesis", "Episode=过去 evidence",
 		"用户当前明确表达优先", "候选卡不是正文", "report_recall_evidence",
 		"report_context_use", "report_context_focus", "槽满", "idle_turns",
+		"即使此前无会话焦点", "switch 仅用于已有会话焦点", "主项目+辅助提醒",
 		"同轮最多换词一次", "不回退最近 Episode", "隐藏思维",
 	} {
 		if !strings.Contains(guidance, required) {
