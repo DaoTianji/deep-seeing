@@ -31,7 +31,16 @@ go run ./cmd/see
 # 打开 http://127.0.0.1:3319
 ```
 
-`cmd/see` **默认启动谈话室**（内嵌 `embed.FS`，无独立前端构建）。终端 REPL 用：
+`cmd/see` 默认启动 Living Mind 前端。生产构建已随 Go `embed.FS` 打包，直接运行 Go 不需要本机 Node。修改前端源码时使用：
+
+```bash
+cd webui
+npm install
+npm test
+npm run build
+```
+
+终端 REPL 用：
 
 ```bash
 go run ./cmd/see --cli
@@ -45,12 +54,14 @@ go run ./cmd/see --cli
 
 详见 [`docs/pet.md`](docs/pet.md)。
 
-右侧记忆区展示：
+Living Mind 提供四个相互连接的空间：
 
-- Neo4j `Self` / `Person` / `Episode` 与 `BOND` / `KNOWS` / `CALLS` / `ABOUT`
-- L1 Episode 正文及 `active` / `archived` / `invalid` 状态
-- 待 Dream 决定的 Bond Proposal 与 Mutation Ledger
-- 每轮召回、工具调用、记忆写入和错误等结构化轨迹
+- `/`：对话与可收起的实时“此刻”栏
+- `/turn/<turn_id>`：处境、召回、证据与注意力的公开回放
+- `/memory`：长期记忆星图与结构化档案
+- `/mind`：Bond、Workspace、Intent、Self、Agency 与 World
+
+界面只展示公开工具与结构状态，不展示隐藏思维过程。完整说明见 [docs/frontend-v2.md](docs/frontend-v2.md)。
 
 ## 目录
 
@@ -60,7 +71,8 @@ seed/                    SOUL.md + origin/ 初始相识文稿
 cmd/see/                 默认谈话室；--cli 为终端 REPL
 cmd/room/                兼容入口（等同默认 see）
 internal/app/            运行时装配
-internal/room/           HTTP API + embed.FS 页面
+webui/                  React + TypeScript 前端源码与测试
+internal/room/           HTTP API + embed.FS 生产构建
 internal/runtime/        Prepare → Norm/Recall mode → Eino → STM → PostTurn
 internal/agent/          Eino ReAct 工厂
 internal/soul/           Soul 加载（embed 后备）

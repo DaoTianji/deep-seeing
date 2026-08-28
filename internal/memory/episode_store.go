@@ -279,6 +279,46 @@ func (s *EpisodeStore) ListEpisodes(ctx context.Context, scope identity.TenantSc
 	return out, nil
 }
 
+// ListEpisodesPage lists one stable index page after the opaque Episode ID cursor.
+// The cursor is an existing ID in the same includeInactive view; empty starts at newest.
+func (s *EpisodeStore) ListEpisodesPage(ctx context.Context, scope identity.TenantScope, limit int, includeInactive bool, afterID string) ([]Episode, error) {
+	if err := scope.Validate(); err != nil {
+		return nil, err
+	}
+	if limit <= 0 {
+		limit = 50
+	}
+	afterID = sanitizeEpisodeID(strings.TrimSpace(afterID))
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	entries, err := s.listIndexEntriesLocked()
+	if err != nil {
+		return nil, err
+	}
+	started := afterID == ""
+	var out []Episode
+	for _, entry := range entries {
+		if !started {
+			if entry.ID == afterID {
+				started = true
+			}
+			continue
+		}
+		ep, err := s.readEpisodeLocked(entry.ID)
+		if err != nil {
+			continue
+		}
+		if !includeInactive && !IsActiveEpisode(ep) {
+			continue
+		}
+		out = append(out, ep)
+		if len(out) >= limit {
+			break
+		}
+	}
+	return out, nil
+}
+
 // Search finds episodes by keyword in id/summary/content.
 func (s *EpisodeStore) Search(ctx context.Context, scope identity.TenantScope, q Query) ([]Episode, error) {
 	if err := scope.Validate(); err != nil {

@@ -50,7 +50,7 @@ func TestMindPageAndReadAPIs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, path := range []string{"/mind", "/mind/", "/mind.js", "/mind.css", "/pet", "/pet/", "/pet.js", "/pet.css", "/api/self", "/api/workspace", "/api/intents", "/api/wakes", "/api/agency", "/api/sources"} {
+	for _, path := range []string{"/", "/memory", "/mind", "/mind/", "/turn/example", "/pet", "/pet/", "/pet.js", "/pet.css", "/api/self", "/api/workspace", "/api/intents", "/api/wakes", "/api/agency", "/api/sources", "/api/turns", "/api/bootstrap"} {
 		request := httptest.NewRequest(http.MethodGet, path, nil)
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, request)

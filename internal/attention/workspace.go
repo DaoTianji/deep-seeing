@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"deep-seeing/internal/contextsource"
 )
@@ -39,10 +40,11 @@ type Item struct {
 }
 
 type Snapshot struct {
-	Version  string   `json:"version"`
-	Revision int64    `json:"revision"`
-	Capacity Capacity `json:"capacity"`
-	Items    []Item   `json:"items,omitempty"`
+	Version    string        `json:"version"`
+	Revision   int64         `json:"revision"`
+	Capacity   Capacity      `json:"capacity"`
+	Items      []Item        `json:"items,omitempty"`
+	TurnOffset time.Duration `json:"turn_offset_ns,omitempty"`
 }
 
 type Decision struct {

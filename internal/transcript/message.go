@@ -17,12 +17,19 @@ const (
 type Message struct {
 	Role    Role   `json:"role"`
 	Content string `json:"content"`
+	TurnID  string `json:"turn_id,omitempty"`
 }
 
 func System(content string) Message { return Message{Role: RoleSystem, Content: content} }
 func User(content string) Message   { return Message{Role: RoleUser, Content: content} }
 func Assistant(content string) Message {
 	return Message{Role: RoleAssistant, Content: content}
+}
+func UserTurn(content, turnID string) Message {
+	return Message{Role: RoleUser, Content: content, TurnID: turnID}
+}
+func AssistantTurn(content, turnID string) Message {
+	return Message{Role: RoleAssistant, Content: content, TurnID: turnID}
 }
 
 // Summary builds a compaction summary message (prefixed for model clarity).

@@ -22,7 +22,8 @@
 | Workspace | [workspace.md](./workspace.md) | 未完成思考：questions/writings/research/projects |
 | Agency Runtime | [agency.md](./agency.md) | Intent / Scheduler / Daemon / 预算 |
 | World Gateway | [world.md](./world.md) | search_web / read_webpage / Source / SSRF |
-| 心智活动室 | [mind-room.md](./mind-room.md) | 独立于沟通页的思考、自主运行与网络活动时间线 |
+| Living Mind 前端 | [frontend-v2.md](./frontend-v2.md) | 对话、本轮公开回放、长期记忆星图与心智空间 |
+| 心智空间 | [mind-room.md](./mind-room.md) | Bond、Workspace、Intent、Self、Agency 与 World 的长期视图 |
 | 桌宠终端 | [pet.md](./pet.md) | `/pet` 挂件 + 终端风聊天；Tauri 壳见 `apps/pet-desktop` |
 | 出生门槛 | [birth-gate.md](./birth-gate.md) | Capability、权限、备份、观测、Birth Test |
 | 短期记忆（STM） | [memory-stm.md](./memory-stm.md) | Redis 会话 + 摘要 Compaction；配置 `REDIS_*` / `STM_*` / `COMPACT_*` |

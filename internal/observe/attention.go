@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"sync"
+	"time"
 
 	"deep-seeing/internal/attention"
 	"deep-seeing/internal/contextsource"
@@ -17,6 +18,7 @@ type AttentionDecisionTrace struct {
 	To             attention.Tier       `json:"to"`
 	ReplacedSource contextsource.Source `json:"replaced_source,omitempty"`
 	ReplacedID     string               `json:"replaced_id,omitempty"`
+	TurnOffset     time.Duration        `json:"turn_offset_ns,omitempty"`
 }
 
 type AttentionHooks struct {
@@ -32,10 +34,11 @@ type AttentionCollector struct {
 	finalSnapshot *attention.Snapshot
 	decisions     []AttentionDecisionTrace
 	hooks         AttentionHooks
+	startedAt     time.Time
 }
 
 func WithAttentionHooks(ctx context.Context, hooks AttentionHooks) (context.Context, *AttentionCollector) {
-	c := &AttentionCollector{hooks: hooks}
+	c := &AttentionCollector{hooks: hooks, startedAt: time.Now()}
 	return context.WithValue(ctx, attentionCollectorKey{}, c), c
 }
 
@@ -46,10 +49,13 @@ func RecordAttentionSnapshot(ctx context.Context, snapshot attention.Snapshot) {
 	}
 	copy := cloneAttentionSnapshot(snapshot)
 	c.mu.Lock()
+	if copy.TurnOffset <= 0 {
+		copy.TurnOffset = time.Since(c.startedAt)
+	}
 	c.snapshot = &copy
 	c.mu.Unlock()
 	if c.hooks.OnSnapshot != nil {
-		c.hooks.OnSnapshot(cloneAttentionSnapshot(snapshot))
+		c.hooks.OnSnapshot(cloneAttentionSnapshot(copy))
 	}
 }
 
@@ -63,10 +69,13 @@ func RecordAttentionFinalSnapshot(ctx context.Context, snapshot attention.Snapsh
 	}
 	copy := cloneAttentionSnapshot(snapshot)
 	c.mu.Lock()
+	if copy.TurnOffset <= 0 {
+		copy.TurnOffset = time.Since(c.startedAt)
+	}
 	c.finalSnapshot = &copy
 	c.mu.Unlock()
 	if c.hooks.OnSnapshot != nil {
-		c.hooks.OnSnapshot(cloneAttentionSnapshot(snapshot))
+		c.hooks.OnSnapshot(cloneAttentionSnapshot(copy))
 	}
 }
 
@@ -81,6 +90,9 @@ func RecordAttentionDecision(ctx context.Context, event AttentionDecisionTrace) 
 		return
 	}
 	c.mu.Lock()
+	if event.TurnOffset <= 0 {
+		event.TurnOffset = time.Since(c.startedAt)
+	}
 	c.decisions = append(c.decisions, event)
 	c.mu.Unlock()
 	if c.hooks.OnDecision != nil {

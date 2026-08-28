@@ -11,7 +11,10 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/google/uuid"
 
 	"deep-seeing/internal/app"
 	"deep-seeing/internal/attention"
@@ -24,7 +27,7 @@ import (
 
 const contentTypeHeader = "Content-Type"
 
-//go:embed web/*
+//go:embed web
 var webFS embed.FS
 
 // Server is a loopback web room around one application session.
@@ -47,6 +50,7 @@ func (s *Server) Handler() (http.Handler, error) {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/runtime", s.handleRuntime)
+	mux.HandleFunc("GET /api/bootstrap", s.handleBootstrap)
 	mux.HandleFunc("GET /api/history", s.handleHistory)
 	mux.HandleFunc("GET /api/graph", s.handleGraph)
 	mux.HandleFunc("GET /api/episodes", s.handleEpisodes)
@@ -54,6 +58,8 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("GET /api/proposals", s.handleProposals)
 	mux.HandleFunc("GET /api/mutations", s.handleMutations)
 	mux.HandleFunc("GET /api/traces", s.handleTraces)
+	mux.HandleFunc("GET /api/turns", s.handleTurns)
+	mux.HandleFunc("GET /api/turns/{id}", s.handleTurn)
 	mux.HandleFunc("GET /api/self", s.handleSelf)
 	mux.HandleFunc("GET /api/self/{id}", s.handleSelfArtifact)
 	mux.HandleFunc("GET /api/workspace", s.handleWorkspace)
@@ -83,13 +89,33 @@ func (s *Server) Handler() (http.Handler, error) {
 			_, _ = w.Write(data)
 		}
 	}
-	serveMind := serveHTML("mind.html")
 	servePet := serveHTML("pet.html")
-	mux.HandleFunc("GET /mind", serveMind)
-	mux.HandleFunc("GET /mind/", serveMind)
 	mux.HandleFunc("GET /pet", servePet)
 	mux.HandleFunc("GET /pet/", servePet)
-	mux.Handle("/", http.FileServer(http.FS(sub)))
+	mux.Handle("GET /pet.js", http.FileServer(http.FS(sub)))
+	mux.Handle("GET /pet.css", http.FileServer(http.FS(sub)))
+	dist, err := fs.Sub(sub, "dist")
+	if err != nil {
+		return nil, err
+	}
+	appFiles := http.FileServer(http.FS(dist))
+	mux.Handle("GET /assets/", appFiles)
+	serveApp := func(w http.ResponseWriter, _ *http.Request) {
+		data, readErr := fs.ReadFile(dist, "index.html")
+		if readErr != nil {
+			writeError(w, readErr)
+			return
+		}
+		w.Header().Set(contentTypeHeader, "text/html; charset=utf-8")
+		_, _ = w.Write(data)
+	}
+	mux.HandleFunc("GET /{$}", serveApp)
+	mux.HandleFunc("GET /memory", serveApp)
+	mux.HandleFunc("GET /memory/", serveApp)
+	mux.HandleFunc("GET /mind", serveApp)
+	mux.HandleFunc("GET /mind/", serveApp)
+	mux.HandleFunc("GET /turn/{id}", serveApp)
+	mux.HandleFunc("GET /turn/{id}/", serveApp)
 	return s.securityHeaders(mux), nil
 }
 
@@ -114,7 +140,7 @@ func (s *Server) securityHeaders(next http.Handler) http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("Content-Security-Policy",
-			"default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'")
+			"default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; connect-src 'self'")
 		if r.Method == http.MethodPost {
 			origin := strings.TrimSpace(r.Header.Get("Origin"))
 			sameOrigin := origin == "" || origin == "http://"+r.Host || origin == "https://"+r.Host
@@ -135,6 +161,24 @@ func (s *Server) handleRuntime(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
 		"runtime":     s.App.RuntimeSnapshot(),
 		"graph_label": s.App.GraphLabel,
+	})
+}
+
+func (s *Server) handleBootstrap(w http.ResponseWriter, _ *http.Request) {
+	turns, err := s.App.Journal.ListRecent(8)
+	if err != nil {
+		turns = nil
+	}
+	for i := range turns {
+		turns[i] = normalizeTurnTrace(turns[i])
+	}
+	var currentAttention any
+	if s.App.Service != nil && s.App.Service.Attention != nil {
+		currentAttention = s.App.Service.Attention.Snapshot(s.App.SessionID)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{
+		"runtime": s.App.RuntimeSnapshot(), "graph_label": s.App.GraphLabel,
+		"attention": currentAttention, "turns": turns,
 	})
 }
 
@@ -163,14 +207,20 @@ func (s *Server) handleGraph(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleEpisodes(w http.ResponseWriter, r *http.Request) {
-	eps, err := s.App.Episodes.ListEpisodes(
-		r.Context(), s.App.Scope, queryLimit(r, 100), r.URL.Query().Get("all") != "0",
+	limit := queryLimit(r, 50)
+	eps, err := s.App.Episodes.ListEpisodesPage(
+		r.Context(), s.App.Scope, limit+1, r.URL.Query().Get("all") != "0", r.URL.Query().Get("cursor"),
 	)
 	if err != nil {
 		writeError(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"episodes": eps})
+	next := ""
+	if len(eps) > limit {
+		eps = eps[:limit]
+		next = eps[len(eps)-1].ID
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"episodes": eps, "next_cursor": next})
 }
 
 func (s *Server) handleEpisode(w http.ResponseWriter, r *http.Request) {
@@ -207,6 +257,102 @@ func (s *Server) handleTraces(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"traces": items})
+}
+
+func (s *Server) handleTurns(w http.ResponseWriter, r *http.Request) {
+	limit := queryLimit(r, 60)
+	scan := limit * 10
+	if scan < 200 {
+		scan = 200
+	}
+	if scan > 2000 {
+		scan = 2000
+	}
+	items, err := s.App.Journal.ListRecent(scan)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+	var before time.Time
+	if raw := strings.TrimSpace(r.URL.Query().Get("cursor")); raw != "" {
+		before, _ = time.Parse(time.RFC3339Nano, raw)
+	}
+	turns := make([]observe.TurnTrace, 0, limit)
+	for _, item := range items {
+		at := item.StartedAt
+		if at.IsZero() {
+			at = item.Timestamp
+		}
+		if !before.IsZero() && !at.Before(before) {
+			continue
+		}
+		turns = append(turns, normalizeTurnTrace(item))
+		if len(turns) == limit {
+			break
+		}
+	}
+	next := ""
+	if len(turns) == limit {
+		at := turns[len(turns)-1].StartedAt
+		if at.IsZero() {
+			at = turns[len(turns)-1].Timestamp
+		}
+		next = at.UTC().Format(time.RFC3339Nano)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"turns": turns, "next_cursor": next})
+}
+
+func (s *Server) handleTurn(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimSpace(r.PathValue("id"))
+	items, err := s.App.Journal.ListRecent(2000)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+	for _, item := range items {
+		item = normalizeTurnTrace(item)
+		if item.TurnID == id {
+			writeJSON(w, http.StatusOK, map[string]any{"turn": item})
+			return
+		}
+	}
+	writeJSON(w, http.StatusNotFound, map[string]any{"error": "turn not found"})
+}
+
+func normalizeTurnTrace(item observe.TurnTrace) observe.TurnTrace {
+	if item.StartedAt.IsZero() {
+		item.StartedAt = item.Timestamp
+	}
+	if item.Duration <= 0 {
+		for _, event := range item.ContextCandidates {
+			item.Duration = max(item.Duration, event.TurnOffset+event.Duration)
+		}
+		for _, event := range item.ContextReads {
+			item.Duration = max(item.Duration, event.TurnOffset+event.Duration)
+		}
+		for _, event := range item.ContextUses {
+			item.Duration = max(item.Duration, event.TurnOffset)
+		}
+		for _, event := range item.RecallSearches {
+			item.Duration = max(item.Duration, event.TurnOffset+event.Duration)
+		}
+		for _, event := range item.RecallReads {
+			item.Duration = max(item.Duration, event.TurnOffset+event.Duration)
+		}
+		for _, event := range item.RecallEvidence {
+			item.Duration = max(item.Duration, event.TurnOffset)
+		}
+		for _, event := range item.AttentionDecisions {
+			item.Duration = max(item.Duration, event.TurnOffset)
+		}
+	}
+	if item.CompletedAt.IsZero() {
+		item.CompletedAt = item.StartedAt.Add(item.Duration)
+	}
+	if item.TurnID == "" && !item.Timestamp.IsZero() {
+		item.TurnID = "legacy-" + item.Timestamp.UTC().Format("20060102T150405.000000000")
+	}
+	return item
 }
 
 func (s *Server) handleSelf(w http.ResponseWriter, r *http.Request) {
@@ -333,15 +479,27 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, map[string]any{"error": "stream unsupported"})
 		return
 	}
+	turnID := uuid.NewString()
+	startedAt := time.Now()
+	sequence := 0
+	var emitMu sync.Mutex
 	emit := func(kind string, data any) {
-		_ = json.NewEncoder(w).Encode(map[string]any{"type": kind, "data": data})
+		emitMu.Lock()
+		defer emitMu.Unlock()
+		envelope := map[string]any{
+			"type": kind, "turn_id": turnID, "seq": sequence,
+			"turn_offset_ns": time.Since(startedAt), "data": data,
+		}
+		sequence++
+		_ = json.NewEncoder(w).Encode(envelope)
 		flusher.Flush()
 	}
-	emit("start", map[string]any{"at": time.Now().Format(time.RFC3339)})
+	emit("start", map[string]any{"at": startedAt.Format(time.RFC3339Nano)})
 	var answer string
 	var health observe.TurnHealthTrace
 	err := s.queue().RunCognitive(r.Context(), "chat", func(ctx context.Context) error {
 		result, err := s.App.Service.StreamTurnWithHooks(ctx, input.Message, runtime.TurnHooks{
+			TurnID:      turnID,
 			WriteDelta:  func(delta string) { emit("delta", delta) },
 			OnToolStart: func(name string) { emit("tool", map[string]any{"name": name}) },
 			OnRecallSearch: func(event observe.RecallSearchTrace) {

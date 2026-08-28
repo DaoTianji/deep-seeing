@@ -172,3 +172,29 @@ func TestEpisodeExperienceModeRoundTrip(t *testing.T) {
 		t.Fatalf("got %q", got.ExperienceMode)
 	}
 }
+
+func TestEpisodeStoreCursorPagination(t *testing.T) {
+	dir := t.TempDir()
+	store, err := memory.NewEpisodeStore(filepath.Join(dir, "episodes"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	scope := identity.LocalCLI()
+	ctx := context.Background()
+	for _, content := range []string{"第一段", "第二段", "第三段"} {
+		if _, err := store.WriteEpisode(ctx, scope, memory.EpisodeWrite{Kind: memory.EpisodeEvent, Content: content}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	first, err := store.ListEpisodesPage(ctx, scope, 2, true, "")
+	if err != nil || len(first) != 2 {
+		t.Fatalf("first page: %v %+v", err, first)
+	}
+	second, err := store.ListEpisodesPage(ctx, scope, 2, true, first[1].ID)
+	if err != nil || len(second) != 1 {
+		t.Fatalf("second page: %v %+v", err, second)
+	}
+	if second[0].ID == first[0].ID || second[0].ID == first[1].ID {
+		t.Fatalf("cursor page repeated an episode: %+v / %+v", first, second)
+	}
+}

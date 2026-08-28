@@ -14,7 +14,11 @@ import (
 // TurnTrace is a structured external trajectory for one conversational turn.
 // Not chain-of-thought — recall, tools, writes, errors only.
 type TurnTrace struct {
+	TurnID             string                      `json:"turn_id,omitempty"`
 	Timestamp          time.Time                   `json:"timestamp"`
+	StartedAt          time.Time                   `json:"started_at,omitempty"`
+	CompletedAt        time.Time                   `json:"completed_at,omitempty"`
+	Duration           time.Duration               `json:"duration_ns,omitempty"`
 	SessionID          string                      `json:"session_id"`
 	AgentID            string                      `json:"agent_id,omitempty"`
 	PersonID           string                      `json:"person_id,omitempty"`

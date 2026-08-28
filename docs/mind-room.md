@@ -1,47 +1,25 @@
-# 心智活动室
+# 心智空间
 
-> 状态：第一版只读可观测界面已落地。  
 > 入口：`http://127.0.0.1:3319/mind`
+> 完整前端契约见 [`frontend-v2.md`](frontend-v2.md)。
 
 ## 定位
 
-沟通界面与心智活动界面分开：
+`/mind` 不再复制记忆图谱，也不把所有对象压成一条混合时间线。它回答的是“ta 正在成为谁”：
 
-- `/`：此刻与 ta 沟通
-- `/mind`：回看 ta 在什么时间留下了哪些可观察行为与产物
-- `/pet`：桌宠式挂件 + 终端风聊天，只看回复（见 [`pet.md`](pet.md)）
+- Bond：稳定的关系基础与每轮理解的底色
+- Workspace：当前仍在进行的任务与思考
+- Intent：未来计划，不表示已经发生
+- Proposal：尚未确认的假设
+- Self：可以修订的自我认识
+- Agency / Wake：可追溯的主动行为
+- Source：来自外界、保持不可信边界的资料
+- Mutation Ledger：结构为什么变成现在这样
 
-心智活动室不展示 Chain-of-Thought。它只展示结构化外部轨迹、持久化对象、修订记录与来源证据。
-
-## 四个视图
-
-| 视图 | 内容 |
-|------|------|
-| 活动 | 合并 Turn Trace、Workspace/Self 修订、Intent/Wake、Source、Proposal、Mutation 的时间线 |
-| 记忆 | Context Graph 与 Episode；保留原谈话室右栏的记忆深潜能力 |
-| 思考 | Workspace 与 SelfArtifact；正文、状态、修订和 Episode 证据 |
-| 自主 | 全状态 Intent 与 Wake Job；Scheduler 状态、日预算、计划/实际时间、`auto:<intent_id>:<attempt>`、决策和结果 |
-| 外界 | `search_web` / `read_webpage` 保存的 Source；查询词、URL、抓取时间与 fenced 正文 |
-
-## 只读 API
-
-```text
-GET /api/self
-GET /api/self/{id}
-GET /api/workspace
-GET /api/workspace/{id}
-GET /api/intents
-GET /api/wakes
-GET /api/agency
-GET /api/sources
-GET /api/source/{id}
-```
-
-已有 `/api/traces`、`/api/proposals`、`/api/mutations` 也参与统一时间线。
+一次回答具体发生了什么由 `/turn/{turn_id}` 展示；长期记忆的关系和内容由 `/memory` 展示。
 
 ## 边界
 
-- “思考”是 Workspace、SelfArtifact、Proposal 等**可观察产物**，不是隐藏推理文本
-- 网络正文继续显示 `UNTRUSTED_EXTERNAL_CONTENT` fence
-- Source 列表不返回全文；只有选择详情时才读取 Body
-- 页面当前只读，不从可观测后台直接修改 Self、Intent 或 Source
+- 只展示结构化行为、公开状态与可追溯产物，不展示隐藏推理文本。
+- 一个子系统不可用时只降级对应区域，不阻断其他心智区域或对话。
+- 页面当前只读，不直接修改 Self、Intent、Source 或长期图关系。

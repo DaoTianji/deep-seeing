@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/cloudwego/eino/callbacks"
 	"github.com/cloudwego/eino/components/model"
@@ -16,6 +17,7 @@ import (
 	"github.com/cloudwego/eino/flow/agent/react"
 	"github.com/cloudwego/eino/schema"
 	callbackutils "github.com/cloudwego/eino/utils/callbacks"
+	"github.com/google/uuid"
 
 	deepagent "deep-seeing/internal/agent"
 	"deep-seeing/internal/attention"
@@ -167,6 +169,7 @@ func (s *Service) InvalidateNorm() {
 
 // TurnResult is the assistant text for one turn.
 type TurnResult struct {
+	TurnID     string
 	Answer     string
 	TokenUsage observe.TokenUsageTrace
 	Errors     []string
@@ -175,6 +178,7 @@ type TurnResult struct {
 
 // TurnHooks exposes observable turn activity without exposing hidden reasoning.
 type TurnHooks struct {
+	TurnID              string
 	WriteDelta          func(string)
 	OnToolStart         func(string)
 	OnRecallSearch      func(observe.RecallSearchTrace)
@@ -201,6 +205,11 @@ func (s *Service) StreamTurn(ctx context.Context, userText string, writeDelta fu
 
 // StreamTurnWithHooks runs one turn and streams structured external activity.
 func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hooks TurnHooks) (TurnResult, error) {
+	startedAt := time.Now().UTC()
+	turnID := strings.TrimSpace(hooks.TurnID)
+	if turnID == "" {
+		turnID = uuid.NewString()
+	}
 	userText = strings.TrimSpace(userText)
 	if userText == "" {
 		return TurnResult{}, fmt.Errorf("empty message")
@@ -321,20 +330,28 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 
 	einoMsgs := toSchemaMessages(msgs)
 	var toolStarts []string
+	var toolStartsMu sync.Mutex
 	opts := []agent.AgentOption{}
 	tokenCounter := &turnTokenCounter{}
 	toolCB := func(name string) {
+		toolStartsMu.Lock()
 		toolStarts = append(toolStarts, name)
+		toolStartsMu.Unlock()
 		if hooks.OnToolStart != nil {
 			hooks.OnToolStart(name)
 		}
 	}
 	opts = append(opts, agent.WithComposeOptions(compose.WithCallbacks(toolStartCallback(toolCB), tokenUsageCallback(tokenCounter))))
 	finishTrace := func(final string, turnErrors []string) observe.TurnHealthTrace {
+		toolStartsMu.Lock()
+		turnToolStarts := append([]string(nil), toolStarts...)
+		toolStartsMu.Unlock()
 		if s.RecallMode == RecallModeAgent && s.Attention != nil {
 			observe.RecordAttentionFinalSnapshot(turnCtx, s.Attention.Snapshot(s.SessionID))
 		}
 		trace := observe.TurnTrace{
+			TurnID: turnID, Timestamp: startedAt, StartedAt: startedAt,
+			CompletedAt: time.Now().UTC(), Duration: time.Since(startedAt),
 			SessionID: s.SessionID, AgentID: s.Scope.AgentID, PersonID: s.Scope.PersonID(),
 			ModelVersion: s.Model, RuntimeVer: body.ToolsetVersion, RecallMode: string(s.RecallMode),
 			UserText: observe.Preview(userText, 120), NormVersion: turnMemory.normVersion,
@@ -356,7 +373,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 			BondItemIDs:        turnMemory.bondItemIDs,
 			BondPlaceholder:    turnMemory.bondPlaceholder,
 			SceneIDs:           turnMemory.sceneIDs,
-			ToolStarts:         toolStarts,
+			ToolStarts:         turnToolStarts,
 			Errors:             turnErrors,
 			AnswerPreview:      observe.Preview(final, 200),
 			TokenUsage:         tokenCounter.Snapshot(),
@@ -372,7 +389,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 	if err != nil {
 		turnErrors := []string{err.Error()}
 		health := finishTrace("", turnErrors)
-		return TurnResult{TokenUsage: tokenCounter.Snapshot(), Errors: turnErrors, Health: health}, fmt.Errorf("agent stream: %w", err)
+		return TurnResult{TurnID: turnID, TokenUsage: tokenCounter.Snapshot(), Errors: turnErrors, Health: health}, fmt.Errorf("agent stream: %w", err)
 	}
 	defer sr.Close()
 
@@ -417,14 +434,14 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 	}
 
 	if final != "" {
-		if err := s.STM.Append(s.SessionID, transcript.User(userText), transcript.Assistant(final)); err != nil {
+		if err := s.STM.Append(s.SessionID, transcript.UserTurn(userText, turnID), transcript.AssistantTurn(final, turnID)); err != nil {
 			log.Printf("stm append: %v", err)
 		}
 	}
 
 	health := finishTrace(final, turnErrors)
 	result := TurnResult{
-		Answer: final, TokenUsage: tokenCounter.Snapshot(),
+		TurnID: turnID, Answer: final, TokenUsage: tokenCounter.Snapshot(),
 		Errors: append([]string(nil), turnErrors...), Health: health,
 	}
 	if fatalErr != nil {

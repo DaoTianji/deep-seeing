@@ -11,10 +11,11 @@ import (
 )
 
 type ContextSourceTrace struct {
-	Source  contextsource.Source `json:"source"`
-	State   string               `json:"state"`
-	Version string               `json:"version,omitempty"`
-	Error   string               `json:"error,omitempty"`
+	Source     contextsource.Source `json:"source"`
+	State      string               `json:"state"`
+	Version    string               `json:"version,omitempty"`
+	Error      string               `json:"error,omitempty"`
+	TurnOffset time.Duration        `json:"turn_offset_ns,omitempty"`
 }
 
 type ContextCandidateTrace struct {
@@ -61,10 +62,11 @@ type ContextCollector struct {
 	reads      []ContextReadTrace
 	uses       []ContextUseTrace
 	hooks      ContextHooks
+	startedAt  time.Time
 }
 
 func WithContextHooks(ctx context.Context, hooks ContextHooks) (context.Context, *ContextCollector) {
-	c := &ContextCollector{hooks: hooks}
+	c := &ContextCollector{hooks: hooks, startedAt: time.Now()}
 	return context.WithValue(ctx, contextCollectorKey{}, c), c
 }
 
@@ -77,6 +79,9 @@ func RecordContextSource(ctx context.Context, event ContextSourceTrace) {
 	event.Version = strings.TrimSpace(event.Version)
 	event.Error = Preview(event.Error, 160)
 	c.mu.Lock()
+	if event.TurnOffset <= 0 {
+		event.TurnOffset = time.Since(c.startedAt)
+	}
 	c.sources = append(c.sources, event)
 	c.mu.Unlock()
 	if c.hooks.OnSource != nil {
@@ -100,6 +105,9 @@ func RecordContextCandidate(ctx context.Context, event ContextCandidateTrace) {
 	}
 	event.ResultIDs = ids
 	c.mu.Lock()
+	if event.TurnOffset <= 0 {
+		event.TurnOffset = time.Since(c.startedAt)
+	}
 	c.candidates = append(c.candidates, event)
 	c.mu.Unlock()
 	if c.hooks.OnCandidate != nil {
@@ -116,6 +124,9 @@ func RecordContextRead(ctx context.Context, event ContextReadTrace) {
 	event.Error = Preview(event.Error, 160)
 	event.OK = event.ID != "" && event.Error == ""
 	c.mu.Lock()
+	if event.TurnOffset <= 0 {
+		event.TurnOffset = time.Since(c.startedAt)
+	}
 	c.reads = append(c.reads, event)
 	c.mu.Unlock()
 	if c.hooks.OnRead != nil {
@@ -154,6 +165,9 @@ func RecordContextUse(ctx context.Context, event ContextUseTrace) error {
 	}
 
 	c.mu.Lock()
+	if event.TurnOffset <= 0 {
+		event.TurnOffset = time.Since(c.startedAt)
+	}
 	if !c.wasCandidateLocked(event.Source, event.ID) {
 		c.mu.Unlock()
 		return fmt.Errorf("%s %q was not a candidate in this turn", event.Source, event.ID)
