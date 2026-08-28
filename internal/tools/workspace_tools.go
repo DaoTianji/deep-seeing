@@ -22,7 +22,7 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 
 	listWS, err := utils.InferTool(
 		"list_workspace",
-		"列出 Workspace 任务候选卡（当前项目、材料与未完成思考）；候选不含正文，需要时用 read_workspace。",
+		"列出 Workspace 任务候选卡；正文须用 read_workspace。",
 		func(ctx context.Context, in listWorkspaceInput) (string, error) {
 			limit := in.Limit
 			if limit <= 0 {
@@ -70,7 +70,7 @@ func appendWorkspaceTools(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool,
 
 	readWS, err := utils.InferTool(
 		"read_workspace",
-		"读取一条 Workspace 任务正文、修订史与关联 Episode；它描述当前工作，不是历史经历证据。若正文影响回答，回答前须用 report_context_focus 声明任务焦点。",
+		"读取 Workspace 正文与修订；它是当前 task，不是历史 evidence；使用前须声明 focus。",
 		func(ctx context.Context, in readWorkspaceInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {

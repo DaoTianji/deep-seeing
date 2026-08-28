@@ -23,7 +23,7 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 
 	listInt, err := utils.InferTool(
 		"list_intents",
-		"列出活跃 Intent 计划候选卡；active 只表示未来安排存在，不代表已经执行，正文需用 read_intent。",
+		"列出 active Intent 候选；它是未来 plan，不代表已执行，正文须 read_intent。",
 		func(ctx context.Context, in listIntentsInput) (string, error) {
 			limit := in.Limit
 			if limit <= 0 {
@@ -66,7 +66,7 @@ func appendIntentTools(toolsOut []tool.BaseTool, deps Deps, agentID string) ([]t
 
 	readInt, err := utils.InferTool(
 		"read_intent",
-		"读取一条 Intent 与近期 wake 历史；Intent 是未来计划，active、attempt=0 或无 wake 记录既不能证明已完成，也不能证明尚未完成。没有明确完成证据时只能说无法确认。若正文影响回答，回答前须用 report_context_focus 声明计划焦点。",
+		"读取 Intent 与 wake 历史；无明确完成证据时不能断言完成状态；使用前须声明 focus。",
 		func(ctx context.Context, in readIntentInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {

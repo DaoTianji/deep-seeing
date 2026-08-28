@@ -19,7 +19,7 @@ func appendAttentionTool(toolsOut []tool.BaseTool, deps Deps) ([]tool.BaseTool, 
 	}
 	manage, err := utils.InferTool(
 		"manage_attention",
-		"管理仅在当前会话存在的注意工作区。只把预计后续回合仍会重要的已出现项目放入 center/support/periphery；单轮即结束的材料无需保存。center/support 新项目必须先读取，periphery 至少必须是本轮候选。槽位满时系统不会自动淘汰，必须用 replace_source/replace_id 明确选择被替换项目。它不证明事实、不代替 read/use/focus 声明，也不写长期记忆。",
+		"维护会话注意槽；只保留后续仍重要的项目。center/support 须 read，periphery 须为 candidate，满槽须显式 replace；不写 LTM。",
 		func(ctx context.Context, in manageAttentionInput) (string, error) {
 			decisions := make([]attention.Decision, 0, len(in.Decisions))
 			before := deps.Attention.Snapshot(deps.SessionID)

@@ -2,7 +2,9 @@ package runtime
 
 import (
 	"context"
+	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"deep-seeing/internal/graph"
 	"deep-seeing/internal/identity"
@@ -67,5 +69,23 @@ func TestPrepareTurnMemoryAgentSkipsSideQuery(t *testing.T) {
 	}
 	if got.normVersion != 3 || got.bondNorm == "" || got.recallGuidance == "" {
 		t.Fatalf("agent context incomplete: %+v", got)
+	}
+}
+
+func TestAgentRecallGuidanceStaysCompactWithoutLosingBoundaries(t *testing.T) {
+	guidance := promptAgentContextSourceGuidance + promptAgentAttentionGuidance + promptAgentRecallGuidance
+	if count := utf8.RuneCountInString(guidance); count > 1900 {
+		t.Fatalf("agent recall guidance grew to %d runes", count)
+	}
+	for _, required := range []string{
+		"Bond=关系 baseline", "SceneNorm=场景 guidance", "Workspace=当前 task",
+		"Intent=未来 plan", "Proposal=未确认 hypothesis", "Episode=过去 evidence",
+		"用户当前明确表达优先", "候选卡不是正文", "report_recall_evidence",
+		"report_context_use", "report_context_focus", "槽满", "idle_turns",
+		"同轮最多换词一次", "不回退最近 Episode", "隐藏思维",
+	} {
+		if !strings.Contains(guidance, required) {
+			t.Fatalf("compressed guidance lost boundary %q", required)
+		}
 	}
 }

@@ -196,7 +196,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 	readEp, err := utils.InferTool(
 		"read_episode",
-		"按候选 episode id 读取经历正文（含归档/失效条目）；需要用过去作为回答证据时，先读取核对。",
+		"读取候选 Episode 正文（含归档/失效）；作为历史证据前必须调用。",
 		func(ctx context.Context, in readEpisodeInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
@@ -220,7 +220,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 	searchEp, err := utils.InferTool(
 		"search_episodes",
-		"按关键词检索经历候选卡（默认不含 archived/invalid）；结果不含完整正文，需要时再用 read_episode 核对。",
+		"搜索 Episode 候选卡；默认排除 archived/invalid，正文须用 read_episode 核对。",
 		func(ctx context.Context, in searchEpisodeInput) (string, error) {
 			limit := in.Limit
 			if limit <= 0 {
@@ -277,7 +277,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 
 	reportEvidence, err := utils.InferTool(
 		"report_recall_evidence",
-		"公开声明本轮召回候选的证据状态：回答实际依赖的已读经历标为 used；主动排除的候选标为 dismissed 并给结构化 reason。未处理候选可以不声明。若同一回答还依赖已读 Workspace/Intent，先确认已用 report_context_focus 同时声明对应 ID。",
+		"批量声明 Episode used/dismissed；used 须已 read，dismissed 须给 reason，未处理可省略。",
 		func(ctx context.Context, in reportRecallEvidenceInput) (string, error) {
 			events := make([]observe.RecallEvidenceTrace, 0, len(in.Decisions))
 			for _, decision := range in.Decisions {

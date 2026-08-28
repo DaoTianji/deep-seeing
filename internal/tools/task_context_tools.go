@@ -23,7 +23,7 @@ func appendTaskContextFocusTool(toolsOut []tool.BaseTool, deps Deps) ([]tool.Bas
 	}
 	report, err := utils.InferTool(
 		"report_context_focus",
-		"公开声明本轮任务处境结论。Workspace 与 Intent 同时影响回答时，一次调用同时填写 workspace_id 和 intent_id。continue 用于延续同一焦点，或用户明确要求继续一个已有任务且没有替换另一个焦点；switch 仅用于已有会话焦点被不同 ID 替换；check 只核对；compare 只用于条目之间的对照，不用于项目加辅助提醒。新焦点必须先读取；clarify 声明歧义并要求用户确认。不是长期记忆，不要在无关普通任务中调用。",
+		"声明任务焦点或歧义；新 ID 须先 read，可一次填写 Workspace+Intent；无关任务勿调用，不写 LTM。",
 		func(ctx context.Context, in reportContextFocusInput) (string, error) {
 			currentWorkspaceID, currentIntentID := deps.TaskContextFocus.Current(deps.SessionID)
 			event, err := observe.RecordTaskContextFocus(ctx, observe.TaskContextFocusTrace{

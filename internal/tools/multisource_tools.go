@@ -23,7 +23,7 @@ func appendMultiSourceContextTools(toolsOut []tool.BaseTool, deps Deps, scope id
 	if deps.Proposals != nil {
 		listProposals, err := utils.InferTool(
 			"list_proposals",
-			"列出当前对话者尚未裁决的 Bond Proposal 假设候选卡。Proposal 不是事实；已采纳内容已进入 Bond，已拒绝内容不会返回。",
+			"列出未裁决 Bond Proposal 候选；它们是 hypothesis，不是事实。",
 			func(ctx context.Context, in listProposalsInput) (string, error) {
 				limit := in.Limit
 				if limit <= 0 || limit > 50 {
@@ -71,7 +71,7 @@ func appendMultiSourceContextTools(toolsOut []tool.BaseTool, deps Deps, scope id
 
 		readProposal, err := utils.InferTool(
 			"read_proposal",
-			"读取一条未裁决的 Bond Proposal。它只能作为待验证假设，不能当作用户事实或 Episode 证据。",
+			"读取未裁决 Proposal；只能作为 hypothesis，不能当作事实或 Episode 证据。",
 			func(ctx context.Context, in readProposalInput) (string, error) {
 				id := strings.TrimSpace(in.ID)
 				if id == "" {
@@ -103,7 +103,7 @@ func appendMultiSourceContextTools(toolsOut []tool.BaseTool, deps Deps, scope id
 	}
 	reportUse, err := utils.InferTool(
 		"report_context_use",
-		"公开声明本轮如何处理已出现的 SceneNorm 指导或 Proposal 假设。used 必须先读取；dismissed 必须给结构化原因。声明后仍须继续给出面向用户的最终回答；不会写长期记忆。",
+		"声明 SceneNorm/Proposal 的 used 或 dismissed；used 须 read，dismissed 须给 reason；不写 LTM。",
 		func(ctx context.Context, in reportContextUseInput) (string, error) {
 			source := contextsource.Source(strings.ToLower(strings.TrimSpace(in.Source)))
 			if source != contextsource.SceneNorm && source != contextsource.Proposal {
