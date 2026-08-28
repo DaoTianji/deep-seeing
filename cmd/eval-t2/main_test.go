@@ -69,3 +69,17 @@ func TestHardRulesExcludeLexicalAnswerChecks(t *testing.T) {
 		t.Fatal("reports without detailed checks must retain aggregate semantics")
 	}
 }
+
+func TestJudgeInfrastructureErrorClassification(t *testing.T) {
+	for _, message := range []string{
+		`Post "https://gateway.example/v1": context deadline exceeded`,
+		"decode semantic judge verdict: unexpected end of JSON input",
+	} {
+		if !judgeInfrastructureError(message) {
+			t.Fatalf("judge error %q should be infrastructure", message)
+		}
+	}
+	if judgeInfrastructureError("") || judgeInfrastructureError("answer empty") {
+		t.Fatal("missing user answer is a behavior failure, not judge infrastructure")
+	}
+}

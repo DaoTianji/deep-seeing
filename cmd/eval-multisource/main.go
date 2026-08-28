@@ -101,8 +101,9 @@ func main() {
 		judgeModel = &memory.ChatClient{APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 1024}
 	}
 
-	total, passed, totalTokens := 0, 0, 0
+	total, passed, totalTokens, infrastructureRetries := 0, 0, 0, 0
 	for _, c := range selected {
+		caseRetries := 0
 		for run := 1; run <= *repeat; run++ {
 			total++
 			ctx, cancel := context.WithTimeout(context.Background(), *timeout)
@@ -115,6 +116,23 @@ func main() {
 				Timestamp: time.Now().UTC(), Suite: suite.Name, Schema: suite.SchemaVersion,
 				Category: c.Category, Model: cfg.Model, Judge: *judge,
 				Observation: obs, Rules: evals.EvaluateMultiSourceRules(c, obs),
+			}
+			if evals.IsInfrastructureFailure(obs.Error) {
+				caseRetries++
+				infrastructureRetries++
+				total--
+				report.Judge = "infrastructure"
+				fmt.Printf("RETRY %s run=%d infrastructure=%s\n", c.ID, run, obs.Error)
+				if reportFile != nil {
+					raw, _ := json.Marshal(report)
+					_, _ = reportFile.Write(append(raw, '\n'))
+				}
+				cancel()
+				if caseRetries > 3 {
+					log.Fatalf("%s exceeded 3 infrastructure retries", c.ID)
+				}
+				run--
+				continue
 			}
 			if judgeModel != nil {
 				if strings.TrimSpace(obs.Answer) == "" {
@@ -169,8 +187,8 @@ func main() {
 			}
 		}
 	}
-	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% avg_tokens=%.1f judge=%s model=%s\n",
-		passed, total, 100*float64(passed)/float64(total), float64(totalTokens)/float64(total), *judge, cfg.Model)
+	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% infra_retries=%d avg_tokens=%.1f judge=%s model=%s\n",
+		passed, total, 100*float64(passed)/float64(total), infrastructureRetries, float64(totalTokens)/float64(total), *judge, cfg.Model)
 	if passed != total {
 		os.Exit(1)
 	}

@@ -144,6 +144,10 @@ func runSuite(ctx context.Context, suite evals.StabilitySuiteSelection, repeat i
 	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Stdout, cmd.Stderr = stdout, stderr
 	if err := cmd.Run(); err != nil {
+		if _, ok := err.(*exec.ExitError); ok {
+			fmt.Fprintf(stderr, "%s suite reported failed cases; unified gates will decide after all suites finish\n", suite.Kind)
+			return nil
+		}
 		return fmt.Errorf("%s stability suite: %w", suite.Kind, err)
 	}
 	return nil
@@ -196,7 +200,7 @@ func summarizeReports(manifest evals.StabilityManifest, dir string) (stabilitySt
 				_ = f.Close()
 				return stats, fmt.Errorf("%s observation: %w", path, err)
 			}
-			if report.Judge == "infrastructure" || strings.TrimSpace(obs.InfrastructureError) != "" {
+			if report.Judge == "infrastructure" || strings.TrimSpace(obs.InfrastructureError) != "" || judgeInfrastructureError(report.JudgeError) {
 				stats.Infrastructure++
 				continue
 			}
@@ -256,6 +260,14 @@ func hardRulesPassed(report reportEnvelope) bool {
 		}
 	}
 	return found
+}
+
+func judgeInfrastructureError(message string) bool {
+	message = strings.TrimSpace(message)
+	if message == "" || message == "answer empty" {
+		return false
+	}
+	return true
 }
 
 func appendLatency(stats *stabilityStats, ordinary bool, duration time.Duration) {

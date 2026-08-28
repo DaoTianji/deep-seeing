@@ -30,6 +30,7 @@ type runReport struct {
 	Timestamp   time.Time                    `json:"timestamp"`
 	Suite       string                       `json:"suite"`
 	Schema      int                          `json:"schema_version"`
+	Judge       string                       `json:"judge,omitempty"`
 	Category    string                       `json:"category"`
 	Model       string                       `json:"model"`
 	Observation evals.TaskContextObservation `json:"observation"`
@@ -86,8 +87,9 @@ func main() {
 		defer reportFile.Close()
 	}
 
-	total, passed, tokens, turns := 0, 0, 0, 0
+	total, passed, tokens, turns, infrastructureRetries := 0, 0, 0, 0, 0
 	for _, c := range selected {
+		caseRetries := 0
 		for run := 1; run <= *repeat; run++ {
 			total++
 			ctx, cancel := context.WithTimeout(context.Background(), *timeout)
@@ -95,6 +97,26 @@ func main() {
 			cancel()
 			if setupErr != nil {
 				log.Fatalf("%s run %d setup: %v", c.ID, run, setupErr)
+			}
+			if evals.IsInfrastructureFailure(obs.Error) {
+				caseRetries++
+				infrastructureRetries++
+				total--
+				rules := evals.EvaluateTaskContextRules(c, obs)
+				fmt.Printf("RETRY %s run=%d infrastructure=%s\n", c.ID, run, obs.Error)
+				if reportFile != nil {
+					report := runReport{
+						Timestamp: time.Now().UTC(), Suite: suite.Name, Schema: suite.SchemaVersion,
+						Category: c.Category, Model: cfg.Model, Judge: "infrastructure", Observation: obs, Rules: rules,
+					}
+					raw, _ := json.Marshal(report)
+					_, _ = reportFile.Write(append(raw, '\n'))
+				}
+				if caseRetries > 3 {
+					log.Fatalf("%s exceeded 3 infrastructure retries", c.ID)
+				}
+				run--
+				continue
 			}
 			rules := evals.EvaluateTaskContextRules(c, obs)
 			if rules.Passed {
@@ -123,8 +145,8 @@ func main() {
 			}
 		}
 	}
-	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% turns=%d avg_tokens=%.1f model=%s\n",
-		passed, total, 100*float64(passed)/float64(total), turns, float64(tokens)/float64(total), cfg.Model)
+	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% infra_retries=%d turns=%d avg_tokens=%.1f model=%s\n",
+		passed, total, 100*float64(passed)/float64(total), infrastructureRetries, turns, float64(tokens)/float64(total), cfg.Model)
 	if passed != total {
 		os.Exit(1)
 	}

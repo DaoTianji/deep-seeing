@@ -108,9 +108,10 @@ func main() {
 		// Reasoning-capable judges may spend part of this budget before emitting the tiny JSON verdict.
 		judgeModel = &memory.ChatClient{APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 1024}
 	}
-	total, passed := 0, 0
+	total, passed, infrastructureRetries := 0, 0, 0
 	stats := map[string]*categoryStats{}
 	for _, c := range selected {
+		caseRetries := 0
 		for run := 1; run <= *repeat; run++ {
 			total++
 			ctx, cancel := context.WithTimeout(context.Background(), *timeout)
@@ -123,6 +124,23 @@ func main() {
 				Timestamp: time.Now().UTC(), Suite: suite.Name, Schema: suite.SchemaVersion,
 				Category: c.Category, Model: cfg.Model, Judge: *judge,
 				Observation: obs, Rules: evals.EvaluateRecallRules(c, obs),
+			}
+			if evals.IsInfrastructureFailure(obs.Error) {
+				caseRetries++
+				infrastructureRetries++
+				total--
+				report.Judge = "infrastructure"
+				fmt.Printf("RETRY %s run=%d infrastructure=%s\n", c.ID, run, obs.Error)
+				if reportFile != nil {
+					raw, _ := json.Marshal(report)
+					_, _ = reportFile.Write(append(raw, '\n'))
+				}
+				cancel()
+				if caseRetries > 3 {
+					log.Fatalf("%s exceeded 3 infrastructure retries", c.ID)
+				}
+				run--
+				continue
 			}
 			if judgeModel != nil && strings.TrimSpace(obs.Answer) != "" {
 				verdict, judgeErr := evals.JudgeRecallSemantics(ctx, judgeModel, c, obs)
@@ -171,7 +189,8 @@ func main() {
 		}
 	}
 	printCategoryStats(stats)
-	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% judge=%s model=%s\n", passed, total, 100*float64(passed)/float64(total), *judge, cfg.Model)
+	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% infra_retries=%d judge=%s model=%s\n",
+		passed, total, 100*float64(passed)/float64(total), infrastructureRetries, *judge, cfg.Model)
 	if passed != total {
 		os.Exit(1)
 	}
