@@ -41,7 +41,7 @@ func main() {
 		suitePath = flag.String("suite", filepath.Join("evals", "t2", "task_context_cases.json"), "task context suite JSON")
 		live      = flag.Bool("live", false, "run the real Agent in isolated synthetic sandboxes")
 		repeat    = flag.Int("repeat", 1, "runs per case")
-		caseID    = flag.String("case", "", "run one case ID")
+		caseID    = flag.String("case", "", "run one case ID or a comma-separated list")
 		outPath   = flag.String("out", "", "optional ignored JSONL report path")
 		timeout   = flag.Duration("timeout", 5*time.Minute, "timeout per live case")
 	)
@@ -356,15 +356,14 @@ func addTokenUsage(total *observe.TokenUsageTrace, add observe.TokenUsageTrace) 
 }
 
 func selectCases(cases []evals.TaskContextCase, caseID string) []evals.TaskContextCase {
-	if caseID == "" {
-		return cases
-	}
+	var out []evals.TaskContextCase
+	wanted := evals.ParseCaseIDs(caseID)
 	for _, c := range cases {
-		if c.ID == caseID {
-			return []evals.TaskContextCase{c}
+		if len(wanted) == 0 || wanted[c.ID] {
+			out = append(out, c)
 		}
 	}
-	return nil
+	return out
 }
 
 func appendUnique(values []string, value string) []string {

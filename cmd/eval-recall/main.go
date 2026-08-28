@@ -52,7 +52,7 @@ func main() {
 		suitePath = flag.String("suite", filepath.Join("evals", "t2", "recall_cases.json"), "recall suite JSON")
 		live      = flag.Bool("live", false, "run the real Agent in isolated memory sandboxes")
 		repeat    = flag.Int("repeat", 1, "runs per selected case")
-		caseID    = flag.String("case", "", "run one case ID")
+		caseID    = flag.String("case", "", "run one case ID or a comma-separated list")
 		category  = flag.String("category", "", "run one category")
 		judge     = flag.String("judge", "rules", "rules or model")
 		outPath   = flag.String("out", "", "optional JSONL report path")
@@ -295,8 +295,9 @@ func appendUnique(values []string, value string) []string {
 
 func selectCases(cases []evals.RecallCase, caseID, category string) []evals.RecallCase {
 	var out []evals.RecallCase
+	wanted := evals.ParseCaseIDs(caseID)
 	for _, c := range cases {
-		if caseID != "" && c.ID != caseID {
+		if len(wanted) > 0 && !wanted[c.ID] {
 			continue
 		}
 		if category != "" && c.Category != category {

@@ -17,7 +17,7 @@ func main() {
 		suitePath = flag.String("suite", filepath.Join("evals", "t2", "attention_cases.json"), "attention suite JSON")
 		live      = flag.Bool("live", false, "run the real Agent in isolated synthetic sandboxes")
 		repeat    = flag.Int("repeat", 1, "runs per case")
-		caseID    = flag.String("case", "", "run one case ID")
+		caseID    = flag.String("case", "", "run one case ID or a comma-separated list")
 		judge     = flag.String("judge", "rules", "rules or model")
 		outPath   = flag.String("out", "", "optional ignored JSONL report path")
 		timeout   = flag.Duration("timeout", 12*time.Minute, "timeout per multi-turn case")

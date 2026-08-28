@@ -412,15 +412,14 @@ func runAttentionCase(ctx context.Context, cfg deepagent.Config, c evals.Attenti
 }
 
 func selectAttentionCases(cases []evals.AttentionCase, id string) []evals.AttentionCase {
-	if id == "" {
-		return cases
-	}
+	var out []evals.AttentionCase
+	wanted := evals.ParseCaseIDs(id)
 	for _, c := range cases {
-		if c.ID == id {
-			return []evals.AttentionCase{c}
+		if len(wanted) == 0 || wanted[c.ID] {
+			out = append(out, c)
 		}
 	}
-	return nil
+	return out
 }
 
 func appendAttentionUnique(values []string, value string) []string {

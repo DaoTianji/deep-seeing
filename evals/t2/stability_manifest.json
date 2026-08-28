@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "name": "t2-stability-core",
+  "description": "T2.6 长期回归清单。只引用既有纯虚构案例，不复制或修改其行为契约。",
+  "baseline": {
+    "average_tokens_per_turn": 14457.8,
+    "target_tokens_per_turn": 11566,
+    "ordinary_p95_ms": 8000,
+    "recall_p95_ms": 20000,
+    "semantic_pass_rate": 0.98,
+    "infrastructure_failure_rate": 0.01
+  },
+  "ordinary_case_ids": ["N1", "N4", "TCN1", "ATN1"],
+  "suites": [
+    {
+      "kind": "recall",
+      "path": "evals/t2/recall_cases.json",
+      "case_ids": ["N1", "N4", "E1", "E3", "A2", "C1", "C3", "C4"]
+    },
+    {
+      "kind": "task_context",
+      "path": "evals/t2/task_context_cases.json",
+      "case_ids": ["TCN1", "TCC1", "TCSW1", "TCA1", "TCO1", "TCWI1"]
+    },
+    {
+      "kind": "multisource",
+      "path": "evals/t2/multisource_cases.json",
+      "case_ids": ["MSB1", "MSS1", "MSI1", "MSP1", "MSE1", "MSM2", "MSR2"]
+    },
+    {
+      "kind": "attention",
+      "path": "evals/t2/attention_cases.json",
+      "case_ids": ["ATN1", "ATC1", "ATP1", "ATR1", "ATH1", "ATD1", "ATX1"]
+    }
+  ],
+  "fault_contracts": [
+    "source_unavailable",
+    "source_error",
+    "search_error",
+    "read_error",
+    "attention_unavailable",
+    "step_limit",
+    "timeout",
+    "stream_interrupted",
+    "session_state_reset"
+  ]
+}

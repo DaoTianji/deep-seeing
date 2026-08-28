@@ -52,7 +52,7 @@ func main() {
 		suitePath = flag.String("suite", filepath.Join("evals", "t2", "multisource_cases.json"), "multi-source suite JSON")
 		live      = flag.Bool("live", false, "run the real Agent in isolated synthetic sandboxes")
 		repeat    = flag.Int("repeat", 1, "runs per case")
-		caseID    = flag.String("case", "", "run one case ID")
+		caseID    = flag.String("case", "", "run one case ID or a comma-separated list")
 		judge     = flag.String("judge", "rules", "rules or model")
 		outPath   = flag.String("out", "", "optional ignored JSONL report path")
 		timeout   = flag.Duration("timeout", 5*time.Minute, "timeout per live case")
@@ -353,15 +353,14 @@ func runCase(ctx context.Context, cfg deepagent.Config, c evals.MultiSourceCase,
 }
 
 func selectCases(cases []evals.MultiSourceCase, id string) []evals.MultiSourceCase {
-	if id == "" {
-		return cases
-	}
+	var out []evals.MultiSourceCase
+	wanted := evals.ParseCaseIDs(id)
 	for _, c := range cases {
-		if c.ID == id {
-			return []evals.MultiSourceCase{c}
+		if len(wanted) == 0 || wanted[c.ID] {
+			out = append(out, c)
 		}
 	}
-	return nil
+	return out
 }
 
 func appendUnique(values []string, value string) []string {
