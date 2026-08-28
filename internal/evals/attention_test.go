@@ -13,15 +13,15 @@ func TestAttentionSuiteValidatesStressCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(suite.Cases) < 8 {
-		t.Fatalf("cases=%d, want at least 8", len(suite.Cases))
+	if len(suite.Cases) != 9 {
+		t.Fatalf("cases=%d, want 9", len(suite.Cases))
 	}
 	turns := 0
 	for _, c := range suite.Cases {
 		turns += len(c.Turns)
 	}
-	if turns < 14 {
-		t.Fatalf("turns=%d, want at least 14", turns)
+	if turns != 16 {
+		t.Fatalf("turns=%d, want 16", turns)
 	}
 }
 

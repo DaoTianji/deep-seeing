@@ -10,16 +10,19 @@ import (
 )
 
 type AttentionTurnObservation struct {
-	Turn               int                              `json:"turn"`
-	ToolStarts         []string                         `json:"tool_starts,omitempty"`
-	ReadKeys           []string                         `json:"read_keys,omitempty"`
-	UsedKeys           []string                         `json:"used_keys,omitempty"`
-	Attention          map[string]attention.Tier        `json:"attention,omitempty"`
-	AttentionDecisions []observe.AttentionDecisionTrace `json:"attention_decisions,omitempty"`
-	Answer             string                           `json:"answer,omitempty"`
-	Duration           time.Duration                    `json:"duration_ns,omitempty"`
-	TokenUsage         observe.TokenUsageTrace          `json:"token_usage,omitempty"`
-	Error              string                           `json:"error,omitempty"`
+	Turn                int                              `json:"turn"`
+	ToolStarts          []string                         `json:"tool_starts,omitempty"`
+	ReadKeys            []string                         `json:"read_keys,omitempty"`
+	UsedKeys            []string                         `json:"used_keys,omitempty"`
+	DismissedKeys       []string                         `json:"dismissed_keys,omitempty"`
+	Attention           map[string]attention.Tier        `json:"attention,omitempty"`
+	AttentionIdleTurns  map[string]int                   `json:"attention_idle_turns,omitempty"`
+	AttentionDecisions  []observe.AttentionDecisionTrace `json:"attention_decisions,omitempty"`
+	Answer              string                           `json:"answer,omitempty"`
+	Duration            time.Duration                    `json:"duration_ns,omitempty"`
+	TokenUsage          observe.TokenUsageTrace          `json:"token_usage,omitempty"`
+	Error               string                           `json:"error,omitempty"`
+	InfrastructureError string                           `json:"infrastructure_error,omitempty"`
 }
 
 func EvaluateAttentionTurnRules(expect AttentionTurnExpect, obs AttentionTurnObservation) RuleResult {
@@ -33,6 +36,15 @@ func EvaluateAttentionTurnRules(expect AttentionTurnExpect, obs AttentionTurnObs
 	}
 	checks = appendKeyChecks(checks, "read:", expect.RequiredReads, obs.ReadKeys)
 	checks = appendKeyChecks(checks, "used:", expect.RequiredUses, obs.UsedKeys)
+	checks = appendKeyChecks(checks, "dismissed:", expect.RequiredDismissed, obs.DismissedKeys)
+	used := attentionStringSet(obs.UsedKeys)
+	for _, key := range expect.ForbiddenUses {
+		checks = append(checks, Check{Name: "forbid_used:" + key, Passed: !used[key]})
+	}
+	for key, idleTurns := range expect.RequiredIdleTurns {
+		actual, ok := obs.AttentionIdleTurns[key]
+		checks = append(checks, Check{Name: "idle_turns:" + key, Passed: ok && actual == idleTurns, Detail: fmt.Sprintf("idle_turns=%d want=%d present=%t", actual, idleTurns, ok)})
+	}
 	for key, tier := range expect.RequiredAttention {
 		checks = append(checks, Check{Name: "attention:" + key + ":" + string(tier), Passed: obs.Attention[key] == tier})
 	}

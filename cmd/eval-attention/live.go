@@ -82,14 +82,42 @@ func runAttentionLive(suite evals.AttentionSuite, selected []evals.AttentionCase
 	}
 
 	total, passed, totalTokens := 0, 0, 0
+	infrastructureRetries := 0
 	var totalDuration time.Duration
 	for _, c := range selected {
+		caseRetries := 0
 		for run := 1; run <= opt.Repeat; run++ {
 			ctx, cancel := context.WithTimeout(context.Background(), opt.Timeout)
 			observations, runErr := runAttentionCase(ctx, cfg, c, run)
 			if runErr != nil {
 				cancel()
 				return fmt.Errorf("%s run %d setup: %w", c.ID, run, runErr)
+			}
+			if infrastructureErr := attentionInfrastructureError(observations); infrastructureErr != "" {
+				caseRetries++
+				infrastructureRetries++
+				fmt.Printf("RETRY %s run=%d infrastructure=%s\n", c.ID, run, infrastructureErr)
+				if reportFile != nil {
+					for index, obs := range observations {
+						report := attentionRunReport{
+							Timestamp: time.Now().UTC(), Suite: suite.Name, Schema: suite.SchemaVersion,
+							CaseID: c.ID, Category: c.Category, Run: run, Turn: index + 1,
+							Model: cfg.Model, Judge: "infrastructure", Observation: obs,
+							Rules: evals.EvaluateAttentionTurnRules(c.Turns[index].Expect, obs),
+						}
+						raw, _ := json.Marshal(report)
+						if _, err := reportFile.Write(append(raw, '\n')); err != nil {
+							cancel()
+							return err
+						}
+					}
+				}
+				cancel()
+				if caseRetries > 3 {
+					return fmt.Errorf("%s exceeded 3 infrastructure retries", c.ID)
+				}
+				run--
+				continue
 			}
 			for index, obs := range observations {
 				total++
@@ -158,13 +186,27 @@ func runAttentionLive(suite evals.AttentionSuite, selected []evals.AttentionCase
 	if total == 0 {
 		return fmt.Errorf("no attention turns ran")
 	}
-	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% avg_tokens=%.1f avg_duration=%s judge=%s model=%s\n",
-		passed, total, 100*float64(passed)/float64(total), float64(totalTokens)/float64(total),
+	fmt.Printf("summary: passed=%d total=%d rate=%.1f%% infra_retries=%d avg_tokens=%.1f avg_duration=%s judge=%s model=%s\n",
+		passed, total, 100*float64(passed)/float64(total), infrastructureRetries, float64(totalTokens)/float64(total),
 		(totalDuration / time.Duration(total)).Round(time.Millisecond), opt.Judge, cfg.Model)
 	if passed != total {
 		return fmt.Errorf("attention acceptance failed: %d/%d turns passed", passed, total)
 	}
 	return nil
+}
+
+func attentionInfrastructureError(observations []evals.AttentionTurnObservation) string {
+	var failures []string
+	for _, obs := range observations {
+		message := strings.TrimSpace(obs.InfrastructureError)
+		if message == "" {
+			message = strings.TrimSpace(obs.Error)
+		}
+		if message != "" {
+			failures = append(failures, fmt.Sprintf("turn %d: %s", obs.Turn, message))
+		}
+	}
+	return strings.Join(failures, "; ")
 }
 
 func runAttentionCase(ctx context.Context, cfg deepagent.Config, c evals.AttentionCase, run int) ([]evals.AttentionTurnObservation, error) {
@@ -337,21 +379,28 @@ func runAttentionCase(ctx context.Context, cfg deepagent.Config, c evals.Attenti
 		if turnErr != nil {
 			obs.Error = turnErr.Error()
 		}
+		if len(result.Errors) > 0 {
+			obs.InfrastructureError = strings.Join(result.Errors, "; ")
+		}
 		for _, event := range reads {
 			if event.OK {
 				obs.ReadKeys = appendAttentionUnique(obs.ReadKeys, keyByID[string(event.Source)+"\x00"+event.ID])
 			}
 		}
 		for _, event := range uses {
-			if event.Disposition != "dismissed" {
+			if event.Disposition == "dismissed" {
+				obs.DismissedKeys = appendAttentionUnique(obs.DismissedKeys, keyByID[string(event.Source)+"\x00"+event.ID])
+			} else {
 				obs.UsedKeys = appendAttentionUnique(obs.UsedKeys, keyByID[string(event.Source)+"\x00"+event.ID])
 			}
 		}
 		obs.Attention = map[string]attention.Tier{}
+		obs.AttentionIdleTurns = map[string]int{}
 		for _, item := range attentionStore.Snapshot(sessionID).Items {
 			key := keyByID[string(item.Source)+"\x00"+item.ID]
 			if key != "" {
 				obs.Attention[key] = item.Tier
+				obs.AttentionIdleTurns[key] = item.IdleTurns
 			}
 		}
 		observations = append(observations, obs)

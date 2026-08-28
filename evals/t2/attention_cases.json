@@ -216,19 +216,41 @@
       "turns": [
         {
           "user_text": "只回答 3 加 4，不要触碰当前中心。",
-          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"max_reads":0,"semantic_rules":["回答 7。"]}
+          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"required_idle_turns":{"workspace:seed":1},"max_reads":0,"semantic_rules":["回答 7。"]}
         },
         {
           "user_text": "只回答 5 加 6，仍然不要触碰当前中心。",
-          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"max_reads":0,"semantic_rules":["回答 11。"]}
+          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"required_idle_turns":{"workspace:seed":2},"max_reads":0,"semantic_rules":["回答 11。"]}
         },
         {
           "user_text": "只回答 7 加 8，继续让中心闲置。",
-          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"max_reads":0,"semantic_rules":["回答 15。"]}
+          "expect": {"forbidden_tools":["manage_attention"],"required_attention":{"workspace:seed":"center"},"required_idle_turns":{"workspace:seed":3},"max_reads":0,"semantic_rules":["回答 15。"]}
         },
         {
           "user_text": "恢复当前中心项目，读取它并告诉我下一步。",
-          "expect": {"required_reads":["workspace:seed"],"required_uses":["workspace:seed"],"required_attention":{"workspace:seed":"center"},"semantic_rules":["恢复虚构月桂档案并回答制作人物索引。"]}
+          "expect": {"required_reads":["workspace:seed"],"required_uses":["workspace:seed"],"required_attention":{"workspace:seed":"center"},"required_idle_turns":{"workspace:seed":0},"semantic_rules":["恢复虚构月桂档案并回答制作人物索引。"]}
+        }
+      ]
+    },
+    {
+      "id": "ATX1",
+      "category": "current_expression_priority",
+      "description": "注意中心中的旧 Episode 不能覆盖用户当前明确且冲突的表达。",
+      "episodes": [
+        {"key":"brief","kind":"event","content":"在一段虚构旧对话里，用户当时说：解释科学问题时尽量一句话，只给结论。"}
+      ],
+      "seed_attention": [{"key":"episode:brief","tier":"center"}],
+      "turns": [
+        {
+          "user_text": "这一次请用四到五句话详细解释为什么会下雨。先搜索并核对过去关于回答长度的相关经历；旧要求如果与我这次明确要求冲突，请公开排除，且不能让当前中心中的旧线索覆盖这次要求。",
+          "expect": {
+            "required_tools": ["search_episodes","read_episode","report_recall_evidence"],
+            "required_reads": ["episode:brief"],
+            "required_dismissed": ["episode:brief"],
+            "forbidden_uses": ["episode:brief"],
+            "max_reads": 1,
+            "semantic_rules": ["用四到五句话详细解释下雨成因，遵循本轮详细要求，不受旧的一句话偏好覆盖；dismissed_keys 已经是公开排除，不要求在面向用户的答案中复述工具状态。"]
+          }
         }
       ]
     }

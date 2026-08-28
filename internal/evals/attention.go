@@ -49,7 +49,10 @@ type AttentionTurnExpect struct {
 	ForbiddenTools             []string                  `json:"forbidden_tools,omitempty"`
 	RequiredReads              []string                  `json:"required_reads,omitempty"`
 	RequiredUses               []string                  `json:"required_uses,omitempty"`
+	RequiredDismissed          []string                  `json:"required_dismissed,omitempty"`
+	ForbiddenUses              []string                  `json:"forbidden_uses,omitempty"`
 	RequiredAttention          map[string]attention.Tier `json:"required_attention,omitempty"`
+	RequiredIdleTurns          map[string]int            `json:"required_idle_turns,omitempty"`
 	ForbiddenCenter            []string                  `json:"forbidden_center,omitempty"`
 	MaxReads                   *int                      `json:"max_reads,omitempty"`
 	CenterCount                *int                      `json:"center_count,omitempty"`
@@ -119,7 +122,7 @@ func (s AttentionSuite) Validate() error {
 					return fmt.Errorf("%s turn %d invalid required attention %q tier=%q", c.ID, i+1, key, tier)
 				}
 			}
-			for _, keys := range [][]string{turn.Expect.RequiredReads, turn.Expect.RequiredUses, turn.Expect.ForbiddenCenter} {
+			for _, keys := range [][]string{turn.Expect.RequiredReads, turn.Expect.RequiredUses, turn.Expect.RequiredDismissed, turn.Expect.ForbiddenUses, turn.Expect.ForbiddenCenter} {
 				for _, key := range keys {
 					if !fixtures[key] {
 						return fmt.Errorf("%s turn %d references missing fixture %q", c.ID, i+1, key)
@@ -128,6 +131,14 @@ func (s AttentionSuite) Validate() error {
 			}
 			if (turn.Expect.MaxReads != nil && *turn.Expect.MaxReads < 0) || (turn.Expect.CenterCount != nil && *turn.Expect.CenterCount < 0) {
 				return fmt.Errorf("%s turn %d counts must be non-negative", c.ID, i+1)
+			}
+			for key, idleTurns := range turn.Expect.RequiredIdleTurns {
+				if !fixtures[key] {
+					return fmt.Errorf("%s turn %d references missing idle fixture %q", c.ID, i+1, key)
+				}
+				if idleTurns < 0 {
+					return fmt.Errorf("%s turn %d idle turns must be non-negative", c.ID, i+1)
+				}
 			}
 		}
 	}

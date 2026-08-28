@@ -28,3 +28,23 @@ func TestAttentionRulesKeepLifecycleAndReplacementHard(t *testing.T) {
 		t.Fatal("structural attention failures were accepted")
 	}
 }
+
+func TestAttentionRulesValidateIdleAndDismissedEvidence(t *testing.T) {
+	one := 1
+	result := evals.EvaluateAttentionTurnRules(evals.AttentionTurnExpect{
+		RequiredReads:     []string{"episode:brief"},
+		RequiredDismissed: []string{"episode:brief"},
+		ForbiddenUses:     []string{"episode:brief"},
+		RequiredAttention: map[string]attention.Tier{"episode:brief": attention.Center},
+		RequiredIdleTurns: map[string]int{"episode:brief": 0},
+		MaxReads:          &one,
+	}, evals.AttentionTurnObservation{
+		ReadKeys:           []string{"episode:brief"},
+		DismissedKeys:      []string{"episode:brief"},
+		Attention:          map[string]attention.Tier{"episode:brief": attention.Center},
+		AttentionIdleTurns: map[string]int{"episode:brief": 0},
+	})
+	if !result.Passed {
+		t.Fatalf("valid idle/dismissed observation failed: %+v", result.Checks)
+	}
+}
