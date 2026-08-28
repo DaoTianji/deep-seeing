@@ -1,6 +1,6 @@
 # 长期记忆（LTM）— 实现现状
 
-> 状态：**Phase 1–4 已落地**；**P5–P8 已落地**（Self / Workspace / Agency / World）；**T1 常模参与对话已落地**；**T2.1–T2.4 已完成行为验收，T2.5.1 会话注意工程完成、行为复验待运行**（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
+> 状态：**Phase 1–4 已落地**；**P5–P8 已落地**（Self / Workspace / Agency / World）；**T1 常模参与对话已落地**；**T2.1–T2.5 已完成行为验收**（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
 > 目标架构：[design-ltm.md](./design-ltm.md) · 认知共识：[memory-cognition.md](./memory-cognition.md) · Roadmap：[roadmap-p5-p8.md](./roadmap-p5-p8.md) · v0.9：[roadmap-v0.9.md](./roadmap-v0.9.md) · 契约：[p5.0-contracts.md](./p5.0-contracts.md) · Workspace：[workspace.md](./workspace.md) · Agency：[agency.md](./agency.md) · World：[world.md](./world.md) · 出生门槛：[birth-gate.md](./birth-gate.md)
 > 关联：[memory-stm.md](./memory-stm.md) · [`seed/SOUL.md`](../seed/SOUL.md) · [`seed/origin/`](../seed/origin/) · [`internal/graph`](../internal/graph/)
 
@@ -55,7 +55,7 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 - 完整 Know→Act Birth Test 仍需带模型跑一遍（清单见 birth-gate）  
 - **T1（常模参与对话，已落地）**：`FormatCompactRecall` 优先级注入；Bond `items_json` + `bond_version` 为 Item SoT；`append_bond_boundary` / `propose_bond_update` / `set_explicit_bond_fact`；SceneNorm 文件旁路（`list/read/write_scene_norm`，关键词命中注入）；Strategy 派生缓存（`set_bond_strategy_cache`，绑定 `bond_version`）。旧 `Strategy` 散文非 SoT。
 - **T2.1–T2.4（自主召回 + 证据闭环 + 当前任务处境 + 多来源）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；Episode、SceneNorm、Workspace、Intent、Proposal 都通过薄候选 → read → use/dismiss/focus 的公开路径参与回答，固定角色分别为 evidence、guidance、task、plan、hypothesis，Bond 为 baseline。Workspace/Intent 仍自动提供最多 4 张 active 薄卡和会话焦点。统一 Trace 只存来源、ID、查询、读取和采用状态，不存正文或隐藏思维；Room 可实时显示并回放跨来源临时节点。T2.1–T2.3 的 48/48 与 27/27 行为验收已完成；T2.4 的工程、本地验收和 13 类 × 3 次真实 Agent 复验均已完成，最终 39/39 通过。
-- **T2.5.1（会话注意）**：Agent 模式在进程内维护中心/支撑/外围 4/8/16 槽位。新中心和支撑必须本轮 read，新外围必须本轮成为 candidate；满槽必须由 Agent 显式指定替换项。快照与调整进入公开 Trace 和 Room 图谱外环，但不保存正文、不写 LTM、不改变来源角色。工程与离线压力套件已经通过，真实 Agent 多轮复验待运行。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索或图扩散。
+- **T2.5.1（会话注意）**：Agent 模式在进程内维护中心/支撑/外围 4/8/16 槽位。新中心和支撑必须本轮 read，新外围必须本轮成为 candidate；满槽必须由 Agent 显式指定替换项。成功读取或公开处理会重置闲置计数；快照与调整进入公开 Trace 和 Room 图谱外环，但不保存正文、不写 LTM、不改变来源角色。工程、离线压力套件和真实 Agent 9 类 × 3 次复验均已通过，最终为 48/48 个有效回合。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索或图扩散。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 
