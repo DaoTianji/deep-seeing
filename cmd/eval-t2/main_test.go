@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -40,5 +41,31 @@ func TestPercentile95UsesNearestRank(t *testing.T) {
 	}
 	if got := percentile95(values); got != 19*time.Second {
 		t.Fatalf("p95=%s, want 19s", got)
+	}
+}
+
+func TestHardRulesExcludeLexicalAnswerChecks(t *testing.T) {
+	var lexical reportEnvelope
+	if err := json.Unmarshal([]byte(`{"rules":{"passed":false,"checks":[{"name":"case_completed","passed":true},{"name":"answer_contains:先给结论","passed":false},{"name":"answer_excludes:已经完成","passed":false}]}}`), &lexical); err != nil {
+		t.Fatal(err)
+	}
+	if !hardRulesPassed(lexical) {
+		t.Fatal("lexical answer checks must be handled by the semantic gate")
+	}
+
+	var structural reportEnvelope
+	if err := json.Unmarshal([]byte(`{"rules":{"passed":false,"checks":[{"name":"read:episode:e1","passed":false},{"name":"answer_contains:过去","passed":true}]}}`), &structural); err != nil {
+		t.Fatal(err)
+	}
+	if hardRulesPassed(structural) {
+		t.Fatal("structural lifecycle failure must fail the hard gate")
+	}
+
+	var legacy reportEnvelope
+	if err := json.Unmarshal([]byte(`{"rules":{"passed":true}}`), &legacy); err != nil {
+		t.Fatal(err)
+	}
+	if !hardRulesPassed(legacy) {
+		t.Fatal("reports without detailed checks must retain aggregate semantics")
 	}
 }

@@ -28,6 +28,10 @@ type reportEnvelope struct {
 	Observation json.RawMessage `json:"observation"`
 	Rules       struct {
 		Passed bool `json:"passed"`
+		Checks []struct {
+			Name   string `json:"name"`
+			Passed bool   `json:"passed"`
+		} `json:"checks,omitempty"`
 	} `json:"rules"`
 	Semantic *struct {
 		Passed bool `json:"passed"`
@@ -197,7 +201,7 @@ func summarizeReports(manifest evals.StabilityManifest, dir string) (stabilitySt
 				continue
 			}
 			stats.ValidRows++
-			if report.Rules.Passed {
+			if hardRulesPassed(report) {
 				stats.RulePassed++
 			}
 			if report.Semantic != nil || report.JudgeError != "" {
@@ -231,6 +235,27 @@ func summarizeReports(manifest evals.StabilityManifest, dir string) (stabilitySt
 		_ = f.Close()
 	}
 	return stats, nil
+}
+
+// hardRulesPassed deliberately excludes lexical answer checks. Those checks are
+// a cheap fallback for rules-only runs, while the frozen T2.6 hard gate covers
+// mechanically verifiable lifecycle and isolation contracts. Answer meaning is
+// evaluated separately by the model semantic gate.
+func hardRulesPassed(report reportEnvelope) bool {
+	if len(report.Rules.Checks) == 0 {
+		return report.Rules.Passed
+	}
+	found := false
+	for _, check := range report.Rules.Checks {
+		if strings.HasPrefix(check.Name, "answer_contains:") || strings.HasPrefix(check.Name, "answer_excludes:") {
+			continue
+		}
+		found = true
+		if !check.Passed {
+			return false
+		}
+	}
+	return found
 }
 
 func appendLatency(stats *stabilityStats, ordinary bool, duration time.Duration) {
