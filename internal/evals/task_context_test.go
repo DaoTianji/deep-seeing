@@ -91,3 +91,20 @@ func TestTaskContextSuiteRejectsConflictingExpectations(t *testing.T) {
 		t.Fatal("expected validation error")
 	}
 }
+
+func TestAnswerRequestsConfirmationRecognizesQuestionsAndExplicitRequests(t *testing.T) {
+	for _, answer := range []string{
+		"你指的是红队还是蓝队？",
+		"请回复“蓝队”或“红队”，我再继续。",
+		"Please confirm which one you mean.",
+	} {
+		if !answerRequestsConfirmation(answer) {
+			t.Fatalf("confirmation request not recognized: %q", answer)
+		}
+	}
+	for _, answer := range []string{"这里存在歧义。", "需要用户确认。"} {
+		if answerRequestsConfirmation(answer) {
+			t.Fatalf("status statement incorrectly treated as a request: %q", answer)
+		}
+	}
+}

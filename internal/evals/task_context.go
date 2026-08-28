@@ -282,7 +282,7 @@ func evaluateTaskContextTurn(turn int, expect TaskContextExpect, obs TaskContext
 		}
 	}
 	if expect.RequireQuestion {
-		checks = append(checks, Check{Name: prefix + "answer_asks_question", Passed: strings.Contains(obs.Answer, "？") || strings.Contains(obs.Answer, "?")})
+		checks = append(checks, Check{Name: prefix + "answer_asks_question", Passed: answerRequestsConfirmation(obs.Answer)})
 	}
 	if expect.ForbidContextExpansion {
 		checks = append(checks, Check{Name: prefix + "context_expansion_forbidden", Passed: len(obs.Expansions) == 0, Detail: fmt.Sprintf("expansions=%d", len(obs.Expansions))})
@@ -291,6 +291,23 @@ func evaluateTaskContextTurn(turn int, expect TaskContextExpect, obs TaskContext
 		checks = append(checks, Check{Name: prefix + "episode_search_forbidden", Passed: len(obs.Searches) == 0, Detail: fmt.Sprintf("searches=%d", len(obs.Searches))})
 	}
 	return checks
+}
+
+func answerRequestsConfirmation(answer string) bool {
+	answer = strings.TrimSpace(answer)
+	if strings.Contains(answer, "？") || strings.Contains(answer, "?") {
+		return true
+	}
+	lower := strings.ToLower(answer)
+	for _, marker := range []string{
+		"请回复", "请确认", "请告诉", "请说明", "请选", "请选择",
+		"please reply", "please confirm", "please tell", "which one",
+	} {
+		if strings.Contains(lower, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 func appendRequiredKeys(checks []Check, prefix string, required, observed []string) []Check {
