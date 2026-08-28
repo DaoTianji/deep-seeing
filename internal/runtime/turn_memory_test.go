@@ -85,6 +85,7 @@ func TestAgentRecallGuidanceStaysCompactWithoutLosingBoundaries(t *testing.T) {
 		"即使此前无会话焦点", "switch 仅用于已有会话焦点", "主项目+辅助提醒",
 		"同轮最多换词一次", "不回退最近 Episode", "隐藏思维",
 		"具体化为报错", "800–1200 个中文字符", "避免同义重复和穷举",
+		"按错误修正并重试一次", "成功事件出现前不能声称焦点或证据已确认",
 	} {
 		if !strings.Contains(guidance, required) {
 			t.Fatalf("compressed guidance lost boundary %q", required)
