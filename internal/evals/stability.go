@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const StabilityManifestSchemaVersion = 1
+const StabilityManifestSchemaVersion = 2
 
 type StabilityManifest struct {
 	SchemaVersion   int                       `json:"schema_version"`
@@ -26,8 +26,8 @@ type StabilityManifest struct {
 type StabilityBaseline struct {
 	AverageTokensPerTurn      float64 `json:"average_tokens_per_turn"`
 	TargetTokensPerTurn       int     `json:"target_tokens_per_turn"`
-	OrdinaryP95MS             int     `json:"ordinary_p95_ms"`
-	RecallP95MS               int     `json:"recall_p95_ms"`
+	EpisodeSearchP95MS        int     `json:"episode_search_p95_ms"`
+	EpisodeReadP95MS          int     `json:"episode_read_p95_ms"`
 	SemanticPassRate          float64 `json:"semantic_pass_rate"`
 	InfrastructureFailureRate float64 `json:"infrastructure_failure_rate"`
 }
@@ -81,7 +81,7 @@ func (m StabilityManifest) Validate() error {
 		m.Baseline.TargetTokensPerTurn >= int(m.Baseline.AverageTokensPerTurn) {
 		return fmt.Errorf("token baseline and lower target required")
 	}
-	if m.Baseline.OrdinaryP95MS <= 0 || m.Baseline.RecallP95MS <= 0 ||
+	if m.Baseline.EpisodeSearchP95MS <= 0 || m.Baseline.EpisodeReadP95MS <= 0 ||
 		m.Baseline.SemanticPassRate <= 0 || m.Baseline.SemanticPassRate > 1 ||
 		m.Baseline.InfrastructureFailureRate < 0 || m.Baseline.InfrastructureFailureRate >= 1 {
 		return fmt.Errorf("invalid stability thresholds")

@@ -15,6 +15,9 @@ type AttentionTurnObservation struct {
 	ReadKeys            []string                         `json:"read_keys,omitempty"`
 	UsedKeys            []string                         `json:"used_keys,omitempty"`
 	DismissedKeys       []string                         `json:"dismissed_keys,omitempty"`
+	RecallSearches      []observe.RecallSearchTrace      `json:"recall_searches,omitempty"`
+	RecallReads         []observe.RecallReadTrace        `json:"recall_reads,omitempty"`
+	RecallEvidence      []observe.RecallEvidenceTrace    `json:"recall_evidence,omitempty"`
 	Attention           map[string]attention.Tier        `json:"attention,omitempty"`
 	AttentionIdleTurns  map[string]int                   `json:"attention_idle_turns,omitempty"`
 	AttentionDecisions  []observe.AttentionDecisionTrace `json:"attention_decisions,omitempty"`

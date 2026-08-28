@@ -5,31 +5,37 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"deep-seeing/internal/contextsource"
 )
 
 // RecallSearchTrace is the observable, non-content result of one episode search.
 type RecallSearchTrace struct {
-	Query       string   `json:"query,omitempty"`
-	Limit       int      `json:"limit,omitempty"`
-	ResultCount int      `json:"result_count"`
-	ResultIDs   []string `json:"result_ids,omitempty"`
-	Error       string   `json:"error,omitempty"`
+	Query       string        `json:"query,omitempty"`
+	Limit       int           `json:"limit,omitempty"`
+	ResultCount int           `json:"result_count"`
+	ResultIDs   []string      `json:"result_ids,omitempty"`
+	Error       string        `json:"error,omitempty"`
+	Duration    time.Duration `json:"duration_ns,omitempty"`
+	TurnOffset  time.Duration `json:"turn_offset_ns,omitempty"`
 }
 
 // RecallReadTrace records an explicit request for one Episode body, never the body itself.
 type RecallReadTrace struct {
-	EpisodeID string `json:"episode_id,omitempty"`
-	Error     string `json:"error,omitempty"`
+	EpisodeID  string        `json:"episode_id,omitempty"`
+	Error      string        `json:"error,omitempty"`
+	Duration   time.Duration `json:"duration_ns,omitempty"`
+	TurnOffset time.Duration `json:"turn_offset_ns,omitempty"`
 }
 
 // RecallEvidenceTrace is the Agent's public declaration about a searched candidate.
 // Reason is a bounded code, not free-form hidden reasoning.
 type RecallEvidenceTrace struct {
-	EpisodeID string `json:"episode_id"`
-	Status    string `json:"status"`
-	Reason    string `json:"reason,omitempty"`
+	EpisodeID  string        `json:"episode_id"`
+	Status     string        `json:"status"`
+	Reason     string        `json:"reason,omitempty"`
+	TurnOffset time.Duration `json:"turn_offset_ns,omitempty"`
 }
 
 type RecallHooks struct {
@@ -49,11 +55,12 @@ type RecallCollector struct {
 	onSearch   []func(RecallSearchTrace)
 	onRead     func(RecallReadTrace)
 	onEvidence func(RecallEvidenceTrace)
+	startedAt  time.Time
 }
 
 // WithRecallCollector installs a turn-scoped recall collector.
 func WithRecallCollector(ctx context.Context, onSearch ...func(RecallSearchTrace)) (context.Context, *RecallCollector) {
-	c := &RecallCollector{onSearch: append([]func(RecallSearchTrace){}, onSearch...)}
+	c := &RecallCollector{onSearch: append([]func(RecallSearchTrace){}, onSearch...), startedAt: time.Now()}
 	return context.WithValue(ctx, recallCollectorKey{}, c), c
 }
 
@@ -62,6 +69,7 @@ func WithRecallHooks(ctx context.Context, hooks RecallHooks) (context.Context, *
 	c := &RecallCollector{
 		onSearch: []func(RecallSearchTrace){hooks.OnSearch},
 		onRead:   hooks.OnRead, onEvidence: hooks.OnEvidence,
+		startedAt: time.Now(),
 	}
 	return context.WithValue(ctx, recallCollectorKey{}, c), c
 }
@@ -76,6 +84,9 @@ func RecordRecallSearch(ctx context.Context, event RecallSearchTrace) {
 	event.Error = Preview(event.Error, 160)
 	event.ResultIDs = append([]string(nil), event.ResultIDs...)
 	c.mu.Lock()
+	if event.TurnOffset <= 0 {
+		event.TurnOffset = time.Since(c.startedAt)
+	}
 	c.searches = append(c.searches, event)
 	c.mu.Unlock()
 	for _, listener := range c.onSearch {
@@ -86,6 +97,7 @@ func RecordRecallSearch(ctx context.Context, event RecallSearchTrace) {
 	RecordContextCandidate(ctx, ContextCandidateTrace{
 		Source: contextsource.Episode, Operation: "search", Query: event.Query,
 		ResultIDs: event.ResultIDs, Error: event.Error,
+		Duration: event.Duration, TurnOffset: event.TurnOffset,
 	})
 }
 
@@ -98,6 +110,9 @@ func RecordRecallRead(ctx context.Context, event RecallReadTrace) {
 	event.EpisodeID = strings.TrimSpace(event.EpisodeID)
 	event.Error = Preview(event.Error, 160)
 	c.mu.Lock()
+	if event.TurnOffset <= 0 {
+		event.TurnOffset = time.Since(c.startedAt)
+	}
 	c.reads = append(c.reads, event)
 	c.mu.Unlock()
 	if c.onRead != nil {
@@ -105,6 +120,7 @@ func RecordRecallRead(ctx context.Context, event RecallReadTrace) {
 	}
 	RecordContextRead(ctx, ContextReadTrace{
 		Source: contextsource.Episode, ID: event.EpisodeID, Error: event.Error,
+		Duration: event.Duration, TurnOffset: event.TurnOffset,
 	})
 }
 
@@ -167,6 +183,9 @@ func RecordRecallEvidence(ctx context.Context, events []RecallEvidenceTrace) err
 			c.mu.Unlock()
 			return fmt.Errorf("invalid evidence status %q", event.Status)
 		}
+		if event.TurnOffset <= 0 {
+			event.TurnOffset = time.Since(c.startedAt)
+		}
 		clean = append(clean, event)
 	}
 	c.evidence = append(c.evidence, clean...)
@@ -180,7 +199,7 @@ func RecordRecallEvidence(ctx context.Context, events []RecallEvidenceTrace) err
 		_ = RecordContextUse(ctx, ContextUseTrace{
 			Source: contextsource.Episode, ID: event.EpisodeID,
 			Role: contextsource.Evidence, Disposition: event.Status,
-			ReasonCode: event.Reason,
+			ReasonCode: event.Reason, TurnOffset: event.TurnOffset,
 		})
 	}
 	return nil

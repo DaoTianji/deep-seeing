@@ -1,12 +1,12 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "name": "t2-stability-core",
   "description": "T2.6 长期回归清单。只引用既有纯虚构案例，不复制或修改其行为契约。",
   "baseline": {
     "average_tokens_per_turn": 14457.8,
     "target_tokens_per_turn": 11566,
-    "ordinary_p95_ms": 8000,
-    "recall_p95_ms": 20000,
+    "episode_search_p95_ms": 100,
+    "episode_read_p95_ms": 50,
     "semantic_pass_rate": 0.98,
     "infrastructure_failure_rate": 0.01
   },

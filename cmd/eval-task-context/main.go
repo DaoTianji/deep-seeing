@@ -299,6 +299,8 @@ func runTurn(ctx context.Context, service *runtime.Service, userText string, tur
 	var expansions []observe.TaskContextExpansionTrace
 	var focus *observe.TaskContextFocusTrace
 	var searches []observe.RecallSearchTrace
+	var reads []observe.RecallReadTrace
+	var evidence []observe.RecallEvidenceTrace
 	started := time.Now()
 	result, turnErr := service.StreamTurnWithHooks(ctx, userText, runtime.TurnHooks{
 		OnTaskContext: func(event observe.TaskContextTrace) {
@@ -315,9 +317,11 @@ func runTurn(ctx context.Context, service *runtime.Service, userText string, tur
 		OnRecallSearch: func(event observe.RecallSearchTrace) {
 			searches = append(searches, event)
 		},
+		OnRecallRead:     func(event observe.RecallReadTrace) { reads = append(reads, event) },
+		OnRecallEvidence: func(event observe.RecallEvidenceTrace) { evidence = append(evidence, event) },
 	})
 	obs := evals.TaskContextTurnObservation{
-		Turn: turn, Context: contextTrace, Expansions: expansions, Focus: focus, Searches: searches,
+		Turn: turn, Context: contextTrace, Expansions: expansions, Focus: focus, Searches: searches, Reads: reads, Evidence: evidence,
 		Answer: result.Answer, Duration: time.Since(started), TokenUsage: result.TokenUsage,
 	}
 	if turnErr != nil {

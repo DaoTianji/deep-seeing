@@ -30,6 +30,9 @@ func TestRecallCollectorIsTurnScopedAndTruncates(t *testing.T) {
 	if len([]rune(got[0].Error)) != 161 || !strings.HasSuffix(got[0].Error, "…") {
 		t.Fatalf("error not truncated: %q", got[0].Error)
 	}
+	if got[0].TurnOffset <= 0 {
+		t.Fatalf("turn offset missing: %+v", got[0])
+	}
 	got[0].ResultIDs[0] = "mutated"
 	if collector.Searches()[0].ResultIDs[0] != "ep1" {
 		t.Fatal("collector returned mutable result IDs")
@@ -58,6 +61,9 @@ func TestRecallCollectorTracksReadAndEvidenceLifecycle(t *testing.T) {
 	}
 	if len(collector.Evidence()) != 2 || len(evidence) != 2 {
 		t.Fatalf("evidence collector=%+v callback=%+v", collector.Evidence(), evidence)
+	}
+	if reads[0].TurnOffset <= 0 || evidence[0].TurnOffset <= reads[0].TurnOffset {
+		t.Fatalf("lifecycle offsets invalid: reads=%+v evidence=%+v", reads, evidence)
 	}
 }
 

@@ -92,6 +92,8 @@ type TaskContextTurnObservation struct {
 	FocusWorkspaceKey         string                              `json:"focus_workspace_key,omitempty"`
 	FocusIntentKey            string                              `json:"focus_intent_key,omitempty"`
 	Searches                  []observe.RecallSearchTrace         `json:"recall_searches,omitempty"`
+	Reads                     []observe.RecallReadTrace           `json:"recall_reads,omitempty"`
+	Evidence                  []observe.RecallEvidenceTrace       `json:"recall_evidence,omitempty"`
 	Answer                    string                              `json:"answer,omitempty"`
 	Duration                  time.Duration                       `json:"duration_ns,omitempty"`
 	TokenUsage                observe.TokenUsageTrace             `json:"token_usage,omitempty"`

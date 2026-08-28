@@ -155,13 +155,19 @@ async function sendMessage(event) {
       } else if (eventData.type === "recall_search") {
         activateRecallSearch(eventData.data || {});
         const count = Number(eventData.data?.result_count || 0);
-        setActivity(count ? `激活了 ${count} 条记忆候选` : "这次搜索没有找到记忆候选");
+        const timing = formatDurationNS(eventData.data?.duration_ns);
+        const result = count ? `激活了 ${count} 条记忆候选` : "这次搜索没有找到记忆候选";
+        setActivity(`${result}${timing ? ` · 检索 ${timing}` : ""}`);
       } else if (eventData.type === "recall_read") {
         activateRecallRead(eventData.data || {});
-        setActivity(eventData.data?.error ? "候选正文读取失败" : "正在核对一条记忆正文");
+        const timing = formatDurationNS(eventData.data?.duration_ns);
+        const result = eventData.data?.error ? "候选正文读取失败" : "已核对一条记忆正文";
+        setActivity(`${result}${timing ? ` · 读取 ${timing}` : ""}`);
       } else if (eventData.type === "recall_evidence") {
         activateRecallEvidence(eventData.data || {});
-        setActivity(eventData.data?.status === "used" ? "确认了一条回答证据" : "排除了一条记忆候选");
+        const ready = formatDurationNS(eventData.data?.turn_offset_ns);
+        const result = eventData.data?.status === "used" ? "确认了一条回答证据" : "排除了一条记忆候选";
+        setActivity(`${result}${ready ? ` · 本轮 ${ready}` : ""}`);
       } else if (eventData.type === "health") {
         const health = eventData.data || {};
         const issues = health.issues?.length || 0;
@@ -1196,6 +1202,15 @@ function renderTraces() {
     const reads = (trace.recall_reads || []).filter((read) => read.episode_id && !read.error);
     const used = (trace.recall_evidence || []).filter((event) => event.status === "used");
     const dismissed = (trace.recall_evidence || []).filter((event) => event.status === "dismissed");
+    const searchDuration = searches.reduce((sum, event) => sum + Number(event.duration_ns || 0), 0);
+    const readDuration = (trace.recall_reads || []).reduce((sum, event) => sum + Number(event.duration_ns || 0), 0);
+    const recallOffsets = [...searches, ...(trace.recall_reads || []), ...(trace.recall_evidence || [])]
+      .map((event) => Number(event.turn_offset_ns || 0)).filter((value) => value > 0);
+    const evidenceOffsets = (trace.recall_evidence || [])
+      .map((event) => Number(event.turn_offset_ns || 0)).filter((value) => value > 0);
+    const firstRecall = recallOffsets.length ? Math.min(...recallOffsets) : 0;
+    const evidenceReady = evidenceOffsets.length ? Math.max(...evidenceOffsets) : 0;
+
     const contextCandidates = trace.context_candidates || [];
     const contextIDs = new Set(contextCandidates.flatMap((event) => event.result_ids || []));
     const contextReads = (trace.context_reads || []).filter((event) => event.id && event.ok && !event.error);
@@ -1238,6 +1253,14 @@ function renderTraces() {
       meta.append(create("span", "", `上下文 · ${[...contextSources].map(friendlyContextSource).join(" + ")} · 候选 ${contextIDs.size} / 已读 ${contextReads.length} / 采用 ${contextUsed.length} / 焦点 ${contextFocused.length} / 排除 ${contextDismissed.length}`));
     } else if (searches.length) {
       meta.append(create("span", "", `召回 · 候选 ${candidateIDs.size} / 已读 ${reads.length} / 采用 ${used.length} / 排除 ${dismissed.length}`));
+    }
+    if (searchDuration || readDuration || firstRecall || evidenceReady) {
+      const parts = [];
+      if (searchDuration) parts.push(`检索 ${formatDurationNS(searchDuration)}`);
+      if (readDuration) parts.push(`读取 ${formatDurationNS(readDuration)}`);
+      if (firstRecall) parts.push(`首次事件 ${formatDurationNS(firstRecall)}`);
+      if (evidenceReady) parts.push(`证据就绪 ${formatDurationNS(evidenceReady)}`);
+      meta.append(create("span", "", `召回耗时 · ${parts.join(" / ")}`));
     }
     if (attentionItems.length || attentionFinalItems?.length || attentionDecisions.length) {
       const center = [...attentionState.values()].filter((tier) => tier === "center").length;
@@ -1380,6 +1403,13 @@ function formatDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
   return new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+function formatDurationNS(value) {
+  const milliseconds = Number(value || 0) / 1e6;
+  if (!Number.isFinite(milliseconds) || milliseconds <= 0) return "";
+  if (milliseconds < 1) return `${Math.max(1, Math.round(milliseconds * 1000))}µs`;
+  if (milliseconds < 1000) return `${milliseconds.toFixed(milliseconds < 10 ? 2 : 1)}ms`;
+  return `${(milliseconds / 1000).toFixed(milliseconds < 10000 ? 2 : 1)}s`;
 }
 function formatTime(value) {
   const date = new Date(value);

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"deep-seeing/internal/contextsource"
 )
@@ -17,18 +18,22 @@ type ContextSourceTrace struct {
 }
 
 type ContextCandidateTrace struct {
-	Source    contextsource.Source `json:"source"`
-	Operation string               `json:"operation"`
-	Query     string               `json:"query,omitempty"`
-	ResultIDs []string             `json:"result_ids,omitempty"`
-	Error     string               `json:"error,omitempty"`
+	Source     contextsource.Source `json:"source"`
+	Operation  string               `json:"operation"`
+	Query      string               `json:"query,omitempty"`
+	ResultIDs  []string             `json:"result_ids,omitempty"`
+	Error      string               `json:"error,omitempty"`
+	Duration   time.Duration        `json:"duration_ns,omitempty"`
+	TurnOffset time.Duration        `json:"turn_offset_ns,omitempty"`
 }
 
 type ContextReadTrace struct {
-	Source contextsource.Source `json:"source"`
-	ID     string               `json:"id"`
-	OK     bool                 `json:"ok"`
-	Error  string               `json:"error,omitempty"`
+	Source     contextsource.Source `json:"source"`
+	ID         string               `json:"id"`
+	OK         bool                 `json:"ok"`
+	Error      string               `json:"error,omitempty"`
+	Duration   time.Duration        `json:"duration_ns,omitempty"`
+	TurnOffset time.Duration        `json:"turn_offset_ns,omitempty"`
 }
 
 type ContextUseTrace struct {
@@ -37,6 +42,7 @@ type ContextUseTrace struct {
 	Role        contextsource.Role   `json:"role"`
 	Disposition string               `json:"disposition"`
 	ReasonCode  string               `json:"reason_code,omitempty"`
+	TurnOffset  time.Duration        `json:"turn_offset_ns,omitempty"`
 }
 
 type ContextHooks struct {

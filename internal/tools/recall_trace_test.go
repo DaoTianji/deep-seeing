@@ -53,6 +53,9 @@ func TestSearchEpisodesRecordsIDsWithoutContent(t *testing.T) {
 	if events[1].ResultCount != 0 || len(events[1].ResultIDs) != 0 {
 		t.Fatalf("empty search fell back to an episode: %+v", events[1])
 	}
+	if events[0].Duration <= 0 || events[0].TurnOffset <= 0 || events[1].Duration <= 0 {
+		t.Fatalf("search timing missing: %+v", events)
+	}
 	raw, err := json.Marshal(observe.TurnTrace{RecallSearches: events})
 	if err != nil {
 		t.Fatal(err)
@@ -92,6 +95,10 @@ func TestReadEpisodeAndEvidenceDeclarationAreRecorded(t *testing.T) {
 	}
 	if !strings.Contains(out, `"ok":true`) || len(collector.Reads()) != 1 || len(collector.Evidence()) != 1 {
 		t.Fatalf("out=%s reads=%+v evidence=%+v", out, collector.Reads(), collector.Evidence())
+	}
+	readEvents, evidenceEvents := collector.Reads(), collector.Evidence()
+	if readEvents[0].Duration <= 0 || readEvents[0].TurnOffset <= 0 || evidenceEvents[0].TurnOffset <= readEvents[0].TurnOffset {
+		t.Fatalf("recall lifecycle timing invalid: reads=%+v evidence=%+v", readEvents, evidenceEvents)
 	}
 	raw, _ := json.Marshal(observe.TurnTrace{RecallReads: collector.Reads(), RecallEvidence: collector.Evidence()})
 	if strings.Contains(string(raw), "T2 证据正文") {

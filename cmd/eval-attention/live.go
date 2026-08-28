@@ -368,9 +368,12 @@ func runAttentionCase(ctx context.Context, cfg deepagent.Config, c evals.Attenti
 		var uses []observe.ContextUseTrace
 		started := time.Now()
 		result, turnErr := service.StreamTurnWithHooks(ctx, turn.UserText, runtime.TurnHooks{
-			OnToolStart:   func(name string) { obs.ToolStarts = append(obs.ToolStarts, name) },
-			OnContextRead: func(event observe.ContextReadTrace) { reads = append(reads, event) },
-			OnContextUse:  func(event observe.ContextUseTrace) { uses = append(uses, event) },
+			OnToolStart:      func(name string) { obs.ToolStarts = append(obs.ToolStarts, name) },
+			OnRecallSearch:   func(event observe.RecallSearchTrace) { obs.RecallSearches = append(obs.RecallSearches, event) },
+			OnRecallRead:     func(event observe.RecallReadTrace) { obs.RecallReads = append(obs.RecallReads, event) },
+			OnRecallEvidence: func(event observe.RecallEvidenceTrace) { obs.RecallEvidence = append(obs.RecallEvidence, event) },
+			OnContextRead:    func(event observe.ContextReadTrace) { reads = append(reads, event) },
+			OnContextUse:     func(event observe.ContextUseTrace) { uses = append(uses, event) },
 			OnAttentionDecision: func(event observe.AttentionDecisionTrace) {
 				obs.AttentionDecisions = append(obs.AttentionDecisions, event)
 			},

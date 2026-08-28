@@ -39,20 +39,43 @@ type reportEnvelope struct {
 	JudgeError string `json:"judge_error,omitempty"`
 }
 
+type timingEvent struct {
+	Source      string        `json:"source,omitempty"`
+	Operation   string        `json:"operation,omitempty"`
+	Duration    time.Duration `json:"duration_ns,omitempty"`
+	TurnOffset  time.Duration `json:"turn_offset_ns,omitempty"`
+	Status      string        `json:"status,omitempty"`
+	Disposition string        `json:"disposition,omitempty"`
+}
+
+type observationTurn struct {
+	Duration          time.Duration `json:"duration_ns,omitempty"`
+	RecallSearches    []timingEvent `json:"recall_searches,omitempty"`
+	RecallReads       []timingEvent `json:"recall_reads,omitempty"`
+	RecallEvidence    []timingEvent `json:"recall_evidence,omitempty"`
+	ContextCandidates []timingEvent `json:"context_candidates,omitempty"`
+	ContextReads      []timingEvent `json:"context_reads,omitempty"`
+	ContextUses       []timingEvent `json:"context_uses,omitempty"`
+	TokenUsage        struct {
+		TotalTokens int `json:"total_tokens,omitempty"`
+	} `json:"token_usage,omitempty"`
+}
+
 type observationEnvelope struct {
 	CaseID              string        `json:"case_id,omitempty"`
 	Duration            time.Duration `json:"duration_ns,omitempty"`
 	Error               string        `json:"error,omitempty"`
 	InfrastructureError string        `json:"infrastructure_error,omitempty"`
+	RecallSearches      []timingEvent `json:"recall_searches,omitempty"`
+	RecallReads         []timingEvent `json:"recall_reads,omitempty"`
+	RecallEvidence      []timingEvent `json:"recall_evidence,omitempty"`
+	ContextCandidates   []timingEvent `json:"context_candidates,omitempty"`
+	ContextReads        []timingEvent `json:"context_reads,omitempty"`
+	ContextUses         []timingEvent `json:"context_uses,omitempty"`
 	TokenUsage          struct {
 		TotalTokens int `json:"total_tokens,omitempty"`
 	} `json:"token_usage,omitempty"`
-	Turns []struct {
-		Duration   time.Duration `json:"duration_ns,omitempty"`
-		TokenUsage struct {
-			TotalTokens int `json:"total_tokens,omitempty"`
-		} `json:"token_usage,omitempty"`
-	} `json:"turns,omitempty"`
+	Turns []observationTurn `json:"turns,omitempty"`
 }
 
 type stabilityStats struct {
@@ -65,6 +88,10 @@ type stabilityStats struct {
 	Tokens          int
 	OrdinaryLatency []time.Duration
 	RecallLatency   []time.Duration
+	SearchLatency   []time.Duration
+	ReadLatency     []time.Duration
+	FirstEvent      []time.Duration
+	EvidenceReady   []time.Duration
 }
 
 type stabilityVerdict struct {
@@ -75,6 +102,10 @@ type stabilityVerdict struct {
 	AverageTokens      float64
 	OrdinaryP95        time.Duration
 	RecallP95          time.Duration
+	SearchP95          time.Duration
+	ReadP95            time.Duration
+	FirstEventP95      time.Duration
+	EvidenceReadyP95   time.Duration
 	Failures           []string
 }
 
@@ -161,11 +192,15 @@ func finish(manifest evals.StabilityManifest, dir string) {
 	verdict := evaluateStability(manifest.Baseline, stats)
 	fmt.Printf("\nT2.6 stability summary\n")
 	fmt.Printf("rules=%d/%d semantic=%d/%d infra=%d turns=%d\n", stats.RulePassed, stats.ValidRows, stats.SemanticPassed, stats.SemanticRows, stats.Infrastructure, stats.Turns)
-	fmt.Printf("avg_tokens=%.1f target<=%d ordinary_p95=%s target<=%dms recall_p95=%s target<=%dms infra_rate=%.2f%%\n",
+	fmt.Printf("avg_tokens=%.1f target<=%d infra_rate=%.2f%%\n",
 		verdict.AverageTokens, manifest.Baseline.TargetTokensPerTurn,
-		verdict.OrdinaryP95.Round(time.Millisecond), manifest.Baseline.OrdinaryP95MS,
-		verdict.RecallP95.Round(time.Millisecond), manifest.Baseline.RecallP95MS,
 		100*verdict.InfrastructureRate)
+	fmt.Printf("episode_search_p95=%s target<=%dms episode_read_p95=%s target<=%dms\n",
+		verdict.SearchP95.Round(time.Microsecond), manifest.Baseline.EpisodeSearchP95MS,
+		verdict.ReadP95.Round(time.Microsecond), manifest.Baseline.EpisodeReadP95MS)
+	fmt.Printf("observed_first_recall_event_p95=%s observed_evidence_ready_p95=%s observed_ordinary_turn_p95=%s observed_memory_turn_p95=%s\n",
+		verdict.FirstEventP95.Round(time.Millisecond), verdict.EvidenceReadyP95.Round(time.Millisecond),
+		verdict.OrdinaryP95.Round(time.Millisecond), verdict.RecallP95.Round(time.Millisecond))
 	if !verdict.Passed {
 		for _, failure := range verdict.Failures {
 			fmt.Printf("FAIL %s\n", failure)
@@ -227,9 +262,13 @@ func summarizeReports(manifest evals.StabilityManifest, dir string) (stabilitySt
 			if len(obs.Turns) > 0 {
 				for _, turn := range obs.Turns {
 					appendLatency(&stats, ordinary[caseID], turn.Duration)
+					appendRecallTimings(&stats, turn.RecallSearches, turn.RecallReads, turn.RecallEvidence,
+						turn.ContextCandidates, turn.ContextReads, turn.ContextUses)
 				}
 			} else {
 				appendLatency(&stats, ordinary[caseID], obs.Duration)
+				appendRecallTimings(&stats, obs.RecallSearches, obs.RecallReads, obs.RecallEvidence,
+					obs.ContextCandidates, obs.ContextReads, obs.ContextUses)
 			}
 		}
 		if err := scanner.Err(); err != nil {
@@ -281,6 +320,71 @@ func appendLatency(stats *stabilityStats, ordinary bool, duration time.Duration)
 	}
 }
 
+func appendRecallTimings(stats *stabilityStats, searches, reads, evidence, candidates, contextReads, uses []timingEvent) {
+	var first, ready time.Duration
+	observe := func(offset time.Duration) {
+		if offset > 0 && (first == 0 || offset < first) {
+			first = offset
+		}
+	}
+	markReady := func(offset time.Duration) {
+		if offset > ready {
+			ready = offset
+		}
+	}
+	for _, event := range searches {
+		if event.Duration > 0 {
+			stats.SearchLatency = append(stats.SearchLatency, event.Duration)
+		}
+		observe(event.TurnOffset)
+	}
+	for _, event := range reads {
+		if event.Duration > 0 {
+			stats.ReadLatency = append(stats.ReadLatency, event.Duration)
+		}
+		observe(event.TurnOffset)
+	}
+	for _, event := range evidence {
+		observe(event.TurnOffset)
+		if event.Status == "used" || event.Status == "dismissed" {
+			markReady(event.TurnOffset)
+		}
+	}
+	for _, event := range candidates {
+		if event.Source != "episode" || event.Operation != "search" {
+			continue
+		}
+		if event.Duration > 0 {
+			stats.SearchLatency = append(stats.SearchLatency, event.Duration)
+		}
+		observe(event.TurnOffset)
+	}
+	for _, event := range contextReads {
+		if event.Source != "episode" {
+			continue
+		}
+		if event.Duration > 0 {
+			stats.ReadLatency = append(stats.ReadLatency, event.Duration)
+		}
+		observe(event.TurnOffset)
+	}
+	for _, event := range uses {
+		if event.Source != "episode" {
+			continue
+		}
+		observe(event.TurnOffset)
+		if event.Disposition == "used" || event.Disposition == "dismissed" {
+			markReady(event.TurnOffset)
+		}
+	}
+	if first > 0 {
+		stats.FirstEvent = append(stats.FirstEvent, first)
+	}
+	if ready > 0 {
+		stats.EvidenceReady = append(stats.EvidenceReady, ready)
+	}
+}
+
 func evaluateStability(b evals.StabilityBaseline, stats stabilityStats) stabilityVerdict {
 	v := stabilityVerdict{HardRulesPassed: stats.ValidRows > 0 && stats.RulePassed == stats.ValidRows}
 	if stats.SemanticRows > 0 {
@@ -295,6 +399,10 @@ func evaluateStability(b evals.StabilityBaseline, stats stabilityStats) stabilit
 	}
 	v.OrdinaryP95 = percentile95(stats.OrdinaryLatency)
 	v.RecallP95 = percentile95(stats.RecallLatency)
+	v.SearchP95 = percentile95(stats.SearchLatency)
+	v.ReadP95 = percentile95(stats.ReadLatency)
+	v.FirstEventP95 = percentile95(stats.FirstEvent)
+	v.EvidenceReadyP95 = percentile95(stats.EvidenceReady)
 	if !v.HardRulesPassed {
 		v.Failures = append(v.Failures, "hard rules are not 100%")
 	}
@@ -307,11 +415,11 @@ func evaluateStability(b evals.StabilityBaseline, stats stabilityStats) stabilit
 	if v.AverageTokens > float64(b.TargetTokensPerTurn) {
 		v.Failures = append(v.Failures, fmt.Sprintf("average tokens %.1f exceeds %d", v.AverageTokens, b.TargetTokensPerTurn))
 	}
-	if v.OrdinaryP95 == 0 || v.OrdinaryP95 > time.Duration(b.OrdinaryP95MS)*time.Millisecond {
-		v.Failures = append(v.Failures, fmt.Sprintf("ordinary P95 %s exceeds %dms", v.OrdinaryP95, b.OrdinaryP95MS))
+	if v.SearchP95 == 0 || v.SearchP95 > time.Duration(b.EpisodeSearchP95MS)*time.Millisecond {
+		v.Failures = append(v.Failures, fmt.Sprintf("episode search P95 %s exceeds %dms", v.SearchP95, b.EpisodeSearchP95MS))
 	}
-	if v.RecallP95 == 0 || v.RecallP95 > time.Duration(b.RecallP95MS)*time.Millisecond {
-		v.Failures = append(v.Failures, fmt.Sprintf("recall P95 %s exceeds %dms", v.RecallP95, b.RecallP95MS))
+	if v.ReadP95 == 0 || v.ReadP95 > time.Duration(b.EpisodeReadP95MS)*time.Millisecond {
+		v.Failures = append(v.Failures, fmt.Sprintf("episode read P95 %s exceeds %dms", v.ReadP95, b.EpisodeReadP95MS))
 	}
 	v.Passed = len(v.Failures) == 0
 	return v

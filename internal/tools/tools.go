@@ -203,13 +203,15 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				observe.RecordRecallRead(ctx, observe.RecallReadTrace{Error: "id 不能为空"})
 				return `{"ok":false,"error":"id 不能为空"}`, nil
 			}
+			started := time.Now()
 			ep, err := store.Get(ctx, id)
+			duration := time.Since(started)
 			if err != nil {
-				observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Error: err.Error()})
+				observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Error: err.Error(), Duration: duration})
 				out, _ := json.Marshal(map[string]any{"ok": false, "episode_id": id, "error": err.Error()})
 				return string(out), nil
 			}
-			observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id})
+			observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Duration: duration})
 			out, err := json.Marshal(map[string]any{"ok": true, "episode": ep})
 			return string(out), err
 		},
@@ -227,10 +229,12 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 			if limit <= 0 {
 				limit = 8
 			}
+			started := time.Now()
 			eps, err := store.Search(ctx, scope, memory.Query{Text: strings.TrimSpace(in.Query), Limit: limit})
+			duration := time.Since(started)
 			if err != nil {
 				observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
-					Query: in.Query, Limit: limit, Error: err.Error(),
+					Query: in.Query, Limit: limit, Error: err.Error(), Duration: duration,
 				})
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error(), "candidates": []any{}})
 				return string(out), nil
@@ -240,7 +244,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				ids = append(ids, ep.ID)
 			}
 			observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
-				Query: in.Query, Limit: limit, ResultCount: len(eps), ResultIDs: ids,
+				Query: in.Query, Limit: limit, ResultCount: len(eps), ResultIDs: ids, Duration: duration,
 			})
 			var cards any
 			if agentMode {

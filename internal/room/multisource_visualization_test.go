@@ -24,6 +24,10 @@ func TestRoomWebHandlesUnifiedContextActivationAndLegacyReplay(t *testing.T) {
 		"contextSourceGlyph",
 		"context-focus",
 		"回放上下文激活",
+		"duration_ns",
+		"turn_offset_ns",
+		"召回耗时",
+		"证据就绪",
 	} {
 		if !strings.Contains(source, want) {
 			t.Fatalf("room app missing multi-source activation contract %q", want)
@@ -36,6 +40,14 @@ func TestRoomWebHandlesUnifiedContextActivationAndLegacyReplay(t *testing.T) {
 	pinned := strings.Index(source, "for (const [id, position] of state.graphPinned)")
 	if lane < 0 || pinned < 0 || lane > pinned {
 		t.Fatal("context nodes are not laid out before optional pinned-node overrides")
+	}
+	timingSummary := strings.Index(source, "if (searchDuration || readDuration || firstRecall || evidenceReady)")
+	attentionSummary := strings.Index(source, "if (attentionItems.length || attentionFinalItems?.length || attentionDecisions.length)")
+	if timingSummary < 0 || attentionSummary < 0 || timingSummary > attentionSummary {
+		t.Fatal("recall timing summary must not depend on attention state")
+	}
+	if durationFormatter, timeFormatter := strings.Index(source, "function formatDurationNS"), strings.Index(source, "function formatTime"); durationFormatter < 0 || timeFormatter < 0 || durationFormatter > timeFormatter {
+		t.Fatal("duration formatter must be available at module scope before formatTime")
 	}
 	server, err := webFS.ReadFile("web/styles.css")
 	if err != nil {
