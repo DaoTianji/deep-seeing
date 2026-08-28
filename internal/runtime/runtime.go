@@ -170,6 +170,7 @@ type TurnResult struct {
 	Answer     string
 	TokenUsage observe.TokenUsageTrace
 	Errors     []string
+	Health     observe.TurnHealthTrace
 }
 
 // TurnHooks exposes observable turn activity without exposing hidden reasoning.
@@ -329,9 +330,49 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 		}
 	}
 	opts = append(opts, agent.WithComposeOptions(compose.WithCallbacks(toolStartCallback(toolCB), tokenUsageCallback(tokenCounter))))
+	finishTrace := func(final string, turnErrors []string) observe.TurnHealthTrace {
+		if s.RecallMode == RecallModeAgent && s.Attention != nil {
+			observe.RecordAttentionFinalSnapshot(turnCtx, s.Attention.Snapshot(s.SessionID))
+		}
+		trace := observe.TurnTrace{
+			SessionID: s.SessionID, AgentID: s.Scope.AgentID, PersonID: s.Scope.PersonID(),
+			ModelVersion: s.Model, RuntimeVer: body.ToolsetVersion, RecallMode: string(s.RecallMode),
+			UserText: observe.Preview(userText, 120), NormVersion: turnMemory.normVersion,
+			RecallIDs:          turnMemory.recallIDs,
+			RecallSearches:     recallCollector.Searches(),
+			RecallReads:        recallCollector.Reads(),
+			RecallEvidence:     recallCollector.Evidence(),
+			TaskContext:        taskContextTrace,
+			ContextExpands:     taskContextCollector.Expansions(),
+			ContextFocus:       taskContextCollector.Focus(),
+			ContextSources:     contextCollector.Sources(),
+			ContextCandidates:  contextCollector.Candidates(),
+			ContextReads:       contextCollector.Reads(),
+			ContextUses:        contextCollector.Uses(),
+			Attention:          attentionCollector.Snapshot(),
+			AttentionFinal:     attentionCollector.FinalSnapshot(),
+			AttentionDecisions: attentionCollector.Decisions(),
+			BondSlots:          turnMemory.bondSlots,
+			BondItemIDs:        turnMemory.bondItemIDs,
+			BondPlaceholder:    turnMemory.bondPlaceholder,
+			SceneIDs:           turnMemory.sceneIDs,
+			ToolStarts:         toolStarts,
+			Errors:             turnErrors,
+			AnswerPreview:      observe.Preview(final, 200),
+			TokenUsage:         tokenCounter.Snapshot(),
+		}
+		health := observe.SummarizeTurnHealth(trace)
+		trace.Health = &health
+		if s.Journal != nil {
+			_ = s.Journal.Append(trace)
+		}
+		return health
+	}
 	sr, err := s.Agent.Stream(turnCtx, einoMsgs, opts...)
 	if err != nil {
-		return TurnResult{}, fmt.Errorf("agent stream: %w", err)
+		turnErrors := []string{err.Error()}
+		health := finishTrace("", turnErrors)
+		return TurnResult{TokenUsage: tokenCounter.Snapshot(), Errors: turnErrors, Health: health}, fmt.Errorf("agent stream: %w", err)
 	}
 	defer sr.Close()
 
@@ -359,61 +400,35 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 
 	final := strings.TrimSpace(answer.String())
 	var turnErrors []string
+	var fatalErr error
 	if streamErr != nil {
 		turnErrors = append(turnErrors, streamErr.Error())
 		if final == "" {
-			return TurnResult{}, fmt.Errorf("agent recv: %w", streamErr)
+			fatalErr = fmt.Errorf("agent recv: %w", streamErr)
+		} else {
+			// Keep partial output so a failed tool retry does not erase a useful reply.
+			note := "\n\n（本轮因超时或中断结束；以上内容已保留。若需继续检索，请再发一句。）"
+			if hooks.WriteDelta != nil {
+				hooks.WriteDelta(note)
+			}
+			final = strings.TrimSpace(final + note)
+			log.Printf("agent recv soft-complete: %v", streamErr)
 		}
-		// Keep partial answer so a timed-out tool retry doesn't erase an otherwise useful reply.
-		note := "\n\n（本轮因超时或中断结束；以上内容已保留。若需继续检索，请再发一句。）"
-		if hooks.WriteDelta != nil {
-			hooks.WriteDelta(note)
+	}
+
+	if final != "" {
+		if err := s.STM.Append(s.SessionID, transcript.User(userText), transcript.Assistant(final)); err != nil {
+			log.Printf("stm append: %v", err)
 		}
-		final = strings.TrimSpace(final + note)
-		log.Printf("agent recv soft-complete: %v", streamErr)
 	}
 
-	if err := s.STM.Append(s.SessionID, transcript.User(userText), transcript.Assistant(final)); err != nil {
-		log.Printf("stm append: %v", err)
+	health := finishTrace(final, turnErrors)
+	result := TurnResult{
+		Answer: final, TokenUsage: tokenCounter.Snapshot(),
+		Errors: append([]string(nil), turnErrors...), Health: health,
 	}
-
-	if s.RecallMode == RecallModeAgent && s.Attention != nil {
-		observe.RecordAttentionFinalSnapshot(turnCtx, s.Attention.Snapshot(s.SessionID))
-	}
-
-	if s.Journal != nil {
-		_ = s.Journal.Append(observe.TurnTrace{
-			SessionID:          s.SessionID,
-			AgentID:            s.Scope.AgentID,
-			PersonID:           s.Scope.PersonID(),
-			ModelVersion:       s.Model,
-			RuntimeVer:         body.ToolsetVersion,
-			RecallMode:         string(s.RecallMode),
-			UserText:           observe.Preview(userText, 120),
-			NormVersion:        turnMemory.normVersion,
-			RecallIDs:          turnMemory.recallIDs,
-			RecallSearches:     recallCollector.Searches(),
-			RecallReads:        recallCollector.Reads(),
-			RecallEvidence:     recallCollector.Evidence(),
-			TaskContext:        taskContextTrace,
-			ContextExpands:     taskContextCollector.Expansions(),
-			ContextFocus:       taskContextCollector.Focus(),
-			ContextSources:     contextCollector.Sources(),
-			ContextCandidates:  contextCollector.Candidates(),
-			ContextReads:       contextCollector.Reads(),
-			ContextUses:        contextCollector.Uses(),
-			Attention:          attentionCollector.Snapshot(),
-			AttentionFinal:     attentionCollector.FinalSnapshot(),
-			AttentionDecisions: attentionCollector.Decisions(),
-			BondSlots:          turnMemory.bondSlots,
-			BondItemIDs:        turnMemory.bondItemIDs,
-			BondPlaceholder:    turnMemory.bondPlaceholder,
-			SceneIDs:           turnMemory.sceneIDs,
-			ToolStarts:         toolStarts,
-			Errors:             turnErrors,
-			AnswerPreview:      observe.Preview(final, 200),
-			TokenUsage:         tokenCounter.Snapshot(),
-		})
+	if fatalErr != nil {
+		return result, fatalErr
 	}
 
 	go func() {
@@ -423,7 +438,7 @@ func (s *Service) StreamTurnWithHooks(ctx context.Context, userText string, hook
 		}
 	}()
 
-	return TurnResult{Answer: final, TokenUsage: tokenCounter.Snapshot(), Errors: append([]string(nil), turnErrors...)}, nil
+	return result, nil
 }
 
 func recordTaskContextSources(ctx context.Context, trace observe.TaskContextTrace) {

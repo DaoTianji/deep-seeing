@@ -240,6 +240,7 @@ function wakeTitle(wake) {
 
 function summarizeTrace(trace) {
   const parts = [];
+	if (trace.health?.status && trace.health.status !== "healthy") parts.push(`运行 ${trace.health.status}（${trace.health.issues?.length || 0}）`);
   if (trace.recall_ids?.length) parts.push(`召回 ${trace.recall_ids.length} 条`);
   if (trace.tool_starts?.length) parts.push(`调用 ${trace.tool_starts.map(friendlyTool).join("、")}`);
   if (trace.errors?.length) parts.push(`发生 ${trace.errors.length} 个错误`);
@@ -760,6 +761,7 @@ function detailMeta(type, data) {
   if (type === "trace") return [
     ["时间", formatDate(data.timestamp)], ["Session", data.session_id], ["模型", data.model_version],
     ["Toolset", data.toolset_version],
+		["运行健康", data.health?.status || "unknown"],
   ];
   if (type === "proposal") return [
     ["ID", data.id], ["状态", data.status], ["来源", data.source], ["创建", formatDate(data.created_at)],

@@ -45,6 +45,7 @@ type TurnTrace struct {
 	MemoryWrites       []string                    `json:"memory_writes,omitempty"`
 	Proposals          []string                    `json:"proposals,omitempty"`
 	Errors             []string                    `json:"errors,omitempty"`
+	Health             *TurnHealthTrace            `json:"health,omitempty"`
 	AnswerPreview      string                      `json:"answer_preview,omitempty"`
 	TokenUsage         TokenUsageTrace             `json:"token_usage,omitempty"`
 }

@@ -339,6 +339,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 	emit("start", map[string]any{"at": time.Now().Format(time.RFC3339)})
 	var answer string
+	var health observe.TurnHealthTrace
 	err := s.queue().RunCognitive(r.Context(), "chat", func(ctx context.Context) error {
 		result, err := s.App.Service.StreamTurnWithHooks(ctx, input.Message, runtime.TurnHooks{
 			WriteDelta:  func(delta string) { emit("delta", delta) },
@@ -384,6 +385,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			return err
 		}
 		answer = result.Answer
+		health = result.Health
 		return nil
 	})
 	if err != nil {
@@ -391,6 +393,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		emit("error", map[string]any{"message": err.Error()})
 		return
 	}
+	emit("health", health)
 	emit("done", map[string]any{"answer": answer})
 }
 

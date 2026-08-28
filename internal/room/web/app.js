@@ -162,6 +162,11 @@ async function sendMessage(event) {
       } else if (eventData.type === "recall_evidence") {
         activateRecallEvidence(eventData.data || {});
         setActivity(eventData.data?.status === "used" ? "确认了一条回答证据" : "排除了一条记忆候选");
+      } else if (eventData.type === "health") {
+        const health = eventData.data || {};
+        const issues = health.issues?.length || 0;
+        setActivity(health.status === "healthy" ? "本轮运行正常" : `本轮已降级完成 · ${issues} 项公开原因`);
+        if (health.status === "degraded") toast(`本轮已局部降级，回答仍然保留（${issues} 项）`);
       } else if (eventData.type === "error") {
         streamError = eventData.data?.message || "对话失败";
       } else if (eventData.type === "done" && !assistant.body.dataset.rawMessage && eventData.data?.answer) {
@@ -1240,6 +1245,10 @@ function renderTraces() {
       const periphery = [...attentionState.values()].filter((tier) => tier === "periphery").length;
       meta.append(create("span", "", `注意 · 中心 ${center} / 支撑 ${support} / 外围 ${periphery} / 调整 ${attentionDecisions.length}`));
     }
+		if (trace.health?.status) {
+			const issueCodes = (trace.health.issues || []).map((issue) => issue.code).join(" / ");
+			meta.append(create("span", "", `运行 · ${trace.health.status}${issueCodes ? ` · ${issueCodes}` : ""}`));
+		}
 
     for (const id of trace.recall_ids || []) meta.append(create("span", "", `recall · ${id}`));
     for (const tool of trace.tool_starts || []) meta.append(create("span", "", `tool · ${friendlyTool(tool)}`));
