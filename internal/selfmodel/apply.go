@@ -68,7 +68,7 @@ func (s *Store) ApplyAcceptedProposal(ctx context.Context, scope identity.Tenant
 	}
 	a, err := s.Create(Write{
 		Type: t, Status: status, Title: title, Body: body, Summary: firstLine(body, 160),
-		SourceEpisodeIDs: nil, ExperienceModes: modes, Actor: "dream",
+		SourceEpisodeIDs: append([]string(nil), p.SourceEpisodeIDs...), ExperienceModes: modes, Actor: "dream",
 		RevisionNote: "accepted from proposal " + p.ID,
 		Confidence:   0.55,
 	})

@@ -28,8 +28,9 @@ var unsafeEpisodeToken = regexp.MustCompile(`[^a-zA-Z0-9_\-:]+`)
 
 // EpisodeStore keeps L1 episodes as index.md + by_id/*.md.
 type EpisodeStore struct {
-	mu  sync.Mutex
-	dir string
+	mu        sync.Mutex
+	dir       string
+	OnChanged func(Episode)
 }
 
 // NewEpisodeStore opens or creates an episode root under dir.
@@ -162,12 +163,17 @@ func (s *EpisodeStore) WriteEpisode(ctx context.Context, scope identity.TenantSc
 		UpdatedAt:      now,
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	if err := os.WriteFile(s.episodePath(id), []byte(formatEpisodeFile(ep)), 0o644); err != nil {
+		s.mu.Unlock()
 		return Episode{}, err
 	}
 	if err := s.prependIndexLocked(ep); err != nil {
+		s.mu.Unlock()
 		return Episode{}, err
+	}
+	s.mu.Unlock()
+	if s.OnChanged != nil {
+		s.OnChanged(ep)
 	}
 	return ep, nil
 }

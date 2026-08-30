@@ -20,6 +20,7 @@ import (
 	"deep-seeing/internal/attention"
 	"deep-seeing/internal/backup"
 	"deep-seeing/internal/graph"
+	"deep-seeing/internal/memory"
 	"deep-seeing/internal/observe"
 	"deep-seeing/internal/runtime"
 	"deep-seeing/internal/workspace"
@@ -32,8 +33,14 @@ var webFS embed.FS
 
 // Server is a loopback web room around one application session.
 type Server struct {
-	App  *app.App
-	Addr string
+	App                 *app.App
+	Addr                string
+	idleMu              sync.Mutex
+	idleTimer           *time.Timer
+	maintenanceMu       sync.Mutex
+	lastAutoReflection  time.Time
+	autoReflectionDay   string
+	autoReflectionCount int
 }
 
 func (s *Server) queue() *runtime.ExecutionQueue {
@@ -58,6 +65,9 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("GET /api/proposals", s.handleProposals)
 	mux.HandleFunc("GET /api/mutations", s.handleMutations)
 	mux.HandleFunc("GET /api/traces", s.handleTraces)
+	mux.HandleFunc("GET /api/reflections", s.handleReflections)
+	mux.HandleFunc("GET /api/reflection-runs", s.handleReflectionRuns)
+	mux.HandleFunc("GET /api/reflection-live", s.handleReflectionLive)
 	mux.HandleFunc("GET /api/turns", s.handleTurns)
 	mux.HandleFunc("GET /api/turns/{id}", s.handleTurn)
 	mux.HandleFunc("GET /api/self", s.handleSelf)
@@ -73,6 +83,8 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("POST /api/review", s.handleReview)
 	mux.HandleFunc("POST /api/dream", s.handleDream)
 	mux.HandleFunc("POST /api/backup", s.handleBackup)
+	mux.HandleFunc("POST /api/dream/generative", s.handleGenerativeDream)
+	mux.HandleFunc("POST /api/mutations/{id}/revert", s.handleRevertMutation)
 
 	sub, err := fs.Sub(webFS, "web")
 	if err != nil {
@@ -553,6 +565,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 	emit("health", health)
 	emit("done", map[string]any{"answer": answer})
+	s.scheduleIdleReview()
 }
 
 func (s *Server) handleReview(w http.ResponseWriter, r *http.Request) {
@@ -580,7 +593,15 @@ func (s *Server) handleReview(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleDream(w http.ResponseWriter, r *http.Request) {
 	var result any
 	err := s.queue().RunCognitive(r.Context(), "dream", func(ctx context.Context) error {
-		res, runErr := s.App.Dreamer.Run(ctx, s.App.Scope, true)
+		if s.App.ReflectionMode == memory.ReflectionModeLegacy {
+			res, runErr := s.App.Dreamer.Run(ctx, s.App.Scope, true)
+			if runErr != nil {
+				return runErr
+			}
+			result = res
+			return nil
+		}
+		res, runErr := s.App.Reflection.Run(ctx, s.App.Scope, s.App.SessionID, memory.ReflectionTriggerManual)
 		if runErr != nil {
 			return runErr
 		}

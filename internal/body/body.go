@@ -19,17 +19,18 @@ const (
 
 // Snapshot is what inspect_runtime returns — existence facts, not philosophy.
 type Snapshot struct {
-	AgentID       string            `json:"agent_id"`
-	CurrentPerson string            `json:"current_person"`
-	SessionID     string            `json:"session_id"`
-	Now           string            `json:"now"`
-	Timezone      string            `json:"timezone"`
-	Model         string            `json:"model"`
-	RecallMode    string            `json:"recall_mode,omitempty"`
-	Versions      map[string]string `json:"versions"`
-	Stores        map[string]string `json:"stores"`
-	Persistence   map[string]string `json:"persistence"`
-	FirstBoot     bool              `json:"first_boot_origin,omitempty"`
+	AgentID        string            `json:"agent_id"`
+	CurrentPerson  string            `json:"current_person"`
+	SessionID      string            `json:"session_id"`
+	Now            string            `json:"now"`
+	Timezone       string            `json:"timezone"`
+	Model          string            `json:"model"`
+	RecallMode     string            `json:"recall_mode,omitempty"`
+	ReflectionMode string            `json:"reflection_mode,omitempty"`
+	Versions       map[string]string `json:"versions"`
+	Stores         map[string]string `json:"stores"`
+	Persistence    map[string]string `json:"persistence"`
+	FirstBoot      bool              `json:"first_boot_origin,omitempty"`
 }
 
 // BuildSnapshot assembles runtime identity for the agent.
@@ -62,15 +63,16 @@ func BuildSnapshot(scope identity.TenantScope, sessionID, model string, stores m
 		},
 		Stores: stores,
 		Persistence: map[string]string{
-			"stm":       "temporary",
-			"episode":   "persistent",
-			"graph":     "persistent",
-			"proposal":  "persistent",
-			"self":      "persistent",
-			"workspace": "persistent",
-			"intent":    "persistent",
-			"source":    "persistent",
-			"scene":     "persistent",
+			"stm":        "temporary",
+			"episode":    "persistent",
+			"graph":      "persistent",
+			"reflection": "persistent",
+			"proposal":   "persistent",
+			"self":       "persistent",
+			"workspace":  "persistent",
+			"intent":     "persistent",
+			"source":     "persistent",
+			"scene":      "persistent",
 		},
 		FirstBoot: firstBoot,
 	}

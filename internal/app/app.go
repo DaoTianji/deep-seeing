@@ -40,29 +40,33 @@ type Options struct {
 
 // App owns the long-lived services shared by CLI and room.
 type App struct {
-	Scope        identity.TenantScope
-	SessionID    string
-	Model        string
-	RecallMode   runtime.RecallMode
-	Service      *runtime.Service
-	STM          memory.SessionStore
-	STMBackend   string
-	Episodes     *memory.EpisodeStore
-	Proposals    *memory.ProposalStore
-	Ledger       *memory.MutationLedger
-	Journal      *observe.Journal
-	Graph        *graph.Store
-	GraphLabel   string
-	Reviewer     *memory.SessionReviewer
-	Dreamer      *memory.Dreamer
-	Queue        *runtime.ExecutionQueue
-	Self         *selfmodel.Store
-	Workspace    *workspace.Store
-	Intents      *intent.Store
-	World        *world.Gateway
-	Scheduler    *agency.Scheduler
-	OriginLetter origin.Letter
-	FirstBoot    bool
+	Scope          identity.TenantScope
+	SessionID      string
+	Model          string
+	RecallMode     runtime.RecallMode
+	ReflectionMode memory.ReflectionMode
+	Service        *runtime.Service
+	STM            memory.SessionStore
+	STMBackend     string
+	Episodes       *memory.EpisodeStore
+	Proposals      *memory.ProposalStore
+	Ledger         *memory.MutationLedger
+	Reflections    *memory.ReflectionStore
+	Reflection     *memory.ReflectionEngine
+	Generative     *memory.GenerativeDreamer
+	Journal        *observe.Journal
+	Graph          *graph.Store
+	GraphLabel     string
+	Reviewer       *memory.SessionReviewer
+	Dreamer        *memory.Dreamer
+	Queue          *runtime.ExecutionQueue
+	Self           *selfmodel.Store
+	Workspace      *workspace.Store
+	Intents        *intent.Store
+	World          *world.Gateway
+	Scheduler      *agency.Scheduler
+	OriginLetter   origin.Letter
+	FirstBoot      bool
 }
 
 // New loads environment settings and assembles a complete application.
@@ -107,6 +111,18 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		return nil, fmt.Errorf("mutation ledger: %w", err)
 	}
 	selfDir := envOr("LTM_SELF_DIR", filepath.Join("data", "memory", "self"))
+	reflectionDir := envOr("LTM_REFLECTION_DIR", filepath.Join("data", "memory", "reflections"))
+	reflections, err := memory.NewReflectionStore(reflectionDir)
+	if err != nil {
+		return nil, fmt.Errorf("reflection store: %w", err)
+	}
+	reflectionLive := &memory.ReflectionLiveStore{}
+	episodes.OnChanged = func(memory.Episode) {
+		_ = reflections.MarkDirty(scope.PersonID(), "episode")
+	}
+	proposals.OnChanged = func(memory.BondProposal) {
+		_ = reflections.MarkDirty(scope.PersonID(), "proposal")
+	}
 	selfStore, err := selfmodel.NewStore(selfDir)
 	if err != nil {
 		return nil, fmt.Errorf("self store: %w", err)
@@ -149,6 +165,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	recallMode := runtime.RecallModeFromEnv()
 	norms := runtime.NewNormSnapshotCache(graphStore, scope)
 	var taskFocusController tools.TaskContextFocusController
+	reflectionMode := memory.ReflectionModeFromEnv()
 	var taskFocusReader runtime.TaskContextFocusReader
 	var attentionStore *attention.SessionStore
 	if recallMode == runtime.RecallModeAgent {
@@ -163,6 +180,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		"proposals": "available", "mutations": "available", "traces": "available",
 		"self_store": "available", "workspace_store": "available", "intent_store": "available",
 		"source_store": "available", "scene_store": "available",
+		"reflection_store": "available",
 	}
 	if graphStore != nil {
 		stores["context_graph"] = "available"
@@ -241,22 +259,34 @@ func New(ctx context.Context, opt Options) (*App, error) {
 
 	app := &App{
 		Scope: scope, SessionID: sessionID, Model: cfg.Model, RecallMode: recallMode, Service: svc,
-		STM: stm, STMBackend: stmBackend, Episodes: episodes, Proposals: proposals,
+		ReflectionMode: reflectionMode,
+		STM:            stm, STMBackend: stmBackend, Episodes: episodes, Proposals: proposals,
 		Ledger: ledger, Journal: journal, Graph: graphStore, GraphLabel: graphLabel,
-		Queue: queue, Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
+		Reflections: reflections,
+		Queue:       queue, Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Scheduler: sched, OriginLetter: originLetter, FirstBoot: firstBoot,
 	}
 	app.Reviewer = &memory.SessionReviewer{
-		Chat: reviewChat, Episodes: episodes, Proposals: proposals, Graph: graphStore,
+		Chat: reviewChat, Episodes: episodes, Proposals: proposals, Reflections: reflections,
+		Mode: reflectionMode, Graph: graphStore,
 	}
 	var selfGraph selfmodel.SelfGraph
 	if graphStore != nil {
 		selfGraph = graphStore
 	}
+	selfBridge := selfmodel.DreamBridge{Store: selfStore, Graph: selfGraph}
 	app.Dreamer = &memory.Dreamer{
 		Chat: reviewChat, Proposals: proposals, Graph: graphStore, Ledger: ledger, Model: cfg.Model,
-		Self: selfmodel.DreamBridge{Store: selfStore, Graph: selfGraph},
+		Self: selfBridge,
 	}
+	app.Reflection = &memory.ReflectionEngine{
+		Chat: reviewChat, Store: reflections, Episodes: episodes, Proposals: proposals,
+		Dreamer: app.Dreamer, Graph: graphStore, Ledger: ledger, Tensions: selfBridge, Live: reflectionLive, Context: selfBridge, Mode: reflectionMode, Model: cfg.Model,
+	}
+	app.Generative = &memory.GenerativeDreamer{
+		Chat: reviewChat, Store: reflections, Live: reflectionLive, Mode: reflectionMode,
+	}
+	app.Reviewer.Context = selfBridge
 	return app, nil
 }
 
@@ -266,7 +296,8 @@ func (a *App) RuntimeSnapshot() body.Snapshot {
 		"stm": a.STMBackend, "episode_store": "available", "context_graph": "unavailable",
 		"proposals": "available", "mutations": "available", "traces": "available",
 		"self_store": "available", "workspace_store": "available", "intent_store": "available",
-		"source_store": "available",
+		"source_store":     "available",
+		"reflection_store": "available",
 	}
 	if a.Graph != nil {
 		stores["context_graph"] = "available"
@@ -276,6 +307,7 @@ func (a *App) RuntimeSnapshot() body.Snapshot {
 	}
 	snapshot := body.BuildSnapshot(a.Scope, a.SessionID, a.Model, stores, a.FirstBoot)
 	snapshot.RecallMode = string(a.RecallMode)
+	snapshot.ReflectionMode = string(a.ReflectionMode)
 	return snapshot
 }
 

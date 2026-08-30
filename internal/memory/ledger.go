@@ -14,22 +14,30 @@ import (
 
 // Mutation is one L2 change record — Graph is current state; Ledger is history.
 type Mutation struct {
-	ID               string         `json:"mutation_id"`
-	Timestamp        time.Time      `json:"timestamp"`
-	Kind             string         `json:"kind"` // bond_patch | episode_status | principle | other
-	SelfID           string         `json:"self_id,omitempty"`
-	PersonID         string         `json:"person_id,omitempty"`
-	Field            string         `json:"field,omitempty"`
-	Before           map[string]any `json:"before,omitempty"`
-	After            map[string]any `json:"after,omitempty"`
-	SourceEpisodeIDs []string       `json:"source_episode_ids,omitempty"`
-	SourceSessionIDs []string       `json:"source_session_ids,omitempty"`
-	ProposalID       string         `json:"proposal_id,omitempty"`
-	DreamID          string         `json:"dream_id,omitempty"`
-	ReviewID         string         `json:"review_id,omitempty"`
-	Actor            string         `json:"actor"` // dream | tool | system | human
-	ModelVersion     string         `json:"model_version,omitempty"`
-	ReasonSummary    string         `json:"reason_summary,omitempty"`
+	ID                string             `json:"mutation_id"`
+	Timestamp         time.Time          `json:"timestamp"`
+	Kind              string             `json:"kind"` // bond_patch | episode_status | principle | other
+	SelfID            string             `json:"self_id,omitempty"`
+	PersonID          string             `json:"person_id,omitempty"`
+	Field             string             `json:"field,omitempty"`
+	Before            map[string]any     `json:"before,omitempty"`
+	After             map[string]any     `json:"after,omitempty"`
+	BeforeBond        *BondStateSnapshot `json:"before_bond,omitempty"`
+	AfterBond         *BondStateSnapshot `json:"after_bond,omitempty"`
+	SourceEpisodeIDs  []string           `json:"source_episode_ids,omitempty"`
+	SourceSessionIDs  []string           `json:"source_session_ids,omitempty"`
+	ProposalID        string             `json:"proposal_id,omitempty"`
+	DreamID           string             `json:"dream_id,omitempty"`
+	ReviewID          string             `json:"review_id,omitempty"`
+	ReflectionSeedID  string             `json:"reflection_seed_id,omitempty"`
+	ReflectionRunID   string             `json:"reflection_run_id,omitempty"`
+	RevertsMutationID string             `json:"reverts_mutation_id,omitempty"`
+	BeforeVersion     int64              `json:"before_version,omitempty"`
+	AfterVersion      int64              `json:"after_version,omitempty"`
+
+	Actor         string `json:"actor"` // dream | tool | system | human
+	ModelVersion  string `json:"model_version,omitempty"`
+	ReasonSummary string `json:"reason_summary,omitempty"`
 }
 
 // MutationLedger appends JSONL mutation records.

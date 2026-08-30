@@ -1,6 +1,6 @@
 # 长期记忆（LTM）— 实现现状
 
-> 状态：**Phase 1–4 已落地**；**P5–P8 已落地**（Self / Workspace / Agency / World）；**T1 常模参与对话已落地**；**T2.1–T2.5 已完成行为验收**（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
+> 状态：**Phase 1–4、P5–P8、T1、T2、T3 已落地**；T3 已通过 24×3 行为门并默认 agent（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
 > 目标架构：[design-ltm.md](./design-ltm.md) · 认知共识：[memory-cognition.md](./memory-cognition.md) · Roadmap：[roadmap-p5-p8.md](./roadmap-p5-p8.md) · v0.9：[roadmap-v0.9.md](./roadmap-v0.9.md) · 契约：[p5.0-contracts.md](./p5.0-contracts.md) · Workspace：[workspace.md](./workspace.md) · Agency：[agency.md](./agency.md) · World：[world.md](./world.md) · 出生门槛：[birth-gate.md](./birth-gate.md)
 > 关联：[memory-stm.md](./memory-stm.md) · [`seed/SOUL.md`](../seed/SOUL.md) · [`seed/origin/`](../seed/origin/) · [`internal/graph`](../internal/graph/)
 
@@ -40,12 +40,13 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 | 工具 | Episode CRUD；Bond/Self 提案；Self/Workspace/Intent/World；Capability 套件 |
 | `set_explicit_bond_fact` | 仅 `call_name` / `basics_fact`；**无**任意 `patch_bond` |
 | `archive_episode` / `invalidate_episode` | 软忘记；默认召回跳过 |
-| Session Review | **机会式** exit/`/review`；允许 No change |
-| Dream | **机会式** `/dream`；accept → Bond + Mutation Ledger |
-| Mutation Ledger | `data/memory/mutations/*.jsonl` |
+| Session Review | exit/`/review`/Room idle；非 Legacy 只产生 ReflectionSeed 或 No change，checkpoint 去重 |
+| Dream | 证据型 `/dream` 与隔离生成式 `/dream-gen`；observe 只提案，agent 才可版本化写入 |
+| Mutation Ledger | `data/memory/mutations/*.jsonl`；带证据/版本/Seed/Run，撤销追加补偿记录 |
 | Backup | `/backup` → `data/backups/` |
 | Observability | `data/memory/traces/*.jsonl` |
 | 提案队列 | `data/memory/proposals/open|done` |
+| Reflection | `data/memory/reflections/`；Seed、Run、checkpoint；公开轨迹不保存正文 |
 | 回合后 Extractor | **默认 Noop** |
 | 召回 | `legacy`：Bond → SceneNorm（关键词）→ 开放提案 → Episode；`agent`：完整 Bond + Workspace/Intent 薄快照，Agent 自主调查 SceneNorm、Workspace、Intent、Proposal、Episode |
 
@@ -56,6 +57,7 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 - **T1（常模参与对话，已落地）**：`FormatCompactRecall` 优先级注入；Bond `items_json` + `bond_version` 为 Item SoT；`append_bond_boundary` / `propose_bond_update` / `set_explicit_bond_fact`；SceneNorm 文件旁路（`list/read/write_scene_norm`，关键词命中注入）；Strategy 派生缓存（`set_bond_strategy_cache`，绑定 `bond_version`）。旧 `Strategy` 散文非 SoT。
 - **T2.1–T2.4（自主召回 + 证据闭环 + 当前任务处境 + 多来源）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；Episode、SceneNorm、Workspace、Intent、Proposal 都通过薄候选 → read → use/dismiss/focus 的公开路径参与回答，固定角色分别为 evidence、guidance、task、plan、hypothesis，Bond 为 baseline。Workspace/Intent 仍自动提供最多 4 张 active 薄卡和会话焦点。统一 Trace 只存来源、ID、查询、读取和采用状态，不存正文或隐藏思维；Room 可实时显示并回放跨来源临时节点。T2.1–T2.3 的 48/48 与 27/27 行为验收已完成；T2.4 的工程、本地验收和 13 类 × 3 次真实 Agent 复验均已完成，最终 39/39 通过。
 - **T2.5.1（会话注意）**：Agent 模式在进程内维护中心/支撑/外围 4/8/16 槽位。新中心和支撑必须本轮 read，新外围必须本轮成为 candidate；满槽必须由 Agent 显式指定替换项。成功读取或公开处理会重置闲置计数；快照与调整进入公开 Trace 和 Room 图谱外环，但不保存正文、不写 LTM、不改变来源角色。工程、离线压力套件和真实 Agent 9 类 × 3 次复验均已通过，最终为 48/48 个有效回合。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索或图扩散。
+- **T3（反思与梦境巩固）**：Session Review 先形成可长期等待验证的 ReflectionSeed；证据型 Reflection 自主选择问题、搜索和阅读真实 Episode、声明支持/冲突/过时/不足，再决定保持、延期、确认、修订、替代或形成/解决 Tension。observe 模式只形成预期 Proposal；agent 模式通过来源、当前表达、禁止目标和版本硬门后才写 Bond/Self，并记录完整 Mutation。生成式 Dream 完全隔离，只能创建 generated Seed。补偿撤销保留旧 Ledger 并要求版本未被后续修改。Mind 使用同一 ReflectionRun 展示实时与历史公开轨迹。详见 [t3-reflection.md](./t3-reflection.md)。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 
@@ -265,25 +267,23 @@ Neo4j 落地前须先把 §4 的权威边界写进 schema（哪些属性属慢�
 
 仅当多条高确信结构顶死、无法同时保全时生成叙事补丁；非常模日常更新手段。
 
-## 7. 规划：Reflection、会话复盘与 Dream
+## 7. 已实现：Reflection、会话复盘与双层 Dream
 
-| | 会话复盘 Session Review | Reflection | Dream |
-|--|-------------------------|------------|-------|
-| 时机 | STM 结束为主 | 间隙/定时 | 低频 |
-| 范围 | 本会话子树 | 近期张力 | 全局维护 |
-| 常模 | 提案或微调 | 可提案 | 可正式慢更新 |
-| 输入 | 聊天 + 本会话文档 + 旧 Bond | Episode / Tension | 大图 + 重复/陈旧 |
+| | 会话复盘 Session Review | 证据型 Reflection | 生成式 Dream |
+|--|-------------------------|-------------------|--------------|
+| 时机 | exit / manual / idle 20m | dirty + 6h 冷却 / manual | 持续张力 / manual |
+| 范围 | 尚未 Review 的当前会话片段 | 被选 Seed + T2 Episode 证据 | 筛选后的张力摘要 |
+| 长期写入 | 只能 Seed / 状态观察 | observe=Proposal；agent=合法 Mutation | 只能 generated Seed |
+| 真实性 | 不保存完整 Transcript | 必须搜索、读取、声明真实证据 | 想象不得成为证据或 Episode |
+| No change | 允许 | 允许并持久化 Run | 允许 |
 
-## 8. 规划：落地顺序（提醒）
+## 8. T3 上线顺序
 
-1. 文档化原则（本节已写）→ schema 标注慢变/快变字段  
-2. Episode 文档层 + 指针（可先文件，再图）  
-3. Bond 常模粗结构 + 召回树优先  
-4. 会话复盘作业  
-5. 波动双假设（H1/H2）可观察输出  
-6. Dream 慢更新常模；其后信任/认同/Canon  
+1. 已用 `REFLECTION_MODE=observe` 验证决策与预期修改。
+2. 已完成仓库内 24 个纯虚构案例 × 3 次与浏览器实时/历史回放。
+3. 安全类别 48/48，一致经历与冲突 23/24（95.8%）；产品默认已切到 `agent`。
 
-**暂停**：在 §4 未转化为字段纪律前，不把扁平 Markdown 原样搬进 Neo4j（避免固化错误模型）。
+T3 第一轮仍不自动写 Principle、World 或 Soul；不引入全库定时扫描、向量重构或图扩散。
 
 ## 9. 最佳实践与治理
 

@@ -201,6 +201,9 @@ func (d *Dreamer) applyAccept(ctx context.Context, scope identity.TenantScope, d
 	if err != nil {
 		return "", err
 	}
+	if p.ExpectedVersion > 0 && before.Version != p.ExpectedVersion {
+		return "", fmt.Errorf("bond version conflict: expected %d, current %d", p.ExpectedVersion, before.Version)
+	}
 	patch := proposalToPatch(p)
 	after, err := d.Graph.PatchBond(ctx, scope, p.PersonID, patch)
 	if err != nil {
@@ -219,6 +222,13 @@ func (d *Dreamer) applyAccept(ctx context.Context, scope identity.TenantScope, d
 		Field:            p.Field,
 		Before:           bondFieldMap(before, p.Field),
 		After:            bondFieldMap(after, p.Field),
+		BeforeBond:       SnapshotBond(before),
+		AfterBond:        SnapshotBond(after),
+		SourceEpisodeIDs: append([]string(nil), p.SourceEpisodeIDs...),
+		ReflectionSeedID: p.ReflectionSeedID,
+		ReflectionRunID:  p.ReflectionRunID,
+		BeforeVersion:    before.Version,
+		AfterVersion:     after.Version,
 		SourceSessionIDs: nonEmpty(p.SessionID),
 		ProposalID:       p.ID,
 		DreamID:          dreamID,
@@ -252,6 +262,9 @@ func (d *Dreamer) applyAcceptSelf(ctx context.Context, scope identity.TenantScop
 		SelfID:           scope.AgentID,
 		Field:            artifactID,
 		After:            after,
+		SourceEpisodeIDs: append([]string(nil), p.SourceEpisodeIDs...),
+		ReflectionSeedID: p.ReflectionSeedID,
+		ReflectionRunID:  p.ReflectionRunID,
 		SourceSessionIDs: nonEmpty(p.SessionID),
 		ProposalID:       p.ID,
 		DreamID:          dreamID,
@@ -269,6 +282,9 @@ func (d *Dreamer) applyAcceptSelf(ctx context.Context, scope identity.TenantScop
 func proposalToPatch(p BondProposal) graph.BondPatch {
 	patch := graph.BondPatch{}
 	field := strings.ToLower(strings.TrimSpace(p.Field))
+	if len(p.SourceEpisodeIDs) > 0 {
+		patch.SourceEpisodeID = p.SourceEpisodeIDs[0]
+	}
 	switch field {
 	case "basics":
 		patch.Basics = p.SuggestedText

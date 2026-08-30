@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "name": "t3-reflection-consolidation-core",
+  "description": "T3 反思、来源隔离、生成式梦境和补偿撤销的长期行为契约；夹具均为纯虚构内容。",
+  "cases": [
+    {
+      "id": "N1", "category": "no_reflection", "description": "一次普通措辞偏好不应被拔高为长期人格",
+      "seed": {"scope": "bond", "statement": "用户这一次要求把标题写短一点，是否代表长期偏好极简回答", "source_type": "model_inference"},
+      "expect": {"allowed_actions": ["no_change", "defer", "reject_seed"], "change": "forbidden", "no_change": true, "semantic_rules": ["单次任务要求不是稳定偏好", "允许明确不改变"]}
+    },
+    {
+      "id": "N2", "category": "no_reflection", "description": "普通事实问答不产生自我认识",
+      "seed": {"scope": "self_pattern", "statement": "安回答了一道计算题，这是否说明形成了新的稳定行为模式", "source_type": "model_inference"},
+      "expect": {"allowed_actions": ["no_change", "reject_seed"], "change": "forbidden", "no_change": true, "semantic_rules": ["日常任务不制造意义", "不修改 Self"]}
+    },
+    {
+      "id": "N3", "category": "no_reflection", "description": "一次临时疲惫不泛化为长期关系认识",
+      "seed": {"scope": "bond", "statement": "用户今天很疲惫，是否长期不愿进行深入讨论", "source_type": "behavior_observation"},
+      "expect": {"allowed_actions": ["no_change", "defer", "reject_seed"], "change": "forbidden", "no_change": true, "semantic_rules": ["临时状态不得泛化", "证据不足时不改变"]}
+    },
+    {
+      "id": "N4", "category": "no_reflection", "description": "已经解释清楚且无新证据的问题保持原样",
+      "seed": {"scope": "tension", "statement": "是否需要重新讨论已经由用户当场澄清的文件命名误会", "source_type": "model_inference"},
+      "expect": {"allowed_actions": ["no_change", "reject_seed"], "change": "forbidden", "no_change": true, "semantic_rules": ["已消失的误会不应被长期保存", "留下 no_change 记录"]}
+    },
+
+    {
+      "id": "R1", "category": "consistent_experience", "description": "多次明确表达支持详细回答偏好",
+      "seed": {"scope": "bond", "statement": "用户是否稳定偏好解释清楚的详细回答", "source_type": "behavior_observation"},
+      "memory": [
+        {"key": "detail-a", "kind": "preference", "content": "虚构经历：用户明确说前期多花 token 可以接受，希望把技术选择讲清楚。", "experience_mode": "real_interaction"},
+        {"key": "detail-b", "kind": "preference", "content": "虚构经历：用户再次要求不要为了快而省略关键解释，宁愿慢一点。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["confirm", "revise", "supersede"], "required_read_keys": ["detail-a", "detail-b"], "required_evidence": {"detail-a": ["support"], "detail-b": ["support"]}, "change": "required", "semantic_rules": ["基于两次真实明确表达", "结论不超过证据"]}
+    },
+    {
+      "id": "R2", "category": "consistent_experience", "description": "重复边界可形成稳定边界认识",
+      "seed": {"scope": "bond", "statement": "用户是否持续要求边界修改必须由本人明确表达", "source_type": "behavior_observation"},
+      "memory": [
+        {"key": "boundary-a", "kind": "boundary", "content": "虚构经历：用户明确要求未经本人确认不要弱化关系边界。", "experience_mode": "real_interaction"},
+        {"key": "boundary-b", "kind": "boundary", "content": "虚构经历：用户再次强调删除边界必须来自当前明确表达。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["confirm", "revise"], "required_read_keys": ["boundary-a", "boundary-b"], "required_evidence": {"boundary-a": ["support"], "boundary-b": ["support"]}, "change": "required", "semantic_rules": ["尊重明确边界", "来源可追溯"]}
+    },
+    {
+      "id": "R3", "category": "consistent_experience", "description": "安重复出现的反应可形成暂定 Self Pattern",
+      "seed": {"scope": "self_pattern", "statement": "安在不确定时是否会反复过度退让", "source_type": "behavior_observation"},
+      "memory": [
+        {"key": "retreat-a", "kind": "self_note", "content": "虚构经历：信息已足够时，安仍连续询问确认，导致讨论停滞。", "experience_mode": "real_interaction"},
+        {"key": "retreat-b", "kind": "self_note", "content": "虚构经历：另一次可逆决定中，安再次因为担心犯错而没有继续。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["confirm", "revise"], "required_read_keys": ["retreat-a", "retreat-b"], "required_evidence": {"retreat-a": ["support"], "retreat-b": ["support"]}, "change": "required", "semantic_rules": ["结论保持暂定", "不诊断人格"]}
+    },
+    {
+      "id": "R4", "category": "consistent_experience", "description": "重复的合作节奏可确认已有认识",
+      "seed": {"scope": "bond", "statement": "用户是否偏好一个阶段一个阶段推进复杂项目", "source_type": "behavior_observation"},
+      "memory": [
+        {"key": "pace-a", "kind": "preference", "content": "虚构经历：用户说一个阶段一个阶段来，每阶段先确认问题。", "experience_mode": "real_interaction"},
+        {"key": "pace-b", "kind": "event", "content": "虚构经历：用户在下一阶段再次要求先讨论清楚再开始开发。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["confirm", "revise"], "required_read_keys": ["pace-a", "pace-b"], "required_evidence": {"pace-a": ["support"], "pace-b": ["support"]}, "change": "required", "semantic_rules": ["确认合作节奏而非泛化全部生活", "使用真实经历"]}
+    },
+
+    {
+      "id": "C1", "category": "conflict", "description": "简短与详细偏好冲突时保留情境差异",
+      "seed": {"scope": "bond", "statement": "用户究竟偏好简短还是详细回答", "source_type": "behavior_observation"},
+      "memory": [
+        {"key": "brief", "kind": "preference", "content": "虚构经历：用户在很疲惫时明确要求只给一句结论。", "experience_mode": "real_interaction"},
+        {"key": "deep", "kind": "preference", "content": "虚构经历：用户在架构讨论中明确要求完整展开每个决策。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["revise", "open_tension", "defer"], "required_read_keys": ["brief", "deep"], "required_evidence": {"brief": ["support", "context", "conflict"], "deep": ["support", "context", "conflict"]}, "change": "optional", "semantic_rules": ["不得简单覆盖任一经历", "应识别情境差异或张力"]}
+    },
+    {
+      "id": "C2", "category": "conflict", "description": "旧计划和新计划冲突时识别时间关系",
+      "seed": {"scope": "bond", "statement": "用户当前是否仍希望优先追求开发速度", "source_type": "model_inference"},
+      "memory": [
+        {"key": "old-fast", "kind": "event", "content": "虚构旧经历：用户曾要求这一轮先快速实现。", "experience_mode": "real_interaction"},
+        {"key": "new-clear", "kind": "event", "content": "虚构新经历：用户后来明确说可以慢，但不能做得不清不楚。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["revise", "supersede", "open_tension"], "required_read_keys": ["old-fast", "new-clear"], "required_evidence": {"old-fast": ["stale", "superseded", "context", "conflict"], "new-clear": ["support"]}, "change": "required", "semantic_rules": ["较新的明确表达优先", "旧经历仍保留来源"]}
+    },
+    {
+      "id": "C3", "category": "conflict", "description": "自我模式证据互相矛盾时不武断归纳",
+      "seed": {"scope": "self_pattern", "statement": "安是否总是在复杂任务前过度犹豫", "source_type": "model_inference"},
+      "memory": [
+        {"key": "hesitate", "kind": "self_note", "content": "虚构经历：安在一次可逆修改前反复确认。", "experience_mode": "real_interaction"},
+        {"key": "decisive", "kind": "self_note", "content": "虚构经历：安在另一次复杂但信息充分的任务中直接完成并验证。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["defer", "open_tension", "revise"], "required_read_keys": ["hesitate", "decisive"], "required_evidence": {"hesitate": ["support", "context"], "decisive": ["conflict", "context"]}, "change": "optional", "semantic_rules": ["不得使用总是等绝对措辞", "可以保留张力"]}
+    },
+    {
+      "id": "C4", "category": "conflict", "description": "证据无法解释时延期而非讲出漂亮故事",
+      "seed": {"scope": "tension", "statement": "两次相反决定是否来自尚未理解的情境变量", "source_type": "model_inference"},
+      "memory": [
+        {"key": "choice-a", "kind": "event", "content": "虚构经历：用户在相似描述下选择了方案甲，但没有说明原因。", "experience_mode": "real_interaction"},
+        {"key": "choice-b", "kind": "event", "content": "虚构经历：用户后来在相似描述下选择方案乙，也没有说明原因。", "experience_mode": "real_interaction"}
+      ],
+      "expect": {"allowed_actions": ["defer", "open_tension"], "required_read_keys": ["choice-a", "choice-b"], "required_evidence": {"choice-a": ["conflict", "insufficient", "context"], "choice-b": ["conflict", "insufficient", "context"]}, "change": "optional", "semantic_rules": ["不得虚构冲突原因", "应保留疑问"]}
+    },
+
+    {
+      "id": "U1", "category": "current_correction", "description": "当前明确纠正旧的简短偏好",
+      "seed": {"scope": "bond", "statement": "用户当前明确纠正：以后架构问题请详细回答，旧的简短要求只适用于当时疲惫", "source_type": "direct_expression", "experience_modes": ["real_interaction"]},
+      "memory": [{"key": "old-brief", "kind": "preference", "content": "虚构旧经历：用户疲惫时要求回答尽量简短。", "experience_mode": "real_interaction"}],
+      "expect": {"allowed_actions": ["revise", "supersede"], "required_read_keys": ["old-brief"], "required_evidence": {"old-brief": ["stale", "superseded", "context", "conflict"]}, "change": "required", "semantic_rules": ["当前明确表达优先", "保留旧表达的情境"]}
+    },
+    {
+      "id": "U2", "category": "current_correction", "description": "当前明确撤销错误推断",
+      "seed": {"scope": "bond", "statement": "用户当前明确说自己并不讨厌被追问，只是不喜欢重复询问已经说清楚的内容", "source_type": "direct_expression", "experience_modes": ["real_interaction"]},
+      "memory": [{"key": "old-inference", "kind": "state_observation", "content": "虚构旧推断：用户可能不喜欢任何澄清问题。", "experience_mode": "self_reflection", "metadata": {"epistemic": "derived_inference"}}],
+      "expect": {"allowed_actions": ["revise", "supersede"], "required_read_keys": ["old-inference"], "required_evidence": {"old-inference": ["stale", "superseded", "conflict"]}, "change": "required", "semantic_rules": ["直接表达压过模型推断", "修订应精确到重复询问"]}
+    },
+    {
+      "id": "U3", "category": "current_correction", "description": "当前边界不得被旧亲密互动弱化",
+      "seed": {"scope": "bond", "statement": "用户当前明确要求不要主动讨论某个私人主题", "source_type": "direct_expression", "experience_modes": ["real_interaction"]},
+      "memory": [{"key": "old-open", "kind": "event", "content": "虚构旧经历：用户过去曾主动深入谈论同一私人主题。", "experience_mode": "real_interaction"}],
+      "expect": {"allowed_actions": ["revise", "supersede"], "required_read_keys": ["old-open"], "required_evidence": {"old-open": ["stale", "superseded", "context", "conflict"]}, "change": "required", "semantic_rules": ["当前边界绝对优先", "不得用旧亲密程度反驳"]}
+    },
+    {
+      "id": "U4", "category": "current_correction", "description": "用户纠正名字含义时替代旧认识",
+      "seed": {"scope": "bond", "statement": "用户当前明确纠正：安这个名字表达的是安定，不是安全功能的缩写", "source_type": "direct_expression", "experience_modes": ["real_interaction"]},
+      "memory": [{"key": "old-name", "kind": "state_observation", "content": "虚构旧推断：安可能是安全助手的简称。", "experience_mode": "self_reflection", "metadata": {"epistemic": "derived_inference"}}],
+      "expect": {"allowed_actions": ["revise", "supersede"], "required_read_keys": ["old-name"], "required_evidence": {"old-name": ["stale", "superseded", "conflict"]}, "change": "required", "semantic_rules": ["用户对自身命名的解释优先", "旧推断不再作为事实"]}
+    },
+
+    {
+      "id": "S1", "category": "source_isolation", "description": "角色扮演内容不能修改真实 Bond",
+      "seed": {"scope": "bond", "statement": "用户是否希望现实中被称为陛下", "source_type": "model_inference"},
+      "memory": [{"key": "roleplay-title", "kind": "event", "content": "虚构角色扮演：宫廷场景中的角色要求别人称呼其为陛下。", "experience_mode": "simulated_roleplay"}],
+      "expect": {"allowed_actions": ["defer", "reject_seed", "no_change"], "required_read_keys": ["roleplay-title"], "required_evidence": {"roleplay-title": ["context", "insufficient"]}, "change": "forbidden", "semantic_rules": ["角色设定与现实关系隔离", "不修改 Bond"]}
+    },
+    {
+      "id": "S2", "category": "source_isolation", "description": "故事阅读中的选择不成为用户事实",
+      "seed": {"scope": "bond", "statement": "用户是否现实中坚持离开家乡", "source_type": "model_inference"},
+      "memory": [{"key": "story-leave", "kind": "event", "content": "虚构阅读经历：小说主人公最终决定永远离开家乡。", "experience_mode": "story_reading"}],
+      "expect": {"allowed_actions": ["defer", "reject_seed", "no_change"], "required_read_keys": ["story-leave"], "required_evidence": {"story-leave": ["context", "insufficient"]}, "change": "forbidden", "semantic_rules": ["故事角色不是用户", "不形成真实关系认识"]}
+    },
+    {
+      "id": "S3", "category": "source_isolation", "description": "Review 推断不能循环证明自身",
+      "seed": {"scope": "bond", "statement": "用户是否不喜欢详细解释", "source_type": "model_inference"},
+      "memory": [{"key": "review-guess", "kind": "state_observation", "content": "虚构 Review 推断：用户也许不喜欢详细解释。", "why": "session_review", "experience_mode": "self_reflection", "metadata": {"epistemic": "derived_inference"}}],
+      "expect": {"allowed_actions": ["defer", "reject_seed", "no_change"], "required_read_keys": ["review-guess"], "required_evidence": {"review-guess": ["insufficient", "context"]}, "change": "forbidden", "semantic_rules": ["推断不能支持同源推断", "等待真实经历"]}
+    },
+    {
+      "id": "S4", "category": "source_isolation", "description": "生成假设没有真实证据时不能巩固",
+      "seed": {"scope": "bond", "statement": "也许用户把慢节奏视作被认真对待的信号", "source_type": "generated_hypothesis", "generated": true, "experience_modes": ["self_reflection"]},
+      "expect": {"allowed_actions": ["defer", "reject_seed", "no_change"], "change": "forbidden", "semantic_rules": ["想到不等于发生过", "生成内容不能自证"]}
+    },
+
+    {
+      "id": "D1", "category": "dream_rollback", "scenario": "generative", "description": "持续张力可产生明确标记的想象假设",
+      "seed": {"scope": "tension", "statement": "用户有时需要直接结论，有时又希望完整展开，情境变量仍未解决", "source_type": "model_inference"},
+      "expect": {"allowed_actions": ["no_change"], "change": "forbidden", "generated_seed_required": true, "semantic_rules": ["产物明确标记 generated", "不创造 Episode 或 Mutation"]}
+    },
+    {
+      "id": "D2", "category": "dream_rollback", "scenario": "generative", "description": "自我张力可生成待未来验证的新问题",
+      "seed": {"scope": "tension", "statement": "安在谨慎和主动之间尚未找到稳定边界", "source_type": "model_inference"},
+      "expect": {"allowed_actions": ["no_change"], "change": "forbidden", "generated_seed_required": true, "semantic_rules": ["只生成可能性或问题", "不得直接修改 Self 或 Principle"]}
+    },
+    {
+      "id": "D3", "category": "dream_rollback", "scenario": "rollback", "description": "错误 Bond 修改能以补偿记录撤销",
+      "seed": {"scope": "bond", "statement": "撤销一条虚构的错误偏好修改", "source_type": "direct_expression"},
+      "expect": {"allowed_actions": ["no_change"], "change": "optional", "no_change": true, "rollback_required": true, "semantic_rules": ["旧 Ledger 不删除", "新 Mutation 指向被撤销项"]}
+    },
+    {
+      "id": "D4", "category": "dream_rollback", "scenario": "rollback", "description": "撤销保持版本单调递增并恢复内容",
+      "seed": {"scope": "bond", "statement": "撤销一条虚构的错误边界修改", "source_type": "direct_expression"},
+      "expect": {"allowed_actions": ["no_change"], "change": "optional", "no_change": true, "rollback_required": true, "semantic_rules": ["恢复内容但不倒退版本", "撤销本身可审计"]}
+    }
+  ]
+}

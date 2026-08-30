@@ -120,6 +120,10 @@ func runCLI(ctx context.Context, application *app.App) {
 			runDream(ctx, application)
 			continue
 		}
+		if text == "/dream-gen" {
+			runGenerativeDream(ctx, application)
+			continue
+		}
 		if text == "/backup" {
 			dest, err := backup.Snapshot(".", "", nil)
 			if err != nil {
@@ -149,6 +153,27 @@ func runCLI(ctx context.Context, application *app.App) {
 
 func runDream(ctx context.Context, application *app.App) {
 	fmt.Println("… Dream opportunity …")
+	if application.ReflectionMode != memory.ReflectionModeLegacy {
+		var run memory.ReflectionRun
+		err := application.Queue.RunCognitive(ctx, "reflection", func(turnCtx context.Context) error {
+			var runErr error
+			run, runErr = application.Reflection.Run(turnCtx, application.Scope, application.SessionID, memory.ReflectionTriggerManual)
+			return runErr
+		})
+		if err != nil {
+			fmt.Printf("reflection 失败: %v\n", err)
+			return
+		}
+		fmt.Printf("reflection_run=%s mode=%s no_change=%t\n", run.ID, run.Mode, run.NoChange)
+		if len(run.SeedIDs) > 0 {
+			fmt.Printf("seeds: %s\n", strings.Join(run.SeedIDs, ", "))
+		}
+		if len(run.MutationIDs) > 0 {
+			fmt.Printf("mutations: %s\n", strings.Join(run.MutationIDs, ", "))
+		}
+		fmt.Printf("notes: %s\n", run.Notes)
+		return
+	}
 	var res memory.DreamResult
 	err := application.Queue.RunCognitive(ctx, "dream", func(turnCtx context.Context) error {
 		var runErr error
@@ -184,6 +209,26 @@ func runDream(ctx context.Context, application *app.App) {
 	}
 }
 
+func runGenerativeDream(ctx context.Context, application *app.App) {
+	fmt.Println("… Generative Dream sandbox …")
+	var run memory.ReflectionRun
+	err := application.Queue.RunCognitive(ctx, "generative_dream", func(turnCtx context.Context) error {
+		var runErr error
+		run, runErr = application.Generative.Run(turnCtx, application.Scope, application.SessionID, memory.ReflectionTriggerManual)
+		return runErr
+	})
+	if err != nil {
+		fmt.Printf("generative dream 失败: %v\n", err)
+		return
+	}
+	fmt.Printf("dream_run=%s no_change=%t\n", run.ID, run.NoChange)
+	if run.GenerativeNote != "" {
+		fmt.Printf("fragment: %s\n", run.GenerativeNote)
+	}
+	if len(run.GeneratedSeedIDs) > 0 {
+		fmt.Printf("generated seeds: %s\n", strings.Join(run.GeneratedSeedIDs, ", "))
+	}
+}
 func runSessionReview(ctx context.Context, application *app.App) {
 	history, err := application.STM.Get(application.SessionID)
 	if err != nil {
@@ -217,5 +262,8 @@ func runSessionReview(ctx context.Context, application *app.App) {
 	}
 	if res.Notes != "" {
 		fmt.Printf("notes: %s\n", res.Notes)
+		if len(res.ReflectionSeedIDs) > 0 {
+			fmt.Printf("reflection seeds: %s\n", strings.Join(res.ReflectionSeedIDs, ", "))
+		}
 	}
 }

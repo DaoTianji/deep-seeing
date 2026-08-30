@@ -1,4 +1,5 @@
 import type { GraphView, Message, RuntimeSnapshot, StreamEnvelope, TurnTrace } from "./types";
+import type { ReflectionLiveState, ReflectionRun, ReflectionSeed } from "./reflection-types";
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, init);
@@ -6,7 +7,6 @@ async function json<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) throw new Error((payload as { error?: string }).error || `请求失败 (${response.status})`);
   return payload as T;
 }
-
 export const api = {
   runtime: () => json<{ runtime: RuntimeSnapshot; graph_label?: string }>("/api/runtime"),
   bootstrap: () => json<{ runtime: RuntimeSnapshot; graph_label?: string; attention?: unknown; turns?: TurnTrace[] }>("/api/bootstrap"),
@@ -16,6 +16,9 @@ export const api = {
   episode: (id: string) => json<Record<string, unknown>>(`/api/episode/${encodeURIComponent(id)}`),
   proposals: () => json<{ proposals: Record<string, unknown>[] }>("/api/proposals?limit=100"),
   mutations: () => json<{ mutations: Record<string, unknown>[] }>("/api/mutations?limit=150"),
+	reflections: () => json<{ reflections: ReflectionSeed[] }>("/api/reflections?limit=100"),
+	reflectionRuns: () => json<{ runs: ReflectionRun[] }>("/api/reflection-runs?limit=60"),
+  reflectionLive: () => json<ReflectionLiveState>("/api/reflection-live"),
   self: () => json<{ artifacts: Record<string, unknown>[] }>("/api/self?limit=100"),
   workspace: () => json<{ documents: Record<string, unknown>[] }>("/api/workspace?limit=100"),
   intents: () => json<{ intents: Record<string, unknown>[] }>("/api/intents?limit=100"),
@@ -24,6 +27,10 @@ export const api = {
   sources: () => json<{ sources: Record<string, unknown>[] }>("/api/sources?limit=100"),
   turns: () => json<{ turns: TurnTrace[]; next_cursor?: string }>("/api/turns?limit=60"),
   turn: (id: string) => json<{ turn: TurnTrace }>(`/api/turns/${encodeURIComponent(id)}`),
+	review: () => json<Record<string, unknown>>("/api/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
+	dream: () => json<Record<string, unknown>>("/api/dream", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
+	generativeDream: () => json<Record<string, unknown>>("/api/dream/generative", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
+	revertMutation: (id: string) => json<Record<string, unknown>>(`/api/mutations/${encodeURIComponent(id)}/revert`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason: "用户请求撤销这次认识变化" }) }),
 };
 
 export async function streamChat(

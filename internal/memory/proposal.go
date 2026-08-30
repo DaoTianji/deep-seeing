@@ -37,20 +37,25 @@ const (
 
 // BondProposal is a queued change — never auto-applied without Dream.
 type BondProposal struct {
-	ID              string           `json:"id"`
-	Kind            ProposalKind     `json:"kind,omitempty"` // bond|self_pattern|principle|tension；缺省 bond
-	PersonID        string           `json:"person_id"`
-	SessionID       string           `json:"session_id,omitempty"`
-	Status          ProposalStatus   `json:"status"`
-	Hypothesis      Hypothesis       `json:"hypothesis"`
-	Field           string           `json:"field"` // bond field 或 self 标题提示
-	SuggestedText   string           `json:"suggested_text"`
-	Mode            string           `json:"mode,omitempty"` // append|replace
-	Rationale       string           `json:"rationale,omitempty"`
-	Source          string           `json:"source,omitempty"` // session_review | tool
-	ExperienceModes []ExperienceMode `json:"experience_modes,omitempty"`
-	CreatedAt       time.Time        `json:"created_at"`
-	UpdatedAt       time.Time        `json:"updated_at"`
+	ID               string           `json:"id"`
+	Kind             ProposalKind     `json:"kind,omitempty"` // bond|self_pattern|principle|tension；缺省 bond
+	PersonID         string           `json:"person_id"`
+	SessionID        string           `json:"session_id,omitempty"`
+	Status           ProposalStatus   `json:"status"`
+	Hypothesis       Hypothesis       `json:"hypothesis"`
+	Field            string           `json:"field"` // bond field 或 self 标题提示
+	SuggestedText    string           `json:"suggested_text"`
+	Mode             string           `json:"mode,omitempty"` // append|replace
+	Rationale        string           `json:"rationale,omitempty"`
+	Source           string           `json:"source,omitempty"` // session_review | tool
+	ExperienceModes  []ExperienceMode `json:"experience_modes,omitempty"`
+	SourceEpisodeIDs []string         `json:"source_episode_ids,omitempty"`
+	ReflectionSeedID string           `json:"reflection_seed_id,omitempty"`
+	ReflectionRunID  string           `json:"reflection_run_id,omitempty"`
+	ExpectedVersion  int64            `json:"expected_version,omitempty"`
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // ProposalKind distinguishes slow-change domains sharing one queue.
@@ -79,22 +84,27 @@ func NormalizeProposalKind(raw string) ProposalKind {
 
 // ProposalWrite is the payload to enqueue a proposal.
 type ProposalWrite struct {
-	Kind            ProposalKind
-	PersonID        string
-	SessionID       string
-	Hypothesis      Hypothesis
-	Field           string
-	SuggestedText   string
-	Mode            string
-	Rationale       string
-	Source          string
-	ExperienceModes []ExperienceMode
+	Kind             ProposalKind
+	PersonID         string
+	SessionID        string
+	Hypothesis       Hypothesis
+	Field            string
+	SuggestedText    string
+	Mode             string
+	Rationale        string
+	Source           string
+	ExperienceModes  []ExperienceMode
+	SourceEpisodeIDs []string
+	ReflectionSeedID string
+	ReflectionRunID  string
+	ExpectedVersion  int64
 }
 
 // ProposalStore keeps bond proposals as Markdown under dir.
 type ProposalStore struct {
-	mu  sync.Mutex
-	dir string
+	mu        sync.Mutex
+	dir       string
+	OnChanged func(BondProposal)
 }
 
 var unsafeProposalToken = regexp.MustCompile(`[^a-zA-Z0-9_\-:]+`)
@@ -148,15 +158,23 @@ func (s *ProposalStore) Enqueue(_ context.Context, scope identity.TenantScope, w
 		Rationale: strings.TrimSpace(w.Rationale), Source: strings.TrimSpace(w.Source),
 		ExperienceModes: normalizeExperienceModes(w.ExperienceModes),
 		CreatedAt:       now, UpdatedAt: now,
+		SourceEpisodeIDs: uniqueStrings(w.SourceEpisodeIDs),
+		ReflectionSeedID: sanitizeReflectionID(w.ReflectionSeedID),
+		ReflectionRunID:  sanitizeReflectionID(w.ReflectionRunID),
+		ExpectedVersion:  w.ExpectedVersion,
 	}
 	if p.Source == "" {
 		p.Source = "tool"
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	path := filepath.Join(s.dir, "open", sanitizeProposalID(p.ID)+".md")
 	if err := os.WriteFile(path, []byte(formatProposalFile(p)), 0o644); err != nil {
+		s.mu.Unlock()
 		return BondProposal{}, err
+	}
+	s.mu.Unlock()
+	if s.OnChanged != nil {
+		s.OnChanged(p)
 	}
 	return p, nil
 }
@@ -346,6 +364,18 @@ func formatProposalFile(p BondProposal) string {
 	}
 	b.WriteString(fmt.Sprintf("created_at: %s\n", p.CreatedAt.UTC().Format(time.RFC3339)))
 	b.WriteString(fmt.Sprintf("updated_at: %s\n", p.UpdatedAt.UTC().Format(time.RFC3339)))
+	if len(p.SourceEpisodeIDs) > 0 {
+		b.WriteString(fmt.Sprintf("source_episode_ids: %s\n", strings.Join(p.SourceEpisodeIDs, ",")))
+	}
+	if p.ReflectionSeedID != "" {
+		b.WriteString(fmt.Sprintf("reflection_seed_id: %s\n", p.ReflectionSeedID))
+	}
+	if p.ReflectionRunID != "" {
+		b.WriteString(fmt.Sprintf("reflection_run_id: %s\n", p.ReflectionRunID))
+	}
+	if p.ExpectedVersion > 0 {
+		b.WriteString(fmt.Sprintf("expected_version: %d\n", p.ExpectedVersion))
+	}
 	b.WriteString("---\n\n")
 	if p.Rationale != "" {
 		b.WriteString("## 理由\n")
@@ -404,6 +434,14 @@ func parseProposalFile(raw string) (BondProposal, error) {
 			p.Source = v
 		case "experience_modes":
 			p.ExperienceModes = parseExperienceModesCSV(v)
+		case "source_episode_ids":
+			p.SourceEpisodeIDs = uniqueStrings(strings.Split(v, ","))
+		case "reflection_seed_id":
+			p.ReflectionSeedID = sanitizeReflectionID(v)
+		case "reflection_run_id":
+			p.ReflectionRunID = sanitizeReflectionID(v)
+		case "expected_version":
+			_, _ = fmt.Sscan(v, &p.ExpectedVersion)
 		case "created_at":
 			if t, err := time.Parse(time.RFC3339, v); err == nil {
 				p.CreatedAt = t

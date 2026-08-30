@@ -17,11 +17,14 @@ import (
 // It may write state_observation Episodes and enqueue Bond proposals,
 // but never directly patches high-threshold Bond fields.
 type SessionReviewer struct {
-	Chat      *ChatClient
-	Episodes  *EpisodeStore
-	Proposals *ProposalStore
-	Graph     GraphToucher // optional
-	MinChars  int          // skip tiny sessions
+	Chat        *ChatClient
+	Episodes    *EpisodeStore
+	Proposals   *ProposalStore
+	Reflections *ReflectionStore
+	Context     ReflectionContextReader
+	Mode        ReflectionMode
+	Graph       GraphToucher // optional
+	MinChars    int          // skip tiny sessions
 }
 
 // GraphToucher updates last_seen and can read bond for review context.
@@ -33,12 +36,15 @@ type GraphToucher interface {
 
 // ReviewResult is a human-readable summary of what the review did.
 type ReviewResult struct {
-	Skipped           bool     `json:"skipped"`
-	Reason            string   `json:"reason,omitempty"`
-	Hypothesis        string   `json:"hypothesis,omitempty"`
-	StateObservationID string  `json:"state_observation_id,omitempty"`
-	ProposalIDs       []string `json:"proposal_ids,omitempty"`
-	Notes             string   `json:"notes,omitempty"`
+	ReviewID           string   `json:"review_id,omitempty"`
+	Mode               string   `json:"mode,omitempty"`
+	Skipped            bool     `json:"skipped"`
+	Reason             string   `json:"reason,omitempty"`
+	Hypothesis         string   `json:"hypothesis,omitempty"`
+	StateObservationID string   `json:"state_observation_id,omitempty"`
+	ProposalIDs        []string `json:"proposal_ids,omitempty"`
+	Notes              string   `json:"notes,omitempty"`
+	ReflectionSeedIDs  []string `json:"reflection_seed_ids,omitempty"`
 }
 
 type reviewModelOut struct {
@@ -53,11 +59,27 @@ type reviewModelOut struct {
 		Mode      string `json:"mode"`
 		Rationale string `json:"rationale"`
 	} `json:"proposals"`
+	Seeds []struct {
+		Scope           string   `json:"scope"`
+		Statement       string   `json:"statement"`
+		SourceType      string   `json:"source_type"`
+		ExperienceModes []string `json:"experience_modes"`
+	} `json:"reflection_seeds"`
 }
 
 // Run reviews one session transcript against current Bond.
 func (r *SessionReviewer) Run(ctx context.Context, scope identity.TenantScope, sessionID string, history []transcript.Message) (ReviewResult, error) {
-	if r == nil || r.Episodes == nil || r.Proposals == nil || r.Chat == nil {
+	if r == nil || r.Episodes == nil || r.Chat == nil {
+		return ReviewResult{Skipped: true, Reason: "reviewer incomplete"}, nil
+	}
+	mode := r.Mode
+	if mode == "" {
+		mode = ReflectionModeLegacy
+	}
+	if mode != ReflectionModeLegacy {
+		return r.runReflection(ctx, scope, sessionID, history, mode)
+	}
+	if r.Proposals == nil {
 		return ReviewResult{Skipped: true, Reason: "reviewer incomplete"}, nil
 	}
 	if err := scope.Validate(); err != nil {

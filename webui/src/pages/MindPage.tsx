@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Activity, Compass, Eye, HeartHandshake, Orbit, Sparkles } from "lucide-react";
 import { api } from "../api";
+import { ReflectionPanel } from "../components/ReflectionPanel";
 
 function title(item: Record<string, unknown>) {
   return String(item.title || item.summary || item.field || item.query || item.url || item.id || "未命名");
@@ -21,6 +22,7 @@ export function MindPage() {
   const sources = useQuery({ queryKey: ["sources"], queryFn: api.sources });
   const proposals = useQuery({ queryKey: ["proposals"], queryFn: api.proposals });
   const mutations = useQuery({ queryKey: ["mutations"], queryFn: api.mutations });
+	const reflections = useQuery({ queryKey: ["reflections"], queryFn: api.reflections, refetchInterval: 12_000 });
   const agency = useQuery({ queryKey: ["agency"], queryFn: api.agency });
   const documents = workspace.data?.documents || [];
   const intentItems = intents.data?.intents || [];
@@ -44,6 +46,8 @@ export function MindPage() {
         <Collection label="SELF" heading="关于自己的理解" items={artifacts} empty="还没有形成可展示的自我产物。" />
         <Collection label="PROPOSAL" heading="尚未确认" items={proposals.data?.proposals || []} empty="此刻没有等待确认的假设。" />
       </div>
+		<section className="mind-section-heading"><span className="eyebrow">REFLECTION</span><h2>经历如何改变了安</h2><p>问题可以长期保持未决；证据、冲突、想象与正式改变不会混在一起。</p></section>
+		<ReflectionPanel seeds={reflections.data?.reflections || []} mutations={mutations.data?.mutations || []} />
       <section className="mind-section-heading"><span className="eyebrow">AGENCY & WORLD</span><h2>主动生活与外界接触</h2><p>这里只展示可追溯的行动和来源，不把外界资料自动当成信念。</p></section>
       <div className="mind-grid three">
         <Collection label="WAKE" heading="自主唤醒" items={wakes.data?.wakes || []} empty="没有近期自主唤醒。" />

@@ -1,6 +1,6 @@
 # Deep-Seeing
 
-> 版本：**v0.8.1**（T1 常模与 Context Graph 更新）
+> 版本：**v0.10.0**（T1 记忆形成 · T2 自主召回 · T3 反思与 Dream 巩固）
 
 用 [Eino](https://github.com/cloudwego/eino) 的 **ReAct Agent** 做编排壳；记忆机制参考 Claude Code / ascentia：明文文件 + 旁路选型，不用向量库。
 
@@ -9,14 +9,14 @@
 ## 记忆怎么存（摘要）
 
 - **STM**：Redis 会话（TTL）+ 摘要式 Compaction，失败回退内存/trim（详见 [docs/memory-stm.md](./docs/memory-stm.md)）
-- **LTM**：Episode + Bond + Review/Dream 机会 + Mutation Ledger；Origin 仅 first_boot；见 [docs/birth-gate.md](./docs/birth-gate.md)  
+- **LTM**：Episode + Bond + ReflectionSeed + 双层 Dream + 可撤销 Mutation Ledger；Origin 仅 first_boot；见 [docs/t3-reflection.md](./docs/t3-reflection.md)
 - **召回模式**：`legacy` 为 Bond → 场景常模 → 开放提案 → Episode 固定旁路；`agent` 为完整 Bond 背景 + Agent 自主使用记忆工具
-- **能力**：`inspect_runtime` / `list_capabilities`；命令 `/review` `/dream` `/backup`
+- **能力**：`inspect_runtime` / `list_capabilities`；命令 `/review` `/dream` `/dream-gen` `/backup`
 
 ## 其它
 
 - **Eino ReAct**：模型决定是否再调记忆工具  
-- 退出 CLI 或输入 `/review` 触发 Session Review（不自动改写常模）
+- 退出 CLI、输入 `/review` 或 Room 空闲触发 Session Review；非 Legacy 模式只形成 ReflectionSeed
 - Neo4j / Redis 连接见 `.env.example`（`LTM_GRAPH=0` 可强制关图）
 ## 快速开始
 
@@ -25,6 +25,7 @@ cp .env.example .env
 # 填写 OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL
 # 可选：NEO4J_* 启用 L2 图
 # 可选：RECALL_MODE=agent 试用 T2 自主召回（默认 legacy）
+# T3 已默认 agent；可选 REFLECTION_MODE=observe 仅观察，或 legacy 紧急回退
 
 # 在仓库根目录执行（不要在 cmd/see 子目录里）
 go run ./cmd/see
@@ -59,7 +60,7 @@ Living Mind 提供四个相互连接的空间：
 - `/`：对话与可收起的实时“此刻”栏
 - `/turn/<turn_id>`：处境、召回、证据与注意力的公开回放
 - `/memory`：长期记忆星图与结构化档案
-- `/mind`：Bond、Workspace、Intent、Self、Agency 与 World
+- `/mind`：Bond、Reflection/Dream、可撤销变化、Workspace、Intent、Self、Agency 与 World
 
 界面只展示公开工具与结构状态，不展示隐藏思维过程。完整说明见 [docs/frontend-v2.md](docs/frontend-v2.md)。
 

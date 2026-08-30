@@ -8,16 +8,38 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
 // ChatClient is a minimal OpenAI-compatible chat caller shared by side-query and extractor.
+type ChatUsage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
+}
+
+func (u ChatUsage) Sub(before ChatUsage) ChatUsage {
+	return ChatUsage{PromptTokens: u.PromptTokens - before.PromptTokens, CompletionTokens: u.CompletionTokens - before.CompletionTokens, TotalTokens: u.TotalTokens - before.TotalTokens}
+}
+
 type ChatClient struct {
+	mu         sync.Mutex
 	APIKey     string
 	BaseURL    string
 	Model      string
 	HTTPClient *http.Client
 	MaxTokens  int
+	usage      ChatUsage
+}
+
+func (c *ChatClient) Usage() ChatUsage {
+	if c == nil {
+		return ChatUsage{}
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.usage
 }
 
 func (c *ChatClient) Complete(ctx context.Context, system, user string) (string, error) {
@@ -67,6 +89,7 @@ func (c *ChatClient) Complete(ctx context.Context, system, user string) (string,
 		return "", fmt.Errorf("chat status %d: %s", resp.StatusCode, truncate(string(respBody), 300))
 	}
 	var parsed struct {
+		Usage   ChatUsage `json:"usage"`
 		Choices []struct {
 			Message struct {
 				Content string `json:"content"`
@@ -76,6 +99,11 @@ func (c *ChatClient) Complete(ctx context.Context, system, user string) (string,
 	if err := json.Unmarshal(respBody, &parsed); err != nil {
 		return "", err
 	}
+	c.mu.Lock()
+	c.usage.PromptTokens += parsed.Usage.PromptTokens
+	c.usage.CompletionTokens += parsed.Usage.CompletionTokens
+	c.usage.TotalTokens += parsed.Usage.TotalTokens
+	c.mu.Unlock()
 	if len(parsed.Choices) == 0 {
 		return "", nil
 	}
