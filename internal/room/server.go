@@ -23,6 +23,7 @@ import (
 	"deep-seeing/internal/memory"
 	"deep-seeing/internal/observe"
 	"deep-seeing/internal/runtime"
+	"deep-seeing/internal/theater"
 	"deep-seeing/internal/workspace"
 )
 
@@ -55,6 +56,9 @@ func (s *Server) Handler() (http.Handler, error) {
 	if s == nil || s.App == nil || s.App.Service == nil {
 		return nil, errors.New("room: app required")
 	}
+	if err := s.validateTailAuthConfig(); err != nil {
+		return nil, err
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/runtime", s.handleRuntime)
 	mux.HandleFunc("GET /api/bootstrap", s.handleBootstrap)
@@ -85,6 +89,7 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("POST /api/backup", s.handleBackup)
 	mux.HandleFunc("POST /api/dream/generative", s.handleGenerativeDream)
 	mux.HandleFunc("POST /api/mutations/{id}/revert", s.handleRevertMutation)
+	s.registerRoleRoutes(mux)
 
 	sub, err := fs.Sub(webFS, "web")
 	if err != nil {
@@ -126,6 +131,10 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("GET /memory/", serveApp)
 	mux.HandleFunc("GET /mind", serveApp)
 	mux.HandleFunc("GET /mind/", serveApp)
+	mux.HandleFunc("GET /roles", serveApp)
+	mux.HandleFunc("GET /roles/", serveApp)
+	mux.HandleFunc("GET /theater", serveApp)
+	mux.HandleFunc("GET /theater/", serveApp)
 	mux.HandleFunc("GET /turn/{id}", serveApp)
 	mux.HandleFunc("GET /turn/{id}/", serveApp)
 	return s.securityHeaders(mux), nil
@@ -149,6 +158,10 @@ func (s *Server) ListenAndServe() error {
 
 func (s *Server) securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !s.authorizeTailUser(r) {
+			writeJSON(w, http.StatusForbidden, map[string]any{"error": "tailscale identity not allowed"})
+			return
+		}
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("Content-Security-Policy",
@@ -471,7 +484,9 @@ func (s *Server) handleSource(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Message string `json:"message"`
+		Message       string `json:"message"`
+		Channel       string `json:"channel,omitempty"`
+		RoleSessionID string `json:"role_session_id,omitempty"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "invalid json"})
@@ -510,7 +525,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	var answer string
 	var health observe.TurnHealthTrace
 	err := s.queue().RunCognitive(r.Context(), "chat", func(ctx context.Context) error {
-		result, err := s.App.Service.StreamTurnWithHooks(ctx, input.Message, runtime.TurnHooks{
+		turnHooks := runtime.TurnHooks{
 			TurnID:      turnID,
 			WriteDelta:  func(delta string) { emit("delta", delta) },
 			OnToolStart: func(name string) { emit("tool", map[string]any{"name": name}) },
@@ -550,7 +565,16 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			OnAttentionDecision: func(event observe.AttentionDecisionTrace) {
 				emit("attention_decision", event)
 			},
-		})
+		}
+		var result runtime.TurnResult
+		var err error
+		if s.App.Theater != nil {
+			result, err = s.App.Theater.StreamTurnWithHooks(ctx, theater.Channel(input.Channel), input.RoleSessionID, input.Message, theater.RouterHooks{
+				Turn: turnHooks, OnRoleEvent: func(event theater.RoleEvent) { emit(event.Type, event) },
+			})
+		} else {
+			result, err = s.App.Service.StreamTurnWithHooks(ctx, input.Message, turnHooks)
+		}
 		if err != nil {
 			return err
 		}

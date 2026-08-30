@@ -1,0 +1,150 @@
+package theater
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
+
+	"github.com/cloudwego/eino/components/tool"
+	"github.com/cloudwego/eino/components/tool/utils"
+
+	"deep-seeing/internal/identity"
+)
+
+type DirectorToolDeps struct {
+	Scope identity.TenantScope
+	Mode  Mode
+	Store *Store
+}
+
+func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
+	if deps.Store == nil {
+		return nil, fmt.Errorf("role store required")
+	}
+	listTool, err := utils.InferTool("list_roles", "列出角色库；ready 角色可进入，draft/validating 尚未上架。", func(ctx context.Context, in struct {
+		IncludeArchived bool `json:"include_archived,omitempty"`
+	}) (string, error) {
+		items, listErr := deps.Store.ListDefinitions(ctx, deps.Scope, in.IncludeArchived)
+		if listErr != nil {
+			return "", listErr
+		}
+		out, err := json.Marshal(map[string]any{"ok": true, "roles": items})
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	inspectTool, err := utils.InferTool("inspect_role", "读取一个角色的定义、主张，以及当前活跃实例状态；这是幕后能力。", func(ctx context.Context, in struct {
+		ID string `json:"id"`
+	}) (string, error) {
+		d, getErr := deps.Store.GetDefinition(ctx, strings.TrimSpace(in.ID))
+		if getErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": getErr.Error()})
+			return string(out), nil
+		}
+		claims, _ := deps.Store.ListClaims(ctx, d.ID)
+		payload := map[string]any{"ok": true, "role": d, "claims": claims}
+		if activeD, inst, session, activeErr := deps.Store.Active(ctx); activeErr == nil && activeD.ID == d.ID {
+			payload["instance"], payload["session"] = inst, session
+		}
+		out, err := json.Marshal(payload)
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	enterTool, err := utils.InferTool("enter_role", "进入一个已经验收并上架的角色；同一时刻只能有一个角色会话。", func(ctx context.Context, in struct {
+		ID string `json:"id"`
+	}) (string, error) {
+		if deps.Mode == ModeOff {
+			return "{\"ok\":false,\"error\":\"ROLE_MODE is off\"}", nil
+		}
+		d, inst, session, enterErr := deps.Store.Enter(ctx, deps.Scope, strings.TrimSpace(in.ID))
+		if enterErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": enterErr.Error()})
+			return string(out), nil
+		}
+		out, err := json.Marshal(map[string]any{"ok": true, "role": d, "instance": inst, "session": session})
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	pauseTool, err := utils.InferTool("pause_role", "强制暂停并存档当前角色状态；角色不能拒绝。", func(ctx context.Context, in struct {
+		Reason string `json:"reason,omitempty"`
+	}) (string, error) {
+		session, pauseErr := deps.Store.Pause(ctx, in.Reason)
+		if pauseErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": pauseErr.Error()})
+			return string(out), nil
+		}
+		out, err := json.Marshal(map[string]any{"ok": true, "session": session})
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	resumeTool, err := utils.InferTool("resume_role", "恢复当前已经暂停的角色会话。", func(ctx context.Context, _ struct{}) (string, error) {
+		session, resumeErr := deps.Store.Resume(ctx)
+		if resumeErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": resumeErr.Error()})
+			return string(out), nil
+		}
+		out, err := json.Marshal(map[string]any{"ok": true, "session": session})
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	exitTool, err := utils.InferTool("exit_role", "强制退出当前角色并存档本次 Session；角色实例保留供以后继续。", func(ctx context.Context, in struct {
+		Reason string `json:"reason,omitempty"`
+	}) (string, error) {
+		session, exitErr := deps.Store.Exit(ctx, in.Reason, false)
+		if exitErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": exitErr.Error()})
+			return string(out), nil
+		}
+		out, err := json.Marshal(map[string]any{"ok": true, "session": session})
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	forkTool, err := utils.InferTool("fork_role_worldline", "从当前角色人生创建新世界线；原世界线保持不变。", func(ctx context.Context, in struct {
+		Label string `json:"label,omitempty"`
+	}) (string, error) {
+		world, inst, forkErr := deps.Store.ForkWorldline(ctx, "", in.Label)
+		if forkErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": forkErr.Error()})
+			return string(out), nil
+		}
+		out, err := json.Marshal(map[string]any{"ok": true, "worldline": world, "instance": inst})
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	transcriptTool, err := utils.InferTool("read_role_transcript", "在幕后读取当前角色的台前或幕后记录；正文不会提供给角色。", func(ctx context.Context, in struct {
+		Channel string `json:"channel"`
+		Limit   int    `json:"limit,omitempty"`
+	}) (string, error) {
+		_, _, session, activeErr := deps.Store.Active(ctx)
+		if activeErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": activeErr.Error()})
+			return string(out), nil
+		}
+		channel := Channel(strings.TrimSpace(in.Channel))
+		items, readErr := deps.Store.ReadTranscript(ctx, session.ID, channel, in.Limit)
+		if readErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": readErr.Error()})
+			return string(out), nil
+		}
+		out, err := json.Marshal(map[string]any{"ok": true, "channel": channel, "messages": items})
+		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return []tool.BaseTool{listTool, inspectTool, enterTool, pauseTool, resumeTool, exitTool, forkTool, transcriptTool}, nil
+}

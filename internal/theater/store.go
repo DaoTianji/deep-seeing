@@ -330,7 +330,7 @@ func (s *Store) ForkWorldline(_ context.Context, actionID, label string) (RoleWo
 	world := RoleWorldline{
 		ID: "world_" + compactUUID(), RoleID: parent.RoleID, RoleInstanceID: parent.RoleInstanceID,
 		ParentWorldlineID: parent.ID, ForkedFromAction: cleanText(actionID), Label: cleanText(label),
-		State: cloneMap(parent.State), Version: 1, CreatedAt: now, UpdatedAt: now,
+		State: cloneMap(parent.State), MaskedMemoryIDs: append([]string(nil), parent.MaskedMemoryIDs...), Version: 1, CreatedAt: now, UpdatedAt: now,
 	}
 	if world.Label == "" {
 		world.Label = "branch"
@@ -519,6 +519,31 @@ func (s *Store) GetWorldline(_ context.Context, id string) (RoleWorldline, error
 	var out RoleWorldline
 	err := readJSON(s.worldlinePath(id), &out)
 	return out, err
+}
+
+func (s *Store) GetSession(_ context.Context, id string) (RoleSession, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var out RoleSession
+	err := readJSON(s.sessionPath(id), &out)
+	return out, err
+}
+
+func (s *Store) WorldlineAncestry(_ context.Context, id string) ([]RoleWorldline, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var out []RoleWorldline
+	seen := map[string]bool{}
+	for cleanText(id) != "" && !seen[id] {
+		seen[id] = true
+		var world RoleWorldline
+		if err := readJSON(s.worldlinePath(id), &world); err != nil {
+			return nil, err
+		}
+		out = append(out, world)
+		id = world.ParentWorldlineID
+	}
+	return out, nil
 }
 
 func (s *Store) activeLocked() (RoleDefinition, RoleInstance, RoleSession, error) {

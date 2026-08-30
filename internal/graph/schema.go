@@ -15,6 +15,10 @@ func (s *Store) EnsureSchema(ctx context.Context) error {
 		`CREATE CONSTRAINT person_id IF NOT EXISTS FOR (n:Person) REQUIRE n.id IS UNIQUE`,
 		`CREATE CONSTRAINT episode_id IF NOT EXISTS FOR (n:Episode) REQUIRE n.id IS UNIQUE`,
 		`CREATE CONSTRAINT self_artifact_id IF NOT EXISTS FOR (n:SelfArtifact) REQUIRE n.id IS UNIQUE`,
+		`CREATE CONSTRAINT role_id IF NOT EXISTS FOR (n:Role) REQUIRE n.id IS UNIQUE`,
+		`CREATE CONSTRAINT role_instance_id IF NOT EXISTS FOR (n:RoleInstance) REQUIRE n.id IS UNIQUE`,
+		`CREATE CONSTRAINT role_worldline_id IF NOT EXISTS FOR (n:RoleWorldline) REQUIRE n.id IS UNIQUE`,
+		`CREATE CONSTRAINT source_id IF NOT EXISTS FOR (n:Source) REQUIRE n.id IS UNIQUE`,
 	}
 	for _, cypher := range stmts {
 		if err := s.write(ctx, cypher, nil); err != nil {

@@ -184,6 +184,9 @@ LIMIT $limit
 	if err != nil {
 		return View{}, err
 	}
+	if err := s.appendRoleVisualization(ctx, scope, &out, limit*4); err != nil {
+		return View{}, err
+	}
 	return out, nil
 }
 

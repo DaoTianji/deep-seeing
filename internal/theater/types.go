@@ -154,6 +154,7 @@ type RoleWorldline struct {
 	ForkedFromAction  string            `json:"forked_from_action,omitempty"`
 	Label             string            `json:"label"`
 	State             map[string]string `json:"state,omitempty"`
+	MaskedMemoryIDs   []string          `json:"masked_memory_ids,omitempty"`
 	Version           int64             `json:"version"`
 	CreatedAt         time.Time         `json:"created_at"`
 	UpdatedAt         time.Time         `json:"updated_at"`
@@ -229,21 +230,22 @@ const (
 )
 
 type DirectorAction struct {
-	ID              string            `json:"id"`
-	RoleID          string            `json:"role_id"`
-	RoleInstanceID  string            `json:"role_instance_id"`
-	RoleSessionID   string            `json:"role_session_id"`
-	WorldlineID     string            `json:"worldline_id"`
-	TurnID          string            `json:"turn_id,omitempty"`
-	Type            ActionType        `json:"type"`
-	Status          ActionStatus      `json:"status"`
-	ReasonCode      string            `json:"reason_code,omitempty"`
-	Before          map[string]string `json:"before,omitempty"`
-	After           map[string]string `json:"after,omitempty"`
-	ExpectedVersion int64             `json:"expected_version,omitempty"`
-	AppliedVersion  int64             `json:"applied_version,omitempty"`
-	RevertsActionID string            `json:"reverts_action_id,omitempty"`
-	CreatedAt       time.Time         `json:"created_at"`
+	ID               string            `json:"id"`
+	RoleID           string            `json:"role_id"`
+	RoleInstanceID   string            `json:"role_instance_id"`
+	RoleSessionID    string            `json:"role_session_id"`
+	WorldlineID      string            `json:"worldline_id"`
+	TurnID           string            `json:"turn_id,omitempty"`
+	Type             ActionType        `json:"type"`
+	Status           ActionStatus      `json:"status"`
+	ReasonCode       string            `json:"reason_code,omitempty"`
+	Before           map[string]string `json:"before,omitempty"`
+	After            map[string]string `json:"after,omitempty"`
+	ExpectedVersion  int64             `json:"expected_version,omitempty"`
+	AppliedVersion   int64             `json:"applied_version,omitempty"`
+	RevertsActionID  string            `json:"reverts_action_id,omitempty"`
+	TouchesCanonical bool              `json:"touches_canonical,omitempty"`
+	CreatedAt        time.Time         `json:"created_at"`
 }
 
 type TranscriptMessage struct {

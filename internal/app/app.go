@@ -47,6 +47,7 @@ type App struct {
 	RecallMode     runtime.RecallMode
 	ReflectionMode memory.ReflectionMode
 	RoleMode       theater.Mode
+	Theater        *theater.Router
 	Service        *runtime.Service
 	STM            memory.SessionStore
 	STMBackend     string
@@ -67,6 +68,7 @@ type App struct {
 	Intents        *intent.Store
 	World          *world.Gateway
 	Roles          *theater.Store
+	RoleCompiler   *theater.RoleCompiler
 	Scheduler      *agency.Scheduler
 	OriginLetter   origin.Letter
 	FirstBoot      bool
@@ -180,6 +182,18 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	} else if changed {
 		log.Printf("active role paused after process recovery")
 	}
+	if graphStore != nil {
+		if definitions, listErr := roleStore.ListDefinitions(ctx, scope, true); listErr == nil {
+			for _, definition := range definitions {
+				if indexErr := theater.IndexRole(ctx, graphStore, scope, roleStore, definition.ID); indexErr != nil {
+					log.Printf("role graph index unavailable for %s: %v", definition.ID, indexErr)
+				}
+				if memoryErr := theater.IndexRoleMemories(ctx, graphStore, scope, episodes, definition.ID); memoryErr != nil {
+					log.Printf("role memory graph index unavailable for %s: %v", definition.ID, memoryErr)
+				}
+			}
+		}
+	}
 	var taskFocusReader runtime.TaskContextFocusReader
 	var attentionStore *attention.SessionStore
 	if recallMode == runtime.RecallModeAgent {
@@ -209,7 +223,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Scope: scope, Episodes: episodes, Graph: graphStore, Scenes: sceneStore, Proposals: proposals,
 		Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Ledger: ledger, SessionID: sessionID, Model: cfg.Model, Stores: stores, FirstBoot: firstBoot,
-		RecallMode: string(recallMode), TaskContextFocus: taskFocusController,
+		RecallMode: string(recallMode), RoleMode: string(roleMode), TaskContextFocus: taskFocusController,
 		Attention: attentionStore,
 		OnBondChanged: func() {
 			if svc != nil {
@@ -223,6 +237,15 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		}
 		return nil, fmt.Errorf("tools: %w", err)
 	}
+
+	roleToolList, err := theater.DirectorTools(theater.DirectorToolDeps{Scope: scope, Mode: roleMode, Store: roleStore})
+	if err != nil {
+		if graphStore != nil {
+			_ = graphStore.Close(ctx)
+		}
+		return nil, fmt.Errorf("role tools: %w", err)
+	}
+	toolList = append(toolList, roleToolList...)
 
 	reactAgent, err := deepagent.New(ctx, cfg, toolList, func() string {
 		if svc == nil {
@@ -265,6 +288,53 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		log.Printf("norm snapshot warm fallback: %v", err)
 	}
 
+	var directorSvc *runtime.Service
+	directorAgent, err := deepagent.New(ctx, cfg, toolList, func() string {
+		if directorSvc == nil {
+			return ""
+		}
+		return directorSvc.SystemProvider()
+	})
+	if err != nil {
+		if graphStore != nil {
+			_ = graphStore.Close(ctx)
+		}
+		return nil, fmt.Errorf("director agent: %w", err)
+	}
+	directorSvc, err = runtime.New(runtime.Options{
+		Scope: scope, SessionID: "director:" + sessionID, STM: stm, SideQuery: side,
+		RecallMode: recallMode, Norms: norms,
+		TaskContext: runtime.NewStoreTaskContextProvider(wsStore, intentStore, taskFocusReader),
+		Attention:   attentionStore, Assembler: prompt.DefaultAssembler{},
+		Compactor: compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
+		Agent:     directorAgent, PostTurn: memory.NoopPostTurn{}, Soul: soulText,
+		Capability: prompt.CapabilityBlurb + "\n角色剧场处于幕后通道时，你仍是安本人；角色工具只用于观察和管理隔离角色。",
+		Model:      cfg.Model, Journal: journal, ContextSources: map[contextsource.Source]string{
+			contextsource.Bond: stores["context_graph"], contextsource.SceneNorm: stores["scene_store"],
+			contextsource.Workspace: stores["workspace_store"], contextsource.Intent: stores["intent_store"],
+			contextsource.Proposal: stores["proposals"], contextsource.Episode: stores["episode_store"],
+		},
+	})
+	if err != nil {
+		if graphStore != nil {
+			_ = graphStore.Close(ctx)
+		}
+		return nil, fmt.Errorf("director runtime: %w", err)
+	}
+	actorBuilder := &theater.RuntimeActorBuilder{
+		Scope: scope, Store: roleStore, Episodes: episodes, STM: stm, Config: cfg, Model: cfg.Model,
+		Compactor: compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
+		Graph:     graphStore, Workspace: wsStore,
+	}
+	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: reviewChat}
+	directorReviewer := &theater.DirectorReviewer{
+		Mode: roleMode, Store: roleStore, Episodes: episodes, Chat: reviewChat, Scope: scope, Model: cfg.Model,
+	}
+	theaterRouter := &theater.Router{
+		Mode: roleMode, Store: roleStore, Normal: svc, Director: directorSvc, Actors: actorBuilder, ActorSTM: stm,
+		Reviewer: directorReviewer, Scope: scope, Graph: graphStore,
+	}
+
 	queue := runtime.NewExecutionQueue(scope.AgentID)
 	runner := &agency.Runner{
 		Store: intentStore, Queue: queue, Budget: agency.DefaultBudget(),
@@ -273,12 +343,12 @@ func New(ctx context.Context, opt Options) (*App, error) {
 
 	app := &App{
 		Scope: scope, SessionID: sessionID, Model: cfg.Model, RecallMode: recallMode, Service: svc,
-		ReflectionMode: reflectionMode, RoleMode: roleMode,
+		ReflectionMode: reflectionMode, RoleMode: roleMode, Theater: theaterRouter,
 		STM: stm, STMBackend: stmBackend, Episodes: episodes, Proposals: proposals,
 		Ledger: ledger, Journal: journal, Graph: graphStore, GraphLabel: graphLabel,
 		Reflections: reflections,
 		Queue:       queue, Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
-		Scheduler: sched, OriginLetter: originLetter, FirstBoot: firstBoot, Roles: roleStore,
+		Scheduler: sched, OriginLetter: originLetter, FirstBoot: firstBoot, Roles: roleStore, RoleCompiler: roleCompiler,
 	}
 	app.Reviewer = &memory.SessionReviewer{
 		Chat: reviewChat, Episodes: episodes, Proposals: proposals, Reflections: reflections,
