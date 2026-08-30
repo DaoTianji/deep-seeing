@@ -145,3 +145,100 @@ export interface LiveTurn {
   health?: HealthTrace;
   startedAt: string;
 }
+
+export type RoleMode = "off" | "observe" | "agent";
+export type RoleKind = "character" | "professional";
+export type SubjectClass = "fictional" | "deceased" | "living_public" | "living_private";
+export type RoleStatus = "draft" | "validating" | "ready" | "archived";
+export type RoleSessionStatus = "active" | "paused" | "completed" | "aborted";
+export type TheaterChannel = "stage" | "backstage";
+
+export interface RoleDefinition {
+  id: string;
+  display_name: string;
+  kind: RoleKind;
+  subject_class: SubjectClass;
+  description?: string;
+  identity?: string;
+  voice?: string;
+  knowledge_cutoff?: string;
+  private_sandbox?: boolean;
+  main_instance_id?: string;
+  status: RoleStatus;
+  version: number;
+  validation?: { passed: boolean; issues?: Array<{ code: string; severity: string; message: string }> };
+}
+
+export interface RoleInstance {
+  id: string;
+  role_id: string;
+  main_worldline_id: string;
+  current_worldline_id: string;
+  status: string;
+  scene?: string;
+  state?: Record<string, string>;
+  version: number;
+}
+
+export interface RoleSession {
+  id: string;
+  role_id: string;
+  role_instance_id: string;
+  worldline_id: string;
+  status: RoleSessionStatus;
+  exit_reason?: string;
+  started_at: string;
+}
+
+export interface RoleSource {
+  id: string;
+  role_id: string;
+  title: string;
+  kind: string;
+  url?: string;
+  mime_type?: string;
+}
+
+export interface RoleClaim {
+  id: string;
+  role_id: string;
+  kind: string;
+  statement: string;
+  source_ids?: string[];
+  confidence?: number;
+}
+
+export interface RoleWorldline {
+  id: string;
+  parent_worldline_id?: string;
+  label: string;
+  state?: Record<string, string>;
+  version: number;
+}
+
+export interface DirectorActionView {
+  id: string;
+  type: string;
+  status: string;
+  reason_code?: string;
+  before?: Record<string, string>;
+  after?: Record<string, string>;
+  reverts_action_id?: string;
+  created_at: string;
+}
+
+export interface RoleTranscriptMessage {
+  turn_id?: string;
+  channel: TheaterChannel;
+  role: string;
+  content: string;
+  created_at: string;
+}
+
+export interface ActiveRole {
+  active: boolean;
+  mode: RoleMode;
+  definition?: RoleDefinition;
+  instance?: RoleInstance;
+  session?: RoleSession;
+}

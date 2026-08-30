@@ -37,6 +37,9 @@ ROOM_ADDR=127.0.0.1:3319
 LTM_GRAPH=1
 RECALL_MODE=agent
 REFLECTION_MODE=agent
+ROLE_MODE=off
+# Set to the Tailscale login emails allowed to open the private room.
+TAILSCALE_ALLOWED_USERS=
 ```
 
 Persistent store paths are absolute and live below `/var/lib/deep-seeing`.

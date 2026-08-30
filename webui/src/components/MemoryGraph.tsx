@@ -10,6 +10,11 @@ function kindColor(kind: string) {
   if (kind === "Self") return "#334e48";
   if (kind === "Person") return "#a8684a";
   if (kind === "Episode") return "#c4aa77";
+  if (kind === "Role") return "#8069a2";
+  if (kind === "RoleInstance") return "#9b82bd";
+  if (kind === "RoleWorldline") return "#b095c7";
+  if (kind === "RoleEpisode") return "#c08aa6";
+  if (kind === "Source") return "#6f8fa5";
   return "#8d968e";
 }
 
@@ -46,6 +51,11 @@ export function MemoryGraph({ view, activation = new Map(), onSelect }: {
         { selector: 'node[kind = "Self"]', style: { "width": 48, "height": 48 } },
         { selector: 'node[kind = "Person"]', style: { "width": 42, "height": 42, "shape": "round-rectangle" } },
         { selector: 'node[kind = "Episode"]', style: { "shape": "diamond" } },
+        { selector: 'node[kind = "Role"]', style: { "width": 44, "height": 44, "shape": "hexagon" } },
+        { selector: 'node[kind = "RoleInstance"]', style: { "width": 36, "height": 36, "shape": "round-rectangle" } },
+        { selector: 'node[kind = "RoleWorldline"]', style: { "shape": "tag" } },
+        { selector: 'node[kind = "RoleEpisode"]', style: { "shape": "diamond" } },
+        { selector: 'node[kind = "Source"]', style: { "shape": "rectangle", "width": 24, "height": 24 } },
         { selector: "edge", style: {
           "width": 1.2, "line-color": "#c7c1b4", "target-arrow-color": "#c7c1b4", "target-arrow-shape": "triangle",
           "curve-style": "bezier", "opacity": 0.62, "label": "data(label)", "font-size": 8, "color": "#8a857c", "text-background-color": "#f5f2e9", "text-background-opacity": 0.8,

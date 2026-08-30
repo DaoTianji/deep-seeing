@@ -7,6 +7,7 @@ import { TurnStoreProvider } from "./store";
 const TurnPage = lazy(() => import("./pages/TurnPage").then((module) => ({ default: module.TurnPage })));
 const MemoryPage = lazy(() => import("./pages/MemoryPage").then((module) => ({ default: module.MemoryPage })));
 const MindPage = lazy(() => import("./pages/MindPage").then((module) => ({ default: module.MindPage })));
+const RolePage = lazy(() => import("./pages/RolePage").then((module) => ({ default: module.RolePage })));
 
 export function App() {
   return (
@@ -18,6 +19,8 @@ export function App() {
             <Route path="/turn/:turnId" element={<TurnPage />} />
             <Route path="/memory" element={<MemoryPage />} />
             <Route path="/mind" element={<MindPage />} />
+            <Route path="/roles" element={<RolePage />} />
+            <Route path="/theater" element={<RolePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

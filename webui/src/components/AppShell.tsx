@@ -1,4 +1,4 @@
-import { BrainCircuit, Database, MessageCircleMore, Sparkles } from "lucide-react";
+import { BrainCircuit, Database, Drama, MessageCircleMore, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ const nav = [
   { to: "/", label: "对话", icon: MessageCircleMore, end: true },
   { to: "/memory", label: "记忆", icon: Database },
   { to: "/mind", label: "心智", icon: BrainCircuit },
+  { to: "/roles", label: "角色", icon: Drama },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, BrainCircuit, ChevronRight, CircleStop, RotateCcw, Sparkles } from "lucide-react";
 import { FormEvent, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { api, streamChat } from "../api";
 import { TurnStudio } from "../components/TurnStudio";
 import { MessageContent } from "../components/MessageContent";
@@ -25,6 +25,7 @@ function signature(turn?: LiveTurn) {
 
 export function ConversationPage() {
   const history = useQuery({ queryKey: ["history"], queryFn: api.history });
+  const activeRole = useQuery({ queryKey: ["active-role"], queryFn: api.activeRole });
   const queryClient = useQueryClient();
   const { turns, putTurn } = useTurnStore();
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
@@ -80,6 +81,8 @@ export function ConversationPage() {
       void queryClient.invalidateQueries({ queryKey: ["turns"] });
     }
   };
+
+  if (activeRole.data?.active) return <Navigate to="/theater" replace />;
 
   return (
     <div className={`conversation-layout ${showNow ? "with-now" : ""}`}>

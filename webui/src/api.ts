@@ -1,4 +1,8 @@
-import type { GraphView, Message, RuntimeSnapshot, StreamEnvelope, TurnTrace } from "./types";
+import type {
+  ActiveRole, DirectorActionView, GraphView, Message, RoleClaim, RoleDefinition,
+  RoleInstance, RoleSession, RoleSource, RoleTranscriptMessage, RoleWorldline,
+  RuntimeSnapshot, StreamEnvelope, TheaterChannel, TurnTrace,
+} from "./types";
 import type { ReflectionLiveState, ReflectionRun, ReflectionSeed } from "./reflection-types";
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
@@ -7,6 +11,11 @@ async function json<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) throw new Error((payload as { error?: string }).error || `请求失败 (${response.status})`);
   return payload as T;
 }
+
+const post = <T>(path: string, body: unknown = {}) => json<T>(path, {
+  method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+});
+
 export const api = {
   runtime: () => json<{ runtime: RuntimeSnapshot; graph_label?: string }>("/api/runtime"),
   bootstrap: () => json<{ runtime: RuntimeSnapshot; graph_label?: string; attention?: unknown; turns?: TurnTrace[] }>("/api/bootstrap"),
@@ -16,8 +25,8 @@ export const api = {
   episode: (id: string) => json<Record<string, unknown>>(`/api/episode/${encodeURIComponent(id)}`),
   proposals: () => json<{ proposals: Record<string, unknown>[] }>("/api/proposals?limit=100"),
   mutations: () => json<{ mutations: Record<string, unknown>[] }>("/api/mutations?limit=150"),
-	reflections: () => json<{ reflections: ReflectionSeed[] }>("/api/reflections?limit=100"),
-	reflectionRuns: () => json<{ runs: ReflectionRun[] }>("/api/reflection-runs?limit=60"),
+  reflections: () => json<{ reflections: ReflectionSeed[] }>("/api/reflections?limit=100"),
+  reflectionRuns: () => json<{ runs: ReflectionRun[] }>("/api/reflection-runs?limit=60"),
   reflectionLive: () => json<ReflectionLiveState>("/api/reflection-live"),
   self: () => json<{ artifacts: Record<string, unknown>[] }>("/api/self?limit=100"),
   workspace: () => json<{ documents: Record<string, unknown>[] }>("/api/workspace?limit=100"),
@@ -27,21 +36,47 @@ export const api = {
   sources: () => json<{ sources: Record<string, unknown>[] }>("/api/sources?limit=100"),
   turns: () => json<{ turns: TurnTrace[]; next_cursor?: string }>("/api/turns?limit=60"),
   turn: (id: string) => json<{ turn: TurnTrace }>(`/api/turns/${encodeURIComponent(id)}`),
-	review: () => json<Record<string, unknown>>("/api/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
-	dream: () => json<Record<string, unknown>>("/api/dream", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
-	generativeDream: () => json<Record<string, unknown>>("/api/dream/generative", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }),
-	revertMutation: (id: string) => json<Record<string, unknown>>(`/api/mutations/${encodeURIComponent(id)}/revert`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason: "用户请求撤销这次认识变化" }) }),
+  review: () => post<Record<string, unknown>>("/api/review"),
+  dream: () => post<Record<string, unknown>>("/api/dream"),
+  generativeDream: () => post<Record<string, unknown>>("/api/dream/generative"),
+  revertMutation: (id: string) => post<Record<string, unknown>>(`/api/mutations/${encodeURIComponent(id)}/revert`, { reason: "用户请求撤销这次认识变化" }),
+
+  roles: () => json<{ roles: RoleDefinition[]; active?: { definition: RoleDefinition; instance: RoleInstance; session: RoleSession }; mode: string }>("/api/roles"),
+  role: (id: string) => json<{ role: RoleDefinition; sources: RoleSource[]; claims: RoleClaim[]; instance?: RoleInstance; worldlines?: RoleWorldline[]; sessions: RoleSession[] }>(`/api/roles/${encodeURIComponent(id)}`),
+  createRole: (input: Record<string, unknown>) => post<{ role: RoleDefinition }>("/api/roles", input),
+  addRoleSource: (id: string, input: Record<string, unknown>) => post<{ source: RoleSource }>(`/api/roles/${encodeURIComponent(id)}/sources`, input),
+  compileRole: (id: string) => post<Record<string, unknown>>(`/api/roles/${encodeURIComponent(id)}/compile`),
+  publishRole: (id: string) => post<{ role: RoleDefinition }>(`/api/roles/${encodeURIComponent(id)}/publish`),
+  enterRole: (id: string) => post<{ definition: RoleDefinition; instance: RoleInstance; session: RoleSession }>(`/api/roles/${encodeURIComponent(id)}/enter`),
+  activeRole: () => json<ActiveRole>("/api/role/active"),
+  pauseRole: () => post<{ session: RoleSession }>("/api/role/pause"),
+  resumeRole: () => post<{ session: RoleSession }>("/api/role/resume"),
+  exitRole: () => post<{ session: RoleSession }>("/api/role/exit", { Reason: "user_exit" }),
+  forkRole: (label: string) => post<{ worldline: RoleWorldline; instance: RoleInstance }>("/api/role/fork", { Label: label }),
+  roleTranscript: (channel: TheaterChannel) => json<{ messages: RoleTranscriptMessage[] }>(`/api/role/transcripts?channel=${channel}&limit=200`),
+  roleActions: () => json<{ actions: DirectorActionView[] }>("/api/role/actions"),
+  revertDirectorAction: (id: string) => post<{ action: DirectorActionView }>(`/api/director-actions/${encodeURIComponent(id)}/revert`),
 };
+
+export interface StreamChatOptions {
+  channel?: TheaterChannel;
+  roleSessionId?: string;
+}
 
 export async function streamChat(
   message: string,
   signal: AbortSignal,
   onEvent: (event: StreamEnvelope) => void,
+  options: StreamChatOptions = {},
 ): Promise<void> {
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({
+      message,
+      channel: options.channel,
+      role_session_id: options.roleSessionId,
+    }),
     signal,
   });
   if (!response.ok || !response.body) {
