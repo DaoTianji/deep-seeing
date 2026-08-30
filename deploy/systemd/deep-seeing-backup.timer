@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Deep-Seeing persistent state backup
+
+[Timer]
+OnCalendar=*-*-* 04:30:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=deep-seeing-backup.service
+
+[Install]
+WantedBy=timers.target

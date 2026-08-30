@@ -1,0 +1,13 @@
+[Unit]
+Description=Back up Deep-Seeing persistent file state
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/deep-seeing/bin/deep-seeing-backup
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=yes
+ProtectHome=yes
+UMask=0077
