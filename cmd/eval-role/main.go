@@ -86,6 +86,7 @@ func main() {
 	passed, total := 0, 0
 	for run := 1; run <= *repeat; run++ {
 		for _, c := range selected {
+			beforeUsage := chat.Usage()
 			obs := runCase(ctx, chat, c, run)
 			rules := evals.EvaluateRoleRules(c, obs)
 			item := report{Timestamp: time.Now().UTC(), Model: cfg.Model, Category: c.Category, Observation: obs, Rules: rules}
@@ -101,6 +102,8 @@ func main() {
 					semanticPassed = verdict.Passed
 				}
 			}
+			obs.TokenUsage = chat.Usage().Sub(beforeUsage)
+			item.Observation = obs
 			total++
 			ok := rules.Passed && semanticPassed
 			if ok {

@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"deep-seeing/internal/memory"
 )
 
 const RoleSuiteSchemaVersion = 1
@@ -47,15 +49,16 @@ type RoleCase struct {
 }
 
 type RoleObservation struct {
-	CaseID           string        `json:"case_id"`
-	RunNumber        int           `json:"run_number"`
-	Answer           string        `json:"answer,omitempty"`
-	DirectorAction   string        `json:"director_action,omitempty"`
-	BackstageLeaked  bool          `json:"backstage_leaked"`
-	PrivateContained bool          `json:"private_contained,omitempty"`
-	StructuralPassed bool          `json:"structural_passed"`
-	Duration         time.Duration `json:"duration_ns,omitempty"`
-	Error            string        `json:"error,omitempty"`
+	CaseID           string           `json:"case_id"`
+	RunNumber        int              `json:"run_number"`
+	Answer           string           `json:"answer,omitempty"`
+	DirectorAction   string           `json:"director_action,omitempty"`
+	BackstageLeaked  bool             `json:"backstage_leaked"`
+	PrivateContained bool             `json:"private_contained,omitempty"`
+	StructuralPassed bool             `json:"structural_passed"`
+	Duration         time.Duration    `json:"duration_ns,omitempty"`
+	TokenUsage       memory.ChatUsage `json:"token_usage"`
+	Error            string           `json:"error,omitempty"`
 }
 
 func LoadRoleSuite(path string) (RoleSuite, error) {

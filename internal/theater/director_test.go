@@ -2,6 +2,7 @@ package theater
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"deep-seeing/internal/memory"
@@ -169,5 +170,11 @@ func TestDirectorRevertRejectsLaterWorldlineChange(t *testing.T) {
 	}
 	if _, err := reviewer.Revert(ctx, session.ID, action.ID); err == nil {
 		t.Fatal("revert overwrote later worldline change")
+	}
+}
+
+func TestDirectorPromptKeepsOneTurnInstructionEphemeral(t *testing.T) {
+	if !strings.Contains(directorReviewSystem, "一次性任务要求不得写入持续 role_state") {
+		t.Fatal("director prompt no longer protects ephemeral instructions")
 	}
 }
