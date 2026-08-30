@@ -27,6 +27,7 @@ type Snapshot struct {
 	Model          string            `json:"model"`
 	RecallMode     string            `json:"recall_mode,omitempty"`
 	ReflectionMode string            `json:"reflection_mode,omitempty"`
+	RoleMode       string            `json:"role_mode,omitempty"`
 	Versions       map[string]string `json:"versions"`
 	Stores         map[string]string `json:"stores"`
 	Persistence    map[string]string `json:"persistence"`
@@ -73,6 +74,7 @@ func BuildSnapshot(scope identity.TenantScope, sessionID, model string, stores m
 			"intent":     "persistent",
 			"source":     "persistent",
 			"scene":      "persistent",
+			"role":       "persistent",
 		},
 		FirstBoot: firstBoot,
 	}

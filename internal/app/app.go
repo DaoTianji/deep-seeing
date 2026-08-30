@@ -28,6 +28,7 @@ import (
 	"deep-seeing/internal/runtime"
 	"deep-seeing/internal/selfmodel"
 	"deep-seeing/internal/soul"
+	"deep-seeing/internal/theater"
 	"deep-seeing/internal/tools"
 	"deep-seeing/internal/workspace"
 	"deep-seeing/internal/world"
@@ -45,6 +46,7 @@ type App struct {
 	Model          string
 	RecallMode     runtime.RecallMode
 	ReflectionMode memory.ReflectionMode
+	RoleMode       theater.Mode
 	Service        *runtime.Service
 	STM            memory.SessionStore
 	STMBackend     string
@@ -64,6 +66,7 @@ type App struct {
 	Workspace      *workspace.Store
 	Intents        *intent.Store
 	World          *world.Gateway
+	Roles          *theater.Store
 	Scheduler      *agency.Scheduler
 	OriginLetter   origin.Letter
 	FirstBoot      bool
@@ -166,6 +169,17 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	norms := runtime.NewNormSnapshotCache(graphStore, scope)
 	var taskFocusController tools.TaskContextFocusController
 	reflectionMode := memory.ReflectionModeFromEnv()
+	roleMode := theater.ModeFromEnv()
+	roleDir := envOr("LTM_ROLE_DIR", filepath.Join("data", "memory", "roles"))
+	roleStore, err := theater.NewStore(roleDir)
+	if err != nil {
+		return nil, fmt.Errorf("role store: %w", err)
+	}
+	if _, changed, recoverErr := roleStore.Recover(ctx); recoverErr != nil {
+		log.Printf("role recovery unavailable: %v", recoverErr)
+	} else if changed {
+		log.Printf("active role paused after process recovery")
+	}
 	var taskFocusReader runtime.TaskContextFocusReader
 	var attentionStore *attention.SessionStore
 	if recallMode == runtime.RecallModeAgent {
@@ -180,7 +194,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		"proposals": "available", "mutations": "available", "traces": "available",
 		"self_store": "available", "workspace_store": "available", "intent_store": "available",
 		"source_store": "available", "scene_store": "available",
-		"reflection_store": "available",
+		"reflection_store": "available", "role_store": "available",
 	}
 	if graphStore != nil {
 		stores["context_graph"] = "available"
@@ -259,12 +273,12 @@ func New(ctx context.Context, opt Options) (*App, error) {
 
 	app := &App{
 		Scope: scope, SessionID: sessionID, Model: cfg.Model, RecallMode: recallMode, Service: svc,
-		ReflectionMode: reflectionMode,
-		STM:            stm, STMBackend: stmBackend, Episodes: episodes, Proposals: proposals,
+		ReflectionMode: reflectionMode, RoleMode: roleMode,
+		STM: stm, STMBackend: stmBackend, Episodes: episodes, Proposals: proposals,
 		Ledger: ledger, Journal: journal, Graph: graphStore, GraphLabel: graphLabel,
 		Reflections: reflections,
 		Queue:       queue, Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
-		Scheduler: sched, OriginLetter: originLetter, FirstBoot: firstBoot,
+		Scheduler: sched, OriginLetter: originLetter, FirstBoot: firstBoot, Roles: roleStore,
 	}
 	app.Reviewer = &memory.SessionReviewer{
 		Chat: reviewChat, Episodes: episodes, Proposals: proposals, Reflections: reflections,
@@ -297,7 +311,7 @@ func (a *App) RuntimeSnapshot() body.Snapshot {
 		"proposals": "available", "mutations": "available", "traces": "available",
 		"self_store": "available", "workspace_store": "available", "intent_store": "available",
 		"source_store":     "available",
-		"reflection_store": "available",
+		"reflection_store": "available", "role_store": "available",
 	}
 	if a.Graph != nil {
 		stores["context_graph"] = "available"
@@ -308,6 +322,7 @@ func (a *App) RuntimeSnapshot() body.Snapshot {
 	snapshot := body.BuildSnapshot(a.Scope, a.SessionID, a.Model, stores, a.FirstBoot)
 	snapshot.RecallMode = string(a.RecallMode)
 	snapshot.ReflectionMode = string(a.ReflectionMode)
+	snapshot.RoleMode = string(a.RoleMode)
 	return snapshot
 }
 

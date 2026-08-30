@@ -75,19 +75,24 @@ func IsSelfSubjectID(id string) bool {
 
 // Episode is one worth-remembering event (L1).
 type Episode struct {
-	ID             string            `json:"id"`
-	Kind           EpisodeKind       `json:"kind"`
-	Status         EpisodeStatus     `json:"status,omitempty"`
-	ExperienceMode ExperienceMode    `json:"experience_mode,omitempty"`
-	Content        string            `json:"content"`
-	Why            string            `json:"why,omitempty"`
-	PersonIDs      []string          `json:"person_ids,omitempty"`
-	SessionID      string            `json:"session_id,omitempty"`
-	LegacyKey      string            `json:"legacy_key,omitempty"`
-	InvalidReason  string            `json:"invalid_reason,omitempty"`
-	Metadata       map[string]string `json:"metadata,omitempty"`
-	CreatedAt      time.Time         `json:"created_at"`
-	UpdatedAt      time.Time         `json:"updated_at"`
+	ID              string            `json:"id"`
+	Kind            EpisodeKind       `json:"kind"`
+	Status          EpisodeStatus     `json:"status,omitempty"`
+	ExperienceMode  ExperienceMode    `json:"experience_mode,omitempty"`
+	RoleID          string            `json:"role_id,omitempty"`
+	RoleInstanceID  string            `json:"role_instance_id,omitempty"`
+	RoleSessionID   string            `json:"role_session_id,omitempty"`
+	WorldlineID     string            `json:"worldline_id,omitempty"`
+	RoleMemoryClass string            `json:"role_memory_class,omitempty"`
+	Content         string            `json:"content"`
+	Why             string            `json:"why,omitempty"`
+	PersonIDs       []string          `json:"person_ids,omitempty"`
+	SessionID       string            `json:"session_id,omitempty"`
+	LegacyKey       string            `json:"legacy_key,omitempty"`
+	InvalidReason   string            `json:"invalid_reason,omitempty"`
+	Metadata        map[string]string `json:"metadata,omitempty"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
 // ExperienceMode distinguishes how an episode was lived (orthogonal to Kind).
@@ -99,6 +104,7 @@ const (
 	ExperienceStoryReading        ExperienceMode = "story_reading"
 	ExperienceExternalObservation ExperienceMode = "external_observation"
 	ExperienceSelfReflection      ExperienceMode = "self_reflection"
+	ExperienceDelegatedRole       ExperienceMode = "delegated_role"
 )
 
 // NormalizeExperienceMode maps raw mode; empty → real_interaction (legacy default).
@@ -112,6 +118,8 @@ func NormalizeExperienceMode(raw string) ExperienceMode {
 		return ExperienceExternalObservation
 	case ExperienceSelfReflection:
 		return ExperienceSelfReflection
+	case ExperienceDelegatedRole:
+		return ExperienceDelegatedRole
 	default:
 		return ExperienceRealInteraction
 	}
@@ -140,14 +148,19 @@ func NormalizeEpisodeStatus(raw string) EpisodeStatus {
 
 // EpisodeWrite is the payload for creating an episode.
 type EpisodeWrite struct {
-	Kind           EpisodeKind
-	ExperienceMode ExperienceMode
-	Content        string
-	Why            string
-	PersonIDs      []string
-	SessionID      string
-	LegacyKey      string
-	Metadata       map[string]string
+	Kind            EpisodeKind
+	ExperienceMode  ExperienceMode
+	RoleID          string
+	RoleInstanceID  string
+	RoleSessionID   string
+	WorldlineID     string
+	RoleMemoryClass string
+	Content         string
+	Why             string
+	PersonIDs       []string
+	SessionID       string
+	LegacyKey       string
+	Metadata        map[string]string
 }
 
 // Record is a durable memory row scoped by tenant (legacy / recall rendering).
@@ -171,10 +184,16 @@ type Write struct {
 
 // Query filters memory retrieval.
 type Query struct {
-	Text       string
-	Keys       []string
-	Categories []Category
-	Limit      int
+	Text              string
+	Keys              []string
+	Categories        []Category
+	Limit             int
+	IncludeRole       bool
+	RoleID            string
+	RoleInstanceID    string
+	RoleSessionID     string
+	WorldlineID       string
+	RoleMemoryClasses []string
 }
 
 // Provider persists and queries tenant-scoped memories (LTM).
@@ -216,6 +235,13 @@ func EpisodeToRecord(ep Episode) Record {
 	}
 	if ep.Why != "" {
 		meta["why"] = ep.Why
+	}
+	if ep.RoleID != "" {
+		meta["role_id"] = ep.RoleID
+		meta["role_instance_id"] = ep.RoleInstanceID
+		meta["role_session_id"] = ep.RoleSessionID
+		meta["worldline_id"] = ep.WorldlineID
+		meta["role_memory_class"] = ep.RoleMemoryClass
 	}
 	if len(ep.PersonIDs) > 0 {
 		meta["about"] = ep.PersonIDs[0]

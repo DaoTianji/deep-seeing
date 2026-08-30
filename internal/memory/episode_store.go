@@ -149,18 +149,23 @@ func (s *EpisodeStore) WriteEpisode(ctx context.Context, scope identity.TenantSc
 	now := time.Now()
 	id := "ep_" + strings.ReplaceAll(uuid.NewString(), "-", "")
 	ep := Episode{
-		ID:             id,
-		Kind:           kind,
-		Status:         EpisodeActive,
-		ExperienceMode: mode,
-		Content:        content,
-		Why:            strings.TrimSpace(w.Why),
-		PersonIDs:      persons,
-		SessionID:      strings.TrimSpace(w.SessionID),
-		LegacyKey:      strings.TrimSpace(w.LegacyKey),
-		Metadata:       w.Metadata,
-		CreatedAt:      now,
-		UpdatedAt:      now,
+		ID:              id,
+		Kind:            kind,
+		Status:          EpisodeActive,
+		ExperienceMode:  mode,
+		RoleID:          strings.TrimSpace(w.RoleID),
+		RoleInstanceID:  strings.TrimSpace(w.RoleInstanceID),
+		RoleSessionID:   strings.TrimSpace(w.RoleSessionID),
+		WorldlineID:     strings.TrimSpace(w.WorldlineID),
+		RoleMemoryClass: strings.TrimSpace(w.RoleMemoryClass),
+		Content:         content,
+		Why:             strings.TrimSpace(w.Why),
+		PersonIDs:       persons,
+		SessionID:       strings.TrimSpace(w.SessionID),
+		LegacyKey:       strings.TrimSpace(w.LegacyKey),
+		Metadata:        w.Metadata,
+		CreatedAt:       now,
+		UpdatedAt:       now,
 	}
 	s.mu.Lock()
 	if err := os.WriteFile(s.episodePath(id), []byte(formatEpisodeFile(ep)), 0o644); err != nil {
@@ -353,6 +358,26 @@ func (s *EpisodeStore) Search(ctx context.Context, scope identity.TenantScope, q
 		if !IsActiveEpisode(ep) {
 			continue
 		}
+		if !q.IncludeRole && isRoleEpisode(ep) {
+			continue
+		}
+		if q.IncludeRole {
+			if q.RoleID != "" && ep.RoleID != q.RoleID {
+				continue
+			}
+			if q.RoleInstanceID != "" && ep.RoleInstanceID != q.RoleInstanceID {
+				continue
+			}
+			if q.RoleSessionID != "" && ep.RoleSessionID != q.RoleSessionID {
+				continue
+			}
+			if q.WorldlineID != "" && ep.WorldlineID != q.WorldlineID {
+				continue
+			}
+			if len(q.RoleMemoryClasses) > 0 && !stringIn(ep.RoleMemoryClass, q.RoleMemoryClasses) {
+				continue
+			}
+		}
 		if text != "" {
 			hay := strings.ToLower(ep.ID + " " + e.Summary + " " + ep.Content + " " + ep.Why + " " + ep.LegacyKey)
 			if !strings.Contains(hay, text) && !containsAnyRuneToken(hay, text) {
@@ -513,6 +538,21 @@ func formatEpisodeFile(ep Episode) string {
 		mode = ExperienceRealInteraction
 	}
 	fmt.Fprintf(&b, "experience_mode: %s\n", mode)
+	if ep.RoleID != "" {
+		fmt.Fprintf(&b, "role_id: %s\n", ep.RoleID)
+	}
+	if ep.RoleInstanceID != "" {
+		fmt.Fprintf(&b, "role_instance_id: %s\n", ep.RoleInstanceID)
+	}
+	if ep.RoleSessionID != "" {
+		fmt.Fprintf(&b, "role_session_id: %s\n", ep.RoleSessionID)
+	}
+	if ep.WorldlineID != "" {
+		fmt.Fprintf(&b, "worldline_id: %s\n", ep.WorldlineID)
+	}
+	if ep.RoleMemoryClass != "" {
+		fmt.Fprintf(&b, "role_memory_class: %s\n", ep.RoleMemoryClass)
+	}
 	fmt.Fprintf(&b, "created_at: %s\n", ep.CreatedAt.Format(time.RFC3339))
 	fmt.Fprintf(&b, "updated_at: %s\n", ep.UpdatedAt.Format(time.RFC3339))
 	if ep.SessionID != "" {
@@ -564,6 +604,21 @@ func parseEpisodeFile(fallbackID, raw string) (Episode, error) {
 				if after, ok := strings.CutPrefix(line, "experience_mode:"); ok {
 					ep.ExperienceMode = NormalizeExperienceMode(after)
 				}
+				if after, ok := strings.CutPrefix(line, "role_id:"); ok {
+					ep.RoleID = strings.TrimSpace(after)
+				}
+				if after, ok := strings.CutPrefix(line, "role_instance_id:"); ok {
+					ep.RoleInstanceID = strings.TrimSpace(after)
+				}
+				if after, ok := strings.CutPrefix(line, "role_session_id:"); ok {
+					ep.RoleSessionID = strings.TrimSpace(after)
+				}
+				if after, ok := strings.CutPrefix(line, "worldline_id:"); ok {
+					ep.WorldlineID = strings.TrimSpace(after)
+				}
+				if after, ok := strings.CutPrefix(line, "role_memory_class:"); ok {
+					ep.RoleMemoryClass = strings.TrimSpace(after)
+				}
 				if after, ok := strings.CutPrefix(line, "session_id:"); ok {
 					ep.SessionID = strings.TrimSpace(after)
 				}
@@ -608,6 +663,10 @@ func parseEpisodeFile(fallbackID, raw string) (Episode, error) {
 		ep.CreatedAt = ep.UpdatedAt
 	}
 	return ep, nil
+}
+
+func isRoleEpisode(ep Episode) bool {
+	return strings.TrimSpace(ep.RoleID) != "" || ep.ExperienceMode == ExperienceSimulatedRoleplay || ep.ExperienceMode == ExperienceDelegatedRole
 }
 
 func parseYAMLStringList(raw string) []string {

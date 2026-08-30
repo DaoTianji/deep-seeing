@@ -211,7 +211,7 @@ func (e *ReflectionEngine) Run(ctx context.Context, scope identity.TenantScope, 
 		limit = 8
 	}
 	for _, query := range queries {
-		episodes, searchErr := e.Episodes.Search(ctx, scope, Query{Text: query, Limit: limit})
+		episodes, searchErr := e.Episodes.Search(ctx, scope, Query{Text: query, Limit: limit, IncludeRole: true})
 		if searchErr != nil {
 			return finish(searchErr)
 		}
