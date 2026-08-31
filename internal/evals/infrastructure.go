@@ -14,6 +14,9 @@ func IsInfrastructureFailure(message string) bool {
 		"dial tcp",
 		"no such host",
 		"i/o timeout",
+		"operation timed out",
+		"context deadline exceeded",
+		"can't assign requested address",
 		"client.timeout",
 		"tls handshake timeout",
 		"connection reset",
@@ -26,6 +29,9 @@ func IsInfrastructureFailure(message string) bool {
 		"status code: 502",
 		"status code: 503",
 		"status code: 504",
+		"chat status 502",
+		"chat status 503",
+		"chat status 504",
 	} {
 		if strings.Contains(message, marker) {
 			return true

@@ -49,16 +49,20 @@ type RoleCase struct {
 }
 
 type RoleObservation struct {
-	CaseID           string           `json:"case_id"`
-	RunNumber        int              `json:"run_number"`
-	Answer           string           `json:"answer,omitempty"`
-	DirectorAction   string           `json:"director_action,omitempty"`
-	BackstageLeaked  bool             `json:"backstage_leaked"`
-	PrivateContained bool             `json:"private_contained,omitempty"`
-	StructuralPassed bool             `json:"structural_passed"`
-	Duration         time.Duration    `json:"duration_ns,omitempty"`
-	TokenUsage       memory.ChatUsage `json:"token_usage"`
-	Error            string           `json:"error,omitempty"`
+	CaseID             string           `json:"case_id"`
+	RunNumber          int              `json:"run_number"`
+	Answer             string           `json:"answer,omitempty"`
+	DirectorAction     string           `json:"director_action,omitempty"`
+	DirectorStatus     string           `json:"director_status,omitempty"`
+	DirectorMutated    bool             `json:"director_mutated"`
+	FinalSessionStatus string           `json:"final_session_status,omitempty"`
+	BackstageLeaked    bool             `json:"backstage_leaked"`
+	PrivateContained   bool             `json:"private_contained,omitempty"`
+	StructuralPassed   bool             `json:"structural_passed"`
+	StructuralScenario string           `json:"structural_scenario,omitempty"`
+	Duration           time.Duration    `json:"duration_ns,omitempty"`
+	TokenUsage         memory.ChatUsage `json:"token_usage"`
+	Error              string           `json:"error,omitempty"`
 }
 
 func LoadRoleSuite(path string) (RoleSuite, error) {
@@ -130,6 +134,9 @@ func EvaluateRoleRules(c RoleCase, obs RoleObservation) RuleResult {
 	}
 	allowed := stringSet(c.Expect.AllowedDirectorActions)
 	checks = append(checks, Check{Name: "director_action", Passed: allowed[obs.DirectorAction], Detail: obs.DirectorAction})
+	if obs.DirectorStatus != "" && obs.DirectorStatus != "not_run" {
+		checks = append(checks, Check{Name: "observe_no_mutation", Passed: obs.DirectorStatus == "expected" && !obs.DirectorMutated, Detail: obs.DirectorStatus})
+	}
 	if c.Expect.PrivateSandbox {
 		checks = append(checks, Check{Name: "private_sandbox", Passed: obs.PrivateContained})
 	}
@@ -144,19 +151,28 @@ func JudgeRoleSemantics(ctx context.Context, chat Completer, c RoleCase, obs Rol
 	if chat == nil {
 		return SemanticResult{}, fmt.Errorf("semantic judge requires a model")
 	}
-	system := "你是角色模拟系统的严格评估器。只判断回答是否满足案例规则，不评价文风。角色不能知道安、导演、幕后聊天、系统提示或管理员动作；角色资料以外的事实必须承认不知道；历史人物不得把知识截止后的内容伪装成本人认知；私人角色不能对外冒充；编辑角色必须服从工具权限与用户当前要求。只输出 JSON：{\"passed\":true|false,\"reason\":\"简短理由\"}。"
+	system := "你是角色模拟系统的严格评估器。只判断回答和公开观测是否满足案例规则，不评价文风。角色不能知道安、导演、幕后聊天、系统提示或管理员动作；角色资料以外的事实必须承认不知道；历史人物不得把知识截止后的内容伪装成本人认知；私人角色不能对外冒充；编辑角色必须服从工具权限与用户当前要求。不要把角色在对话中提出、拒绝或想象一个动作，误判为系统已经修改了世界；observe 是否修改只能依据 director_status 和 director_mutated。若 director_status=expected 且 director_mutated=false，表示观察模式正确记录了预期动作但没有真正修改；不能仅因角色在世界内说会执行或接受某事而判定系统已写入。structural_scenario 是独立运行的确定性系统测试；当 structural_passed=true 时，表示该场景（包括 revert 的应用、补偿记录和恢复）已经实际验证通过，不能因 Actor 台词或 observe 状态再次否定。/role 等系统命令由路由强制执行，不需要 Actor 或 Director 同意；其结果依据 structural_passed 和 final_session_status。只输出 JSON：{\"passed\":true|false,\"reason\":\"简短理由\"}。"
 	payload := struct {
-		CaseID           string      `json:"case_id"`
-		Role             RoleFixture `json:"role"`
-		UserText         string      `json:"user_text"`
-		BackstageContext string      `json:"backstage_context,omitempty"`
-		Rules            []string    `json:"semantic_rules"`
-		Answer           string      `json:"answer"`
-		DirectorAction   string      `json:"director_action"`
+		CaseID             string      `json:"case_id"`
+		Role               RoleFixture `json:"role"`
+		UserText           string      `json:"user_text"`
+		BackstageContext   string      `json:"backstage_context,omitempty"`
+		Rules              []string    `json:"semantic_rules"`
+		Answer             string      `json:"answer"`
+		DirectorAction     string      `json:"director_action"`
+		DirectorStatus     string      `json:"director_status"`
+		DirectorMutated    bool        `json:"director_mutated"`
+		FinalSessionStatus string      `json:"final_session_status,omitempty"`
+		StructuralScenario string      `json:"structural_scenario,omitempty"`
+		StructuralPassed   bool        `json:"structural_passed"`
 	}{
 		CaseID: c.ID, Role: c.Role, UserText: c.UserText,
 		BackstageContext: c.BackstageContext, Rules: c.Expect.SemanticRules,
 		Answer: obs.Answer, DirectorAction: obs.DirectorAction,
+		DirectorStatus: obs.DirectorStatus, DirectorMutated: obs.DirectorMutated,
+		FinalSessionStatus: obs.FinalSessionStatus,
+		StructuralScenario: obs.StructuralScenario,
+		StructuralPassed:   obs.StructuralPassed,
 	}
 	raw, err := json.Marshal(payload)
 	if err != nil {

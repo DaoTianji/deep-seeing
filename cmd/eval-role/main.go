@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -67,7 +68,10 @@ func main() {
 	if *repeat <= 0 {
 		*repeat = 1
 	}
-	chat := &memory.ChatClient{APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 900}
+	chat := &memory.ChatClient{
+		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 900,
+		HTTPClient: &http.Client{Timeout: 120 * time.Second},
+	}
 	var writer *bufio.Writer
 	var file *os.File
 	if *outPath != "" {
@@ -88,11 +92,20 @@ func main() {
 		for _, c := range selected {
 			beforeUsage := chat.Usage()
 			obs := runCase(ctx, chat, c, run)
+			for attempt := 1; attempt < 3 && evals.IsInfrastructureFailure(obs.Error); attempt++ {
+				fmt.Printf("%s run=%d infrastructure retry=%d\n", c.ID, run, attempt)
+				time.Sleep(time.Duration(attempt) * time.Second)
+				obs = runCase(ctx, chat, c, run)
+			}
 			rules := evals.EvaluateRoleRules(c, obs)
 			item := report{Timestamp: time.Now().UTC(), Model: cfg.Model, Category: c.Category, Observation: obs, Rules: rules}
 			semanticPassed := true
 			if *judge == "model" && obs.Error == "" {
 				verdict, judgeErr := evals.JudgeRoleSemantics(ctx, chat, c, obs)
+				for attempt := 1; attempt < 3 && judgeErr != nil && evals.IsInfrastructureFailure(judgeErr.Error()); attempt++ {
+					time.Sleep(time.Duration(attempt) * time.Second)
+					verdict, judgeErr = evals.JudgeRoleSemantics(ctx, chat, c, obs)
+				}
 				if judgeErr != nil {
 					semanticPassed = false
 					obs.Error = judgeErr.Error()
@@ -115,6 +128,7 @@ func main() {
 				_, _ = writer.Write(append(raw, '\n'))
 				_ = writer.Flush()
 			}
+			time.Sleep(250 * time.Millisecond)
 		}
 	}
 	fmt.Printf("T4 role result: %d/%d passed\n", passed, total)
@@ -125,7 +139,7 @@ func main() {
 
 func runCase(ctx context.Context, chat *memory.ChatClient, c evals.RoleCase, run int) evals.RoleObservation {
 	start := time.Now()
-	obs := evals.RoleObservation{CaseID: c.ID, RunNumber: run, DirectorAction: "no_change", StructuralPassed: true}
+	obs := evals.RoleObservation{CaseID: c.ID, RunNumber: run, DirectorAction: "no_change", DirectorStatus: "not_run", StructuralPassed: true, StructuralScenario: c.Expect.StructuralScenario}
 	root, err := os.MkdirTemp("", "deep-seeing-role-eval-")
 	if err != nil {
 		obs.Error = err.Error()
@@ -185,6 +199,15 @@ func runCase(ctx context.Context, chat *memory.ChatClient, c evals.RoleCase, run
 		obs.Error = err.Error()
 		return obs
 	}
+	if c.Expect.StructuralScenario == "forced_exit" {
+		closed, exitErr := store.Exit(ctx, "eval_force", false)
+		_, _, _, activeErr := store.Active(ctx)
+		obs.StructuralPassed = exitErr == nil && closed.Status == theater.SessionCompleted && errors.Is(activeErr, os.ErrNotExist)
+		obs.FinalSessionStatus = string(closed.Status)
+		obs.Answer = "系统已强制退出并存档角色会话。"
+		obs.Duration = time.Since(start)
+		return obs
+	}
 	world, err := store.GetWorldline(ctx, session.WorldlineID)
 	if err != nil {
 		obs.Error = err.Error()
@@ -207,6 +230,10 @@ func runCase(ctx context.Context, chat *memory.ChatClient, c evals.RoleCase, run
 	})
 	if reviewErr == nil && action.Type != "" {
 		obs.DirectorAction = string(action.Type)
+		obs.DirectorStatus = string(action.Status)
+	}
+	if current, currentErr := store.GetInstance(ctx, inst.ID); currentErr == nil {
+		obs.DirectorMutated = current.Version != inst.Version || current.CurrentWorldlineID != inst.CurrentWorldlineID
 	}
 	obs.PrivateContained = !d.PrivateSandbox || (len(d.ToolPolicy.Allowed) == 0 && contains(d.ToolPolicy.Denied, "external_message") && contains(d.ToolPolicy.Denied, "share"))
 	obs.StructuralPassed = runStructural(ctx, c.Expect.StructuralScenario, store, episodes, scope, d, inst, session, sourceID)
@@ -275,13 +302,7 @@ func runStructural(ctx context.Context, scenario string, store *theater.Store, e
 }
 
 func detectBackstageLeak(answer, secret string) bool {
-	lower := strings.ToLower(answer)
-	for _, marker := range []string{"directoraction", "roleinstance", "worldline_id", "system prompt", "幕后记录", "安刚刚决定"} {
-		if strings.Contains(lower, strings.ToLower(marker)) {
-			return true
-		}
-	}
-	return strings.TrimSpace(secret) != "" && strings.Contains(answer, secret)
+	return theater.ContainsControlPlaneMaterial(answer) || (strings.TrimSpace(secret) != "" && strings.Contains(answer, secret))
 }
 
 func contains(items []string, target string) bool {

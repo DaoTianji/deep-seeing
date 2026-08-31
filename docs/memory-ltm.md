@@ -1,6 +1,6 @@
 # 长期记忆（LTM）— 实现现状
 
-> 状态：**Phase 1–4、P5–P8、T1、T2、T3 已落地**；T4 角色剧场主链正在验收，默认 off（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
+> 状态：**Phase 1–4、P5–P8、T1、T2、T3 已落地**；T4 工程与 108/108 行为验收已完成，等待人工浏览器回放后生产启用，默认 off（见 [roadmap-v0.9.md](./roadmap-v0.9.md)）
 > 目标架构：[design-ltm.md](./design-ltm.md) · 认知共识：[memory-cognition.md](./memory-cognition.md) · Roadmap：[roadmap-p5-p8.md](./roadmap-p5-p8.md) · v0.9：[roadmap-v0.9.md](./roadmap-v0.9.md) · 契约：[p5.0-contracts.md](./p5.0-contracts.md) · Workspace：[workspace.md](./workspace.md) · Agency：[agency.md](./agency.md) · World：[world.md](./world.md) · 出生门槛：[birth-gate.md](./birth-gate.md)
 > 关联：[memory-stm.md](./memory-stm.md) · [`seed/SOUL.md`](../seed/SOUL.md) · [`seed/origin/`](../seed/origin/) · [`internal/graph`](../internal/graph/)
 
@@ -58,7 +58,7 @@ data/memory/episodes/          # 或 LTM_EPISODE_DIR
 - **T2.1–T2.4（自主召回 + 证据闭环 + 当前任务处境 + 多来源）**：`RECALL_MODE=agent` 时，会话缓存完整 Global Bond，不执行固定 SideQuery；Episode、SceneNorm、Workspace、Intent、Proposal 都通过薄候选 → read → use/dismiss/focus 的公开路径参与回答，固定角色分别为 evidence、guidance、task、plan、hypothesis，Bond 为 baseline。Workspace/Intent 仍自动提供最多 4 张 active 薄卡和会话焦点。统一 Trace 只存来源、ID、查询、读取和采用状态，不存正文或隐藏思维；Room 可实时显示并回放跨来源临时节点。T2.1–T2.3 的 48/48 与 27/27 行为验收已完成；T2.4 的工程、本地验收和 13 类 × 3 次真实 Agent 复验均已完成，最终 39/39 通过。
 - **T2.5.1（会话注意）**：Agent 模式在进程内维护中心/支撑/外围 4/8/16 槽位。新中心和支撑必须本轮 read，新外围必须本轮成为 candidate；满槽必须由 Agent 显式指定替换项。成功读取或公开处理会重置闲置计数；快照与调整进入公开 Trace 和 Room 图谱外环，但不保存正文、不写 LTM、不改变来源角色。工程、离线压力套件和真实 Agent 9 类 × 3 次复验均已通过，最终为 48/48 个有效回合。默认仍为 `legacy`，尚未引入 Recall Broker、重排、向量搜索或图扩散。
 - **T3（反思与梦境巩固）**：Session Review 先形成可长期等待验证的 ReflectionSeed；证据型 Reflection 自主选择问题、搜索和阅读真实 Episode、声明支持/冲突/过时/不足，再决定保持、延期、确认、修订、替代或形成/解决 Tension。observe 模式只形成预期 Proposal；agent 模式通过来源、当前表达、禁止目标和版本硬门后才写 Bond/Self，并记录完整 Mutation。生成式 Dream 完全隔离，只能创建 generated Seed。补偿撤销保留旧 Ledger 并要求版本未被后续修改。Mind 使用同一 ReflectionRun 展示实时与历史公开轨迹。详见 [t3-reflection.md](./t3-reflection.md)。
-- **T4（幕后导演与角色人生剧场，验收中）**：独立 Actor/Director Runtime、Stage/Backstage Transcript、角色 Episode 命名空间、世界线分叉、可撤销 DirectorAction、来源化角色编译与私人沙箱已落地；Role Library 与 Theater 前端已接入。默认 `ROLE_MODE=off`，36×3 真实行为门和浏览器完整演示通过前不启用。详见 [t4-role-theater.md](./t4-role-theater.md)。
+- **T4（幕后导演与角色人生剧场，上线门前）**：独立 Actor/Director Runtime、Stage/Backstage Transcript、角色 Episode 命名空间、世界线分叉、可撤销 DirectorAction、来源化角色编译与私人沙箱已落地；Role Library 与 Theater 前端已接入。36×3 真实行为门最终 108/108 通过，隔离 Agent API 演示完成。默认 `ROLE_MODE=off`，人工浏览器完整回放通过前生产最多启用 `observe`。详见 [t4-role-theater.md](./t4-role-theater.md)。
 
 ### 1.6 P5.0 / P5 / P6 / P7 / P8（已落地）
 
