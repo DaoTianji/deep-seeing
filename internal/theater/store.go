@@ -92,7 +92,7 @@ func (s *Store) ListDefinitions(_ context.Context, scope identity.TenantScope, i
 	if err != nil {
 		return nil, err
 	}
-	var out []RoleDefinition
+	out := make([]RoleDefinition, 0)
 	for _, path := range paths {
 		var d RoleDefinition
 		if readJSON(path, &d) != nil || d.Scope != scope || (!includeArchived && d.Status == DefinitionArchived) {

@@ -67,7 +67,7 @@ func (s *Store) ListInitializations(_ context.Context, roleID string, limit int)
 	if err != nil {
 		return nil, err
 	}
-	var out []RoleInitializationRun
+	out := make([]RoleInitializationRun, 0)
 	for _, path := range paths {
 		var run RoleInitializationRun
 		if readJSON(path, &run) != nil || (cleanText(roleID) != "" && run.RoleID != cleanText(roleID)) {

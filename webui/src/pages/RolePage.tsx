@@ -204,6 +204,7 @@ function InitializationPanel({
   const stages = ["planning", "awaiting_plan_approval", "collecting", "analyzing", "compiling", "blueprinting", "critiquing", "awaiting_final_approval", "completed"];
   const labels: Record<string, string> = { planning: "研究计划", awaiting_plan_approval: "等待确认", collecting: "来源地图", analyzing: "覆盖分析", compiling: "证据编译", blueprinting: "塑造方案", critiquing: "独立审查", awaiting_final_approval: "最终确认", completed: "已上架" };
   const current = Math.max(0, stages.indexOf(run.status));
+  const coverageItems = run.coverage?.items || [];
   const hardIssues = critique?.issues?.filter((issue) => issue.severity === "hard" && !issue.resolved) || [];
   const warnings = critique?.issues?.filter((issue) => issue.severity === "warning" && !issue.resolved) || [];
   const sections = blueprint ? [blueprint.self_concept, blueprint.values_and_motives, blueprint.tensions, ...(blueprint.relationships || []), blueprint.reasoning_and_voice, blueprint.unknown_response_policy, blueprint.allowed_inferences, blueprint.forbidden_anachronisms] : [];
@@ -214,9 +215,9 @@ function InitializationPanel({
       <div className="init-steps">{stages.map((stage, index) => <span key={stage} className={index < current ? "done" : index === current ? "current" : ""}><i />{labels[stage]}</span>)}</div>
       <div className="init-budget"><span>研究提供者 <strong>{run.search_provider || "未配置"}</strong></span><span>远程额度 <strong>{run.remote_used}/{run.remote_budget}</strong></span><span>checkpoint <strong>{run.checkpoint || "—"}</strong></span></div>
       {run.error_summary && <div className="theater-banner error">{run.error_summary}</div>}
-      {run.plan && <details open={run.status === "awaiting_plan_approval"}><summary>研究计划 · {run.plan.target_period}</summary><div className="init-question-list">{run.plan.questions.map((question) => <article key={question.id}><strong>{question.question}</strong><small>{question.priority || "normal"} · {(question.topics || []).join(" / ")}</small></article>)}</div>{run.status === "awaiting_plan_approval" && <button className="primary" onClick={() => onAction("approve-plan", () => api.approveRolePlan(run.id))}>确认计划并开始自主研究</button>}</details>}
+      {run.plan && <details open={run.status === "awaiting_plan_approval"}><summary>研究计划 · {run.plan.target_period}</summary><div className="init-question-list">{(run.plan.questions || []).map((question) => <article key={question.id}><strong>{question.question}</strong><small>{question.priority || "normal"} · {(question.topics || []).join(" / ")}</small></article>)}</div>{run.status === "awaiting_plan_approval" && <button className="primary" onClick={() => onAction("approve-plan", () => api.approveRolePlan(run.id))}>确认计划并开始自主研究</button>}</details>}
       <details open={run.status === "collecting" || run.status === "analyzing"}><summary>来源地图 · {run.assessments?.length || 0} 份</summary><div className="init-source-map">{(run.assessments || []).map((source) => <span key={source.source_id} className={source.audience}><strong>{source.tier}</strong><small>{source.status} · {source.audience === "director" ? "仅安可知" : "角色可知"} · 已读 {source.read_chunk_ids?.length || 0}</small></span>)}</div></details>
-      <details open><summary>资料覆盖矩阵</summary><div className="coverage-grid">{run.coverage.items.map((item) => <span key={item.dimension} className={item.state}><strong>{item.dimension}</strong><small>{item.summary || item.state}</small></span>)}</div></details>
+      <details open><summary>资料覆盖矩阵</summary><div className="coverage-grid">{coverageItems.map((item) => <span key={item.dimension} className={item.state}><strong>{item.dimension}</strong><small>{item.summary || item.state}</small></span>)}</div></details>
       {(run.conflicts?.length || 0) > 0 && <details open><summary>冲突与未知</summary>{run.conflicts?.map((conflict) => <p key={conflict.id}>{conflict.topic} · {conflict.disposition || "尚未处理"}</p>)}</details>}
       <details><summary>加入长文资料</summary><div className="init-upload"><input type="file" accept=".md,.txt,.pdf,text/plain,text/markdown,application/pdf" onChange={(event) => setDocumentFile(event.target.files?.[0])} /><select value={documentAudience} onChange={(event) => setDocumentAudience(event.target.value as "actor" | "director")}><option value="actor">角色可知</option><option value="director">仅安可知</option></select><select value={documentTier} onChange={(event) => setDocumentTier(event.target.value)}><option value="primary">一手材料</option><option value="contemporary">同时代材料</option><option value="biography">传记</option><option value="scholarship">学术研究</option><option value="posthumous">后世评价</option></select><button disabled={!documentFile || Boolean(busy)} onClick={() => documentFile && onAction("init-document", async () => api.addRoleInitializationDocument(run.id, { title: documentFile.name, mime_type: documentFile.type || "text/plain", content_base64: await fileAsBase64(documentFile), audience: documentAudience, tier: documentTier }))}><Upload size={14} />加入语料库</button></div></details>
       {blueprint && <details open={run.status === "awaiting_final_approval" || run.status === "blueprinting"}><summary>角色塑造方案 v{blueprint.version}</summary><div className="blueprint-sections"><p><strong>时期</strong>{blueprint.target_period} · 截止 {blueprint.knowledge_cutoff}</p>{sections.map((section, index) => <article key={`${section.key}-${index}`}><strong>{section.key}</strong><p>{section.content}</p><small>Claim {section.claim_ids?.length || 0} · Chunk {section.chunk_ids?.length || 0}</small></article>)}</div></details>}
@@ -233,10 +234,12 @@ function RoleLibrary() {
   const queryClient = useQueryClient();
   const roles = useQuery({ queryKey: ["roles"], queryFn: api.roles });
   const [selected, setSelected] = useState("");
-  const selectedID = selected || roles.data?.roles[0]?.id || "";
+  const roleItems = roles.data?.roles || [];
+  const selectedID = selected || roleItems[0]?.id || "";
   const detail = useQuery({ queryKey: ["role", selectedID], queryFn: () => api.role(selectedID), enabled: Boolean(selectedID) });
   const initializations = useQuery({ queryKey: ["role-initializations", selectedID], queryFn: () => api.roleInitializations(selectedID), enabled: Boolean(selectedID), refetchInterval: 3000 });
-  const initializationID = initializations.data?.runs[0]?.id || "";
+  const initializationRuns = initializations.data?.runs || [];
+  const initializationID = initializationRuns[0]?.id || "";
   const initialization = useQuery({ queryKey: ["role-initialization", initializationID], queryFn: () => api.roleInitialization(initializationID), enabled: Boolean(initializationID), refetchInterval: 2500 });
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -287,6 +290,9 @@ function RoleLibrary() {
     finally { setBusy(""); }
   };
   const current = detail.data?.role;
+  const sources = detail.data?.sources || [];
+  const claims = detail.data?.claims || [];
+  const worldlines = detail.data?.worldlines || [];
   const canPublish = current?.status === "validating" && current.validation?.passed;
 
   return (
@@ -310,16 +316,16 @@ function RoleLibrary() {
       )}
       <div className="role-library-layout">
         <section className="role-shelf">
-          <header><Library size={17} /><span>可选择的角色</span><small>{roles.data?.roles.length || 0}</small></header>
+          <header><Library size={17} /><span>可选择的角色</span><small>{roleItems.length}</small></header>
           <div className="role-card-grid">
-            {(roles.data?.roles || []).map((role) => (
+            {roleItems.map((role) => (
               <button key={role.id} className={selectedID === role.id ? "role-card selected" : "role-card"} onClick={() => setSelected(role.id)}>
                 <span className="role-avatar">{role.kind === "professional" ? <UserRoundCog /> : <Drama />}</span>
                 <span><strong>{role.display_name}</strong><small>{roleTypeLabel(role)}</small></span>
                 <em>{statusLabel(role)}</em>
               </button>
             ))}
-            {!roles.isLoading && roles.data?.roles.length === 0 && <div className="role-empty">还没有角色。先培养第一个完全受控的虚构角色。</div>}
+            {!roles.isLoading && roleItems.length === 0 && <div className="role-empty">还没有角色。先培养第一个完全受控的虚构角色。</div>}
           </div>
         </section>
         <aside className="role-workbench">
@@ -332,14 +338,14 @@ function RoleLibrary() {
             <p>{current.identity || current.description || "还没有编译出稳定的角色身份。"}</p>
             <dl className="role-facts">
               <div><dt>知识截止</dt><dd>{current.knowledge_cutoff || "待资料确定"}</dd></div>
-              <div><dt>来源</dt><dd>{detail.data?.sources.length || 0} 份</dd></div>
-              <div><dt>主张</dt><dd>{detail.data?.claims.length || 0} 条</dd></div>
-              <div><dt>世界线</dt><dd>{detail.data?.worldlines?.length || 0} 条</dd></div>
+              <div><dt>来源</dt><dd>{sources.length} 份</dd></div>
+              <div><dt>主张</dt><dd>{claims.length} 条</dd></div>
+              <div><dt>世界线</dt><dd>{worldlines.length} 条</dd></div>
             </dl>
             {initialization.data && <InitializationPanel detail={initialization.data} busy={busy} onAction={(name, fn) => act(name, fn, current.id)} />}
-            {(detail.data?.sources.length || 0) > 0 && (
+            {(sources.length) > 0 && (
               <div className="role-source-list">
-                {detail.data?.sources.map((source) => (
+                {sources.map((source) => (
                   <span key={source.id}><strong>{source.title}</strong><small>{source.audience === "director" ? "仅安可知 · 后世研究" : "角色可知 · 编入模型"}</small></span>
                 ))}
               </div>
@@ -354,7 +360,7 @@ function RoleLibrary() {
                 <button onClick={() => act("source", async () => api.addRoleSource(current.id, sourceFile ? { title: sourceTitle, kind: "upload", audience: sourceAudience, mime_type: sourceFile.type || "application/octet-stream", content_base64: await fileAsBase64(sourceFile) } : sourceText.trim() ? { title: sourceTitle, kind: "upload", audience: sourceAudience, mime_type: "text/plain", content: sourceText } : { title: sourceTitle || sourceURL, kind: "webpage", audience: sourceAudience, url: sourceURL }), current.id)} disabled={(!sourceTitle.trim() && !sourceURL.trim()) || (!sourceFile && !sourceText.trim() && !sourceURL.trim()) || Boolean(busy)}><Upload size={14} />加入资料</button>
               </div>
               <div className="role-build-actions">
-                <button onClick={() => act("compile", () => api.compileRole(current.id), current.id)} disabled={!detail.data?.sources.length || Boolean(busy)}><WandSparkles size={14} />让安编译角色</button>
+                <button onClick={() => act("compile", () => api.compileRole(current.id), current.id)} disabled={!sources.length || Boolean(busy)}><WandSparkles size={14} />让安编译角色</button>
                 <button className="primary" onClick={() => act("publish", () => api.publishRole(current.id), current.id)} disabled={!canPublish || Boolean(busy)}><Archive size={14} />确认上架</button>
               </div>
             </>}

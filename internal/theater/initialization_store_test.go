@@ -64,6 +64,20 @@ func TestInitializationModeParsing(t *testing.T) {
 	}
 }
 
+func TestListInitializationsReturnsEmptyCollection(t *testing.T) {
+	store, err := NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	runs, err := store.ListInitializations(context.Background(), "", 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if runs == nil || len(runs) != 0 {
+		t.Fatalf("expected a non-nil empty collection, got %#v", runs)
+	}
+}
+
 func TestCritiqueHardIssuesCannotPass(t *testing.T) {
 	issues := []CritiqueIssue{{Code: "anachronism", Severity: CritiqueHard}}
 	if !hasUnresolvedHardIssue(issues) {
