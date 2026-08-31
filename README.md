@@ -1,6 +1,6 @@
 # Deep-Seeing
 
-> 版本：**v0.10.0 + T4 开发分支**（T1 记忆形成 · T2 自主召回 · T3 反思巩固 · T4 角色剧场）
+> 版本：**v0.10.0 + T4 候选版本**（T1 记忆形成 · T2 自主召回 · T3 反思巩固 · T4 角色剧场）
 
 用 [Eino](https://github.com/cloudwego/eino) 的 **ReAct Agent** 做编排壳；记忆机制参考 Claude Code / ascentia：明文文件 + 旁路选型，不用向量库。
 

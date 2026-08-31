@@ -1,6 +1,6 @@
 # Deep-Seeing v0.9 议题清单（D0）
 
-> 状态：D0、T1、T2、T3 已完成；T4 角色剧场正在实施，默认 `ROLE_MODE=off`，尚未通过 36×3 行为门。
+> 状态：D0、T1、T2、T3 已完成；T4 工程与 36×3 行为门已完成，最终 108/108 通过。默认 `ROLE_MODE=off`，等待人工浏览器回放后生产切换。
 > 基线：v0.8 · 认知共识：[memory-cognition.md](./memory-cognition.md) · 现状：[memory-ltm.md](./memory-ltm.md) / [memory-stm.md](./memory-stm.md) · 前序能力：[roadmap-p5-p8.md](./roadmap-p5-p8.md) · 契约：[p5.0-contracts.md](./p5.0-contracts.md)
 
 ## 0. 版本一句话
