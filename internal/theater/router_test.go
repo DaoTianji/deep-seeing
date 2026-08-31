@@ -131,7 +131,7 @@ func TestActorControlLeakIsNotPersisted(t *testing.T) {
 	ctx := context.Background()
 	store, _ := NewStore(t.TempDir())
 	_, _, session := readyRole(t, store)
-	actor := &fakeTurnService{answer: "我看到了 RoleInstance 的内部信息"}
+	actor := &fakeTurnService{answer: "我看到了 rinst_0123456789abcdef0123456789abcdef 的内部信息"}
 	router := &Router{
 		Mode: ModeAgent, Store: store,
 		Actors: ActorBuilderFunc(func(context.Context, RoleDefinition, RoleInstance, RoleSession) (TurnService, error) {

@@ -204,6 +204,7 @@ function RoleLibrary() {
   const [sourceText, setSourceText] = useState("");
   const [sourceFile, setSourceFile] = useState<File>();
   const [sourceURL, setSourceURL] = useState("");
+  const [sourceAudience, setSourceAudience] = useState<"actor" | "director">("actor");
 
   const refresh = async (id?: string) => {
     await queryClient.invalidateQueries({ queryKey: ["roles"] });
@@ -222,9 +223,9 @@ function RoleLibrary() {
     setBusy("create");
     try {
       const result = await api.createRole({
-        DisplayName: name, Kind: kind, SubjectClass: subject,
-        Description: kind === "professional" ? "持续工作的专业角色" : "待资料培养的角色",
-        AllowedTools: kind === "professional" ? ["list_workspace", "read_workspace", "write_workspace"] : [],
+        display_name: name, kind, subject_class: subject,
+        description: kind === "professional" ? "持续工作的专业角色" : "待资料培养的角色",
+        allowed_tools: kind === "professional" ? ["list_workspace", "read_workspace", "write_workspace"] : [],
       });
       setName(""); setShowCreate(false); setSelected(result.role.id); await refresh(result.role.id);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "创建失败"); }
@@ -278,13 +279,21 @@ function RoleLibrary() {
               <div><dt>主张</dt><dd>{detail.data?.claims.length || 0} 条</dd></div>
               <div><dt>世界线</dt><dd>{detail.data?.worldlines?.length || 0} 条</dd></div>
             </dl>
+            {(detail.data?.sources.length || 0) > 0 && (
+              <div className="role-source-list">
+                {detail.data?.sources.map((source) => (
+                  <span key={source.id}><strong>{source.title}</strong><small>{source.audience === "director" ? "仅安可知 · 后世研究" : "角色可知 · 编入模型"}</small></span>
+                ))}
+              </div>
+            )}
             {current.status !== "ready" && <>
               <div className="source-editor">
+                <label>资料用途<select value={sourceAudience} onChange={(event) => setSourceAudience(event.target.value as "actor" | "director")}><option value="actor">角色可知 · 编入人物模型</option><option value="director">仅安可知 · 后世评价/研究</option></select></label>
                 <label>资料标题<input value={sourceTitle} onChange={(event) => setSourceTitle(event.target.value)} placeholder="例如：人物小传第一章" /></label>
                 <label>文件（Markdown、纯文本或带文本层 PDF）<input type="file" accept=".md,.txt,.pdf,text/plain,text/markdown,application/pdf" onChange={(event) => { const file = event.target.files?.[0]; setSourceFile(file); if (file && !sourceTitle) setSourceTitle(file.name); }} /></label>
                 <label>或者添加公开网页 URL<input type="url" value={sourceURL} onChange={(event) => setSourceURL(event.target.value)} placeholder="https://…" /></label>
                 <label>Markdown / 纯文本<textarea rows={6} value={sourceText} onChange={(event) => setSourceText(event.target.value)} placeholder="把你希望安研究的资料放在这里…" /></label>
-                <button onClick={() => act("source", async () => api.addRoleSource(current.id, sourceFile ? { Title: sourceTitle, Kind: "upload", MimeType: sourceFile.type || "application/octet-stream", ContentBase64: await fileAsBase64(sourceFile) } : sourceText.trim() ? { Title: sourceTitle, Kind: "upload", MimeType: "text/plain", Content: sourceText } : { Title: sourceTitle || sourceURL, Kind: "webpage", URL: sourceURL }), current.id)} disabled={(!sourceTitle.trim() && !sourceURL.trim()) || (!sourceFile && !sourceText.trim() && !sourceURL.trim()) || Boolean(busy)}><Upload size={14} />加入资料</button>
+                <button onClick={() => act("source", async () => api.addRoleSource(current.id, sourceFile ? { title: sourceTitle, kind: "upload", audience: sourceAudience, mime_type: sourceFile.type || "application/octet-stream", content_base64: await fileAsBase64(sourceFile) } : sourceText.trim() ? { title: sourceTitle, kind: "upload", audience: sourceAudience, mime_type: "text/plain", content: sourceText } : { title: sourceTitle || sourceURL, kind: "webpage", audience: sourceAudience, url: sourceURL }), current.id)} disabled={(!sourceTitle.trim() && !sourceURL.trim()) || (!sourceFile && !sourceText.trim() && !sourceURL.trim()) || Boolean(busy)}><Upload size={14} />加入资料</button>
               </div>
               <div className="role-build-actions">
                 <button onClick={() => act("compile", () => api.compileRole(current.id), current.id)} disabled={!detail.data?.sources.length || Boolean(busy)}><WandSparkles size={14} />让安编译角色</button>

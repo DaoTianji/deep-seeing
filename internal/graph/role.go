@@ -28,11 +28,12 @@ type RolePointer struct {
 }
 
 type RoleSourcePointer struct {
-	ID     string
-	RoleID string
-	Title  string
-	Kind   string
-	URL    string
+	ID       string
+	RoleID   string
+	Title    string
+	Kind     string
+	URL      string
+	Audience string
 }
 
 type RoleEpisodePointer struct {
@@ -104,12 +105,12 @@ func (s *Store) UpsertRoleSourcePointer(ctx context.Context, source RoleSourcePo
 	query := `
 MATCH (r:Role {id: $role_id})
 MERGE (src:Source {id: $id})
-SET src.title = $title, src.kind = $kind, src.url = $url
+SET src.title = $title, src.kind = $kind, src.url = $url, src.audience = $audience
 MERGE (r)-[:` + rel + `]->(src)
 `
 	return s.write(ctx, query, map[string]any{
 		"role_id": source.RoleID, "id": source.ID, "title": source.Title,
-		"kind": source.Kind, "url": source.URL,
+		"kind": source.Kind, "url": source.URL, "audience": source.Audience,
 	})
 }
 

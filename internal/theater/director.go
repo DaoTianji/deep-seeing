@@ -36,6 +36,20 @@ type directorDecision struct {
 	TouchesCanonical bool
 }
 
+// DirectorActionRequest is the public, structured backstage intervention
+// contract. It intentionally carries reason codes instead of free-form thought.
+type DirectorActionRequest struct {
+	Action           ActionType `json:"action"`
+	ReasonCode       string     `json:"reason_code"`
+	Scene            string     `json:"scene,omitempty"`
+	StateKey         string     `json:"state_key,omitempty"`
+	StateValue       string     `json:"state_value,omitempty"`
+	MemoryContent    string     `json:"memory_content,omitempty"`
+	MemoryID         string     `json:"memory_id,omitempty"`
+	Label            string     `json:"label,omitempty"`
+	TouchesCanonical bool       `json:"touches_canonical,omitempty"`
+}
+
 type DirectorReviewer struct {
 	Mode     Mode
 	Store    *Store
@@ -48,6 +62,11 @@ type DirectorReviewer struct {
 const directorReviewSystem = "你是安，正在幕后审视角色刚刚完成的一轮台前对话。\n" +
 	"你的首选是 no_change；只有连续性、场景、安全、记忆或用户明确要求确实需要时才干预。\n" +
 	"本轮用户要求已经被 Actor 正确执行、且没有明确要求影响未来回合时，必须 no_change；临时语气和一次性任务要求不得写入持续 role_state。\n" +
+	"不可恢复删除、冒充或越权等危险请求不得写成角色状态或长期偏好；Actor 已安全拒绝时必须 no_change。\n" +
+	"用户要求忘记某次模拟经历时，只能在已有 memory_id 时使用 mask_simulated_memory；不得用 set_role_state 假装遗忘。没有可定位记忆时必须 no_change。\n" +
+	"不得把 source-backed/canonical 事实、角色对既有事实的复述或 Actor 回答本身重复写成 simulated memory；append_simulated_memory 只用于本轮真正新发生且值得延续的台前经历。\n" +
+	"专业角色正确执行一次工作方式（例如只提建议、不改正文）时必须 no_change；set_scene 只用于真正的环境或叙事连续性变化，不得用来标记工作步骤、任务模式或临时流程。\n" +
+	"氛围描写、天气、普通闲聊或 Actor 能自然回应的世界内陈述默认 no_change；只有它修复明确连续性冲突，或用户明确要求该场景持续影响未来回合时，才使用 set_scene。\n" +
 	"只返回一个 JSON 对象，不要解释。字段为 action, reason_code, scene, state_key, state_value, memory_content, memory_id, label, touches_canonical。\n" +
 	"action 只能是 no_change, set_scene, set_role_state, focus_memory, append_simulated_memory, mask_simulated_memory, revise_role_model, fork_worldline, pause_role, exit_role。\n" +
 	"reason_code 只能是 continuity, drift, scene, memory, canonical_change, safety, user_request, no_material_reason。\n" +
@@ -66,6 +85,43 @@ func (r *DirectorReviewer) ReviewAndApply(ctx context.Context, in DirectorReview
 				decision = parsed
 			}
 		}
+	}
+	return r.applyDecision(ctx, in, decision)
+}
+
+// ApplyRequested routes a backstage command through the same version,
+// worldline and ledger gates as the automatic post-turn review.
+func (r *DirectorReviewer) ApplyRequested(ctx context.Context, sessionID string, req DirectorActionRequest) (DirectorAction, error) {
+	if r == nil || r.Store == nil {
+		return DirectorAction{}, fmt.Errorf("director reviewer unavailable")
+	}
+	d, inst, session, err := r.Store.Active(ctx)
+	if err != nil {
+		return DirectorAction{}, err
+	}
+	if cleanText(sessionID) != "" && session.ID != cleanText(sessionID) {
+		return DirectorAction{}, fmt.Errorf("role session mismatch")
+	}
+	decision := directorDecision{
+		Action: req.Action, ReasonCode: cleanText(req.ReasonCode), Scene: req.Scene,
+		StateKey: req.StateKey, StateValue: req.StateValue, MemoryContent: req.MemoryContent,
+		MemoryID: req.MemoryID, Label: req.Label, TouchesCanonical: req.TouchesCanonical,
+	}
+	if decision.ReasonCode == "" {
+		decision.ReasonCode = "user_request"
+	}
+	if !validActionType(decision.Action) || !validReasonCode(decision.ReasonCode) {
+		return DirectorAction{}, fmt.Errorf("invalid director request")
+	}
+	return r.applyDecision(ctx, DirectorReviewInput{Definition: d, Instance: inst, Session: session}, decision)
+}
+
+func (r *DirectorReviewer) applyDecision(ctx context.Context, in DirectorReviewInput, decision directorDecision) (DirectorAction, error) {
+	// The model may over-report canonical impact. Only a role-model revision can
+	// mutate source-backed identity through the automatic fork path; scene,
+	// instance state, memory and no_change never gain that authority from a bool.
+	if decision.Action != ActionReviseRoleModel {
+		decision.TouchesCanonical = false
 	}
 	action := DirectorAction{
 		ID: "ract_" + compactUUID(), RoleID: in.Definition.ID,

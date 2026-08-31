@@ -258,7 +258,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .theater-banner.error, .theater-error, .input-error { color: var(--danger); }
 .role-create-card { max-width: calc(1440px - 84px); margin: 0 auto 14px; padding: 16px; display: grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap: 10px; align-items: end; border: 1px solid var(--line); border-radius: 18px; background: rgba(250,248,242,.78); box-shadow: var(--shadow); }
 .role-create-card label, .source-editor label { display: grid; gap: 6px; color: var(--muted); font-size: 9px; letter-spacing: .05em; }
-.role-create-card input, .role-create-card select, .source-editor input, .source-editor textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.65); padding: 9px 11px; color: var(--ink); outline: none; }
+.role-create-card input, .role-create-card select, .source-editor input, .source-editor select, .source-editor textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.65); padding: 9px 11px; color: var(--ink); outline: none; }
 .role-create-card button, .source-editor button, .role-build-actions button, .enter-role { border: 1px solid rgba(88,116,107,.25); border-radius: 11px; background: var(--sage-pale); color: #3e5e54; padding: 10px 13px; display: inline-flex; justify-content: center; align-items: center; gap: 6px; cursor: pointer; }
 .role-create-card button:disabled, .source-editor button:disabled, .role-build-actions button:disabled, .enter-role:disabled { opacity: .45; cursor: not-allowed; }
 .role-library-layout { max-width: 1440px; margin: 0 auto; padding: 0 42px; display: grid; grid-template-columns: minmax(420px, 1fr) minmax(390px, .72fr); gap: 14px; min-height: 610px; }
@@ -289,6 +289,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .role-facts > div { border: 1px solid var(--line); border-radius: 11px; padding: 9px; background: rgba(255,255,255,.35); }
 .role-facts dt { color: var(--faint); font-size: 8px; }
 .role-facts dd { margin: 4px 0 0; font: 11px Georgia, "Songti SC", serif; overflow-wrap: anywhere; }
+.role-source-list { display: grid; gap: 6px; margin: -6px 0 16px; }
+.role-source-list > span { display: flex; justify-content: space-between; gap: 12px; border-left: 2px solid rgba(88,116,107,.28); padding: 5px 8px; color: var(--muted); font-size: 10px; }
+.role-source-list small { color: var(--faint); font-size: 8px; text-align: right; }
 .source-editor { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
 .source-editor textarea { resize: vertical; line-height: 1.6; }
 .source-editor button { width: max-content; }

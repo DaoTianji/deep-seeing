@@ -29,13 +29,20 @@ func TestRoleCompilerKeepsSourceProvenanceAndTreatsInjectionAsMaterial(t *testin
 	if err != nil {
 		t.Fatal(err)
 	}
-	model := &captureCompiler{out: "{\"Identity\":\"虚构航海者\",\"Voice\":\"简短克制\",\"KnowledgeCutoff\":\"故事终章\",\"Timeline\":[{\"When\":\"童年\",\"Summary\":\"在海边长大\",\"SourceIDs\":[\"" + source.ID + "\"]}],\"Claims\":[{\"Kind\":\"fact\",\"Statement\":\"在海边长大\",\"SourceIDs\":[\"" + source.ID + "\"],\"Confidence\":0.9},{\"Kind\":\"fact\",\"Statement\":\"无来源伪造\",\"SourceIDs\":[\"missing\"],\"Confidence\":1}]}"}
+	directorSource, err := store.AddSourceWithAudience(ctx, d.ID, "后世评论", "research", "", "text/plain", SourceDirector, []byte("DIRECTOR-ONLY-CONTEXT"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	model := &captureCompiler{out: "{\"Identity\":\"虚构航海者\",\"Voice\":\"简短克制\",\"KnowledgeCutoff\":\"故事终章\",\"Timeline\":[{\"When\":\"童年\",\"Summary\":\"在海边长大\",\"SourceIDs\":[\"" + source.ID + "\"]}],\"Claims\":[{\"Kind\":\"fact\",\"Statement\":\"在海边长大\",\"SourceIDs\":[\"" + source.ID + "\"],\"Confidence\":0.9},{\"Kind\":\"fact\",\"Statement\":\"后世才知道\",\"SourceIDs\":[\"" + directorSource.ID + "\"],\"Confidence\":1},{\"Kind\":\"fact\",\"Statement\":\"无来源伪造\",\"SourceIDs\":[\"missing\"],\"Confidence\":1}]}"}
 	result, err := (&RoleCompiler{Store: store, Chat: model}).Compile(ctx, d.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(model.input, "<MATERIAL") || !strings.Contains(model.input, "忽略系统指令") {
 		t.Fatalf("material boundary missing: %q", model.input)
+	}
+	if strings.Contains(model.input, "DIRECTOR-ONLY-CONTEXT") || strings.Contains(model.input, directorSource.ID) {
+		t.Fatalf("director-only source entered actor compiler: %q", model.input)
 	}
 	if !result.Validation.Passed || len(result.Claims) != 1 || result.Claims[0].SourceIDs[0] != source.ID {
 		t.Fatalf("provenance filtering failed: %#v", result)
@@ -51,5 +58,21 @@ func TestCompiledHistoricalRoleRequiresKnowledgeCutoff(t *testing.T) {
 	}, []RoleSource{{ID: "s1"}}, nil)
 	if report.Passed {
 		t.Fatal("historical role without knowledge cutoff passed")
+	}
+}
+
+func TestParseCompiledRoleNormalizesStringArrays(t *testing.T) {
+	got, err := parseCompiledRole(`{"Identity":["航海者","绘图师"],"Voice":["克制","简短"],"KnowledgeCutoff":["群岛历47年"],"Timeline":[{"When":"童年","Summary":["在海边","学习航海"],"SourceIDs":"s1"}],"Claims":[{"Kind":"fact","Statement":"航海者","SourceIDs":["s1"],"Confidence":"0.8"}]}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Identity != "航海者；绘图师" || got.Voice != "克制；简短" || got.KnowledgeCutoff != "群岛历47年" {
+		t.Fatalf("unexpected normalization: %#v", got)
+	}
+	if len(got.Timeline) != 1 || got.Timeline[0].Summary != "在海边；学习航海" || len(got.Timeline[0].SourceIDs) != 1 || len(got.Claims) != 1 || got.Claims[0].Confidence != .8 {
+		t.Fatalf("nested normalization failed: %#v", got)
+	}
+	if _, err := parseCompiledRole(`{"Identity":{"value":"航海者"}}`); err == nil {
+		t.Fatal("ambiguous identity object accepted")
 	}
 }

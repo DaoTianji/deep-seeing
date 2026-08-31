@@ -164,6 +164,9 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	reviewChat := &memory.ChatClient{
 		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 1024,
 	}
+	compilerChat := &memory.ChatClient{
+		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 3072,
+	}
 
 	stm, stmBackend := openSTM(ctx, scope)
 	graphStore, graphLabel := openGraph(ctx, scope)
@@ -238,7 +241,10 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		return nil, fmt.Errorf("tools: %w", err)
 	}
 
-	roleToolList, err := theater.DirectorTools(theater.DirectorToolDeps{Scope: scope, Mode: roleMode, Store: roleStore})
+	directorReviewer := &theater.DirectorReviewer{
+		Mode: roleMode, Store: roleStore, Episodes: episodes, Chat: reviewChat, Scope: scope, Model: cfg.Model,
+	}
+	roleToolList, err := theater.DirectorTools(theater.DirectorToolDeps{Scope: scope, Mode: roleMode, Store: roleStore, Reviewer: directorReviewer})
 	if err != nil {
 		if graphStore != nil {
 			_ = graphStore.Close(ctx)
@@ -326,10 +332,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Compactor: compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
 		Graph:     graphStore, Workspace: wsStore,
 	}
-	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: reviewChat}
-	directorReviewer := &theater.DirectorReviewer{
-		Mode: roleMode, Store: roleStore, Episodes: episodes, Chat: reviewChat, Scope: scope, Model: cfg.Model,
-	}
+	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: compilerChat}
 	theaterRouter := &theater.Router{
 		Mode: roleMode, Store: roleStore, Normal: svc, Director: directorSvc, Actors: actorBuilder, ActorSTM: stm,
 		Reviewer: directorReviewer, Scope: scope, Graph: graphStore,

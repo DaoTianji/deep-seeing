@@ -173,15 +173,23 @@ type RoleSession struct {
 }
 
 type RoleSource struct {
-	ID        string    `json:"id"`
-	RoleID    string    `json:"role_id"`
-	Title     string    `json:"title"`
-	Kind      string    `json:"kind"`
-	URL       string    `json:"url,omitempty"`
-	MimeType  string    `json:"mime_type,omitempty"`
-	Path      string    `json:"path,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string         `json:"id"`
+	RoleID    string         `json:"role_id"`
+	Title     string         `json:"title"`
+	Kind      string         `json:"kind"`
+	Audience  SourceAudience `json:"audience"`
+	URL       string         `json:"url,omitempty"`
+	MimeType  string         `json:"mime_type,omitempty"`
+	Path      string         `json:"path,omitempty"`
+	CreatedAt time.Time      `json:"created_at"`
 }
+
+type SourceAudience string
+
+const (
+	SourceActor    SourceAudience = "actor"
+	SourceDirector SourceAudience = "director"
+)
 
 type RoleClaim struct {
 	ID         string    `json:"id"`

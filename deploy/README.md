@@ -42,6 +42,8 @@ ROLE_MODE=off
 TAILSCALE_ALLOWED_USERS=
 ```
 
+生产启用允许列表后，应用只信任 Tailscale Serve 在 loopback 代理请求上注入的 `Tailscale-User-Login`。不要把 Room 直接监听到公网地址，也不要把同名请求头当作普通反向代理认证。
+
 Persistent store paths are absolute and live below `/var/lib/deep-seeing`.
 The systemd unit supplies `GOMEMLIMIT=512MiB`.
 

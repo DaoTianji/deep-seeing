@@ -195,6 +195,7 @@ export interface RoleSource {
   role_id: string;
   title: string;
   kind: string;
+  audience: "actor" | "director";
   url?: string;
   mime_type?: string;
 }

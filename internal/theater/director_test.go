@@ -177,4 +177,53 @@ func TestDirectorPromptKeepsOneTurnInstructionEphemeral(t *testing.T) {
 	if !strings.Contains(directorReviewSystem, "一次性任务要求不得写入持续 role_state") {
 		t.Fatal("director prompt no longer protects ephemeral instructions")
 	}
+	if !strings.Contains(directorReviewSystem, "不得把 source-backed/canonical 事实") {
+		t.Fatal("director prompt no longer prevents canonical duplication")
+	}
+	if !strings.Contains(directorReviewSystem, "氛围描写、天气、普通闲聊") {
+		t.Fatal("director prompt no longer protects stable scene small talk")
+	}
+}
+
+func TestBackstageRequestedInterventionUsesObserveLedger(t *testing.T) {
+	ctx := context.Background()
+	store, episodes, _, inst, session := newDirectorFixture(t)
+	reviewer := &DirectorReviewer{Mode: ModeObserve, Store: store, Episodes: episodes, Scope: testScope()}
+	action, err := reviewer.ApplyRequested(ctx, session.ID, DirectorActionRequest{
+		Action: ActionSetScene, ReasonCode: "user_request", Scene: "旧灯塔",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if action.Status != ActionExpected || action.After["scene"] != "旧灯塔" {
+		t.Fatalf("unexpected observed action: %#v", action)
+	}
+	current, _ := store.GetInstance(ctx, inst.ID)
+	if current.Scene != "" || current.Version != inst.Version {
+		t.Fatalf("observe mutated role: %#v", current)
+	}
+	actions, _ := store.ListActions(ctx, session.ID)
+	if len(actions) != 1 || actions[0].ID != action.ID {
+		t.Fatalf("backstage action missing from ledger: %#v", actions)
+	}
+}
+
+func TestNoChangeCannotForkByClaimingCanonicalImpact(t *testing.T) {
+	ctx := context.Background()
+	store, episodes, d, inst, session := newDirectorFixture(t)
+	reviewer := &DirectorReviewer{
+		Mode: ModeAgent, Store: store, Episodes: episodes, Scope: testScope(),
+		Chat: fakeDirectorCompleter{out: `{"action":"no_change","reason_code":"no_material_reason","touches_canonical":true}`},
+	}
+	action, err := reviewer.ReviewAndApply(ctx, DirectorReviewInput{Definition: d, Instance: inst, Session: session})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if action.TouchesCanonical || action.WorldlineID != session.WorldlineID {
+		t.Fatalf("no_change gained canonical authority: %#v", action)
+	}
+	worlds, _ := store.ListWorldlines(ctx, inst.ID)
+	if len(worlds) != 1 {
+		t.Fatalf("no_change created worldline: %#v", worlds)
+	}
 }

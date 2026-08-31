@@ -13,9 +13,10 @@ import (
 )
 
 type DirectorToolDeps struct {
-	Scope identity.TenantScope
-	Mode  Mode
-	Store *Store
+	Scope    identity.TenantScope
+	Mode     Mode
+	Store    *Store
+	Reviewer *DirectorReviewer
 }
 
 func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
@@ -44,12 +45,31 @@ func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
 			return string(out), nil
 		}
 		claims, _ := deps.Store.ListClaims(ctx, d.ID)
-		payload := map[string]any{"ok": true, "role": d, "claims": claims}
+		sources, _ := deps.Store.ListSources(ctx, d.ID)
+		payload := map[string]any{"ok": true, "role": d, "claims": claims, "sources": sources}
 		if activeD, inst, session, activeErr := deps.Store.Active(ctx); activeErr == nil && activeD.ID == d.ID {
 			payload["instance"], payload["session"] = inst, session
 		}
 		out, err := json.Marshal(payload)
 		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	readSourceTool, err := utils.InferTool("read_role_source", "在幕后读取角色来源正文。director 来源永远不会进入 Actor 编译或上下文。", func(ctx context.Context, in struct {
+		ID string `json:"id"`
+	}) (string, error) {
+		source, body, readErr := deps.Store.GetSource(ctx, strings.TrimSpace(in.ID))
+		if readErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": readErr.Error()})
+			return string(out), nil
+		}
+		text := string(body)
+		if len([]rune(text)) > 20000 {
+			text = string([]rune(text)[:20000]) + "…"
+		}
+		out, marshalErr := json.Marshal(map[string]any{"ok": true, "source": source, "content": text})
+		return string(out), marshalErr
 	})
 	if err != nil {
 		return nil, err
@@ -74,6 +94,15 @@ func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
 	pauseTool, err := utils.InferTool("pause_role", "强制暂停并存档当前角色状态；角色不能拒绝。", func(ctx context.Context, in struct {
 		Reason string `json:"reason,omitempty"`
 	}) (string, error) {
+		if deps.Reviewer != nil {
+			action, applyErr := deps.Reviewer.ApplyRequested(ctx, "", DirectorActionRequest{Action: ActionPauseRole, ReasonCode: "user_request"})
+			if applyErr != nil {
+				out, _ := json.Marshal(map[string]any{"ok": false, "error": applyErr.Error()})
+				return string(out), nil
+			}
+			out, marshalErr := json.Marshal(map[string]any{"ok": true, "action": action})
+			return string(out), marshalErr
+		}
 		session, pauseErr := deps.Store.Pause(ctx, in.Reason)
 		if pauseErr != nil {
 			out, _ := json.Marshal(map[string]any{"ok": false, "error": pauseErr.Error()})
@@ -100,6 +129,15 @@ func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
 	exitTool, err := utils.InferTool("exit_role", "强制退出当前角色并存档本次 Session；角色实例保留供以后继续。", func(ctx context.Context, in struct {
 		Reason string `json:"reason,omitempty"`
 	}) (string, error) {
+		if deps.Reviewer != nil {
+			action, applyErr := deps.Reviewer.ApplyRequested(ctx, "", DirectorActionRequest{Action: ActionExitRole, ReasonCode: "user_request"})
+			if applyErr != nil {
+				out, _ := json.Marshal(map[string]any{"ok": false, "error": applyErr.Error()})
+				return string(out), nil
+			}
+			out, marshalErr := json.Marshal(map[string]any{"ok": true, "action": action})
+			return string(out), marshalErr
+		}
 		session, exitErr := deps.Store.Exit(ctx, in.Reason, false)
 		if exitErr != nil {
 			out, _ := json.Marshal(map[string]any{"ok": false, "error": exitErr.Error()})
@@ -114,6 +152,15 @@ func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
 	forkTool, err := utils.InferTool("fork_role_worldline", "从当前角色人生创建新世界线；原世界线保持不变。", func(ctx context.Context, in struct {
 		Label string `json:"label,omitempty"`
 	}) (string, error) {
+		if deps.Reviewer != nil {
+			action, applyErr := deps.Reviewer.ApplyRequested(ctx, "", DirectorActionRequest{Action: ActionForkWorldline, ReasonCode: "user_request", Label: in.Label})
+			if applyErr != nil {
+				out, _ := json.Marshal(map[string]any{"ok": false, "error": applyErr.Error()})
+				return string(out), nil
+			}
+			out, marshalErr := json.Marshal(map[string]any{"ok": true, "action": action})
+			return string(out), marshalErr
+		}
 		world, inst, forkErr := deps.Store.ForkWorldline(ctx, "", in.Label)
 		if forkErr != nil {
 			out, _ := json.Marshal(map[string]any{"ok": false, "error": forkErr.Error()})
@@ -121,6 +168,21 @@ func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
 		}
 		out, err := json.Marshal(map[string]any{"ok": true, "worldline": world, "instance": inst})
 		return string(out), err
+	})
+	if err != nil {
+		return nil, err
+	}
+	interveneTool, err := utils.InferTool("apply_role_intervention", "在幕后对当前角色执行结构化干预。所有动作都经过版本、世界线与 Ledger 硬门；observe 只记录 expected，agent 才应用。", func(ctx context.Context, in DirectorActionRequest) (string, error) {
+		if deps.Reviewer == nil {
+			return "{\"ok\":false,\"error\":\"director reviewer unavailable\"}", nil
+		}
+		action, applyErr := deps.Reviewer.ApplyRequested(ctx, "", in)
+		if applyErr != nil {
+			out, _ := json.Marshal(map[string]any{"ok": false, "error": applyErr.Error()})
+			return string(out), nil
+		}
+		out, marshalErr := json.Marshal(map[string]any{"ok": true, "action": action})
+		return string(out), marshalErr
 	})
 	if err != nil {
 		return nil, err
@@ -146,5 +208,5 @@ func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
 	if err != nil {
 		return nil, err
 	}
-	return []tool.BaseTool{listTool, inspectTool, enterTool, pauseTool, resumeTool, exitTool, forkTool, transcriptTool}, nil
+	return []tool.BaseTool{listTool, inspectTool, readSourceTool, enterTool, pauseTool, resumeTool, exitTool, forkTool, interveneTool, transcriptTool}, nil
 }

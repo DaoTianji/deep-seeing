@@ -48,14 +48,14 @@ func (s *Server) handleRoles(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleCreateRole(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		DisplayName     string
-		Kind            theater.RoleKind
-		SubjectClass    theater.SubjectClass
-		Description     string
-		Identity        string
-		Voice           string
-		KnowledgeCutoff string
-		AllowedTools    []string
+		DisplayName     string               `json:"display_name"`
+		Kind            theater.RoleKind     `json:"kind"`
+		SubjectClass    theater.SubjectClass `json:"subject_class"`
+		Description     string               `json:"description"`
+		Identity        string               `json:"identity"`
+		Voice           string               `json:"voice"`
+		KnowledgeCutoff string               `json:"knowledge_cutoff"`
+		AllowedTools    []string             `json:"allowed_tools"`
 	}
 	if !decodeRoleJSON(w, r, &input) {
 		return
@@ -113,12 +113,13 @@ func (s *Server) handleRole(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleAddRoleSource(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title         string
-		Kind          string
-		URL           string
-		MimeType      string
-		Content       string
-		ContentBase64 string
+		Title         string                 `json:"title"`
+		Kind          string                 `json:"kind"`
+		URL           string                 `json:"url"`
+		MimeType      string                 `json:"mime_type"`
+		Content       string                 `json:"content"`
+		ContentBase64 string                 `json:"content_base64"`
+		Audience      theater.SourceAudience `json:"audience"`
 	}
 	if !decodeRoleJSON(w, r, &input) {
 		return
@@ -167,7 +168,7 @@ func (s *Server) handleAddRoleSource(w http.ResponseWriter, r *http.Request) {
 			input.Title = fetched.Title
 		}
 	}
-	source, err := s.App.Roles.AddSource(r.Context(), r.PathValue("id"), input.Title, input.Kind, input.URL, input.MimeType, body)
+	source, err := s.App.Roles.AddSourceWithAudience(r.Context(), r.PathValue("id"), input.Title, input.Kind, input.URL, input.MimeType, input.Audience, body)
 	if err != nil {
 		writeRoleError(w, err)
 		return
@@ -259,7 +260,9 @@ func (s *Server) handleResumeRole(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleExitRole(w http.ResponseWriter, r *http.Request) {
-	var input struct{ Reason string }
+	var input struct {
+		Reason string `json:"reason"`
+	}
 	_ = decodeOptionalRoleJSON(r, &input)
 	session, err := s.App.Roles.Exit(r.Context(), nonemptyRoom(input.Reason, "user_exit"), false)
 	if err != nil {
@@ -271,7 +274,9 @@ func (s *Server) handleExitRole(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleForkRole(w http.ResponseWriter, r *http.Request) {
-	var input struct{ Label string }
+	var input struct {
+		Label string `json:"label"`
+	}
 	if !decodeRoleJSON(w, r, &input) {
 		return
 	}

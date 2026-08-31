@@ -385,8 +385,18 @@ func (s *Store) ReadTranscript(_ context.Context, sessionID string, channel Chan
 }
 
 func (s *Store) AddSource(_ context.Context, roleID, title, kind, url, mime string, content []byte) (RoleSource, error) {
+	return s.AddSourceWithAudience(context.Background(), roleID, title, kind, url, mime, SourceActor, content)
+}
+
+func (s *Store) AddSourceWithAudience(_ context.Context, roleID, title, kind, url, mime string, audience SourceAudience, content []byte) (RoleSource, error) {
 	if cleanText(title) == "" {
 		return RoleSource{}, fmt.Errorf("source title required")
+	}
+	if audience == "" {
+		audience = SourceActor
+	}
+	if audience != SourceActor && audience != SourceDirector {
+		return RoleSource{}, fmt.Errorf("invalid source audience")
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -395,7 +405,7 @@ func (s *Store) AddSource(_ context.Context, roleID, title, kind, url, mime stri
 		return RoleSource{}, err
 	}
 	now := time.Now().UTC()
-	src := RoleSource{ID: "rsrc_" + compactUUID(), RoleID: roleID, Title: cleanText(title), Kind: cleanText(kind), URL: cleanText(url), MimeType: cleanText(mime), CreatedAt: now}
+	src := RoleSource{ID: "rsrc_" + compactUUID(), RoleID: roleID, Title: cleanText(title), Kind: cleanText(kind), Audience: audience, URL: cleanText(url), MimeType: cleanText(mime), CreatedAt: now}
 	if len(content) > 0 {
 		dir := filepath.Join(s.root, "materials", safeID(roleID))
 		if err := os.MkdirAll(dir, 0o700); err != nil {
@@ -424,6 +434,9 @@ func (s *Store) GetSource(_ context.Context, id string) (RoleSource, []byte, err
 	var src RoleSource
 	if err := readJSON(s.sourcePath(id), &src); err != nil {
 		return RoleSource{}, nil, err
+	}
+	if src.Audience == "" {
+		src.Audience = SourceActor
 	}
 	if src.Path == "" {
 		return src, nil, nil

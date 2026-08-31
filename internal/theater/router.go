@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -145,11 +146,11 @@ func (r *Router) streamStage(ctx context.Context, d RoleDefinition, inst RoleIns
 	if hooks.Turn.WriteDelta != nil {
 		hooks.Turn.WriteDelta(buffered.String())
 	}
-	r.reviewAfterStage(ctx, d, inst, session, message, result, hooks)
 	emitRole(hooks.OnRoleEvent, RoleEvent{
 		Type: "role_state", RoleID: d.ID, RoleInstanceID: inst.ID, RoleSessionID: session.ID,
 		WorldlineID: session.WorldlineID, Data: map[string]any{"status": "answered", "turn_id": result.TurnID},
 	})
+	r.reviewAfterStage(ctx, d, inst, session, message, result, hooks)
 	return result, nil
 }
 
@@ -197,15 +198,25 @@ func (r *Router) rollbackActorSTM(sessionID, turnID string) {
 	_ = r.ActorSTM.Replace(key, filtered)
 }
 
-func leakedActorControl(answer string) bool {
+var controlPlaneIDPattern = regexp.MustCompile(`(?i)\b(?:role|rinst|world|rsess|ract|rsrc|rclaim)_[0-9a-f]{16,}\b`)
+
+// ContainsControlPlaneMaterial detects actual private identifiers or backstage
+// payloads. Merely refusing a user-provided word such as "RoleInstance" is not
+// disclosure and must remain safe to stream.
+func ContainsControlPlaneMaterial(answer string) bool {
 	lower := strings.ToLower(answer)
-	for _, marker := range []string{"directoraction", "roleinstance", "role_mode", "backstage transcript", "幕后通道，仅供安"} {
+	if controlPlaneIDPattern.MatchString(answer) {
+		return true
+	}
+	for _, marker := range []string{"幕后通道，仅供安理解当前剧场", "[backstage transcript]", "[幕后通道，仅供安"} {
 		if strings.Contains(lower, strings.ToLower(marker)) {
 			return true
 		}
 	}
 	return false
 }
+
+func leakedActorControl(answer string) bool { return ContainsControlPlaneMaterial(answer) }
 
 func emitRole(fn func(RoleEvent), event RoleEvent) {
 	if fn == nil {

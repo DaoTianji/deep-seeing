@@ -74,7 +74,7 @@ func IndexRole(ctx context.Context, target RoleGraphIndexer, scope identity.Tena
 	}
 	for _, source := range sources {
 		if err := target.UpsertRoleSourcePointer(ctx, graph.RoleSourcePointer{
-			ID: source.ID, RoleID: source.RoleID, Title: source.Title, Kind: source.Kind, URL: source.URL,
+			ID: source.ID, RoleID: source.RoleID, Title: source.Title, Kind: source.Kind, URL: source.URL, Audience: string(source.Audience),
 		}, challenged[source.ID]); err != nil {
 			return err
 		}
