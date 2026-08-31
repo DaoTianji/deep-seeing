@@ -99,25 +99,30 @@ type RoleToolPolicy struct {
 
 // RoleDefinition is the versioned, source-backed role blueprint.
 type RoleDefinition struct {
-	ID              string               `json:"id"`
-	Scope           identity.TenantScope `json:"scope"`
-	DisplayName     string               `json:"display_name"`
-	Kind            RoleKind             `json:"kind"`
-	SubjectClass    SubjectClass         `json:"subject_class"`
-	Description     string               `json:"description,omitempty"`
-	Identity        string               `json:"identity,omitempty"`
-	Voice           string               `json:"voice,omitempty"`
-	KnowledgeCutoff string               `json:"knowledge_cutoff,omitempty"`
-	Timeline        []TimelineEvent      `json:"timeline,omitempty"`
-	SourceIDs       []string             `json:"source_ids,omitempty"`
-	ToolPolicy      RoleToolPolicy       `json:"tool_policy,omitempty"`
-	PrivateSandbox  bool                 `json:"private_sandbox,omitempty"`
-	MainInstanceID  string               `json:"main_instance_id,omitempty"`
-	Status          DefinitionStatus     `json:"status"`
-	Version         int64                `json:"version"`
-	Validation      *ValidationReport    `json:"validation,omitempty"`
-	CreatedAt       time.Time            `json:"created_at"`
-	UpdatedAt       time.Time            `json:"updated_at"`
+	ID                  string               `json:"id"`
+	Scope               identity.TenantScope `json:"scope"`
+	DisplayName         string               `json:"display_name"`
+	Kind                RoleKind             `json:"kind"`
+	SubjectClass        SubjectClass         `json:"subject_class"`
+	Description         string               `json:"description,omitempty"`
+	Identity            string               `json:"identity,omitempty"`
+	Voice               string               `json:"voice,omitempty"`
+	KnowledgeCutoff     string               `json:"knowledge_cutoff,omitempty"`
+	Timeline            []TimelineEvent      `json:"timeline,omitempty"`
+	VariantOfRoleID     string               `json:"variant_of_role_id,omitempty"`
+	TargetPeriod        string               `json:"target_period,omitempty"`
+	CorpusRoleID        string               `json:"corpus_role_id,omitempty"`
+	BlueprintVersion    int64                `json:"blueprint_version,omitempty"`
+	InitializationRunID string               `json:"initialization_run_id,omitempty"`
+	SourceIDs           []string             `json:"source_ids,omitempty"`
+	ToolPolicy          RoleToolPolicy       `json:"tool_policy,omitempty"`
+	PrivateSandbox      bool                 `json:"private_sandbox,omitempty"`
+	MainInstanceID      string               `json:"main_instance_id,omitempty"`
+	Status              DefinitionStatus     `json:"status"`
+	Version             int64                `json:"version"`
+	Validation          *ValidationReport    `json:"validation,omitempty"`
+	CreatedAt           time.Time            `json:"created_at"`
+	UpdatedAt           time.Time            `json:"updated_at"`
 }
 
 type RoleDefinitionWrite struct {
@@ -128,6 +133,9 @@ type RoleDefinitionWrite struct {
 	Identity        string
 	Voice           string
 	KnowledgeCutoff string
+	VariantOfRoleID string
+	TargetPeriod    string
+	CorpusRoleID    string
 	ToolPolicy      RoleToolPolicy
 }
 

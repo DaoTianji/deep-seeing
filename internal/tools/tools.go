@@ -56,6 +56,7 @@ type Deps struct {
 	FirstBoot        bool
 	RecallMode       string
 	RoleMode         string
+	RoleInitMode     string
 	OnBondChanged    func()
 	TaskContextFocus TaskContextFocusController
 	Attention        *attention.SessionStore
@@ -93,6 +94,7 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 			snap := body.BuildSnapshot(scope, sessionID, deps.Model, deps.Stores, deps.FirstBoot)
 			snap.RecallMode = deps.RecallMode
 			snap.RoleMode = deps.RoleMode
+			snap.RoleInitMode = deps.RoleInitMode
 			out, err := json.Marshal(map[string]any{"ok": true, "runtime": snap})
 			return string(out), err
 		},

@@ -27,6 +27,7 @@ cp .env.example .env
 # 可选：RECALL_MODE=agent 试用 T2 自主召回（默认 legacy）
 # T3 已默认 agent；可选 REFLECTION_MODE=observe 仅观察，或 legacy 紧急回退
 # T4 默认关闭；ROLE_MODE=observe 只记录导演意图，agent 才作用于角色世界
+# T4.9 角色初始化也独立默认关闭；完成语义、阿德勒与浏览器门后再设 ROLE_INIT_MODE=observe
 
 # 在仓库根目录执行（不要在 cmd/see 子目录里）
 go run ./cmd/see

@@ -217,7 +217,7 @@ Derived（非 SoT）
 | **要解决** | Director 与 Actor 隔离、角色资料与记忆、世界线、可撤销干预、私人沙箱和专业角色工具 |
 | **默认模式** | `ROLE_MODE=off`；按 `off → observe → agent` 验收后上线 |
 
-实现契约、API、文件布局、36 案例与剩余验收见 [T4 角色剧场](./t4-role-theater.md)。旧的“遗忘与 Prediction Error”议题没有被否定，但移出 T4 编号，后续作为独立认知议题重新排期。
+实现契约、API、文件布局、36 案例与剩余验收见 [T4 角色剧场](./t4-role-theater.md)。T4.9 已补入角色塑造初始化工程主链、长文 Corpus、Character Architect、独立 Critic 和培养室；42×3 结构门 126/126 通过，但真实模型语义门、阿德勒毕业和浏览器回放未完成，因此 `ROLE_INIT_MODE=off`。详见 [T4.9 角色初始化](./t4-role-initialization.md)。旧的“遗忘与 Prediction Error”议题没有被否定，但移出 T4 编号，后续作为独立认知议题重新排期。
 
 ## 4. v0.9 明确不做
 

@@ -196,6 +196,10 @@ func (s *Server) handleCompileRole(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handlePublishRole(w http.ResponseWriter, r *http.Request) {
+	if runs, listErr := s.App.Roles.ListInitializations(r.Context(), r.PathValue("id"), 1); listErr == nil && len(runs) > 0 && runs[0].Status != theater.InitCompleted {
+		writeJSON(w, http.StatusConflict, map[string]any{"error": "role initialization requires Blueprint and Critic approval; use the cultivation room"})
+		return
+	}
 	d, err := s.App.Roles.Publish(r.Context(), r.PathValue("id"))
 	if err != nil {
 		writeRoleError(w, err)

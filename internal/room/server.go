@@ -90,6 +90,7 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("POST /api/dream/generative", s.handleGenerativeDream)
 	mux.HandleFunc("POST /api/mutations/{id}/revert", s.handleRevertMutation)
 	s.registerRoleRoutes(mux)
+	s.registerRoleInitializationRoutes(mux)
 
 	sub, err := fs.Sub(webFS, "web")
 	if err != nil {

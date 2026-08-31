@@ -30,7 +30,7 @@ func NewStore(root string) (*Store, error) {
 		root = filepath.Join("data", "memory", "roles")
 	}
 	s := &Store{root: root}
-	for _, dir := range []string{"definitions", "instances", "worldlines", "sessions", "sources", "materials", "transcripts", "actions", "claims"} {
+	for _, dir := range []string{"definitions", "instances", "worldlines", "sessions", "sources", "materials", "transcripts", "actions", "claims", "initializations", "corpus/documents", "corpus/chunks", "blueprints", "critiques"} {
 		if err := os.MkdirAll(filepath.Join(root, dir), 0o700); err != nil {
 			return nil, err
 		}
@@ -53,8 +53,12 @@ func (s *Store) CreateDefinition(_ context.Context, scope identity.TenantScope, 
 		Kind: normalizeRoleKind(w.Kind), SubjectClass: normalizeSubjectClass(w.SubjectClass),
 		Description: cleanText(w.Description), Identity: cleanText(w.Identity), Voice: cleanText(w.Voice),
 		KnowledgeCutoff: cleanText(w.KnowledgeCutoff), ToolPolicy: normalizeToolPolicy(w.ToolPolicy),
+		VariantOfRoleID: cleanText(w.VariantOfRoleID), TargetPeriod: cleanText(w.TargetPeriod), CorpusRoleID: cleanText(w.CorpusRoleID),
 		PrivateSandbox: isPrivateSubject(normalizeSubjectClass(w.SubjectClass)),
 		Status:         DefinitionDraft, Version: 1, CreatedAt: now, UpdatedAt: now,
+	}
+	if d.CorpusRoleID == "" {
+		d.CorpusRoleID = d.ID
 	}
 	if d.PrivateSandbox {
 		d.ToolPolicy.Allowed = nil
@@ -114,6 +118,9 @@ func (s *Store) SaveDefinition(_ context.Context, d RoleDefinition, expectedVers
 	d.Kind = normalizeRoleKind(d.Kind)
 	d.SubjectClass = normalizeSubjectClass(d.SubjectClass)
 	d.PrivateSandbox = isPrivateSubject(d.SubjectClass)
+	if cleanText(d.CorpusRoleID) == "" {
+		d.CorpusRoleID = d.ID
+	}
 	d.Version = current.Version + 1
 	d.UpdatedAt = time.Now().UTC()
 	if d.PrivateSandbox {
@@ -138,6 +145,30 @@ func (s *Store) SetValidation(ctx context.Context, roleID string, report Validat
 }
 
 func (s *Store) Publish(ctx context.Context, roleID string) (RoleDefinition, error) {
+	if runs, err := s.ListInitializations(ctx, roleID, 1); err == nil && len(runs) > 0 && runs[0].Status != InitCompleted {
+		return RoleDefinition{}, fmt.Errorf("role initialization final approval required")
+	}
+	return s.publishValidated(ctx, roleID)
+}
+
+// PublishInitialized is the only path that can publish a role still inside an
+// initialization run. It independently rechecks run and Critic state.
+func (s *Store) PublishInitialized(ctx context.Context, roleID, runID string) (RoleDefinition, error) {
+	run, err := s.GetInitialization(ctx, runID)
+	if err != nil {
+		return RoleDefinition{}, err
+	}
+	if run.RoleID != roleID || run.Status != InitAwaitingFinalApproval || run.CritiqueID == "" {
+		return RoleDefinition{}, fmt.Errorf("role initialization is not ready for final approval")
+	}
+	critique, err := s.GetCritique(ctx, run.CritiqueID)
+	if err != nil || !critique.Passed || hasUnresolvedHardIssue(critique.Issues) {
+		return RoleDefinition{}, fmt.Errorf("critic hard errors block publish")
+	}
+	return s.publishValidated(ctx, roleID)
+}
+
+func (s *Store) publishValidated(ctx context.Context, roleID string) (RoleDefinition, error) {
 	d, err := s.GetDefinition(ctx, roleID)
 	if err != nil {
 		return RoleDefinition{}, err

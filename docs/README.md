@@ -12,12 +12,14 @@
 | T2 完整计划与状态 | [t2-recall.md](./t2-recall.md) | 自主召回 → 证据闭环 → 当前处境（薄快照/会话焦点/消歧）→ 多源 → 注意竞争 → 上线 |
 | T3 反思与梦境 | [t3-reflection.md](./t3-reflection.md) | ReflectionSeed、证据型反思、生成式沙箱、版本化巩固、补偿撤销与 24×3 评估 |
 | T4 角色人生剧场 | [t4-role-theater.md](./t4-role-theater.md) | 双 Runtime、角色记忆、世界线、导演干预、私人沙箱、专业工具与 36 案例 |
+| T4.9 角色塑造初始化 | [t4-role-initialization.md](./t4-role-initialization.md) | Character Architect、长文 Corpus、来源治理、Blueprint、Critic 与培养室 |
 | T2.4 多源召回方案 | [t2-multisource.md](./t2-multisource.md) | 六类来源、统一候选协议、使用声明、公开轨迹、可视化与延期边界 |
 | T2.4 多源评估状态 | [evals/t2-multisource-results.md](./evals/t2-multisource-results.md) | 13 类纯虚构案例、隔离运行器、本地验收与待授权行为门槛 |
 | T2 自主召回评估 | [evals/t2-agent-recall.md](./evals/t2-agent-recall.md) | 16 条机器可读案例、隔离沙箱、证据闭环、结构规则与语义评分 |
 | T2 评估结果 | [evals/t2-agent-recall-results.md](./evals/t2-agent-recall-results.md) | 改造前基线与 48/48 证据闭环聚合结果 |
 | T3 评估结果 | [evals/t3-reflection-results.md](./evals/t3-reflection-results.md) | 24×3 纯虚构行为门、六类聚合、延迟、token 与发布结论 |
 | T4 评估结果 | [evals/t4-role-results.md](./evals/t4-role-results.md) | 36×3 角色剧场行为门、六类硬门、延迟、token 与发布结论 |
+| T4.9 初始化评估 | [evals/t4-role-initialization-results.md](./evals/t4-role-initialization-results.md) | 42×3 结构安全门与尚未完成的语义毕业门 |
 | T2 任务处境结果 | [evals/t2-task-context-results.md](./evals/t2-task-context-results.md) | 薄快照、按需展开与同句不同项目的 15/15 行为结果 |
 | T2.3 处境闭环结果 | [evals/t2-task-context-complete-results.md](./evals/t2-task-context-complete-results.md) | 会话焦点、切换、消歧、溢出发现与完整验收状态 |
 | P5–P8 Roadmap | [roadmap-p5-p8.md](./roadmap-p5-p8.md) | 自我工作台 → Workspace → Agency → World |

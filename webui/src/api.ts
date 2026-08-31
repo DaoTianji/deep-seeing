@@ -1,6 +1,6 @@
 import type {
   ActiveRole, DirectorActionView, GraphView, Message, RoleClaim, RoleDefinition,
-  RoleInstance, RoleSession, RoleSource, RoleTranscriptMessage, RoleWorldline,
+  RoleInstance, RoleSession, RoleSource, RoleTranscriptMessage, RoleWorldline, RoleInitializationRun, RoleInitializationDetail,
   RuntimeSnapshot, StreamEnvelope, TheaterChannel, TurnTrace,
 } from "./types";
 import type { ReflectionLiveState, ReflectionRun, ReflectionSeed } from "./reflection-types";
@@ -41,6 +41,16 @@ export const api = {
   generativeDream: () => post<Record<string, unknown>>("/api/dream/generative"),
   revertMutation: (id: string) => post<Record<string, unknown>>(`/api/mutations/${encodeURIComponent(id)}/revert`, { reason: "用户请求撤销这次认识变化" }),
 
+  roleInitializations: (roleId = "") => json<{ runs: RoleInitializationRun[]; mode: string; coverage_limited: boolean }>(`/api/role-initializations${roleId ? `?role_id=${encodeURIComponent(roleId)}` : ""}`),
+  roleInitialization: (id: string) => json<RoleInitializationDetail>(`/api/role-initializations/${encodeURIComponent(id)}`),
+  startRoleInitialization: (input: Record<string, unknown>) => post<{ run: RoleInitializationRun; role: RoleDefinition }>("/api/role-initializations", input),
+  approveRolePlan: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/approve-plan`),
+  grantRoleBudget: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/budget`),
+  pauseRoleInitialization: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/pause`),
+  resumeRoleInitialization: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/resume`),
+  requestRoleBlueprintRevision: (id: string, reason: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/revision`, { reason }),
+  approveRoleBlueprint: (id: string, warningAcceptanceReason: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/approve`, { warning_acceptance_reason: warningAcceptanceReason }),
+  addRoleInitializationDocument: (id: string, input: Record<string, unknown>) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/documents`, input),
   roles: () => json<{ roles: RoleDefinition[]; active?: { definition: RoleDefinition; instance: RoleInstance; session: RoleSession }; mode: string }>("/api/roles"),
   role: (id: string) => json<{ role: RoleDefinition; sources: RoleSource[]; claims: RoleClaim[]; instance?: RoleInstance; worldlines?: RoleWorldline[]; sessions: RoleSession[] }>(`/api/roles/${encodeURIComponent(id)}`),
   createRole: (input: Record<string, unknown>) => post<{ role: RoleDefinition }>("/api/roles", input),

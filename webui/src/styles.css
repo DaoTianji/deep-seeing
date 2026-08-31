@@ -372,3 +372,47 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .role-tool-note { align-self:center; color:var(--muted); font-size:8px; line-height:1.5; }
 .map-legend .role-node { background:#8069a2; clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%); border-radius:0; }
 .map-legend .worldline-node { background:#b095c7; border-radius:1px; transform:rotate(45deg); }
+
+/* T4.9 Character Architect cultivation room */
+.initialization-room { margin: 18px -4px 6px; padding: 18px; border: 1px solid rgba(93,117,109,.22); border-radius: 18px; background: linear-gradient(155deg, rgba(241,246,242,.88), rgba(250,248,242,.76)); }
+.initialization-room > header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.initialization-room h3 { margin:3px 0 0; font:500 20px Georgia,"Songti SC",serif; }
+.initialization-room header small, .init-disclaimer { color:var(--faint); font-size:8px; letter-spacing:.08em; }
+.init-status { padding:4px 8px; border-radius:99px; background:rgba(86,119,109,.1); color:var(--green); font-size:8px; }
+.init-status.failed, .init-status.needs_budget { color:#9a544a; background:rgba(160,75,65,.1); }
+.init-steps { display:grid; grid-template-columns:repeat(9,minmax(52px,1fr)); gap:5px; margin:15px 0; overflow-x:auto; }
+.init-steps span { min-width:58px; display:grid; gap:5px; justify-items:center; color:var(--faint); font-size:7px; text-align:center; white-space:nowrap; }
+.init-steps i { width:9px; height:9px; border-radius:50%; border:1px solid var(--line); background:#f7f4ec; }
+.init-steps .done i { background:#6f978a; border-color:#6f978a; }
+.init-steps .current { color:var(--ink); font-weight:600; }
+.init-steps .current i { background:#d5a944; border-color:#d5a944; box-shadow:0 0 0 4px rgba(213,169,68,.12); }
+.init-budget { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.init-budget span { padding:6px 8px; border-radius:8px; background:rgba(255,255,255,.55); color:var(--muted); font-size:8px; }
+.initialization-room details { border-top:1px solid rgba(80,90,80,.1); padding:10px 0; }
+.initialization-room summary { cursor:pointer; color:var(--ink); font-size:10px; font-weight:600; }
+.init-question-list, .init-source-map, .coverage-grid, .blueprint-sections, .critique-list { display:grid; gap:7px; margin:10px 0; }
+.init-question-list article, .init-source-map span, .coverage-grid span, .blueprint-sections article, .critique-list span { display:grid; gap:4px; padding:9px 10px; border:1px solid rgba(82,103,96,.12); border-radius:10px; background:rgba(255,255,255,.5); }
+.init-question-list strong, .init-source-map strong, .coverage-grid strong, .blueprint-sections strong, .critique-list strong { font-size:9px; }
+.init-question-list small, .init-source-map small, .coverage-grid small, .blueprint-sections small, .critique-list small { color:var(--faint); font-size:8px; }
+.init-source-map { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.init-source-map .director { border-style:dashed; background:rgba(117,91,146,.055); }
+.coverage-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.coverage-grid .sufficient { border-left:3px solid #5b9275; }
+.coverage-grid .partial { border-left:3px solid #d2a645; }
+.coverage-grid .contested { border-left:3px solid #b5685e; }
+.coverage-grid .missing { opacity:.58; }
+.blueprint-sections article p { margin:0; color:var(--muted); font:11px/1.65 Georgia,"Songti SC",serif; }
+.critique-list .hard { border-left:3px solid #b5685e; background:rgba(181,104,94,.06); }
+.critique-list .warning { border-left:3px solid #d2a645; }
+.critique-list .passed { color:var(--green); }
+.init-upload, .init-review-actions, .init-final { display:grid; gap:7px; margin-top:10px; }
+.init-upload { grid-template-columns:1fr 110px 110px auto; }
+.init-upload input, .init-upload select, .init-review-actions textarea, .init-final input { border:1px solid var(--line); border-radius:9px; background:rgba(255,255,255,.62); padding:8px; color:var(--ink); }
+.initialization-room button { border:1px solid rgba(88,116,107,.25); border-radius:9px; background:var(--sage-pale); color:#3e5e54; padding:8px 10px; cursor:pointer; }
+.initialization-room button.primary { background:#55766b; color:white; }
+.initialization-room button:disabled { opacity:.42; cursor:not-allowed; }
+.init-review-actions { grid-template-columns:1fr auto; }
+.init-final { grid-template-columns:1fr auto; }
+.consent-check { display:flex !important; grid-column:span 2; align-items:center; gap:8px !important; }
+.consent-check input { width:auto !important; }
+@media (max-width: 800px) { .init-steps { grid-template-columns:repeat(9,72px); } .init-upload, .init-review-actions, .init-final { grid-template-columns:1fr; } .init-source-map, .coverage-grid { grid-template-columns:1fr; } }

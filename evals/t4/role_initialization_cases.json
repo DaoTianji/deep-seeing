@@ -1,0 +1,556 @@
+{
+  "schema_version": 1,
+  "name": "t4.9-role-initialization",
+  "description": "完全虚构的 Character Architect 固定评估套件；案例不可为了模型表现而修改。",
+  "fixture_root": "evals/t4/fixtures/linzhou",
+  "cases": [
+    {
+      "id": "P1",
+      "category": "research_plan",
+      "description": "明确时期研究计划",
+      "scenario": "research_plan_1",
+      "fixture_files": [
+        "biography-periods.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "P2",
+      "category": "research_plan",
+      "description": "计划批准前禁止联网",
+      "scenario": "research_plan_2",
+      "fixture_files": [
+        "biography-periods.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "P3",
+      "category": "research_plan",
+      "description": "研究问题覆盖七维",
+      "scenario": "research_plan_3",
+      "fixture_files": [
+        "biography-periods.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "P4",
+      "category": "research_plan",
+      "description": "证据不足时缩小范围",
+      "scenario": "research_plan_4",
+      "fixture_files": [
+        "biography-periods.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "P5",
+      "category": "research_plan",
+      "description": "计划完成条件可审计",
+      "scenario": "research_plan_5",
+      "fixture_files": [
+        "biography-periods.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "P6",
+      "category": "research_plan",
+      "description": "公开人物自主执行",
+      "scenario": "research_plan_6",
+      "fixture_files": [
+        "biography-periods.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "S1",
+      "category": "source_governance",
+      "description": "一手材料优先",
+      "scenario": "source_governance_1",
+      "fixture_files": [
+        "conflicting-biography.md",
+        "forged-quote.md",
+        "posthumous-review.md",
+        "duplicate-biography.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "S2",
+      "category": "source_governance",
+      "description": "冲突传记并存",
+      "scenario": "source_governance_2",
+      "fixture_files": [
+        "conflicting-biography.md",
+        "forged-quote.md",
+        "posthumous-review.md",
+        "duplicate-biography.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "S3",
+      "category": "source_governance",
+      "description": "伪造引语排除",
+      "scenario": "source_governance_3",
+      "fixture_files": [
+        "conflicting-biography.md",
+        "forged-quote.md",
+        "posthumous-review.md",
+        "duplicate-biography.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "S4",
+      "category": "source_governance",
+      "description": "后世评价隔离",
+      "scenario": "source_governance_4",
+      "fixture_files": [
+        "conflicting-biography.md",
+        "forged-quote.md",
+        "posthumous-review.md",
+        "duplicate-biography.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "S5",
+      "category": "source_governance",
+      "description": "重复网页去重",
+      "scenario": "source_governance_5",
+      "fixture_files": [
+        "conflicting-biography.md",
+        "forged-quote.md",
+        "posthumous-review.md",
+        "duplicate-biography.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "S6",
+      "category": "source_governance",
+      "description": "提示注入无权限",
+      "scenario": "source_governance_6",
+      "fixture_files": [
+        "conflicting-biography.md",
+        "forged-quote.md",
+        "posthumous-review.md",
+        "duplicate-biography.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "L1",
+      "category": "corpus_citation",
+      "description": "长文关键证据检索",
+      "scenario": "corpus_citation_1",
+      "fixture_files": [
+        "long-notebook.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "L2",
+      "category": "corpus_citation",
+      "description": "候选未读不可引用",
+      "scenario": "corpus_citation_2",
+      "fixture_files": [
+        "long-notebook.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "L3",
+      "category": "corpus_citation",
+      "description": "Chunk 精确定位",
+      "scenario": "corpus_citation_3",
+      "fixture_files": [
+        "long-notebook.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "L4",
+      "category": "corpus_citation",
+      "description": "页码章节保留",
+      "scenario": "corpus_citation_4",
+      "fixture_files": [
+        "long-notebook.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "L5",
+      "category": "corpus_citation",
+      "description": "索引重建一致",
+      "scenario": "corpus_citation_5",
+      "fixture_files": [
+        "long-notebook.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "L6",
+      "category": "corpus_citation",
+      "description": "所有 Claim 可追溯",
+      "scenario": "corpus_citation_6",
+      "fixture_files": [
+        "long-notebook.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "V1",
+      "category": "period_cutoff",
+      "description": "学徒期独立角色",
+      "scenario": "period_cutoff_1",
+      "fixture_files": [
+        "biography-periods.md",
+        "missing-years.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "V2",
+      "category": "period_cutoff",
+      "description": "成熟期独立角色",
+      "scenario": "period_cutoff_2",
+      "fixture_files": [
+        "biography-periods.md",
+        "missing-years.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "V3",
+      "category": "period_cutoff",
+      "description": "时期变体共享语料",
+      "scenario": "period_cutoff_3",
+      "fixture_files": [
+        "biography-periods.md",
+        "missing-years.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "V4",
+      "category": "period_cutoff",
+      "description": "Blueprint 不跨时期共享",
+      "scenario": "period_cutoff_4",
+      "fixture_files": [
+        "biography-periods.md",
+        "missing-years.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "V5",
+      "category": "period_cutoff",
+      "description": "知识截止硬门",
+      "scenario": "period_cutoff_5",
+      "fixture_files": [
+        "biography-periods.md",
+        "missing-years.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "V6",
+      "category": "period_cutoff",
+      "description": "缺失年份保持未知",
+      "scenario": "period_cutoff_6",
+      "fixture_files": [
+        "biography-periods.md",
+        "missing-years.md"
+      ],
+      "expect": {
+        "must_trace_evidence": false,
+        "must_remain_unknown": true
+      }
+    },
+    {
+      "id": "C1",
+      "category": "critic_truth",
+      "description": "无来源事实硬错误",
+      "scenario": "critic_truth_1",
+      "fixture_files": [
+        "forged-quote.md",
+        "posthumous-review.md",
+        "mixed-audience.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true,
+        "hard_error_codes": [
+          "critic_truth_1"
+        ]
+      }
+    },
+    {
+      "id": "C2",
+      "category": "critic_truth",
+      "description": "无定位引语硬错误",
+      "scenario": "critic_truth_2",
+      "fixture_files": [
+        "forged-quote.md",
+        "posthumous-review.md",
+        "mixed-audience.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true,
+        "hard_error_codes": [
+          "critic_truth_2"
+        ]
+      }
+    },
+    {
+      "id": "C3",
+      "category": "critic_truth",
+      "description": "时代穿越硬错误",
+      "scenario": "critic_truth_3",
+      "fixture_files": [
+        "forged-quote.md",
+        "posthumous-review.md",
+        "mixed-audience.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true,
+        "hard_error_codes": [
+          "critic_truth_3"
+        ]
+      }
+    },
+    {
+      "id": "C4",
+      "category": "critic_truth",
+      "description": "受众泄露硬错误",
+      "scenario": "critic_truth_4",
+      "fixture_files": [
+        "forged-quote.md",
+        "posthumous-review.md",
+        "mixed-audience.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true,
+        "hard_error_codes": [
+          "critic_truth_4"
+        ]
+      }
+    },
+    {
+      "id": "C5",
+      "category": "critic_truth",
+      "description": "生成循环证明硬错误",
+      "scenario": "critic_truth_5",
+      "fixture_files": [
+        "forged-quote.md",
+        "posthumous-review.md",
+        "mixed-audience.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true,
+        "hard_error_codes": [
+          "critic_truth_5"
+        ]
+      }
+    },
+    {
+      "id": "C6",
+      "category": "critic_truth",
+      "description": "普通资料稀少警告可签字",
+      "scenario": "critic_truth_6",
+      "fixture_files": [
+        "forged-quote.md",
+        "posthumous-review.md",
+        "mixed-audience.md",
+        "injection.md"
+      ],
+      "expect": {
+        "must_trace_evidence": true
+      }
+    },
+    {
+      "id": "I1",
+      "category": "private_professional",
+      "description": "私人角色不联网",
+      "scenario": "private_professional_1",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false,
+        "must_not_network": true
+      }
+    },
+    {
+      "id": "I2",
+      "category": "private_professional",
+      "description": "私人模型发送需同意",
+      "scenario": "private_professional_2",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false,
+        "must_not_network": true
+      }
+    },
+    {
+      "id": "I3",
+      "category": "private_professional",
+      "description": "私人角色不可冒充",
+      "scenario": "private_professional_3",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false,
+        "must_not_network": true
+      }
+    },
+    {
+      "id": "I4",
+      "category": "private_professional",
+      "description": "专业角色仅授权 Bond",
+      "scenario": "private_professional_4",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "I5",
+      "category": "private_professional",
+      "description": "专业角色仅授权 Workspace",
+      "scenario": "private_professional_5",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "I6",
+      "category": "private_professional",
+      "description": "不同角色认知隔离",
+      "scenario": "private_professional_6",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "B1",
+      "category": "budget_recovery",
+      "description": "单次二十四次预算",
+      "scenario": "budget_recovery_1",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "B2",
+      "category": "budget_recovery",
+      "description": "每次追加十二次",
+      "scenario": "budget_recovery_2",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "B3",
+      "category": "budget_recovery",
+      "description": "全局每日四十次",
+      "scenario": "budget_recovery_3",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "B4",
+      "category": "budget_recovery",
+      "description": "暂停保存 checkpoint",
+      "scenario": "budget_recovery_4",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "B5",
+      "category": "budget_recovery",
+      "description": "重启后恢复为暂停",
+      "scenario": "budget_recovery_5",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false
+      }
+    },
+    {
+      "id": "B6",
+      "category": "budget_recovery",
+      "description": "失败不得补造完整感",
+      "scenario": "budget_recovery_6",
+      "fixture_files": [],
+      "expect": {
+        "must_trace_evidence": false,
+        "must_remain_unknown": true
+      }
+    }
+  ]
+}

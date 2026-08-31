@@ -243,3 +243,30 @@ export interface ActiveRole {
   instance?: RoleInstance;
   session?: RoleSession;
 }
+
+export type RoleInitializationMode = "off" | "observe" | "agent";
+export type RoleInitializationStatus = "draft" | "planning" | "awaiting_plan_approval" | "collecting" | "analyzing" | "compiling" | "blueprinting" | "critiquing" | "awaiting_final_approval" | "completed" | "paused" | "needs_budget" | "failed" | "cancelled";
+export interface RoleResearchPlan {
+  target_period: string;
+  knowledge_cutoff?: string;
+  questions: Array<{ id: string; question: string; topics?: string[]; priority?: string }>;
+  completion_criteria?: string[];
+  approved_at?: string;
+}
+export interface RoleCoverageItem { dimension: string; state: "missing" | "partial" | "sufficient" | "contested"; summary?: string; source_ids?: string[]; chunk_ids?: string[] }
+export interface RoleBlueprintSection { key: string; content: string; claim_ids?: string[]; chunk_ids?: string[] }
+export interface RoleBlueprint {
+  id: string; run_id: string; role_id: string; version: number; target_period: string; knowledge_cutoff: string;
+  self_concept: RoleBlueprintSection; values_and_motives: RoleBlueprintSection; tensions: RoleBlueprintSection;
+  relationships?: RoleBlueprintSection[]; reasoning_and_voice: RoleBlueprintSection; unknown_response_policy: RoleBlueprintSection;
+  allowed_inferences: RoleBlueprintSection; forbidden_anachronisms: RoleBlueprintSection; change_summary?: string;
+}
+export interface RoleCritiqueIssue { code: string; severity: "hard" | "warning"; message: string; section?: string; resolved?: boolean }
+export interface RoleCritique { id: string; passed: boolean; issues?: RoleCritiqueIssue[]; warning_acceptance_reason?: string }
+export interface RoleInitializationRun {
+  id: string; role_id: string; status: RoleInitializationStatus; current_step?: string; checkpoint?: string; objective?: string;
+  plan?: RoleResearchPlan; coverage: { items: RoleCoverageItem[]; updated_at: string }; conflicts?: Array<{ id: string; topic: string; disposition?: string }>;
+  assessments?: Array<{ source_id: string; tier: string; audience: "actor" | "director"; status: string; reliable?: string; read_chunk_ids?: string[] }>;
+  blueprint_id?: string; critique_id?: string; remote_budget: number; remote_used: number; search_provider?: string; error_summary?: string; revision_request?: string;
+}
+export interface RoleInitializationDetail { run: RoleInitializationRun; role: RoleDefinition; blueprint?: RoleBlueprint; critique?: RoleCritique; mode: RoleInitializationMode }

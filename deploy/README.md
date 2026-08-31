@@ -38,6 +38,8 @@ LTM_GRAPH=1
 RECALL_MODE=agent
 REFLECTION_MODE=agent
 ROLE_MODE=off
+ROLE_INIT_MODE=off
+ROLE_SEARCH_PROVIDER=duckduckgo
 # Set to the Tailscale login emails allowed to open the private room.
 TAILSCALE_ALLOWED_USERS=
 ```

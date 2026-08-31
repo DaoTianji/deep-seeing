@@ -47,6 +47,7 @@ type App struct {
 	RecallMode     runtime.RecallMode
 	ReflectionMode memory.ReflectionMode
 	RoleMode       theater.Mode
+	RoleInitMode   theater.InitializationMode
 	Theater        *theater.Router
 	Service        *runtime.Service
 	STM            memory.SessionStore
@@ -69,6 +70,8 @@ type App struct {
 	World          *world.Gateway
 	Roles          *theater.Store
 	RoleCompiler   *theater.RoleCompiler
+	RoleCorpus     *theater.CorpusStore
+	RoleArchitect  *theater.CharacterArchitect
 	Scheduler      *agency.Scheduler
 	OriginLetter   origin.Letter
 	FirstBoot      bool
@@ -175,10 +178,20 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	var taskFocusController tools.TaskContextFocusController
 	reflectionMode := memory.ReflectionModeFromEnv()
 	roleMode := theater.ModeFromEnv()
+	roleInitMode := theater.InitializationModeFromEnv()
 	roleDir := envOr("LTM_ROLE_DIR", filepath.Join("data", "memory", "roles"))
 	roleStore, err := theater.NewStore(roleDir)
 	if err != nil {
 		return nil, fmt.Errorf("role store: %w", err)
+	}
+	roleCorpus, err := theater.NewCorpusStore(roleDir)
+	if err != nil {
+		return nil, fmt.Errorf("role corpus: %w", err)
+	}
+	if recovered, recoverErr := roleStore.RecoverInitializations(ctx); recoverErr != nil {
+		log.Printf("role initialization recovery unavailable: %v", recoverErr)
+	} else if len(recovered) > 0 {
+		log.Printf("paused %d role initializations after process recovery", len(recovered))
 	}
 	if _, changed, recoverErr := roleStore.Recover(ctx); recoverErr != nil {
 		log.Printf("role recovery unavailable: %v", recoverErr)
@@ -226,7 +239,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Scope: scope, Episodes: episodes, Graph: graphStore, Scenes: sceneStore, Proposals: proposals,
 		Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Ledger: ledger, SessionID: sessionID, Model: cfg.Model, Stores: stores, FirstBoot: firstBoot,
-		RecallMode: string(recallMode), RoleMode: string(roleMode), TaskContextFocus: taskFocusController,
+		RecallMode: string(recallMode), RoleMode: string(roleMode), RoleInitMode: string(roleInitMode), TaskContextFocus: taskFocusController,
 		Attention: attentionStore,
 		OnBondChanged: func() {
 			if svc != nil {
@@ -244,6 +257,15 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	directorReviewer := &theater.DirectorReviewer{
 		Mode: roleMode, Store: roleStore, Episodes: episodes, Chat: reviewChat, Scope: scope, Model: cfg.Model,
 	}
+	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: compilerChat}
+	searchProvider, coverageLimited := theater.RoleSearchProviderFromEnv(worldGW)
+	roleArchitect := &theater.CharacterArchitect{Mode: roleInitMode, Scope: scope, Store: roleStore, Corpus: roleCorpus, Compiler: roleCompiler, Chat: compilerChat, AssessmentChat: compilerChat, CoverageChat: compilerChat, CriticChat: reviewChat, Search: searchProvider, World: worldGW, Soul: soulText, Model: cfg.Model, CoverageLimited: coverageLimited}
+	initToolList, err := theater.InitializationTools(roleArchitect)
+	if err != nil {
+		return nil, fmt.Errorf("role initialization tools: %w", err)
+	}
+	toolList = append(toolList, initToolList...)
+
 	roleToolList, err := theater.DirectorTools(theater.DirectorToolDeps{Scope: scope, Mode: roleMode, Store: roleStore, Reviewer: directorReviewer})
 	if err != nil {
 		if graphStore != nil {
@@ -332,7 +354,6 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Compactor: compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
 		Graph:     graphStore, Workspace: wsStore,
 	}
-	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: compilerChat}
 	theaterRouter := &theater.Router{
 		Mode: roleMode, Store: roleStore, Normal: svc, Director: directorSvc, Actors: actorBuilder, ActorSTM: stm,
 		Reviewer: directorReviewer, Scope: scope, Graph: graphStore,
@@ -346,12 +367,12 @@ func New(ctx context.Context, opt Options) (*App, error) {
 
 	app := &App{
 		Scope: scope, SessionID: sessionID, Model: cfg.Model, RecallMode: recallMode, Service: svc,
-		ReflectionMode: reflectionMode, RoleMode: roleMode, Theater: theaterRouter,
+		ReflectionMode: reflectionMode, RoleMode: roleMode, RoleInitMode: roleInitMode, Theater: theaterRouter,
 		STM: stm, STMBackend: stmBackend, Episodes: episodes, Proposals: proposals,
 		Ledger: ledger, Journal: journal, Graph: graphStore, GraphLabel: graphLabel,
 		Reflections: reflections,
 		Queue:       queue, Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
-		Scheduler: sched, OriginLetter: originLetter, FirstBoot: firstBoot, Roles: roleStore, RoleCompiler: roleCompiler,
+		Scheduler: sched, OriginLetter: originLetter, FirstBoot: firstBoot, Roles: roleStore, RoleCompiler: roleCompiler, RoleCorpus: roleCorpus, RoleArchitect: roleArchitect,
 	}
 	app.Reviewer = &memory.SessionReviewer{
 		Chat: reviewChat, Episodes: episodes, Proposals: proposals, Reflections: reflections,
@@ -396,6 +417,7 @@ func (a *App) RuntimeSnapshot() body.Snapshot {
 	snapshot.RecallMode = string(a.RecallMode)
 	snapshot.ReflectionMode = string(a.ReflectionMode)
 	snapshot.RoleMode = string(a.RoleMode)
+	snapshot.RoleInitMode = string(a.RoleInitMode)
 	return snapshot
 }
 
@@ -414,6 +436,9 @@ func (a *App) Close(ctx context.Context) {
 	}
 	if a.Scheduler != nil {
 		a.Scheduler.Stop()
+	}
+	if a.RoleCorpus != nil {
+		_ = a.RoleCorpus.Close()
 	}
 	if a.Intents != nil {
 		_ = a.Intents.Close()
