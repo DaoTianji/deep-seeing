@@ -342,3 +342,58 @@ func TestCritiqueCoverageErrorsReturnToAnalysis(t *testing.T) {
 		t.Fatal("blueprint-only error must stay in blueprint revision")
 	}
 }
+
+type sequenceArchitectCompleter struct {
+	outputs []string
+	calls   int
+}
+
+func (f *sequenceArchitectCompleter) Complete(_ context.Context, _ string, _ string) (string, error) {
+	index := f.calls
+	f.calls++
+	if index >= len(f.outputs) {
+		index = len(f.outputs) - 1
+	}
+	return f.outputs[index], nil
+}
+
+func TestCoverageAnalysisRetriesInvalidJSON(t *testing.T) {
+	ctx := context.Background()
+	root := t.TempDir()
+	store, err := NewStore(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	corpus, err := NewCorpusStore(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer corpus.Close()
+	role, err := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "覆盖人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	if err != nil {
+		t.Fatal(err)
+	}
+	run, err := store.CreateInitialization(ctx, role.ID, "验证覆盖重试", false, "fixture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	run, err = store.updateInitialization(ctx, run.ID, 0, func(value *RoleInitializationRun) error {
+		value.Status = InitAnalyzing
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	chat := &sequenceArchitectCompleter{outputs: []string{"not json", `{"coverage":{"items":[{"dimension":"biography","state":"missing","summary":"证据不足"}]},"conflicts":[]}`}}
+	architect := &CharacterArchitect{Store: store, Corpus: corpus, CoverageChat: chat}
+	updated, err := architect.analyze(ctx, run)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if chat.calls != 2 {
+		t.Fatalf("coverage calls = %d", chat.calls)
+	}
+	if updated.Status != InitCompiling || len(updated.Coverage.Items) != 1 || updated.Coverage.Items[0].Summary != "证据不足" {
+		t.Fatalf("unexpected coverage retry result: %#v", updated)
+	}
+}

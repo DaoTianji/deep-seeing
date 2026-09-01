@@ -542,7 +542,13 @@ func (a *CharacterArchitect) analyze(ctx context.Context, run RoleInitialization
 			Conflicts []EvidenceConflict `json:"conflicts"`
 		}
 		if decodeErr := decodeJSONObject(raw, &modelResult); decodeErr != nil {
-			return run, decodeErr
+			retryRaw, retryErr := a.CoverageChat.Complete(ctx, coverageAnalysisSystem+"\n上一次输出格式无效。不要解释、不要 Markdown，只返回包含 coverage 和 conflicts 的单个 JSON 对象。coverage.items 必须是数组。", string(input))
+			if retryErr != nil {
+				return run, retryErr
+			}
+			if retryErr = decodeJSONObject(retryRaw, &modelResult); retryErr != nil {
+				return run, retryErr
+			}
 		}
 		if len(modelResult.Coverage.Items) > 0 {
 			coverage = modelResult.Coverage
