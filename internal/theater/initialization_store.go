@@ -166,7 +166,7 @@ func validInitializationTransition(from, to InitializationStatus) bool {
 		InitDraft: {InitPlanning}, InitPlanning: {InitAwaitingPlanApproval},
 		InitAwaitingPlanApproval: {InitCollecting}, InitCollecting: {InitAnalyzing},
 		InitAnalyzing: {InitCompiling}, InitCompiling: {InitBlueprinting},
-		InitBlueprinting: {InitCritiquing}, InitCritiquing: {InitAwaitingFinalApproval, InitBlueprinting},
+		InitBlueprinting: {InitCritiquing}, InitCritiquing: {InitAwaitingFinalApproval, InitBlueprinting, InitAnalyzing},
 		InitAwaitingFinalApproval: {InitCompleted, InitBlueprinting}, InitPaused: {InitPlanning, InitCollecting, InitAnalyzing, InitCompiling, InitBlueprinting, InitCritiquing, InitAwaitingFinalApproval},
 		InitNeedsBudget: {InitCollecting},
 	}

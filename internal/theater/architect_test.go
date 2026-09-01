@@ -324,3 +324,21 @@ func TestBuildBlueprintIncludesRevisionContext(t *testing.T) {
 		}
 	}
 }
+
+func TestCritiqueCoverageErrorsReturnToAnalysis(t *testing.T) {
+	coverageHard := RoleCritique{Issues: []CritiqueIssue{{Code: "UNSUPPORTED_SOURCE_INDEPENDENCE", Severity: CritiqueHard, Section: "coverage.biography"}}}
+	if !critiqueRequiresCoverageRefresh(coverageHard) {
+		t.Fatal("coverage hard error must return to analysis")
+	}
+	if !validInitializationTransition(InitCritiquing, InitAnalyzing) {
+		t.Fatal("critic must be allowed to return to coverage analysis")
+	}
+	coverageWarning := RoleCritique{Issues: []CritiqueIssue{{Code: "STALE_COVERAGE_MATRIX", Severity: CritiqueWarning, Section: "coverage"}}}
+	if critiqueRequiresCoverageRefresh(coverageWarning) {
+		t.Fatal("coverage warning must not block final review")
+	}
+	blueprintHard := RoleCritique{Issues: []CritiqueIssue{{Code: "UNSOURCED_PERIODIZATION", Severity: CritiqueHard, Section: "blueprint.target_period"}}}
+	if critiqueRequiresCoverageRefresh(blueprintHard) {
+		t.Fatal("blueprint-only error must stay in blueprint revision")
+	}
+}
