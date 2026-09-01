@@ -263,8 +263,8 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Mode: roleMode, Store: roleStore, Episodes: episodes, Chat: reviewChat, Scope: scope, Model: cfg.Model,
 	}
 	roleCriticChat := &memory.ChatClient{
-		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 3072,
-		HTTPClient: &http.Client{Timeout: 180 * time.Second},
+		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 8192,
+		HTTPClient: &http.Client{Timeout: 240 * time.Second},
 	}
 	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: compilerChat}
 	searchProvider, coverageLimited := theater.RoleSearchProviderFromEnv(worldGW)
