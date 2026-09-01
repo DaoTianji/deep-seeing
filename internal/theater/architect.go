@@ -200,6 +200,9 @@ func (a *CharacterArchitect) Continue(ctx context.Context, runID string) (RoleIn
 	if err != nil {
 		return run, err
 	}
+	coverageRefreshes := 0
+
+process:
 	if run.Status == InitPlanning {
 		plan, planErr := a.createPlan(ctx, run, definition, definition.TargetPeriod, definition.KnowledgeCutoff)
 		if planErr != nil {
@@ -295,7 +298,12 @@ func (a *CharacterArchitect) Continue(ctx context.Context, runID string) (RoleIn
 		a.emit(run, "role_critique_ready", "critic", fmt.Sprintf("审查发现 %d 项问题", len(critique.Issues)), critique.ID)
 		if !critique.Passed {
 			if critiqueRequiresCoverageRefresh(critique) {
-				return a.Store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage_revision", "critic_coverage_error", "")
+				run, err = a.Store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage_revision", "critic_coverage_error", "")
+				if err != nil || coverageRefreshes >= 1 {
+					return run, err
+				}
+				coverageRefreshes++
+				goto process
 			}
 			return a.Store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "revision_required", "critic_hard_error", "")
 		}
