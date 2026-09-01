@@ -171,6 +171,10 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	compilerChat := &memory.ChatClient{
 		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 3072, HTTPClient: &http.Client{Timeout: 180 * time.Second},
 	}
+	roleArchitectChat := &memory.ChatClient{
+		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 8192,
+		HTTPClient: &http.Client{Timeout: 240 * time.Second},
+	}
 
 	stm, stmBackend := openSTM(ctx, scope)
 	graphStore, graphLabel := openGraph(ctx, scope)
@@ -259,12 +263,12 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Mode: roleMode, Store: roleStore, Episodes: episodes, Chat: reviewChat, Scope: scope, Model: cfg.Model,
 	}
 	roleCriticChat := &memory.ChatClient{
-		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 1024,
+		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 3072,
 		HTTPClient: &http.Client{Timeout: 180 * time.Second},
 	}
 	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: compilerChat}
 	searchProvider, coverageLimited := theater.RoleSearchProviderFromEnv(worldGW)
-	roleArchitect := &theater.CharacterArchitect{Mode: roleInitMode, Scope: scope, Store: roleStore, Corpus: roleCorpus, Compiler: roleCompiler, Chat: compilerChat, AssessmentChat: compilerChat, CoverageChat: compilerChat, CriticChat: roleCriticChat, Search: searchProvider, World: worldGW, Soul: soulText, Model: cfg.Model, CoverageLimited: coverageLimited}
+	roleArchitect := &theater.CharacterArchitect{Mode: roleInitMode, Scope: scope, Store: roleStore, Corpus: roleCorpus, Compiler: roleCompiler, Chat: roleArchitectChat, AssessmentChat: compilerChat, CoverageChat: compilerChat, CriticChat: roleCriticChat, Search: searchProvider, World: worldGW, Soul: soulText, Model: cfg.Model, CoverageLimited: coverageLimited}
 	initToolList, err := theater.InitializationTools(roleArchitect)
 	if err != nil {
 		return nil, fmt.Errorf("role initialization tools: %w", err)
