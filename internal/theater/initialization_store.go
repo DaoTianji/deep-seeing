@@ -326,13 +326,26 @@ func (s *Store) SaveSourceAssessment(ctx context.Context, id string, assessment 
 		if assessment.UpdatedAt.IsZero() {
 			assessment.UpdatedAt = time.Now().UTC()
 		}
+		replaced := false
 		for i := range run.Assessments {
 			if run.Assessments[i].SourceID == assessment.SourceID {
 				run.Assessments[i] = assessment
-				return nil
+				replaced = true
+				break
 			}
 		}
-		run.Assessments = append(run.Assessments, assessment)
+		if !replaced {
+			run.Assessments = append(run.Assessments, assessment)
+		}
+		switch run.Status {
+		case InitBlueprinting, InitCritiquing, InitAwaitingFinalApproval:
+			run.Status = InitAnalyzing
+			run.CurrentStep = "coverage"
+			run.Checkpoint = "sources_updated"
+			run.ErrorSummary = ""
+		case InitPaused:
+			run.ResumeStatus = InitAnalyzing
+		}
 		return nil
 	})
 }

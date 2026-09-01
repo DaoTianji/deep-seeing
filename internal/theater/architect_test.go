@@ -137,7 +137,8 @@ func TestSelectBlueprintEvidenceBalancesSourcesAndBoundsPayload(t *testing.T) {
 		{SourceID: "source-actor", Tier: SourcePrimary, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: chunkIDs(actorChunks)},
 		{SourceID: "source-director", Tier: SourceBiography, Audience: SourceDirector, Status: AssessmentAccepted, ReadChunkIDs: chunkIDs(directorChunks)},
 	}}
-	got := (&CharacterArchitect{Corpus: corpus}).selectBlueprintEvidence(ctx, run, role)
+	architect := &CharacterArchitect{Corpus: corpus}
+	got := architect.selectBlueprintEvidence(ctx, run, role)
 	if len(got) == 0 || len(got) > maxBlueprintEvidenceChunks {
 		t.Fatalf("evidence count = %d", len(got))
 	}
@@ -150,6 +151,34 @@ func TestSelectBlueprintEvidenceBalancesSourcesAndBoundsPayload(t *testing.T) {
 	}
 	if !sources["source-actor"] || !sources["source-director"] {
 		t.Fatalf("evidence did not preserve source diversity: %#v", sources)
+	}
+}
+
+func TestSelectCriticEvidenceIncludesCitedBodies(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	corpus, err := NewCorpusStore(store.Root())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "证据人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	_, chunks, _, err := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: "source", Title: "Evidence", Audience: SourceActor, Tier: SourcePrimary, Text: []byte(strings.Repeat("cited evidence body ", 400))})
+	if err != nil || len(chunks) < 2 {
+		t.Fatalf("ingest chunks=%d err=%v", len(chunks), err)
+	}
+	blueprint := RoleBlueprint{SelfConcept: BlueprintSection{Key: "self_concept", ChunkIDs: []string{chunks[0].ID, chunks[1].ID, chunks[0].ID}}}
+	got := (&CharacterArchitect{Corpus: corpus}).selectCriticEvidence(ctx, blueprint)
+	if len(got) != 2 {
+		t.Fatalf("critic evidence count = %d", len(got))
+	}
+	for _, chunk := range got {
+		if cleanText(chunk.Content) == "" || len([]rune(chunk.Content)) > maxCriticChunkRunes+1 {
+			t.Fatalf("critic evidence body invalid: %#v", chunk)
+		}
 	}
 }
 

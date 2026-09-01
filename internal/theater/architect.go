@@ -565,6 +565,8 @@ func (a *CharacterArchitect) buildBlueprint(ctx context.Context, run RoleInitial
 const (
 	maxBlueprintEvidenceChunks = 16
 	maxBlueprintChunkRunes     = 3000
+	maxCriticEvidenceChunks    = 24
+	maxCriticChunkRunes        = 1800
 )
 
 func (a *CharacterArchitect) selectBlueprintEvidence(ctx context.Context, run RoleInitializationRun, definition RoleDefinition) []RoleChunk {
@@ -643,7 +645,8 @@ func (a *CharacterArchitect) selectBlueprintEvidence(ctx context.Context, run Ro
 func (a *CharacterArchitect) critique(ctx context.Context, run RoleInitializationRun, blueprint RoleBlueprint) (RoleCritique, error) {
 	issues := ValidateBlueprintEvidence(ctx, a.Store, a.Corpus, run, blueprint)
 	if a.CriticChat != nil {
-		input, _ := json.Marshal(map[string]any{"blueprint": blueprint, "coverage": run.Coverage, "assessments": run.Assessments, "conflicts": run.Conflicts})
+		evidence := a.selectCriticEvidence(ctx, blueprint)
+		input, _ := json.Marshal(map[string]any{"blueprint": blueprint, "coverage": run.Coverage, "assessments": run.Assessments, "conflicts": run.Conflicts, "evidence": evidence})
 		raw, err := a.CriticChat.Complete(ctx, roleCriticSystem, string(input))
 		if err != nil {
 			return RoleCritique{}, err
@@ -663,6 +666,29 @@ func (a *CharacterArchitect) critique(ctx context.Context, run RoleInitializatio
 		}
 	}
 	return newCritique(run, blueprint, issues), nil
+}
+
+func (a *CharacterArchitect) selectCriticEvidence(ctx context.Context, blueprint RoleBlueprint) []RoleChunk {
+	seen := make(map[string]struct{})
+	evidence := make([]RoleChunk, 0, maxCriticEvidenceChunks)
+	for _, section := range blueprintSections(blueprint) {
+		for _, id := range section.ChunkIDs {
+			if len(evidence) >= maxCriticEvidenceChunks {
+				return evidence
+			}
+			if _, ok := seen[id]; ok {
+				continue
+			}
+			chunk, err := a.Corpus.ReadChunk(ctx, id)
+			if err != nil {
+				continue
+			}
+			chunk.Content = truncateActionText(chunk.Content, maxCriticChunkRunes)
+			seen[id] = struct{}{}
+			evidence = append(evidence, chunk)
+		}
+	}
+	return evidence
 }
 
 func decodeBlueprintJSONObject(raw string, out *RoleBlueprint) error {

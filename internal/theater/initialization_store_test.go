@@ -58,6 +58,25 @@ func TestInitializationLifecycleBudgetAndRecovery(t *testing.T) {
 	}
 }
 
+func TestNewEvidenceAfterBlueprintReturnsToAnalysis(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	role, _ := store.CreateDefinition(ctx, identity.LocalCLI(), RoleDefinitionWrite{DisplayName: "补充资料人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	run, _ := store.CreateInitialization(ctx, role.ID, "补充资料", false, "fixture")
+	run, _ = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "成熟期", Questions: []ResearchQuestion{{ID: "q", Question: "问题"}}})
+	run, _ = store.ApproveResearchPlan(ctx, run.ID)
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage", "sources_collected", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitCompiling, "compile", "coverage_analyzed", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "blueprint", "compiled", "")
+	run, err = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: "new-source", Tier: SourceBiography, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{"new-chunk"}})
+	if err != nil || run.Status != InitAnalyzing || run.CurrentStep != "coverage" || run.Checkpoint != "sources_updated" {
+		t.Fatalf("new evidence did not invalidate analysis: %#v %v", run, err)
+	}
+}
+
 func TestRetryInitializationRestoresFailedStage(t *testing.T) {
 	ctx := context.Background()
 	store, err := NewStore(t.TempDir())
