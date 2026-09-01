@@ -529,25 +529,8 @@ func (a *CharacterArchitect) buildBlueprint(ctx context.Context, run RoleInitial
 		return RoleBlueprint{}, fmt.Errorf("character architect model unavailable")
 	}
 	claims, _ := a.Store.ListClaims(ctx, run.RoleID)
-	evidence := make([]RoleChunk, 0)
-	for _, assessment := range run.Assessments {
-		if assessment.Status != AssessmentAccepted {
-			continue
-		}
-		for _, id := range assessment.ReadChunkIDs {
-			chunk, err := a.Corpus.ReadChunk(ctx, id)
-			if err == nil {
-				evidence = append(evidence, chunk)
-			}
-			if len(evidence) >= 40 {
-				break
-			}
-		}
-	}
+	evidence := a.selectBlueprintEvidence(ctx, run, definition)
 	input, _ := json.Marshal(map[string]any{"role": definition, "plan": run.Plan, "coverage": run.Coverage, "conflicts": run.Conflicts, "claims": claims, "evidence": evidence})
-	if len(input) > 120000 {
-		input = input[:120000]
-	}
 	raw, err := a.Chat.Complete(ctx, architectBlueprintSystem, string(input))
 	if err != nil {
 		return RoleBlueprint{}, err
@@ -577,6 +560,84 @@ func (a *CharacterArchitect) buildBlueprint(ctx context.Context, run RoleInitial
 		blueprint.KnowledgeCutoff = run.Plan.KnowledgeCutoff
 	}
 	return blueprint, nil
+}
+
+const (
+	maxBlueprintEvidenceChunks = 16
+	maxBlueprintChunkRunes     = 3000
+)
+
+func (a *CharacterArchitect) selectBlueprintEvidence(ctx context.Context, run RoleInitializationRun, definition RoleDefinition) []RoleChunk {
+	allowed := make(map[string]struct{})
+	for _, assessment := range run.Assessments {
+		if assessment.Status != AssessmentAccepted || assessment.Tier == SourceGenerated {
+			continue
+		}
+		for _, id := range assessment.ReadChunkIDs {
+			allowed[id] = struct{}{}
+		}
+	}
+	selected := make(map[string]struct{})
+	evidence := make([]RoleChunk, 0, maxBlueprintEvidenceChunks)
+	appendChunk := func(id string) {
+		if len(evidence) >= maxBlueprintEvidenceChunks {
+			return
+		}
+		if _, ok := allowed[id]; !ok {
+			return
+		}
+		if _, ok := selected[id]; ok {
+			return
+		}
+		chunk, err := a.Corpus.ReadChunk(ctx, id)
+		if err != nil {
+			return
+		}
+		chunk.Content = truncateActionText(chunk.Content, maxBlueprintChunkRunes)
+		selected[id] = struct{}{}
+		evidence = append(evidence, chunk)
+	}
+
+	// Reserve one representative chunk per accepted source before retrieval can
+	// favor a single long document.
+	for _, assessment := range run.Assessments {
+		if assessment.Status != AssessmentAccepted || assessment.Tier == SourceGenerated || len(assessment.ReadChunkIDs) == 0 {
+			continue
+		}
+		appendChunk(assessment.ReadChunkIDs[len(assessment.ReadChunkIDs)/2])
+	}
+
+	corpusRoleID := nonempty(definition.CorpusRoleID, definition.ID)
+	if run.Plan != nil {
+		for _, question := range run.Plan.Questions {
+			query := cleanText(question.Question + " " + strings.Join(question.Topics, " "))
+			for _, audience := range []SourceAudience{SourceActor, SourceDirector} {
+				cards, err := a.Corpus.Search(ctx, corpusRoleID, query, audience, 2)
+				if err != nil {
+					continue
+				}
+				for _, card := range cards {
+					appendChunk(card.ID)
+				}
+			}
+			if len(evidence) >= maxBlueprintEvidenceChunks {
+				break
+			}
+		}
+	}
+
+	// Fill remaining space with evenly spread excerpts instead of the beginning
+	// of the first book.
+	for _, assessment := range run.Assessments {
+		ids := assessment.ReadChunkIDs
+		if assessment.Status != AssessmentAccepted || assessment.Tier == SourceGenerated || len(ids) == 0 {
+			continue
+		}
+		for _, index := range []int{0, len(ids) / 3, (2 * len(ids)) / 3, len(ids) - 1} {
+			appendChunk(ids[index])
+		}
+	}
+	return evidence
 }
 
 func (a *CharacterArchitect) critique(ctx context.Context, run RoleInitializationRun, blueprint RoleBlueprint) (RoleCritique, error) {

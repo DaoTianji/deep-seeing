@@ -103,6 +103,56 @@ func TestDecodeBlueprintNormalizesTextLikeMetadata(t *testing.T) {
 	}
 }
 
+func TestSelectBlueprintEvidenceBalancesSourcesAndBoundsPayload(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	corpus, err := NewCorpusStore(store.Root())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer corpus.Close()
+	role, err := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "研究人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, actorChunks, _, err := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: "source-actor", Title: "Primary alpha", Audience: SourceActor, Tier: SourcePrimary, Text: []byte(strings.Repeat("alpha theory voice evidence.\n\n", 700))})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, directorChunks, _, err := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: "source-director", Title: "Biography beta", Audience: SourceDirector, Tier: SourceBiography, Text: []byte(strings.Repeat("beta biography relationship evidence.\n\n", 500))})
+	if err != nil {
+		t.Fatal(err)
+	}
+	chunkIDs := func(chunks []RoleChunk) []string {
+		ids := make([]string, 0, len(chunks))
+		for _, chunk := range chunks {
+			ids = append(ids, chunk.ID)
+		}
+		return ids
+	}
+	run := RoleInitializationRun{Plan: &RoleResearchPlan{Questions: []ResearchQuestion{{Question: "alpha beta", Topics: []string{"theory", "biography"}}}}, Assessments: []SourceAssessment{
+		{SourceID: "source-actor", Tier: SourcePrimary, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: chunkIDs(actorChunks)},
+		{SourceID: "source-director", Tier: SourceBiography, Audience: SourceDirector, Status: AssessmentAccepted, ReadChunkIDs: chunkIDs(directorChunks)},
+	}}
+	got := (&CharacterArchitect{Corpus: corpus}).selectBlueprintEvidence(ctx, run, role)
+	if len(got) == 0 || len(got) > maxBlueprintEvidenceChunks {
+		t.Fatalf("evidence count = %d", len(got))
+	}
+	sources := map[string]bool{}
+	for _, chunk := range got {
+		sources[chunk.SourceID] = true
+		if len([]rune(chunk.Content)) > maxBlueprintChunkRunes+1 {
+			t.Fatalf("chunk %s exceeds payload bound", chunk.ID)
+		}
+	}
+	if !sources["source-actor"] || !sources["source-director"] {
+		t.Fatalf("evidence did not preserve source diversity: %#v", sources)
+	}
+}
+
 func TestCharacterArchitectPausesBeforeBlueprintWithoutReadEvidence(t *testing.T) {
 	ctx := context.Background()
 	store, err := NewStore(t.TempDir())
