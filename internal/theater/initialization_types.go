@@ -3,6 +3,7 @@ package theater
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -169,23 +170,60 @@ type BlueprintSection struct {
 	ChunkIDs []string `json:"chunk_ids,omitempty"`
 }
 
+// BlueprintSections accepts either the contracted array shape or a single
+// section object. Models occasionally collapse a one-item array into an object;
+// normalizing that harmless shape difference keeps evidence validation in charge.
+type BlueprintSections []BlueprintSection
+
+func (s *BlueprintSections) UnmarshalJSON(data []byte) error {
+	var list []BlueprintSection
+	if err := json.Unmarshal(data, &list); err == nil {
+		*s = list
+		return nil
+	}
+	var single BlueprintSection
+	if err := json.Unmarshal(data, &single); err == nil && (cleanText(single.Key) != "" || cleanText(single.Content) != "" || len(single.ClaimIDs) > 0 || len(single.ChunkIDs) > 0) {
+		*s = BlueprintSections{single}
+		return nil
+	}
+	var keyed map[string]BlueprintSection
+	if err := json.Unmarshal(data, &keyed); err != nil {
+		return fmt.Errorf("relationships must be an array or object: %w", err)
+	}
+	keys := make([]string, 0, len(keyed))
+	for key := range keyed {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	list = make([]BlueprintSection, 0, len(keys))
+	for _, key := range keys {
+		section := keyed[key]
+		if cleanText(section.Key) == "" {
+			section.Key = key
+		}
+		list = append(list, section)
+	}
+	*s = list
+	return nil
+}
+
 type RoleBlueprint struct {
-	ID                    string             `json:"id"`
-	RunID                 string             `json:"run_id"`
-	RoleID                string             `json:"role_id"`
-	Version               int64              `json:"version"`
-	TargetPeriod          string             `json:"target_period"`
-	KnowledgeCutoff       string             `json:"knowledge_cutoff"`
-	SelfConcept           BlueprintSection   `json:"self_concept"`
-	ValuesAndMotives      BlueprintSection   `json:"values_and_motives"`
-	Tensions              BlueprintSection   `json:"tensions"`
-	Relationships         []BlueprintSection `json:"relationships,omitempty"`
-	ReasoningAndVoice     BlueprintSection   `json:"reasoning_and_voice"`
-	UnknownResponsePolicy BlueprintSection   `json:"unknown_response_policy"`
-	AllowedInferences     BlueprintSection   `json:"allowed_inferences"`
-	ForbiddenAnachronisms BlueprintSection   `json:"forbidden_anachronisms"`
-	ChangeSummary         string             `json:"change_summary,omitempty"`
-	CreatedAt             time.Time          `json:"created_at"`
+	ID                    string            `json:"id"`
+	RunID                 string            `json:"run_id"`
+	RoleID                string            `json:"role_id"`
+	Version               int64             `json:"version"`
+	TargetPeriod          string            `json:"target_period"`
+	KnowledgeCutoff       string            `json:"knowledge_cutoff"`
+	SelfConcept           BlueprintSection  `json:"self_concept"`
+	ValuesAndMotives      BlueprintSection  `json:"values_and_motives"`
+	Tensions              BlueprintSection  `json:"tensions"`
+	Relationships         BlueprintSections `json:"relationships,omitempty"`
+	ReasoningAndVoice     BlueprintSection  `json:"reasoning_and_voice"`
+	UnknownResponsePolicy BlueprintSection  `json:"unknown_response_policy"`
+	AllowedInferences     BlueprintSection  `json:"allowed_inferences"`
+	ForbiddenAnachronisms BlueprintSection  `json:"forbidden_anachronisms"`
+	ChangeSummary         string            `json:"change_summary,omitempty"`
+	CreatedAt             time.Time         `json:"created_at"`
 }
 
 type CritiqueSeverity string

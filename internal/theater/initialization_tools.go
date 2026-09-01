@@ -99,6 +99,15 @@ func InitializationTools(architect *CharacterArchitect) ([]tool.BaseTool, error)
 	if err != nil {
 		return nil, err
 	}
+	retry, err := utils.InferTool("retry_role_initialization", "仅在角色培养失败后重试失败阶段；已读取证据和预算会保留，后台会从安全 checkpoint 继续。", func(ctx context.Context, in struct {
+		ID string `json:"id"`
+	}) (string, error) {
+		run, e := architect.Retry(ctx, strings.TrimSpace(in.ID))
+		return toolResult(map[string]any{"run": run, "started": e == nil}, e)
+	})
+	if err != nil {
+		return nil, err
+	}
 	cancel, err := utils.InferTool("cancel_role_initialization", "取消角色培养；不会删除已经保存的来源和审计记录。", func(ctx context.Context, in struct {
 		ID string `json:"id"`
 	}) (string, error) {
@@ -118,7 +127,7 @@ func InitializationTools(architect *CharacterArchitect) ([]tool.BaseTool, error)
 	if err != nil {
 		return nil, err
 	}
-	return []tool.BaseTool{start, inspect, approvePlan, grant, pause, resume, cancel, approveFinal}, nil
+	return []tool.BaseTool{start, inspect, approvePlan, grant, pause, resume, retry, cancel, approveFinal}, nil
 }
 
 func toolResult(payload map[string]any, err error) (string, error) {

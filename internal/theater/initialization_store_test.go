@@ -58,6 +58,26 @@ func TestInitializationLifecycleBudgetAndRecovery(t *testing.T) {
 	}
 }
 
+func TestRetryInitializationRestoresFailedStage(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	role, _ := store.CreateDefinition(ctx, identity.LocalCLI(), RoleDefinitionWrite{DisplayName: "重试人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	run, _ := store.CreateInitialization(ctx, role.ID, "重试", false, "fixture")
+	run, _ = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "成熟期", Questions: []ResearchQuestion{{ID: "q", Question: "问题"}}})
+	run, _ = store.ApproveResearchPlan(ctx, run.ID)
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage", "sources_collected", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitCompiling, "compile", "coverage_analyzed", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "blueprint", "compiled", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitFailed, "blueprint", "compiled", "invalid JSON")
+	run, err = store.RetryInitialization(ctx, run.ID)
+	if err != nil || run.Status != InitBlueprinting || run.ErrorSummary != "" {
+		t.Fatalf("retry did not restore blueprint stage: %#v %v", run, err)
+	}
+}
+
 func TestInitializationModeParsing(t *testing.T) {
 	if ParseInitializationMode("") != InitModeOff || ParseInitializationMode("OBSERVE") != InitModeObserve || ParseInitializationMode("agent") != InitModeAgent || ParseInitializationMode("bad") != InitModeOff {
 		t.Fatal("unexpected initialization mode parsing")

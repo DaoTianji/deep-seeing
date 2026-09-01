@@ -48,6 +48,7 @@ export const api = {
   grantRoleBudget: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/budget`),
   pauseRoleInitialization: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/pause`),
   resumeRoleInitialization: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/resume`),
+  retryRoleInitialization: (id: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/retry`),
   requestRoleBlueprintRevision: (id: string, reason: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/revision`, { reason }),
   approveRoleBlueprint: (id: string, warningAcceptanceReason: string) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/approve`, { warning_acceptance_reason: warningAcceptanceReason }),
   addRoleInitializationDocument: (id: string, input: Record<string, unknown>) => post<Record<string, unknown>>(`/api/role-initializations/${encodeURIComponent(id)}/documents`, input),

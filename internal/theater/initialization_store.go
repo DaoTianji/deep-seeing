@@ -238,6 +238,51 @@ func (s *Store) ResumeInitialization(ctx context.Context, id string) (RoleInitia
 	})
 }
 
+func (s *Store) RetryInitialization(ctx context.Context, id string) (RoleInitializationRun, error) {
+	return s.updateInitialization(ctx, id, 0, func(run *RoleInitializationRun) error {
+		if run.Status != InitFailed {
+			return fmt.Errorf("initialization is not failed")
+		}
+		target := InitCollecting
+		switch run.CurrentStep {
+		case "research_plan":
+			target = InitPlanning
+		case "collect_sources":
+			target = InitCollecting
+		case "coverage":
+			target = InitAnalyzing
+		case "compile":
+			target = InitCompiling
+		case "blueprint":
+			target = InitBlueprinting
+		case "critic":
+			target = InitCritiquing
+		}
+		if run.Plan == nil {
+			target = InitPlanning
+		}
+		run.Status = target
+		run.ResumeStatus = ""
+		run.ErrorSummary = ""
+		run.CurrentStep = string(target)
+		return nil
+	})
+}
+
+func (s *Store) PauseInitializationForEvidence(ctx context.Context, id string) (RoleInitializationRun, error) {
+	return s.updateInitialization(ctx, id, 0, func(run *RoleInitializationRun) error {
+		if run.Status != InitBlueprinting && run.Status != InitCompiling && run.Status != InitAnalyzing {
+			return fmt.Errorf("evidence pause is not valid from %s", run.Status)
+		}
+		run.ResumeStatus = InitAnalyzing
+		run.Status = InitPaused
+		run.CurrentStep = "awaiting_sources"
+		run.Checkpoint = "evidence_required"
+		run.ErrorSummary = "没有已读取并采用的来源，已暂停塑造；请补充资料或改善搜索覆盖后恢复"
+		return nil
+	})
+}
+
 func (s *Store) CancelInitialization(ctx context.Context, id string) (RoleInitializationRun, error) {
 	return s.updateInitialization(ctx, id, 0, func(run *RoleInitializationRun) error {
 		if run.Status == InitCompleted {

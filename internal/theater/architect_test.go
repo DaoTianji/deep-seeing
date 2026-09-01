@@ -2,7 +2,9 @@ package theater
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -66,6 +68,49 @@ func TestCharacterArchitectPrivateRoleRequiresModelConsent(t *testing.T) {
 	_, _, err := architect.Start(context.Background(), StartRoleInitializationInput{DisplayName: "私人角色", Kind: RoleCharacter, SubjectClass: SubjectLivingPrivate, Objective: "测试"})
 	if err == nil {
 		t.Fatal("private role planning should require consent")
+	}
+}
+
+func TestDecodeBlueprintAcceptsRelationshipObject(t *testing.T) {
+	raw := `{"target_period":"成熟期","knowledge_cutoff":"1937","self_concept":{"content":"自己"},"values_and_motives":{"content":"价值"},"tensions":{"content":"张力"},"relationships":{"key":"relationships","content":"与同事的关系"},"reasoning_and_voice":{"content":"声音"},"unknown_response_policy":{"content":"承认未知"},"allowed_inferences":{"content":"有限推断"},"forbidden_anachronisms":{"content":"禁止越界"}}`
+	var value RoleBlueprint
+	if err := decodeBlueprintJSONObject(raw, &value); err != nil {
+		t.Fatal(err)
+	}
+	if len(value.Relationships) != 1 || value.Relationships[0].Content != "与同事的关系" {
+		t.Fatalf("relationship object was not normalized: %#v", value.Relationships)
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil || !strings.Contains(string(encoded), `"relationships":[`) {
+		t.Fatalf("relationships must marshal as an array: %s %v", encoded, err)
+	}
+}
+
+func TestCharacterArchitectPausesBeforeBlueprintWithoutReadEvidence(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	corpus, err := NewCorpusStore(store.Root())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "无资料人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	run, _ := store.CreateInitialization(ctx, role.ID, "测试证据门", false, "fixture")
+	run, _ = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "成熟期", Questions: []ResearchQuestion{{ID: "biography", Question: "经历？"}}})
+	run, _ = store.ApproveResearchPlan(ctx, run.ID)
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage", "sources_collected", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitCompiling, "compile", "coverage_analyzed", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "blueprint", "compiled", "")
+	architect := &CharacterArchitect{Mode: InitModeObserve, Scope: testScope(), Store: store, Corpus: corpus}
+	run, err = architect.Continue(ctx, run.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if run.Status != InitPaused || run.ResumeStatus != InitAnalyzing || run.Checkpoint != "evidence_required" {
+		t.Fatalf("expected evidence pause, got %#v", run)
 	}
 }
 
