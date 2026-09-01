@@ -24,6 +24,7 @@
 | T2.3 处境闭环结果 | [evals/t2-task-context-complete-results.md](./evals/t2-task-context-complete-results.md) | 会话焦点、切换、消歧、溢出发现与完整验收状态 |
 | P5–P8 Roadmap | [roadmap-p5-p8.md](./roadmap-p5-p8.md) | 自我工作台 → Workspace → Agency → World |
 | **v0.9 议题清单** | [roadmap-v0.9.md](./roadmap-v0.9.md) | D0 地图：常模 → 状态召回 → 复盘/Dream → 幕后导演与角色人生剧场 |
+| **云端交接与跨设备入口** | [project-cloud-handoff.md](./project-cloud-handoff.md) | GitHub、ChatGPT `DS`、私有服务器与 Tailscale 的事实源和接入边界 |
 | P5.0 基础契约 | [p5.0-contracts.md](./p5.0-contracts.md) | 存储边界、Proposal Policy、回合隔离、安全 |
 | Workspace | [workspace.md](./workspace.md) | 未完成思考：questions/writings/research/projects |
 | Agency Runtime | [agency.md](./agency.md) | Intent / Scheduler / Daemon / 预算 |
