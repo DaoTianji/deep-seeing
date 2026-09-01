@@ -260,3 +260,67 @@ func TestDecodeBlueprintRejectsEmptyAndAcceptsWrapper(t *testing.T) {
 		t.Fatal("empty blueprint should fail parsing")
 	}
 }
+
+type recordingArchitectCompleter struct {
+	out   string
+	input string
+}
+
+func (f *recordingArchitectCompleter) Complete(_ context.Context, _ string, input string) (string, error) {
+	f.input = input
+	return f.out, nil
+}
+
+func TestBuildBlueprintIncludesRevisionContext(t *testing.T) {
+	ctx := context.Background()
+	root := t.TempDir()
+	store, err := NewStore(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	corpus, err := NewCorpusStore(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer corpus.Close()
+	role, err := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "修订人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	if err != nil {
+		t.Fatal(err)
+	}
+	run, err := store.CreateInitialization(ctx, role.ID, "验证修订闭环", false, "fixture")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := store.AddSource(ctx, role.ID, "人物资料", "upload", "", "text/plain", []byte("人物只相信可以核验的经历。"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, chunks, _, err := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: source.ID, Title: source.Title, Audience: SourceActor, Tier: SourcePrimary, Text: []byte("人物只相信可以核验的经历。")})
+	if err != nil || len(chunks) == 0 {
+		t.Fatalf("ingest: %v", err)
+	}
+	run, err = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: source.ID, Tier: SourcePrimary, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{chunks[0].ID}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	previous, run, err := store.SaveBlueprint(ctx, RoleBlueprint{RunID: run.ID, RoleID: role.ID, Version: 1, TargetPeriod: "旧时期", KnowledgeCutoff: "旧截止", SelfConcept: BlueprintSection{Key: "self_concept", Content: "旧画像", ChunkIDs: []string{chunks[0].ID}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, run, err = store.SaveCritique(ctx, RoleCritique{RunID: run.ID, BlueprintID: previous.ID, Issues: []CritiqueIssue{{Code: "UNSUPPORTED_DETAIL", Severity: CritiqueHard, Message: "删除无证据细节"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	run.RevisionRequest = "只保留逐项有证据的内容"
+	output := fmt.Sprintf(`{"target_period":"新时期","knowledge_cutoff":"新截止","self_concept":{"key":"self_concept","content":"核验后的画像","chunk_ids":[%q]},"values_and_motives":{"key":"values","content":"重视核验","chunk_ids":[%q]},"tensions":{"key":"tensions","content":""},"relationships":[],"reasoning_and_voice":{"key":"voice","content":"不依据当前资料建立固定语言风格"},"unknown_response_policy":{"key":"unknown","content":"证据不足时承认未知"},"allowed_inferences":{"key":"inferences","content":"仅作有限推断"},"forbidden_anachronisms":{"key":"forbidden_anachronisms","content":"不得越过知识截止"}}`, chunks[0].ID, chunks[0].ID)
+	chat := &recordingArchitectCompleter{out: output}
+	architect := &CharacterArchitect{Store: store, Corpus: corpus, Chat: chat}
+	if _, err := architect.buildBlueprint(ctx, run, role); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"revision_request", "只保留逐项有证据的内容", "previous_blueprint", "旧画像", "previous_critique", "UNSUPPORTED_DETAIL"} {
+		if !strings.Contains(chat.input, want) {
+			t.Fatalf("architect input missing %q: %s", want, chat.input)
+		}
+	}
+}
