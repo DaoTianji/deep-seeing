@@ -339,8 +339,9 @@ func (s *Store) SaveSourceAssessment(ctx context.Context, id string, assessment 
 		}
 		switch run.Status {
 		case InitBlueprinting, InitCritiquing, InitAwaitingFinalApproval:
-			run.Status = InitAnalyzing
-			run.CurrentStep = "coverage"
+			run.Status = InitPaused
+			run.ResumeStatus = InitAnalyzing
+			run.CurrentStep = "sources_updated"
 			run.Checkpoint = "sources_updated"
 			run.ErrorSummary = ""
 		case InitPaused:

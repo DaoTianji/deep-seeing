@@ -72,7 +72,7 @@ func TestNewEvidenceAfterBlueprintReturnsToAnalysis(t *testing.T) {
 	run, _ = store.TransitionInitialization(ctx, run.ID, InitCompiling, "compile", "coverage_analyzed", "")
 	run, _ = store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "blueprint", "compiled", "")
 	run, err = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: "new-source", Tier: SourceBiography, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{"new-chunk"}})
-	if err != nil || run.Status != InitAnalyzing || run.CurrentStep != "coverage" || run.Checkpoint != "sources_updated" {
+	if err != nil || run.Status != InitPaused || run.ResumeStatus != InitAnalyzing || run.CurrentStep != "sources_updated" || run.Checkpoint != "sources_updated" {
 		t.Fatalf("new evidence did not invalidate analysis: %#v %v", run, err)
 	}
 }
