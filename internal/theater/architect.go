@@ -611,7 +611,7 @@ func decodeBlueprintJSONObject(raw string, out *RoleBlueprint) error {
 	}
 	data := []byte(raw[start : end+1])
 	*out = RoleBlueprint{}
-	if err := json.Unmarshal(data, out); err != nil {
+	if err := decodeRoleBlueprintData(data, out); err != nil {
 		return err
 	}
 	if !blueprintRequiredSectionsEmpty(*out) {
@@ -622,11 +622,72 @@ func decodeBlueprintJSONObject(raw string, out *RoleBlueprint) error {
 	}
 	if err := json.Unmarshal(data, &wrapper); err == nil && len(wrapper.Blueprint) > 0 {
 		*out = RoleBlueprint{}
-		if err := json.Unmarshal(wrapper.Blueprint, out); err == nil && !blueprintRequiredSectionsEmpty(*out) {
+		if err := decodeRoleBlueprintData(wrapper.Blueprint, out); err == nil && !blueprintRequiredSectionsEmpty(*out) {
 			return nil
 		}
 	}
 	return fmt.Errorf("Blueprint required sections are empty")
+}
+
+func decodeRoleBlueprintData(data []byte, out *RoleBlueprint) error {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	for _, key := range []string{"target_period", "knowledge_cutoff", "change_summary"} {
+		raw, ok := fields[key]
+		if !ok || len(raw) == 0 || string(raw) == "null" {
+			continue
+		}
+		value, err := blueprintScalarText(raw)
+		if err != nil {
+			return fmt.Errorf("Blueprint %s: %w", key, err)
+		}
+		fields[key], _ = json.Marshal(value)
+	}
+	normalized, err := json.Marshal(fields)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(normalized, out)
+}
+
+func blueprintScalarText(raw json.RawMessage) (string, error) {
+	var value string
+	if err := json.Unmarshal(raw, &value); err == nil {
+		return cleanText(value), nil
+	}
+	var list []json.RawMessage
+	if err := json.Unmarshal(raw, &list); err == nil {
+		parts := make([]string, 0, len(list))
+		for _, item := range list {
+			part, itemErr := blueprintScalarText(item)
+			if itemErr == nil && cleanText(part) != "" {
+				parts = append(parts, cleanText(part))
+			}
+		}
+		if len(parts) > 0 {
+			return strings.Join(parts, "；"), nil
+		}
+	}
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &object); err == nil {
+		parts := make([]string, 0, len(object))
+		for _, key := range []string{"content", "summary", "value", "text", "label", "period", "description", "start", "end", "cutoff", "reason"} {
+			item, ok := object[key]
+			if !ok {
+				continue
+			}
+			part, itemErr := blueprintScalarText(item)
+			if itemErr == nil && cleanText(part) != "" {
+				parts = append(parts, cleanText(part))
+			}
+		}
+		if len(parts) > 0 {
+			return strings.Join(parts, " — "), nil
+		}
+	}
+	return "", fmt.Errorf("must be text or a text-like object")
 }
 
 func blueprintRequiredSectionsEmpty(value RoleBlueprint) bool {

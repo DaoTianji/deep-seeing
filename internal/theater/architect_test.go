@@ -86,6 +86,23 @@ func TestDecodeBlueprintAcceptsRelationshipObject(t *testing.T) {
 	}
 }
 
+func TestDecodeBlueprintNormalizesTextLikeMetadata(t *testing.T) {
+	raw := `{"target_period":{"start":"1912","end":"1937","description":"成熟期"},"knowledge_cutoff":["1937-05-28","不得使用后世知识"],"change_summary":{"summary":"首次塑造"},"self_concept":{"content":"自己"},"values_and_motives":{"content":"价值"},"tensions":{"content":"张力"},"relationships":[],"reasoning_and_voice":{"content":"声音"},"unknown_response_policy":{"content":"承认未知"},"allowed_inferences":{"content":"有限推断"},"forbidden_anachronisms":{"content":"禁止越界"}}`
+	var value RoleBlueprint
+	if err := decodeBlueprintJSONObject(raw, &value); err != nil {
+		t.Fatal(err)
+	}
+	if value.TargetPeriod != "成熟期 — 1912 — 1937" {
+		t.Fatalf("target period = %q", value.TargetPeriod)
+	}
+	if value.KnowledgeCutoff != "1937-05-28；不得使用后世知识" {
+		t.Fatalf("knowledge cutoff = %q", value.KnowledgeCutoff)
+	}
+	if value.ChangeSummary != "首次塑造" {
+		t.Fatalf("change summary = %q", value.ChangeSummary)
+	}
+}
+
 func TestCharacterArchitectPausesBeforeBlueprintWithoutReadEvidence(t *testing.T) {
 	ctx := context.Background()
 	store, err := NewStore(t.TempDir())
