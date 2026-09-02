@@ -291,6 +291,10 @@ func TestBuildBlueprintIncludesRevisionContext(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	run, err = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "用户批准时期", KnowledgeCutoff: "批准截止", Questions: []ResearchQuestion{{ID: "q", Question: "研究"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
 	source, err := store.AddSource(ctx, role.ID, "人物资料", "upload", "", "text/plain", []byte("人物只相信可以核验的经历。"))
 	if err != nil {
 		t.Fatal(err)
@@ -315,8 +319,15 @@ func TestBuildBlueprintIncludesRevisionContext(t *testing.T) {
 	output := fmt.Sprintf(`{"target_period":"新时期","knowledge_cutoff":"新截止","self_concept":{"key":"self_concept","content":"核验后的画像","chunk_ids":[%q]},"values_and_motives":{"key":"values","content":"重视核验","chunk_ids":[%q]},"tensions":{"key":"tensions","content":""},"relationships":[],"reasoning_and_voice":{"key":"voice","content":"不依据当前资料建立固定语言风格"},"unknown_response_policy":{"key":"unknown","content":"证据不足时承认未知"},"allowed_inferences":{"key":"inferences","content":"仅作有限推断"},"forbidden_anachronisms":{"key":"forbidden_anachronisms","content":"不得越过知识截止"}}`, chunks[0].ID, chunks[0].ID)
 	chat := &recordingArchitectCompleter{out: output}
 	architect := &CharacterArchitect{Store: store, Corpus: corpus, Chat: chat}
-	if _, err := architect.buildBlueprint(ctx, run, role); err != nil {
+	got, err := architect.buildBlueprint(ctx, run, role)
+	if err != nil {
 		t.Fatal(err)
+	}
+	if got.TargetPeriod != "用户批准时期" || got.KnowledgeCutoff != "批准截止" {
+		t.Fatalf("model rewrote approved scope metadata: %#v", got)
+	}
+	if strings.Contains(got.ChangeSummary, "新时期") || got.ChangeSummary == "" {
+		t.Fatalf("change summary retained model-supplied facts: %q", got.ChangeSummary)
 	}
 	for _, want := range []string{"revision_request", "只保留逐项有证据的内容", "previous_blueprint", "旧画像", "previous_critique", "UNSUPPORTED_DETAIL"} {
 		if !strings.Contains(chat.input, want) {
@@ -562,5 +573,17 @@ func TestCharacterArchitectAutoRepairsThenDowngradesUnsafeSection(t *testing.T) 
 	}
 	if architectChat.calls != 3 || criticChat.calls != 4 {
 		t.Fatalf("unexpected repair calls architect=%d critic=%d", architectChat.calls, criticChat.calls)
+	}
+}
+
+func TestDowngradeUnsafeBlueprintHandlesCompositeSectionPath(t *testing.T) {
+	blueprint := RoleBlueprint{
+		AllowedInferences: BlueprintSection{Key: "allowed_inferences", Content: "过度概括", ClaimIDs: []string{"claim"}, ChunkIDs: []string{"chunk"}},
+	}
+	repaired, changed := downgradeUnsafeBlueprint(blueprint, RoleCritique{Issues: []CritiqueIssue{{
+		Code: "CLAIM_UNSUPPORTED_BY_CHUNK", Severity: CritiqueHard, Section: "claims; blueprint.allowed_inferences",
+	}}})
+	if !changed || !strings.Contains(repaired.AllowedInferences.Content, "保持未知") || len(repaired.AllowedInferences.ClaimIDs) != 0 {
+		t.Fatalf("composite section path was not downgraded: %#v", repaired.AllowedInferences)
 	}
 }

@@ -567,12 +567,20 @@ func buildRoleClaims(roleID string, items []compiledClaim, validSources map[stri
 	claims := make([]RoleClaim, 0, len(items))
 	for _, item := range items {
 		kind := normalizeClaimKind(ClaimKind(strings.ToLower(cleanText(item.Kind))))
-		sourceIDs := filterSourceIDs(item.SourceIDs, validSources)
+		declaredSourceIDs := filterSourceIDs(item.SourceIDs, validSources)
+		declaredSources := make(map[string]bool, len(declaredSourceIDs))
+		for _, id := range declaredSourceIDs {
+			declaredSources[id] = true
+		}
+		sourceIDs := append([]string(nil), declaredSourceIDs...)
+		if requireChunks {
+			sourceIDs = nil
+		}
 		chunkIDs := make([]string, 0, len(item.ChunkIDs))
 		for _, id := range item.ChunkIDs {
 			id = cleanText(id)
 			chunk, ok := validChunks[id]
-			if validChunks == nil || !ok || !validSources[chunk.SourceID] {
+			if validChunks == nil || !ok || !validSources[chunk.SourceID] || (requireChunks && !declaredSources[chunk.SourceID]) {
 				continue
 			}
 			chunkIDs = appendUnique(chunkIDs, id)

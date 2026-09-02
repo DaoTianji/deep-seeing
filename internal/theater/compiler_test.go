@@ -157,3 +157,15 @@ func TestExtractEvidenceClaimsRetriesMalformedClaimOnlyResponse(t *testing.T) {
 		t.Fatalf("retry did not recover claim-only response: calls=%d claims=%#v", model.calls, claims)
 	}
 }
+
+func TestBuildRoleClaimsDropsSourcesWithoutCitedChunks(t *testing.T) {
+	chunks := map[string]RoleChunk{
+		"chunk-a": {ID: "chunk-a", SourceID: "source-a", Tier: SourcePrimary, Content: "证据"},
+	}
+	claims := buildRoleClaims("role", []compiledClaim{{
+		Kind: "fact", Statement: "证据主张", SourceIDs: []string{"source-a", "source-b"}, ChunkIDs: []string{"chunk-a"}, Scope: "cross_source", Confidence: 0.9,
+	}}, map[string]bool{"source-a": true, "source-b": true}, chunks, true)
+	if len(claims) != 1 || len(claims[0].SourceIDs) != 1 || claims[0].SourceIDs[0] != "source-a" {
+		t.Fatalf("claim retained a source without a cited chunk: %#v", claims)
+	}
+}

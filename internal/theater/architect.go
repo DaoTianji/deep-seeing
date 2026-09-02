@@ -336,9 +336,9 @@ process:
 		}
 		a.emit(run, "role_critique_ready", "critic", fmt.Sprintf("审查发现 %d 项问题", len(critique.Issues)), critique.ID)
 		if !critique.Passed {
-			if critiqueRequiresCoverageRefresh(critique) {
+			if critiqueRequiresCoverageRefresh(critique) && coverageRefreshes < 1 {
 				run, err = a.Store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage_revision", "critic_coverage_error", "")
-				if err != nil || coverageRefreshes >= 1 {
+				if err != nil {
 					return run, err
 				}
 				coverageRefreshes++
@@ -417,15 +417,21 @@ func downgradeUnsafeBlueprint(blueprint RoleBlueprint, critique RoleCritique) (R
 			}
 		}
 		switch {
-		case key == "self_concept":
+		case strings.Contains(key, "self_concept"):
 			downgrade(&blueprint.SelfConcept)
-		case key == "values_and_motives":
-			downgrade(&blueprint.ValuesAndMotives)
-		case key == "tensions":
+		case strings.Contains(key, "tensions"):
 			downgrade(&blueprint.Tensions)
-		case key == "reasoning_and_voice":
+		case strings.Contains(key, "reasoning_and_voice"):
 			downgrade(&blueprint.ReasoningAndVoice)
-		case strings.HasPrefix(key, "relationship") || key == "relationships":
+		case strings.Contains(key, "values_and_motives"):
+			downgrade(&blueprint.ValuesAndMotives)
+		case strings.Contains(key, "allowed_inferences"):
+			downgrade(&blueprint.AllowedInferences)
+		case strings.Contains(key, "unknown_response_policy"):
+			downgrade(&blueprint.UnknownResponsePolicy)
+		case strings.Contains(key, "forbidden_anachronisms"):
+			downgrade(&blueprint.ForbiddenAnachronisms)
+		case strings.Contains(key, "relationship"):
 			if len(blueprint.Relationships) > 0 {
 				blueprint.Relationships = nil
 				changed = true
@@ -780,11 +786,18 @@ func (a *CharacterArchitect) buildBlueprint(ctx context.Context, run RoleInitial
 			blueprint.Version = previous.Version + 1
 		}
 	}
-	if blueprint.TargetPeriod == "" {
-		blueprint.TargetPeriod = run.Plan.TargetPeriod
+	// TargetPeriod and KnowledgeCutoff are approved research-scope metadata, not
+	// evidence-bearing Blueprint sections. Keep them fixed to the approved plan so
+	// the model cannot smuggle an uncited biographical assertion into a field that
+	// has no ClaimIDs slot.
+	blueprint.TargetPeriod = cleanText(run.Plan.TargetPeriod)
+	if cutoff := cleanText(run.Plan.KnowledgeCutoff); cutoff != "" {
+		blueprint.KnowledgeCutoff = cutoff
 	}
-	if blueprint.KnowledgeCutoff == "" {
-		blueprint.KnowledgeCutoff = run.Plan.KnowledgeCutoff
+	if previousCritique != nil {
+		blueprint.ChangeSummary = "依据上一轮 Critic 修订了证据引用、主张范围与未知边界。"
+	} else {
+		blueprint.ChangeSummary = "根据已读取并采用的证据生成首版角色塑造方案。"
 	}
 	normalizeBlueprintSectionKeys(&blueprint)
 	return blueprint, nil
