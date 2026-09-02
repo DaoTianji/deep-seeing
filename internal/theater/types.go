@@ -80,10 +80,23 @@ type ClaimKind string
 const (
 	ClaimFact         ClaimKind = "fact"
 	ClaimBelief       ClaimKind = "belief"
+	ClaimSelfConcept  ClaimKind = "self_concept"
 	ClaimVoice        ClaimKind = "voice"
 	ClaimRelationship ClaimKind = "relationship"
 	ClaimContested    ClaimKind = "contested"
 	ClaimUnknown      ClaimKind = "unknown"
+)
+
+// ClaimScope records how far a source-backed observation is allowed to
+// generalize. A passage observation must not silently become a stable trait.
+type ClaimScope string
+
+const (
+	ClaimScopePassage       ClaimScope = "passage"
+	ClaimScopeDocument      ClaimScope = "document"
+	ClaimScopeCrossSource   ClaimScope = "cross_source"
+	ClaimScopeFirstPerson   ClaimScope = "first_person"
+	ClaimScopeStablePattern ClaimScope = "stable_pattern"
 )
 
 type TimelineEvent struct {
@@ -200,14 +213,17 @@ const (
 )
 
 type RoleClaim struct {
-	ID         string    `json:"id"`
-	RoleID     string    `json:"role_id"`
-	Kind       ClaimKind `json:"kind"`
-	Statement  string    `json:"statement"`
-	TimeScope  string    `json:"time_scope,omitempty"`
-	SourceIDs  []string  `json:"source_ids,omitempty"`
-	Confidence float64   `json:"confidence,omitempty"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID         string     `json:"id"`
+	RoleID     string     `json:"role_id"`
+	Kind       ClaimKind  `json:"kind"`
+	Statement  string     `json:"statement"`
+	TimeScope  string     `json:"time_scope,omitempty"`
+	SourceIDs  []string   `json:"source_ids,omitempty"`
+	ChunkIDs   []string   `json:"chunk_ids,omitempty"`
+	Scope      ClaimScope `json:"scope,omitempty"`
+	Quote      string     `json:"quote,omitempty"`
+	Confidence float64    `json:"confidence,omitempty"`
+	CreatedAt  time.Time  `json:"created_at"`
 }
 
 type ValidationIssue struct {

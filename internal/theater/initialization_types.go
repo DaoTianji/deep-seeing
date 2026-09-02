@@ -256,31 +256,32 @@ type RoleCritique struct {
 }
 
 type RoleInitializationRun struct {
-	ID                  string                    `json:"id"`
-	RoleID              string                    `json:"role_id"`
-	VariantOfRoleID     string                    `json:"variant_of_role_id,omitempty"`
-	Status              InitializationStatus      `json:"status"`
-	ResumeStatus        InitializationStatus      `json:"resume_status,omitempty"`
-	CurrentStep         string                    `json:"current_step,omitempty"`
-	Checkpoint          string                    `json:"checkpoint,omitempty"`
-	Objective           string                    `json:"objective,omitempty"`
-	Plan                *RoleResearchPlan         `json:"plan,omitempty"`
-	Assessments         []SourceAssessment        `json:"assessments,omitempty"`
-	Coverage            CoverageMatrix            `json:"coverage"`
-	Conflicts           []EvidenceConflict        `json:"conflicts,omitempty"`
-	BlueprintID         string                    `json:"blueprint_id,omitempty"`
-	CritiqueID          string                    `json:"critique_id,omitempty"`
-	RevisionRequest     string                    `json:"revision_request,omitempty"`
-	RemoteBudget        int                       `json:"remote_budget"`
-	RemoteUsed          int                       `json:"remote_used"`
-	PrivateModelConsent bool                      `json:"private_model_consent,omitempty"`
-	SearchProvider      string                    `json:"search_provider,omitempty"`
-	ErrorSummary        string                    `json:"error_summary,omitempty"`
-	Events              []RoleInitializationEvent `json:"events,omitempty"`
-	Version             int64                     `json:"version"`
-	CreatedAt           time.Time                 `json:"created_at"`
-	UpdatedAt           time.Time                 `json:"updated_at"`
-	CompletedAt         *time.Time                `json:"completed_at,omitempty"`
+	ID                   string                    `json:"id"`
+	RoleID               string                    `json:"role_id"`
+	VariantOfRoleID      string                    `json:"variant_of_role_id,omitempty"`
+	Status               InitializationStatus      `json:"status"`
+	ResumeStatus         InitializationStatus      `json:"resume_status,omitempty"`
+	CurrentStep          string                    `json:"current_step,omitempty"`
+	Checkpoint           string                    `json:"checkpoint,omitempty"`
+	Objective            string                    `json:"objective,omitempty"`
+	Plan                 *RoleResearchPlan         `json:"plan,omitempty"`
+	Assessments          []SourceAssessment        `json:"assessments,omitempty"`
+	Coverage             CoverageMatrix            `json:"coverage"`
+	Conflicts            []EvidenceConflict        `json:"conflicts,omitempty"`
+	BlueprintID          string                    `json:"blueprint_id,omitempty"`
+	CritiqueID           string                    `json:"critique_id,omitempty"`
+	RevisionRequest      string                    `json:"revision_request,omitempty"`
+	CriticRepairAttempts int                       `json:"critic_repair_attempts,omitempty"`
+	RemoteBudget         int                       `json:"remote_budget"`
+	RemoteUsed           int                       `json:"remote_used"`
+	PrivateModelConsent  bool                      `json:"private_model_consent,omitempty"`
+	SearchProvider       string                    `json:"search_provider,omitempty"`
+	ErrorSummary         string                    `json:"error_summary,omitempty"`
+	Events               []RoleInitializationEvent `json:"events,omitempty"`
+	Version              int64                     `json:"version"`
+	CreatedAt            time.Time                 `json:"created_at"`
+	UpdatedAt            time.Time                 `json:"updated_at"`
+	CompletedAt          *time.Time                `json:"completed_at,omitempty"`
 }
 
 type RoleDocument struct {

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -337,6 +338,7 @@ func (s *Store) SaveSourceAssessment(ctx context.Context, id string, assessment 
 		if !replaced {
 			run.Assessments = append(run.Assessments, assessment)
 		}
+		run.CriticRepairAttempts = 0
 		switch run.Status {
 		case InitBlueprinting, InitCritiquing, InitAwaitingFinalApproval:
 			run.Status = InitPaused
@@ -368,9 +370,41 @@ func (s *Store) RequestBlueprintRevision(ctx context.Context, id, reason string)
 			return fmt.Errorf("blueprint revision cannot be requested from %s", run.Status)
 		}
 		run.RevisionRequest = truncateActionText(reason, 500)
+		run.CriticRepairAttempts = 0
 		run.Status = InitBlueprinting
 		run.CurrentStep = "blueprint_revision"
 		run.Checkpoint = "revision_requested"
+		return nil
+	})
+}
+
+// PrepareCriticRepair persists the exact hard issues that the next Blueprint
+// revision must address. The counter prevents an attractive but unsupported
+// narrative from cycling forever between Architect and Critic.
+func (s *Store) PrepareCriticRepair(ctx context.Context, id string, critique RoleCritique) (RoleInitializationRun, error) {
+	return s.updateInitialization(ctx, id, 0, func(run *RoleInitializationRun) error {
+		if run.Status != InitCritiquing || critique.BlueprintID != run.BlueprintID {
+			return fmt.Errorf("critic repair is not valid from %s", run.Status)
+		}
+		parts := make([]string, 0, len(critique.Issues))
+		for _, issue := range critique.Issues {
+			if issue.Resolved || issue.Severity != CritiqueHard {
+				continue
+			}
+			part := cleanText(issue.Code + " " + issue.Section + " " + issue.Message)
+			if part != "" {
+				parts = append(parts, part)
+			}
+		}
+		if len(parts) == 0 {
+			return fmt.Errorf("critic repair requires hard issues")
+		}
+		run.CriticRepairAttempts++
+		run.RevisionRequest = truncateActionText(strings.Join(parts, "；"), 1200)
+		run.Status = InitBlueprinting
+		run.CurrentStep = "blueprint_auto_revision"
+		run.Checkpoint = "critic_repair"
+		run.ErrorSummary = ""
 		return nil
 	})
 }

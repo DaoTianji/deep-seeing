@@ -455,7 +455,7 @@ func TestApproveFinalMaterializesObservedBlueprintBeforePublish(t *testing.T) {
 	run, _ = store.TransitionInitialization(ctx, run.ID, InitCritiquing, "critic", "blueprint", "")
 	critique, run, _ := store.SaveCritique(ctx, RoleCritique{RunID: run.ID, BlueprintID: blueprint.ID})
 	run, _ = store.TransitionInitialization(ctx, run.ID, InitAwaitingFinalApproval, "approval", "critic_passed", "")
-	model := &captureCompiler{out: fmt.Sprintf(`{"Identity":"证据支持的画像","Voice":"克制","KnowledgeCutoff":"1937","Timeline":[],"Claims":[{"Kind":"fact","Statement":"证据主张","SourceIDs":[%q],"Confidence":0.9}]}`, source.ID)}
+	model := &captureCompiler{out: fmt.Sprintf(`{"Identity":"证据支持的画像","Voice":"克制","KnowledgeCutoff":"1937","Timeline":[],"Claims":[{"Kind":"fact","Statement":"证据主张","SourceIDs":[%q],"ChunkIDs":[%q],"Scope":"passage","Confidence":0.9}]}`, source.ID, chunks[0].ID)}
 	architect := &CharacterArchitect{Mode: InitModeAgent, Store: store, Corpus: corpus, Compiler: &RoleCompiler{Store: store, Chat: model}}
 	completed, published, err := architect.ApproveFinal(ctx, run.ID, "")
 	if err != nil {
@@ -477,5 +477,90 @@ func TestContinueAsyncCoalescesRequestWhileRunIsActive(t *testing.T) {
 	}
 	if !architect.pendingRuns["run-1"] {
 		t.Fatal("request racing with active run was dropped instead of queued")
+	}
+}
+
+func TestBlueprintEvidenceRejectsWrongClaimKindsScopesAndQuotes(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "历史人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	bio, _ := store.AddSource(ctx, role.ID, "后世传记", "upload", "", "text/plain", []byte("传记描述人物独立。"))
+	primary, _ := store.AddSource(ctx, role.ID, "同期材料", "upload", "", "text/plain", []byte("一段具体论证，没有所声称的引语。"))
+	_, bioChunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: bio.ID, Title: bio.Title, Audience: SourceActor, Tier: SourceBiography, Text: []byte("传记描述人物独立。")})
+	_, primaryChunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: primary.ID, Title: primary.Title, Audience: SourceActor, Tier: SourcePrimary, Text: []byte("一段具体论证，没有所声称的引语。")})
+	run, _ := store.CreateInitialization(ctx, role.ID, "test", false, "fixture")
+	run, _ = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: bio.ID, Tier: SourceBiography, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{bioChunks[0].ID}})
+	run, _ = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: primary.ID, Tier: SourcePrimary, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{primaryChunks[0].ID}})
+	claims := []RoleClaim{
+		{ID: "self", RoleID: role.ID, Kind: ClaimSelfConcept, Statement: "自认为独立", SourceIDs: []string{bio.ID}, ChunkIDs: []string{bioChunks[0].ID}, Scope: ClaimScopeFirstPerson},
+		{ID: "relation", RoleID: role.ID, Kind: ClaimFact, Statement: "与某人合作", SourceIDs: []string{primary.ID}, ChunkIDs: []string{primaryChunks[0].ID}, Scope: ClaimScopePassage},
+		{ID: "voice", RoleID: role.ID, Kind: ClaimVoice, Statement: "总是这样论证", SourceIDs: []string{primary.ID}, ChunkIDs: []string{primaryChunks[0].ID}, Scope: ClaimScopeStablePattern},
+		{ID: "quote", RoleID: role.ID, Kind: ClaimBelief, Statement: "某种观点", SourceIDs: []string{primary.ID}, ChunkIDs: []string{primaryChunks[0].ID}, Scope: ClaimScopePassage, Quote: "原文中不存在"},
+	}
+	if err := store.ReplaceClaims(ctx, role.ID, claims); err != nil {
+		t.Fatal(err)
+	}
+	unknown := BlueprintSection{Content: "现有证据不足；保持未知"}
+	blueprint := RoleBlueprint{TargetPeriod: "成熟期", KnowledgeCutoff: "1937",
+		SelfConcept:           BlueprintSection{Key: "self_concept", Content: "自认为独立", ClaimIDs: []string{"self"}, ChunkIDs: []string{bioChunks[0].ID}},
+		ValuesAndMotives:      BlueprintSection{Key: "values_and_motives", Content: "他说“原文中不存在”", ClaimIDs: []string{"quote"}, ChunkIDs: []string{primaryChunks[0].ID}},
+		Tensions:              unknown,
+		Relationships:         BlueprintSections{{Key: "relationship_1", Content: "与某人合作", ClaimIDs: []string{"relation"}, ChunkIDs: []string{primaryChunks[0].ID}}},
+		ReasoningAndVoice:     BlueprintSection{Key: "reasoning_and_voice", Content: "总是这样论证", ClaimIDs: []string{"voice"}, ChunkIDs: []string{primaryChunks[0].ID}},
+		UnknownResponsePolicy: unknown, AllowedInferences: unknown, ForbiddenAnachronisms: unknown}
+	issues := ValidateBlueprintEvidence(ctx, store, corpus, run, blueprint)
+	codes := map[string]bool{}
+	for _, issue := range issues {
+		codes[issue.Code] = true
+	}
+	for _, code := range []string{"self_concept_source_invalid", "relationship_claim_invalid", "stable_pattern_evidence_insufficient", "claim_quote_unlocated"} {
+		if !codes[code] {
+			t.Fatalf("missing %s in %#v", code, issues)
+		}
+	}
+}
+
+func TestCharacterArchitectAutoRepairsThenDowngradesUnsafeSection(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "历史人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	source, _ := store.AddSource(ctx, role.ID, "同期自述", "upload", "", "text/plain", []byte("我把教育看作共同工作。"))
+	_, chunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: source.ID, Title: source.Title, Audience: SourceActor, Tier: SourcePrimary, Text: []byte("我把教育看作共同工作。")})
+	run, _ := store.CreateInitialization(ctx, role.ID, "test", false, "fixture")
+	run, _ = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "成熟期", KnowledgeCutoff: "1937", Questions: []ResearchQuestion{{ID: "life", Question: "经历"}}})
+	run, _ = store.ApproveResearchPlan(ctx, run.ID)
+	run, _ = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: source.ID, Tier: SourcePrimary, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{chunks[0].ID}})
+	claim := RoleClaim{ID: "self", RoleID: role.ID, Kind: ClaimSelfConcept, Statement: "把教育看作共同工作", SourceIDs: []string{source.ID}, ChunkIDs: []string{chunks[0].ID}, Scope: ClaimScopeFirstPerson}
+	if err := store.ReplaceClaims(ctx, role.ID, []RoleClaim{claim}); err != nil {
+		t.Fatal(err)
+	}
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage", "sources", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitCompiling, "compile", "coverage", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "blueprint", "claims", "")
+	blueprintJSON := fmt.Sprintf(`{"target_period":"成熟期","knowledge_cutoff":"1937","self_concept":{"content":"把自己理解为教育者","claim_ids":["self"],"chunk_ids":[%q]},"values_and_motives":{"content":"保持未知"},"tensions":{"content":"保持未知"},"relationships":[],"reasoning_and_voice":{"content":"保持未知"},"unknown_response_policy":{"content":"保持未知"},"allowed_inferences":{"content":"保持未知"},"forbidden_anachronisms":{"content":"保持未知"}}`, chunks[0].ID)
+	architectChat := &sequenceArchitectCompleter{outputs: []string{blueprintJSON, blueprintJSON, blueprintJSON}}
+	hard := `{"issues":[{"code":"POSTHUMOUS_SELF_CONCEPT","severity":"hard","section":"self_concept","message":"不得以后世叙述冒充自我认知"}]}`
+	criticChat := &sequenceArchitectCompleter{outputs: []string{hard, hard, hard, `{"issues":[]}`}}
+	architect := &CharacterArchitect{Mode: InitModeObserve, Store: store, Corpus: corpus, Chat: architectChat, CriticChat: criticChat}
+	finalRun, err := architect.Continue(ctx, run.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if finalRun.Status != InitAwaitingFinalApproval || finalRun.CriticRepairAttempts != 2 {
+		t.Fatalf("run did not converge safely: %#v", finalRun)
+	}
+	finalBlueprint, err := store.GetBlueprint(ctx, finalRun.BlueprintID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(finalBlueprint.SelfConcept.Content, "保持未知") || len(finalBlueprint.SelfConcept.ClaimIDs) != 0 {
+		t.Fatalf("unsafe self concept was not downgraded: %#v", finalBlueprint.SelfConcept)
+	}
+	if architectChat.calls != 3 || criticChat.calls != 4 {
+		t.Fatalf("unexpected repair calls architect=%d critic=%d", architectChat.calls, criticChat.calls)
 	}
 }

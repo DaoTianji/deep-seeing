@@ -89,7 +89,7 @@ func TestRoleCompilerMaterializesOnlyBlueprintCitedChunks(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	model := &captureCompiler{out: fmt.Sprintf(`{"Identity":"证据支持的身份","Voice":"证据支持的表达方式","KnowledgeCutoff":"1937-05-28","Timeline":[],"Claims":[{"Kind":"belief","Statement":"社会兴趣是重要概念","SourceIDs":[%q],"Confidence":0.9}]}`, source.ID)}
+	model := &captureCompiler{out: fmt.Sprintf(`{"Identity":"证据支持的身份","Voice":"证据支持的表达方式","KnowledgeCutoff":"1937-05-28","Timeline":[],"Claims":[{"Kind":"belief","Statement":"社会兴趣是重要概念","SourceIDs":[%q],"ChunkIDs":[%q],"Scope":"passage","Confidence":0.9}]}`, source.ID, "chunk-1")}
 	blueprint := RoleBlueprint{TargetPeriod: "成熟期", KnowledgeCutoff: "1937-05-28", SelfConcept: BlueprintSection{Content: "证据支持的身份", ChunkIDs: []string{"chunk-1"}}}
 	result, err := (&RoleCompiler{Store: store, Chat: model}).CompileBlueprint(ctx, role.ID, blueprint, []RoleChunk{{
 		ID: "chunk-1", RoleID: role.ID, SourceID: source.ID, Audience: SourceActor, Content: "intérêt social 是材料中反复讨论的概念。",
@@ -102,5 +102,37 @@ func TestRoleCompilerMaterializesOnlyBlueprintCitedChunks(t *testing.T) {
 	}
 	if len(result.Claims) != 1 || result.Claims[0].SourceIDs[0] != source.ID || !result.Validation.Passed {
 		t.Fatalf("unexpected materialization: %#v", result)
+	}
+}
+
+func TestExtractEvidenceClaimsEnforcesTierScopeChunkAndQuote(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "史料人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	bio, _ := store.AddSource(ctx, role.ID, "后世传记", "upload", "", "text/plain", []byte("传记作者认为他具有独立意识。"))
+	primary, _ := store.AddSource(ctx, role.ID, "同期原文", "upload", "", "text/plain", []byte("我把共同体感视为工作的中心。本文从具体病例讨论目标。"))
+	_, bioChunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: bio.ID, Title: bio.Title, Audience: SourceActor, Tier: SourceBiography, Text: []byte("传记作者认为他具有独立意识。")})
+	_, primaryChunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: primary.ID, Title: primary.Title, Audience: SourceActor, Tier: SourcePrimary, Text: []byte("我把共同体感视为工作的中心。本文从具体病例讨论目标。")})
+	model := &captureCompiler{out: fmt.Sprintf(`{"Claims":[
+		{"Kind":"self_concept","Statement":"他把自己理解为独立学者","SourceIDs":[%q],"ChunkIDs":[%q],"Scope":"first_person","Confidence":0.9},
+		{"Kind":"relationship","Statement":"与不存在的人共事","SourceIDs":[%q],"ChunkIDs":["missing"],"Scope":"passage","Confidence":0.9},
+		{"Kind":"voice","Statement":"总是从具体病例开始论证","SourceIDs":[%q],"ChunkIDs":[%q],"Scope":"stable_pattern","Confidence":0.8},
+		{"Kind":"fact","Statement":"伪造引语","SourceIDs":[%q],"ChunkIDs":[%q],"Scope":"passage","Quote":"原文不存在","Confidence":1},
+		{"Kind":"belief","Statement":"重视共同体感","SourceIDs":[%q],"ChunkIDs":[%q],"Scope":"passage","Quote":"我把共同体感视为工作的中心","Confidence":0.9}
+	]}`, bio.ID, bioChunks[0].ID, primary.ID, primary.ID, primaryChunks[0].ID, primary.ID, primaryChunks[0].ID, primary.ID, primaryChunks[0].ID)}
+	claims, err := (&RoleCompiler{Store: store, Chat: model}).ExtractEvidenceClaims(ctx, role.ID, []RoleChunk{bioChunks[0], primaryChunks[0]})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(claims) != 2 {
+		t.Fatalf("claims=%#v", claims)
+	}
+	if claims[0].Kind != ClaimVoice || claims[0].Scope != ClaimScopePassage {
+		t.Fatalf("single-source stable pattern was not narrowed: %#v", claims[0])
+	}
+	if claims[1].Quote == "" || len(claims[1].ChunkIDs) != 1 {
+		t.Fatalf("located quote was not retained: %#v", claims[1])
 	}
 }

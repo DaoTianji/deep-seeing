@@ -28,6 +28,11 @@ RoleCompiler 仍只负责结构化抽取。安是 Character Architect，负责�
 - canonical URL 与正文 SHA-256 双重去重。
 - 搜索只返回 Chunk 卡；正式证据必须实际读取。
 - 直接引语必须关联 Chunk 和页/章节位置。
+- Blueprint 不再直接从 Chunk 形成完整人格；已读 actor Chunk 必须先编译为最小 RoleClaim。
+- RoleClaim 同时记录 SourceIDs、ChunkIDs、kind、scope 与可选 Quote。scope 区分 passage、document、cross_source、first_person 和 stable_pattern。
+- self_concept 只接受同期一手或同时代第一人称 Claim；传记与后世材料只能约束或校勘。
+- 稳定语言/推理模式必须由至少两个独立来源的多个 Chunk 支持；单篇或个别病例只能保持 passage/document 范围。
+- Blueprint 的正面 section 必须引用类型匹配的 Claim；最终物化只采用已经通过 Critic 的 Claim，不再临时生成新事实。
 - 不同人生时期使用独立 RoleDefinition/Blueprint，通过 `variant_of_role_id` 共享 Corpus；世界线仍只表示进剧场后的模拟分支。
 
 ## 4. 研究与真实性硬门
@@ -37,6 +42,8 @@ RoleCompiler 仍只负责结构化抽取。安是 Character Architect，负责�
 搜索摘要、未读网页和生成内容没有事实资格。独立确定性校验与模型 Critic 共同阻止：无来源事实、无定位直接引语、时代穿越、actor/director 泄露、后世评价冒充人物自我认识、生成内容循环证明、未读 Chunk、私人角色自动联网和资料提示注入越权。
 
 普通资料稀少或争议会成为 warning；用户接受时必须写理由。硬错误没有绕过接口。旧手动 publish 对处于 InitializationRun 的角色也会被存储层拒绝。
+
+Critic 硬错误不会直接停在最终确认页：系统把结构化问题写入 revision_request，最多执行两轮定向 Blueprint 修订并重新审查；仍无法可靠消除时，只把受影响 section 降级为“保持未知”，清除其 Claim/Chunk 引用后再次审查。无法映射到安全 section 的全局硬错误继续阻断，不得用降级掩盖。
 
 ## 5. 私人与权限
 
