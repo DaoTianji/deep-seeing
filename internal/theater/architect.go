@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 	"time"
@@ -204,7 +205,10 @@ func (a *CharacterArchitect) ContinueAsync(runID string) bool {
 	a.runMu.Unlock()
 	go func() {
 		for {
-			_, _ = a.Continue(context.Background(), runID)
+			if _, err := a.Continue(context.Background(), runID); err != nil &&
+				!errors.Is(err, errInitializationStopped) && !errors.Is(err, ErrInitializationBudget) {
+				log.Printf("role initialization %s stopped: %v", runID, err)
+			}
 			a.runMu.Lock()
 			if a.pendingRuns[runID] {
 				delete(a.pendingRuns, runID)

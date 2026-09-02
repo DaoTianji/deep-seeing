@@ -235,8 +235,30 @@ func (s *Store) ResumeInitialization(ctx context.Context, id string) (RoleInitia
 		}
 		run.Status = run.ResumeStatus
 		run.ResumeStatus = ""
+		run.CurrentStep = initializationStepForStatus(run.Status)
 		return nil
 	})
+}
+
+func initializationStepForStatus(status InitializationStatus) string {
+	switch status {
+	case InitPlanning:
+		return "research_plan"
+	case InitCollecting:
+		return "collect_sources"
+	case InitAnalyzing:
+		return "coverage"
+	case InitCompiling:
+		return "compile"
+	case InitBlueprinting:
+		return "blueprint"
+	case InitCritiquing:
+		return "critic"
+	case InitAwaitingFinalApproval:
+		return "awaiting_final_approval"
+	default:
+		return string(status)
+	}
 }
 
 func (s *Store) RetryInitialization(ctx context.Context, id string) (RoleInitializationRun, error) {

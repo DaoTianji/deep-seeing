@@ -169,7 +169,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 1024,
 	}
 	compilerChat := &memory.ChatClient{
-		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 3072, HTTPClient: &http.Client{Timeout: 180 * time.Second},
+		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 8192, HTTPClient: &http.Client{Timeout: 240 * time.Second},
 	}
 	roleArchitectChat := &memory.ChatClient{
 		APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 8192,

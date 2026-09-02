@@ -92,11 +92,22 @@ func (c *RoleCompiler) ExtractEvidenceClaims(ctx context.Context, roleID string,
 	if err != nil {
 		return nil, err
 	}
-	compiled, err := parseCompiledRole(raw)
+	compiledClaims, err := parseEvidenceClaims(raw)
 	if err != nil {
-		return nil, err
+		// Long evidence batches can make some OpenAI-compatible gateways spend
+		// their first response on prose or truncate the JSON envelope. Give the
+		// model one format-only retry before failing the checkpoint. The retry is
+		// still grounded in exactly the same actor-visible evidence.
+		raw, err = c.Chat.Complete(ctx, roleEvidenceClaimsSystem+"\n上一次输出无法解析。不要解释、不要 Markdown，只返回 {\"Claims\":[...]}，并减少为最重要且可精确定位的最小主张。", material.String())
+		if err != nil {
+			return nil, err
+		}
+		compiledClaims, err = parseEvidenceClaims(raw)
+		if err != nil {
+			return nil, err
+		}
 	}
-	claims := buildRoleClaims(roleID, compiled.Claims, validSources, validChunks, true)
+	claims := buildRoleClaims(roleID, compiledClaims, validSources, validChunks, true)
 	if err := c.Store.ReplaceClaims(ctx, roleID, claims); err != nil {
 		return nil, err
 	}
@@ -354,6 +365,31 @@ func parseCompiledRole(raw string) (compiledRole, error) {
 		return compiledRole{}, err
 	}
 	return compiledRole{Identity: identity, Voice: voice, KnowledgeCutoff: cutoff, Timeline: wire.Timeline, Claims: wire.Claims}, nil
+}
+
+// parseEvidenceClaims decodes the deliberately smaller Claim-only contract.
+// Keeping this separate from parseCompiledRole prevents Claim extraction from
+// accidentally depending on Identity, Voice or Timeline fields used by the
+// legacy role compiler.
+func parseEvidenceClaims(raw string) ([]compiledClaim, error) {
+	start, end := strings.Index(raw, "{"), strings.LastIndex(raw, "}")
+	if start < 0 || end < start {
+		return nil, fmt.Errorf("evidence claims JSON missing")
+	}
+	var wire struct {
+		Claims json.RawMessage `json:"Claims"`
+	}
+	if err := json.Unmarshal([]byte(raw[start:end+1]), &wire); err != nil {
+		return nil, err
+	}
+	if len(wire.Claims) == 0 || string(wire.Claims) == "null" {
+		return nil, fmt.Errorf("evidence claims array missing")
+	}
+	var claims []compiledClaim
+	if err := json.Unmarshal(wire.Claims, &claims); err != nil {
+		return nil, err
+	}
+	return claims, nil
 }
 
 func decodeCompiledText(raw json.RawMessage, field string, firstOnly bool) (string, error) {

@@ -136,3 +136,24 @@ func TestExtractEvidenceClaimsEnforcesTierScopeChunkAndQuote(t *testing.T) {
 		t.Fatalf("located quote was not retained: %#v", claims[1])
 	}
 }
+
+func TestExtractEvidenceClaimsRetriesMalformedClaimOnlyResponse(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "旧任务", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	source, _ := store.AddSource(ctx, role.ID, "一手材料", "upload", "", "text/plain", []byte("共同体感是工作的中心。"))
+	_, chunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: source.ID, Title: source.Title, Audience: SourceActor, Tier: SourcePrimary, Text: []byte("共同体感是工作的中心。")})
+	model := &sequenceArchitectCompleter{outputs: []string{
+		"response was truncated before the JSON envelope",
+		fmt.Sprintf(`{"Claims":[{"Kind":"belief","Statement":"重视共同体感","SourceIDs":[%q],"ChunkIDs":[%q],"Scope":"passage","Confidence":0.9}]}`, source.ID, chunks[0].ID),
+	}}
+	claims, err := (&RoleCompiler{Store: store, Chat: model}).ExtractEvidenceClaims(ctx, role.ID, chunks)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if model.calls != 2 || len(claims) != 1 || claims[0].ChunkIDs[0] != chunks[0].ID {
+		t.Fatalf("retry did not recover claim-only response: calls=%d claims=%#v", model.calls, claims)
+	}
+}

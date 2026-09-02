@@ -56,6 +56,9 @@ func TestInitializationLifecycleBudgetAndRecovery(t *testing.T) {
 	if err != nil || run.Status != InitCollecting {
 		t.Fatalf("resume: %#v %v", run, err)
 	}
+	if run.CurrentStep != "collect_sources" {
+		t.Fatalf("resume kept stale recovery step: %q", run.CurrentStep)
+	}
 }
 
 func TestNewEvidenceAfterBlueprintReturnsToAnalysis(t *testing.T) {
