@@ -373,6 +373,14 @@ process:
 			}
 			return a.Store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "revision_required", "critic_hard_error", "")
 		}
+		if a.shouldAutoResearchReadiness(run, definition, critique) {
+			run, err = a.Store.PrepareReadinessResearch(ctx, run.ID, critique)
+			if err != nil {
+				return run, err
+			}
+			a.emit(run, "role_readiness_research_started", "readiness_research", "安正在针对 Critic 警告补充证据", critique.ID)
+			goto process
+		}
 		if a.Mode == InitModeAgent {
 			if err := a.materializeBlueprint(ctx, run, blueprint); err != nil {
 				return run, err
@@ -466,6 +474,82 @@ func critiqueRequiresCoverageRefresh(critique RoleCritique) bool {
 	return false
 }
 
+const maxAutomaticReadinessResearchAttempts = 2
+
+func readinessResearchQuestions(critique RoleCritique) []ResearchQuestion {
+	questions := make([]ResearchQuestion, 0, 3)
+	seen := map[string]bool{}
+	add := func(question ResearchQuestion) {
+		if !seen[question.ID] {
+			seen[question.ID] = true
+			questions = append(questions, question)
+		}
+	}
+	for _, issue := range critique.Issues {
+		if issue.Resolved || issue.Severity != CritiqueWarning {
+			continue
+		}
+		code := strings.ToLower(cleanText(issue.Code))
+		section := strings.ToLower(cleanText(issue.Section))
+		switch {
+		case code == "readiness_self_concept" || strings.Contains(section, "self_concept"):
+			add(ResearchQuestion{ID: "readiness_self_concept", Question: "查找目标时期本人如何理解和描述自己的同期一手材料", Topics: []string{"第一人称自述", "书信", "序言", "访谈"}, SearchTerms: []string{"autobiography", "letters", "preface", "interview", "in his own words"}, Priority: "high"})
+		case code == "readiness_values" || strings.Contains(section, "values_and_motives"):
+			add(ResearchQuestion{ID: "readiness_values", Question: "查找能直接支持其稳定价值取向与行动动机的同期一手材料", Topics: []string{"价值", "目的", "教育", "社会责任"}, SearchTerms: []string{"letters", "lecture", "values", "purpose", "education", "social interest"}, Priority: "high"})
+		case code == "readiness_voice" || strings.Contains(section, "reasoning_and_voice"):
+			add(ResearchQuestion{ID: "readiness_voice", Question: "查找可比较其思考步骤、论证习惯和实际回应方式的多段一手文本", Topics: []string{"演讲", "对话", "书信", "论证风格"}, SearchTerms: []string{"full text", "lecture", "transcript", "correspondence", "speech"}, Priority: "high"})
+		}
+	}
+	return questions
+}
+
+func readinessResearchSummary(critique RoleCritique) string {
+	parts := make([]string, 0, len(critique.Issues))
+	for _, issue := range critique.Issues {
+		if issue.Resolved || issue.Severity != CritiqueWarning || !strings.HasPrefix(strings.ToLower(cleanText(issue.Code)), "readiness_") {
+			continue
+		}
+		parts = append(parts, cleanText(issue.Code+" "+issue.Message))
+	}
+	return strings.Join(parts, "；")
+}
+
+func (a *CharacterArchitect) shouldAutoResearchReadiness(run RoleInitializationRun, definition RoleDefinition, critique RoleCritique) bool {
+	return len(readinessResearchQuestions(critique)) > 0 &&
+		run.ReadinessResearchAttempts < maxAutomaticReadinessResearchAttempts &&
+		run.RemoteBudget-run.RemoteUsed >= 2 &&
+		!definition.PrivateSandbox && a.Search != nil && a.World != nil
+}
+
+// ContinueReadinessResearch lets an older run already waiting for approval use
+// the same targeted research path introduced for new autonomous runs.
+func (a *CharacterArchitect) ContinueReadinessResearch(ctx context.Context, runID string) (RoleInitializationRun, error) {
+	run, err := a.Store.GetInitialization(ctx, runID)
+	if err != nil {
+		return run, err
+	}
+	if run.CritiqueID == "" {
+		return run, fmt.Errorf("role initialization has no critique")
+	}
+	critique, err := a.Store.GetCritique(ctx, run.CritiqueID)
+	if err != nil {
+		return run, err
+	}
+	definition, err := a.Store.GetDefinition(ctx, run.RoleID)
+	if err != nil {
+		return run, err
+	}
+	if !a.shouldAutoResearchReadiness(run, definition, critique) {
+		return run, fmt.Errorf("no remaining actionable readiness research")
+	}
+	run, err = a.Store.PrepareReadinessResearch(ctx, run.ID, critique)
+	if err == nil {
+		a.emit(run, "role_readiness_research_started", "readiness_research", "安正在针对 Critic 警告补充证据", critique.ID)
+		a.ContinueAsync(run.ID)
+	}
+	return run, err
+}
+
 func (a *CharacterArchitect) Retry(ctx context.Context, runID string) (RoleInitializationRun, error) {
 	run, err := a.Store.RetryInitialization(ctx, runID)
 	if err != nil {
@@ -491,7 +575,11 @@ func (a *CharacterArchitect) collect(ctx context.Context, run *RoleInitializatio
 	if a.Search == nil || a.World == nil {
 		return fmt.Errorf("public research unavailable")
 	}
-	for _, question := range run.Plan.Questions {
+	questions := run.Plan.Questions
+	if len(run.ResearchFocus) > 0 {
+		questions = run.ResearchFocus
+	}
+	for _, question := range questions {
 		current, stateErr := a.Store.GetInitialization(ctx, run.ID)
 		if stateErr != nil {
 			return stateErr
@@ -505,7 +593,8 @@ func (a *CharacterArchitect) collect(ctx context.Context, run *RoleInitializatio
 		if ok, why := a.World.Budget.Allow(time.Now().UTC()); !ok {
 			return fmt.Errorf("%s", why)
 		}
-		hits, err := a.Search.Search(ctx, definition.DisplayName+" "+run.Plan.TargetPeriod+" "+question.Question, 4)
+		query := strings.TrimSpace(strings.Join([]string{definition.DisplayName, run.Plan.TargetPeriod, question.Question, strings.Join(question.SearchTerms, " ")}, " "))
+		hits, err := a.Search.Search(ctx, query, 4)
 		if err != nil {
 			continue
 		}

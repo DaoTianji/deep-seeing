@@ -616,3 +616,44 @@ func TestCriticReceivesApprovedResearchPlan(t *testing.T) {
 		t.Fatalf("critic input omitted approved plan: %s", chat.input)
 	}
 }
+
+func TestReadinessWarningsBecomeTargetedResearchQuestions(t *testing.T) {
+	critique := RoleCritique{Issues: []CritiqueIssue{
+		{Code: "readiness_self_concept", Severity: CritiqueWarning, Section: "self_concept", Message: "缺少自述"},
+		{Code: "readiness_values", Severity: CritiqueWarning, Section: "values_and_motives", Message: "缺少价值证据"},
+		{Code: "readiness_voice", Severity: CritiqueWarning, Section: "reasoning_and_voice", Message: "缺少声音证据"},
+		{Code: "other_warning", Severity: CritiqueWarning, Section: "coverage", Message: "普通提示"},
+	}}
+	questions := readinessResearchQuestions(critique)
+	if len(questions) != 3 {
+		t.Fatalf("questions = %#v", questions)
+	}
+	for _, question := range questions {
+		if !strings.HasPrefix(question.ID, "readiness_") || len(question.SearchTerms) == 0 || question.Priority != "high" {
+			t.Fatalf("invalid targeted question: %#v", question)
+		}
+	}
+}
+
+func TestPrepareReadinessResearchPersistsFocusAndResumesCollection(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "历史人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	run, _ := store.CreateInitialization(ctx, role.ID, "test", false, "fixture")
+	critique := RoleCritique{ID: "critique-readiness", RunID: run.ID, Issues: []CritiqueIssue{{Code: "readiness_voice", Severity: CritiqueWarning, Section: "reasoning_and_voice", Message: "缺少声音证据"}}, Passed: true}
+	run, _ = store.updateInitialization(ctx, run.ID, 0, func(value *RoleInitializationRun) error {
+		value.Status = InitAwaitingFinalApproval
+		value.CritiqueID = critique.ID
+		return nil
+	})
+	updated, err := store.PrepareReadinessResearch(ctx, run.ID, critique)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updated.Status != InitCollecting || updated.CurrentStep != "readiness_research" || updated.ReadinessResearchAttempts != 1 || len(updated.ResearchFocus) != 1 {
+		t.Fatalf("unexpected readiness state: %#v", updated)
+	}
+	if updated.ResearchFocus[0].ID != "readiness_voice" || !strings.Contains(updated.RevisionRequest, "readiness_voice") {
+		t.Fatalf("readiness focus was not preserved: %#v", updated)
+	}
+}

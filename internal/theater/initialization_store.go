@@ -144,7 +144,11 @@ func (s *Store) TransitionInitialization(ctx context.Context, id string, status 
 		if !validInitializationTransition(run.Status, status) {
 			return fmt.Errorf("invalid initialization transition %s -> %s", run.Status, status)
 		}
+		previousStatus := run.Status
 		run.Status = status
+		if previousStatus == InitCollecting && status == InitAnalyzing {
+			run.ResearchFocus = nil
+		}
 		run.CurrentStep = cleanText(step)
 		run.Checkpoint = cleanText(checkpoint)
 		run.ErrorSummary = truncateActionText(errorSummary, 240)
@@ -167,8 +171,8 @@ func validInitializationTransition(from, to InitializationStatus) bool {
 		InitDraft: {InitPlanning}, InitPlanning: {InitAwaitingPlanApproval},
 		InitAwaitingPlanApproval: {InitCollecting}, InitCollecting: {InitAnalyzing},
 		InitAnalyzing: {InitCompiling}, InitCompiling: {InitBlueprinting},
-		InitBlueprinting: {InitCritiquing}, InitCritiquing: {InitAwaitingFinalApproval, InitBlueprinting, InitAnalyzing},
-		InitAwaitingFinalApproval: {InitCompleted, InitBlueprinting}, InitPaused: {InitPlanning, InitCollecting, InitAnalyzing, InitCompiling, InitBlueprinting, InitCritiquing, InitAwaitingFinalApproval},
+		InitBlueprinting: {InitCritiquing}, InitCritiquing: {InitAwaitingFinalApproval, InitBlueprinting, InitAnalyzing, InitCollecting},
+		InitAwaitingFinalApproval: {InitCompleted, InitBlueprinting, InitCollecting}, InitPaused: {InitPlanning, InitCollecting, InitAnalyzing, InitCompiling, InitBlueprinting, InitCritiquing, InitAwaitingFinalApproval},
 		InitNeedsBudget: {InitCollecting},
 	}
 	for _, candidate := range allowed[from] {
@@ -396,6 +400,33 @@ func (s *Store) RequestBlueprintRevision(ctx context.Context, id, reason string)
 		run.Status = InitBlueprinting
 		run.CurrentStep = "blueprint_revision"
 		run.Checkpoint = "revision_requested"
+		return nil
+	})
+}
+
+// PrepareReadinessResearch turns non-fatal but capability-limiting Critic
+// warnings into a durable, targeted research pass. Persisting the focus before
+// network work makes the pass resumable across restarts.
+func (s *Store) PrepareReadinessResearch(ctx context.Context, id string, critique RoleCritique) (RoleInitializationRun, error) {
+	questions := readinessResearchQuestions(critique)
+	if len(questions) == 0 {
+		return RoleInitializationRun{}, fmt.Errorf("critic has no actionable readiness warnings")
+	}
+	return s.updateInitialization(ctx, id, 0, func(run *RoleInitializationRun) error {
+		if run.Status != InitCritiquing && run.Status != InitAwaitingFinalApproval {
+			return fmt.Errorf("readiness research cannot start from %s", run.Status)
+		}
+		if run.CritiqueID != critique.ID {
+			return fmt.Errorf("readiness research critique is stale")
+		}
+		run.ReadinessResearchAttempts++
+		run.ResearchFocus = questions
+		run.RevisionRequest = truncateActionText(readinessResearchSummary(critique), 1200)
+		run.Status = InitCollecting
+		run.ResumeStatus = ""
+		run.CurrentStep = "readiness_research"
+		run.Checkpoint = "critic_readiness_research"
+		run.ErrorSummary = ""
 		return nil
 	})
 }

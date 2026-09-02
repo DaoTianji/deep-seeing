@@ -45,6 +45,8 @@ RoleCompiler 仍只负责结构化抽取。安是 Character Architect，负责�
 
 Critic 硬错误不会直接停在最终确认页：系统把结构化问题写入 revision_request，最多执行两轮定向 Blueprint 修订并重新审查；仍无法可靠消除时，只把受影响 section 降级为“保持未知”，清除其 Claim/Chunk 引用后再次审查。无法映射到安全 section 的全局硬错误继续阻断，不得用降级掩盖。
 
+Critic 通过但仍存在 `readiness_self_concept`、`readiness_values` 或 `readiness_voice` 时，Character Architect 不再立刻停下等待用户接受。只要是可联网的公开角色且仍有远程额度，系统会把警告转为一手自述、价值动机和语言论证三个定向研究问题，最多自动补证两轮，随后重新执行覆盖分析、Claim 编译、Blueprint 和 Critic。旧任务可通过 `continue-research` 接口进入同一流程；额度或公开资料确实无法补足时才保留 warning 供用户最终判断。
+
 ## 5. 私人与权限
 
 私人角色不自动联网；在任何资料或身份信息发送模型前必须明确同意。Character Architect 使用隔离输入，不接触 Actor/Backstage STM、普通 Episode、其他角色或 Bond。专业角色在本轮也不会自动读取 Bond/Workspace，后续只有显式授权的指定内容才能加入语料。

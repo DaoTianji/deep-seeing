@@ -268,5 +268,6 @@ export interface RoleInitializationRun {
   plan?: RoleResearchPlan; coverage: { items: RoleCoverageItem[]; updated_at: string }; conflicts?: Array<{ id: string; topic: string; disposition?: string }>;
   assessments?: Array<{ source_id: string; tier: string; audience: "actor" | "director"; status: string; reliable?: string; read_chunk_ids?: string[] }>;
   blueprint_id?: string; critique_id?: string; remote_budget: number; remote_used: number; search_provider?: string; error_summary?: string; revision_request?: string;
+  readiness_research_attempts?: number; research_focus?: RoleResearchPlan["questions"];
 }
 export interface RoleInitializationDetail { run: RoleInitializationRun; role: RoleDefinition; blueprint?: RoleBlueprint; critique?: RoleCritique; mode: RoleInitializationMode }

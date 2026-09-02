@@ -17,6 +17,7 @@ func (s *Server) registerRoleInitializationRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/role-initializations/{id}/pause", s.handlePauseRoleInitialization)
 	mux.HandleFunc("POST /api/role-initializations/{id}/resume", s.handleResumeRoleInitialization)
 	mux.HandleFunc("POST /api/role-initializations/{id}/retry", s.handleRetryRoleInitialization)
+	mux.HandleFunc("POST /api/role-initializations/{id}/continue-research", s.handleContinueRoleResearch)
 	mux.HandleFunc("POST /api/role-initializations/{id}/cancel", s.handleCancelRoleInitialization)
 	mux.HandleFunc("POST /api/role-initializations/{id}/revision", s.handleRoleBlueprintRevision)
 	mux.HandleFunc("POST /api/role-initializations/{id}/approve", s.handleApproveRoleBlueprint)
@@ -122,6 +123,15 @@ func (s *Server) handleResumeRoleInitialization(w http.ResponseWriter, r *http.R
 }
 func (s *Server) handleRetryRoleInitialization(w http.ResponseWriter, r *http.Request) {
 	run, err := s.App.RoleArchitect.Retry(r.Context(), r.PathValue("id"))
+	if err != nil {
+		writeRoleError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusAccepted, map[string]any{"run": run, "started": true})
+}
+
+func (s *Server) handleContinueRoleResearch(w http.ResponseWriter, r *http.Request) {
+	run, err := s.App.RoleArchitect.ContinueReadinessResearch(r.Context(), r.PathValue("id"))
 	if err != nil {
 		writeRoleError(w, err)
 		return

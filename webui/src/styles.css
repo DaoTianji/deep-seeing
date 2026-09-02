@@ -418,3 +418,76 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .consent-check { display:flex !important; grid-column:span 2; align-items:center; gap:8px !important; }
 .consent-check input { width:auto !important; }
 @media (max-width: 800px) { .init-steps { grid-template-columns:repeat(9,72px); } .init-upload, .init-review-actions, .init-final { grid-template-columns:1fr; } .init-source-map, .coverage-grid { grid-template-columns:1fr; } }
+
+
+/* T4.9 readability pass: the role shelf is navigation; the cultivation room is the primary workspace. */
+.role-create-card { max-width: 1720px; padding: 22px; gap: 14px; }
+.role-create-card label, .source-editor label { font-size: 12px; line-height: 1.45; }
+.role-create-card input, .role-create-card select, .source-editor input, .source-editor select, .source-editor textarea { min-height: 42px; font-size: 14px; }
+.role-create-card button, .source-editor button, .role-build-actions button, .enter-role { font-size: 14px; min-height: 42px; }
+.role-library-layout { max-width: 1800px; padding: 0 clamp(22px, 3vw, 56px); grid-template-columns: minmax(270px, 320px) minmax(0, 1fr); gap: 24px; }
+.role-card-grid { grid-template-columns: 1fr; }
+.role-card { min-height: 88px; }
+.role-card strong { font-size: 16px; }
+.role-card small, .role-card em { font-size: 12px; }
+.role-workbench { padding: clamp(24px, 2.4vw, 40px); overflow: visible; }
+.role-workbench > header small, .role-workbench > header > span { font-size: 12px; }
+.role-workbench h2 { font-size: clamp(30px, 2.5vw, 42px); }
+.role-workbench > p { max-width: 1050px; font-size: 16px; line-height: 1.9; }
+.role-subject-correction, .private-sandbox { font-size: 13px; }
+.role-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.role-facts > div { padding: 13px 14px; }
+.role-facts dt { font-size: 11px; }
+.role-facts dd { font-size: 14px; line-height: 1.55; }
+.role-source-list { gap: 9px; margin-top: 18px; }
+.role-source-list > span { padding: 9px 12px; font-size: 13px; line-height: 1.5; }
+.role-source-list small { font-size: 11px; }
+
+.initialization-room { margin: 26px 0 10px; padding: clamp(22px, 2.3vw, 34px); border-radius: 24px; }
+.initialization-room h3 { font-size: 28px; }
+.initialization-room header small, .init-disclaimer { font-size: 11px; line-height: 1.55; }
+.init-status { padding: 7px 12px; font-size: 12px; }
+.init-steps { gap: 8px; margin: 24px 0; }
+.init-steps span { min-width: 74px; gap: 8px; font-size: 11px; }
+.init-steps i { width: 12px; height: 12px; }
+.init-budget { gap: 10px; margin-bottom: 20px; }
+.init-budget span { padding: 9px 12px; font-size: 12px; }
+.initialization-room details { padding: 18px 0; }
+.initialization-room summary { font-size: 16px; line-height: 1.5; }
+.initialization-room details > p { font-size: 14px; line-height: 1.75; }
+.init-question-list, .init-source-map, .coverage-grid, .blueprint-sections, .critique-list { gap: 12px; margin: 16px 0; }
+.init-question-list article, .init-source-map span, .coverage-grid span, .blueprint-sections article, .critique-list span { gap: 8px; padding: 15px 17px; border-radius: 14px; }
+.init-question-list strong, .init-source-map strong, .coverage-grid strong, .blueprint-sections strong, .critique-list strong { font-size: 14px; line-height: 1.45; }
+.init-question-list small, .init-source-map small, .coverage-grid small, .blueprint-sections small, .critique-list small { font-size: 13px; line-height: 1.75; }
+.init-source-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.coverage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.blueprint-sections > p { font-size: 14px; line-height: 1.75; }
+.blueprint-sections > p strong { margin-right: 8px; }
+.blueprint-sections article p { font-size: 15px; line-height: 1.85; }
+.init-upload, .init-review-actions, .init-final { gap: 12px; margin-top: 16px; }
+.init-upload { grid-template-columns: minmax(280px, 1fr) 150px 150px auto; }
+.init-upload input, .init-upload select, .init-review-actions textarea, .init-final input { min-height: 42px; padding: 10px 12px; font-size: 14px; }
+.initialization-room button { min-height: 42px; padding: 10px 15px; font-size: 14px; }
+.init-research-focus, .init-autonomy-callout { margin: 16px 0; padding: 16px 18px; border-radius: 14px; display: flex; align-items: center; gap: 16px; background: rgba(82, 116, 106, .10); border: 1px solid rgba(82, 116, 106, .22); }
+.init-research-focus { display: grid; gap: 5px; }
+.init-research-focus strong, .init-autonomy-callout strong { font-size: 15px; }
+.init-research-focus span, .init-autonomy-callout span { color: var(--muted); font-size: 13px; line-height: 1.65; }
+.init-autonomy-callout > div { min-width: 0; flex: 1; display: grid; gap: 4px; }
+.init-autonomy-callout button { flex: none; background: #55766b; color: white; }
+
+@media (max-width: 1180px) {
+  .role-library-layout { grid-template-columns: 250px minmax(0, 1fr); padding: 0 22px; }
+  .init-source-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .role-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
+  .role-library-layout { grid-template-columns: 1fr; }
+  .role-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .role-card-grid, .coverage-grid, .init-source-map { grid-template-columns: 1fr; }
+  .initialization-room { padding: 18px; }
+  .initialization-room h3 { font-size: 24px; }
+  .init-autonomy-callout { align-items: stretch; flex-direction: column; }
+  .init-upload { grid-template-columns: 1fr; }
+}
