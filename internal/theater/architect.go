@@ -46,6 +46,7 @@ type CharacterArchitect struct {
 	Events            InitializationEventSink
 	runMu             sync.Mutex
 	activeRuns        map[string]bool
+	pendingRuns       map[string]bool
 }
 
 type StartRoleInitializationInput struct {
@@ -180,15 +181,31 @@ func (a *CharacterArchitect) ContinueAsync(runID string) bool {
 	if a.activeRuns == nil {
 		a.activeRuns = map[string]bool{}
 	}
+	if a.pendingRuns == nil {
+		a.pendingRuns = map[string]bool{}
+	}
 	if a.activeRuns[runID] {
+		// Coalesce a request that races with the previous run's final cleanup
+		// into one guaranteed rerun instead of silently dropping it.
+		a.pendingRuns[runID] = true
 		a.runMu.Unlock()
 		return false
 	}
 	a.activeRuns[runID] = true
 	a.runMu.Unlock()
 	go func() {
-		defer func() { a.runMu.Lock(); delete(a.activeRuns, runID); a.runMu.Unlock() }()
-		_, _ = a.Continue(context.Background(), runID)
+		for {
+			_, _ = a.Continue(context.Background(), runID)
+			a.runMu.Lock()
+			if a.pendingRuns[runID] {
+				delete(a.pendingRuns, runID)
+				a.runMu.Unlock()
+				continue
+			}
+			delete(a.activeRuns, runID)
+			a.runMu.Unlock()
+			return
+		}
 	}()
 	return true
 }

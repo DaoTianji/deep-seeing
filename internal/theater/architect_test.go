@@ -469,3 +469,13 @@ func TestApproveFinalMaterializesObservedBlueprintBeforePublish(t *testing.T) {
 		t.Fatalf("materialized claims=%d", len(claims))
 	}
 }
+
+func TestContinueAsyncCoalescesRequestWhileRunIsActive(t *testing.T) {
+	architect := &CharacterArchitect{activeRuns: map[string]bool{"run-1": true}}
+	if architect.ContinueAsync("run-1") {
+		t.Fatal("duplicate execution should not start concurrently")
+	}
+	if !architect.pendingRuns["run-1"] {
+		t.Fatal("request racing with active run was dropped instead of queued")
+	}
+}
