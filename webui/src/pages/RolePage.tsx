@@ -195,7 +195,7 @@ function InitializationPanel({
   busy: string;
   onAction: (name: string, action: () => Promise<unknown>) => void;
 }) {
-  const { run, blueprint, critique } = detail;
+  const { run, blueprint, critique, mode } = detail;
   const [revision, setRevision] = useState("");
   const [warningReason, setWarningReason] = useState("");
   const [documentFile, setDocumentFile] = useState<File>();
@@ -226,7 +226,8 @@ function InitializationPanel({
       {run.status === "failed" && <button onClick={() => onAction("retry-init", () => api.retryRoleInitialization(run.id))}>重试当前阶段</button>}
       {run.status === "paused" ? <button onClick={() => onAction("resume-init", () => api.resumeRoleInitialization(run.id))}>恢复培养</button> : !["completed", "cancelled", "failed", "awaiting_plan_approval", "awaiting_final_approval"].includes(run.status) && <button onClick={() => onAction("pause-init", () => api.pauseRoleInitialization(run.id))}>暂停培养</button>}
       {(run.status === "blueprinting" || run.status === "awaiting_final_approval") && <div className="init-review-actions"><textarea rows={2} value={revision} onChange={(event) => setRevision(event.target.value)} placeholder="告诉安希望如何修订方案…" /><button disabled={!revision.trim()} onClick={() => onAction("revision", () => api.requestRoleBlueprintRevision(run.id, revision))}>要求修订</button></div>}
-      {run.status === "awaiting_final_approval" && <div className="init-final"><input value={warningReason} onChange={(event) => setWarningReason(event.target.value)} placeholder={warnings.length ? "有普通警告：填写接受理由后上架" : "无警告时可留空"} /><button className="primary" disabled={hardIssues.length > 0 || (warnings.length > 0 && !warningReason.trim())} onClick={() => onAction("approve-blueprint", () => api.approveRoleBlueprint(run.id, warningReason))}>确认 Blueprint 并上架</button></div>}
+      {run.status === "awaiting_final_approval" && mode !== "agent" && <div className="theater-banner">当前是观察模式：方案可以审阅，但不会改写正式角色。切换为 agent 后才可最终确认。</div>}
+      {run.status === "awaiting_final_approval" && <div className="init-final"><input value={warningReason} onChange={(event) => setWarningReason(event.target.value)} placeholder={warnings.length ? "有普通警告：填写接受理由后上架" : "无警告时可留空"} /><button className="primary" disabled={mode !== "agent" || hardIssues.length > 0 || (warnings.length > 0 && !warningReason.trim())} onClick={() => onAction("approve-blueprint", () => api.approveRoleBlueprint(run.id, warningReason))}>{mode === "agent" ? "确认 Blueprint 并上架" : "观察模式不可上架"}</button></div>}
     </section>
   );
 }
@@ -247,7 +248,7 @@ function RoleLibrary() {
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
   const [kind, setKind] = useState<"character" | "professional">("character");
-  const [subject, setSubject] = useState("fictional");
+  const [subject, setSubject] = useState("");
   const [autonomous, setAutonomous] = useState(true);
   const [objective, setObjective] = useState("");
   const [targetPeriod, setTargetPeriod] = useState("");
@@ -309,10 +310,10 @@ function RoleLibrary() {
           <label>角色名字<input value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：林舟、弗洛伊德、编辑" /></label>
           <label>培养方式<select value={autonomous ? "architect" : "manual"} onChange={(event) => setAutonomous(event.target.value === "architect")}><option value="architect">安自主研究与塑造</option><option value="manual">旧版手动编译</option></select></label>
           <label>角色类型<select value={kind} onChange={(event) => setKind(event.target.value as "character" | "professional")}><option value="character">人物角色</option><option value="professional">工作角色</option></select></label>
-          <label>人物性质<select value={subject} onChange={(event) => setSubject(event.target.value)} disabled={kind === "professional"}><option value="fictional">虚构</option><option value="deceased">已故历史人物</option><option value="living_public">在世公众人物</option><option value="living_private">私人个体</option></select></label>
+          <label>人物性质<select value={subject} onChange={(event) => setSubject(event.target.value)} disabled={kind === "professional"}><option value="">请选择，不自动猜测</option><option value="fictional">虚构</option><option value="deceased">已故历史人物</option><option value="living_public">在世公众人物</option><option value="living_private">私人个体</option></select></label>
           {kind === "professional" && <span className="role-tool-note">仅授权版本化 Workspace 读写，不含发布、外部通信或删除。</span>}
           {autonomous && <><label>目标时期<input value={targetPeriod} onChange={(event) => setTargetPeriod(event.target.value)} placeholder="例如：成熟期 1920—1937" /></label><label>研究目标<input value={objective} onChange={(event) => setObjective(event.target.value)} placeholder="希望安重点理解什么" /></label><label>知识截止<input value={knowledgeCutoff} onChange={(event) => setKnowledgeCutoff(event.target.value)} placeholder="可由研究计划确定" /></label>{subject === "living_private" && <label className="consent-check"><input type="checkbox" checked={privateConsent} onChange={(event) => setPrivateConsent(event.target.checked)} />允许将私人资料发送给当前模型；不会自动联网</label>}</>}
-          <button disabled={!name.trim() || Boolean(busy)}>创建草稿</button>
+          <button disabled={!name.trim() || (kind === "character" && !subject) || Boolean(busy)}>创建草稿</button>
         </form>
       )}
       <div className="role-library-layout">
@@ -336,6 +337,7 @@ function RoleLibrary() {
               <span className={current.status}>{statusLabel(current)}</span>
             </header>
             {current.private_sandbox && <div className="private-sandbox"><Shield size={14} />私人沙箱：不联网、不分享、不对外冒充。</div>}
+            {current.kind === "character" && current.status !== "ready" && <label className="role-subject-correction">人物性质<select value={current.subject_class} onChange={(event) => act("subject-class", () => api.setRoleSubjectClass(current.id, event.target.value), current.id)}><option value="fictional">虚构人物</option><option value="deceased">已故历史人物</option><option value="living_public">在世公众人物</option><option value="living_private">私人沙箱</option></select></label>}
             <p>{current.identity || current.description || "还没有编译出稳定的角色身份。"}</p>
             <dl className="role-facts">
               <div><dt>知识截止</dt><dd>{current.knowledge_cutoff || "待资料确定"}</dd></div>

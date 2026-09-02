@@ -2,6 +2,7 @@ package theater
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -131,6 +132,23 @@ func (s *Store) SaveDefinition(_ context.Context, d RoleDefinition, expectedVers
 		return RoleDefinition{}, err
 	}
 	return d, nil
+}
+
+func (s *Store) SetSubjectClass(ctx context.Context, roleID string, subject SubjectClass) (RoleDefinition, error) {
+	if !validSubjectClass(subject) {
+		return RoleDefinition{}, fmt.Errorf("invalid subject_class %q", subject)
+	}
+	d, err := s.GetDefinition(ctx, roleID)
+	if err != nil {
+		return RoleDefinition{}, err
+	}
+	if d.Status == DefinitionReady || d.MainInstanceID != "" {
+		return d, fmt.Errorf("subject_class cannot change after a role enters the theater")
+	}
+	d.SubjectClass = subject
+	d.PrivateSandbox = isPrivateSubject(subject)
+	d.Validation = nil
+	return s.SaveDefinition(ctx, d, d.Version)
 }
 
 func (s *Store) SetValidation(ctx context.Context, roleID string, report ValidationReport) (RoleDefinition, error) {
@@ -434,6 +452,23 @@ func (s *Store) AddSourceWithAudience(_ context.Context, roleID, title, kind, ur
 	var d RoleDefinition
 	if err := readJSON(s.definitionPath(roleID), &d); err != nil {
 		return RoleSource{}, err
+	}
+	for _, sourceID := range d.SourceIDs {
+		var existing RoleSource
+		if readJSON(s.sourcePath(sourceID), &existing) != nil || existing.Audience != audience {
+			continue
+		}
+		canonicalURL := canonicalRoleSourceURL(url)
+		sameURL := canonicalURL != "" && canonicalRoleSourceURL(existing.URL) == canonicalURL
+		sameBody := false
+		if len(content) > 0 && existing.Path != "" {
+			if body, err := os.ReadFile(filepath.Join(s.root, filepath.FromSlash(existing.Path))); err == nil {
+				sameBody = bytes.Equal(body, content)
+			}
+		}
+		if sameURL || sameBody {
+			return existing, nil
+		}
 	}
 	now := time.Now().UTC()
 	src := RoleSource{ID: "rsrc_" + compactUUID(), RoleID: roleID, Title: cleanText(title), Kind: cleanText(kind), Audience: audience, URL: cleanText(url), MimeType: cleanText(mime), CreatedAt: now}

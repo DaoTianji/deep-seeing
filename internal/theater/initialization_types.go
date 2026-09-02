@@ -28,10 +28,11 @@ const (
 )
 
 type ResearchQuestion struct {
-	ID       string   `json:"id"`
-	Question string   `json:"question"`
-	Topics   []string `json:"topics,omitempty"`
-	Priority string   `json:"priority,omitempty"`
+	ID          string   `json:"id"`
+	Question    string   `json:"question"`
+	Topics      []string `json:"topics,omitempty"`
+	SearchTerms []string `json:"search_terms,omitempty"`
+	Priority    string   `json:"priority,omitempty"`
 }
 
 type RoleResearchPlan struct {

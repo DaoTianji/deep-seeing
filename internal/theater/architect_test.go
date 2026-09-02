@@ -397,3 +397,75 @@ func TestCoverageAnalysisRetriesInvalidJSON(t *testing.T) {
 		t.Fatalf("unexpected coverage retry result: %#v", updated)
 	}
 }
+
+func TestCharacterArchitectRequiresExplicitCharacterSubjectClass(t *testing.T) {
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	architect := &CharacterArchitect{Mode: InitModeObserve, Scope: testScope(), Store: store, Corpus: corpus, Chat: fakeDirectorCompleter{out: `{"target_period":"成熟期","questions":[{"id":"life","question":"经历"}]}`}}
+	if _, _, err := architect.Start(context.Background(), StartRoleInitializationInput{DisplayName: "未分类人物", Kind: RoleCharacter}); err == nil {
+		t.Fatal("character initialization silently defaulted to fictional")
+	}
+}
+
+func TestHistoricalBlueprintThinCoreProducesReadinessWarnings(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "历史人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	run, _ := store.CreateInitialization(ctx, role.ID, "test", false, "fixture")
+	source, _ := store.AddSource(ctx, role.ID, "一手材料", "upload", "", "text/plain", []byte("有定位的材料"))
+	_, chunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: source.ID, Title: source.Title, Audience: SourceActor, Tier: SourcePrimary, Text: []byte("有定位的材料")})
+	run, _ = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: source.ID, Tier: SourcePrimary, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{chunks[0].ID}})
+	thin := BlueprintSection{Key: "core", Content: "现有材料不足以建立稳定画像", ChunkIDs: []string{chunks[0].ID}}
+	blueprint := RoleBlueprint{TargetPeriod: "成熟期", KnowledgeCutoff: "1937", SelfConcept: thin, ValuesAndMotives: thin, ReasoningAndVoice: thin}
+	issues := ValidateBlueprintEvidence(ctx, store, corpus, run, blueprint)
+	warnings := 0
+	for _, issue := range issues {
+		if issue.Severity == CritiqueWarning && strings.HasPrefix(issue.Code, "readiness_") {
+			warnings++
+		}
+	}
+	if warnings != 3 || hasUnresolvedHardIssue(issues) {
+		t.Fatalf("expected three non-blocking readiness warnings, got %#v", issues)
+	}
+}
+
+func TestApproveFinalMaterializesObservedBlueprintBeforePublish(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "可物化人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	source, _ := store.AddSource(ctx, role.ID, "一手材料", "upload", "", "text/plain", []byte("证据正文"))
+	_, chunks, _, _ := corpus.Ingest(ctx, CorpusIngestInput{RoleID: role.ID, CorpusRoleID: role.CorpusRoleID, SourceID: source.ID, Title: source.Title, Audience: SourceActor, Tier: SourcePrimary, Text: []byte("证据正文")})
+	run, _ := store.CreateInitialization(ctx, role.ID, "test", false, "fixture")
+	run, _ = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "成熟期", KnowledgeCutoff: "1937", Questions: []ResearchQuestion{{ID: "life", Question: "经历"}}})
+	run, _ = store.ApproveResearchPlan(ctx, run.ID)
+	run, _ = store.SaveSourceAssessment(ctx, run.ID, SourceAssessment{SourceID: source.ID, Tier: SourcePrimary, Audience: SourceActor, Status: AssessmentAccepted, ReadChunkIDs: []string{chunks[0].ID}})
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage", "sources", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitCompiling, "compile", "coverage", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitBlueprinting, "blueprint", "compiled", "")
+	section := BlueprintSection{Key: "core", Content: "证据支持的画像", ChunkIDs: []string{chunks[0].ID}}
+	blueprint, run, err := store.SaveBlueprint(ctx, RoleBlueprint{RunID: run.ID, RoleID: role.ID, Version: 1, TargetPeriod: "成熟期", KnowledgeCutoff: "1937", SelfConcept: section, ValuesAndMotives: section, Tensions: section, ReasoningAndVoice: section, UnknownResponsePolicy: BlueprintSection{Key: "unknown", Content: "承认未知"}, AllowedInferences: BlueprintSection{Key: "allowed", Content: "有限推断"}, ForbiddenAnachronisms: BlueprintSection{Key: "forbidden", Content: "不得越界"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitCritiquing, "critic", "blueprint", "")
+	critique, run, _ := store.SaveCritique(ctx, RoleCritique{RunID: run.ID, BlueprintID: blueprint.ID})
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitAwaitingFinalApproval, "approval", "critic_passed", "")
+	model := &captureCompiler{out: fmt.Sprintf(`{"Identity":"证据支持的画像","Voice":"克制","KnowledgeCutoff":"1937","Timeline":[],"Claims":[{"Kind":"fact","Statement":"证据主张","SourceIDs":[%q],"Confidence":0.9}]}`, source.ID)}
+	architect := &CharacterArchitect{Mode: InitModeAgent, Store: store, Corpus: corpus, Compiler: &RoleCompiler{Store: store, Chat: model}}
+	completed, published, err := architect.ApproveFinal(ctx, run.ID, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !critique.Passed || completed.Status != InitCompleted || published.Status != DefinitionReady || published.BlueprintVersion != blueprint.Version {
+		t.Fatalf("observed blueprint was not safely materialized: run=%#v role=%#v", completed, published)
+	}
+	claims, _ := store.ListClaims(ctx, role.ID)
+	if len(claims) != 1 {
+		t.Fatalf("materialized claims=%d", len(claims))
+	}
+}

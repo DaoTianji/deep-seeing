@@ -288,6 +288,10 @@ func normalizeSubjectClass(v SubjectClass) SubjectClass {
 	}
 }
 
+func validSubjectClass(v SubjectClass) bool {
+	return v == SubjectFictional || v == SubjectDeceased || v == SubjectLivingPublic || v == SubjectLivingPrivate
+}
+
 func isPrivateSubject(v SubjectClass) bool {
 	return v == SubjectLivingPrivate
 }

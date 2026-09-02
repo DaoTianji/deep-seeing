@@ -2,6 +2,7 @@ package theater
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -74,5 +75,32 @@ func TestParseCompiledRoleNormalizesStringArrays(t *testing.T) {
 	}
 	if _, err := parseCompiledRole(`{"Identity":{"value":"航海者"}}`); err == nil {
 		t.Fatal("ambiguous identity object accepted")
+	}
+}
+
+func TestRoleCompilerMaterializesOnlyBlueprintCitedChunks(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	role, err := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "史料人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := store.AddSource(ctx, role.ID, "长篇一手材料", "upload", "", "text/plain", []byte(strings.Repeat("RAW_PREFIX_SHOULD_NOT_APPEAR ", 10000)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	model := &captureCompiler{out: fmt.Sprintf(`{"Identity":"证据支持的身份","Voice":"证据支持的表达方式","KnowledgeCutoff":"1937-05-28","Timeline":[],"Claims":[{"Kind":"belief","Statement":"社会兴趣是重要概念","SourceIDs":[%q],"Confidence":0.9}]}`, source.ID)}
+	blueprint := RoleBlueprint{TargetPeriod: "成熟期", KnowledgeCutoff: "1937-05-28", SelfConcept: BlueprintSection{Content: "证据支持的身份", ChunkIDs: []string{"chunk-1"}}}
+	result, err := (&RoleCompiler{Store: store, Chat: model}).CompileBlueprint(ctx, role.ID, blueprint, []RoleChunk{{
+		ID: "chunk-1", RoleID: role.ID, SourceID: source.ID, Audience: SourceActor, Content: "intérêt social 是材料中反复讨论的概念。",
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(model.input, "RAW_PREFIX_SHOULD_NOT_APPEAR") || !strings.Contains(model.input, "intérêt social") {
+		t.Fatalf("compiler did not use only cited evidence: %q", model.input)
+	}
+	if len(result.Claims) != 1 || result.Claims[0].SourceIDs[0] != source.ID || !result.Validation.Passed {
+		t.Fatalf("unexpected materialization: %#v", result)
 	}
 }

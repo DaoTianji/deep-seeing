@@ -268,7 +268,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	}
 	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: compilerChat}
 	searchProvider, coverageLimited := theater.RoleSearchProviderFromEnv(worldGW)
-	roleArchitect := &theater.CharacterArchitect{Mode: roleInitMode, Scope: scope, Store: roleStore, Corpus: roleCorpus, Compiler: roleCompiler, Chat: roleArchitectChat, AssessmentChat: compilerChat, CoverageChat: compilerChat, CriticChat: roleCriticChat, Search: searchProvider, World: worldGW, Soul: soulText, Model: cfg.Model, CoverageLimited: coverageLimited}
+	roleArchitect := &theater.CharacterArchitect{Mode: roleInitMode, Scope: scope, Store: roleStore, Corpus: roleCorpus, Compiler: roleCompiler, Chat: roleArchitectChat, AssessmentChat: compilerChat, CoverageChat: compilerChat, EvidenceQueryChat: compilerChat, CriticChat: roleCriticChat, Search: searchProvider, World: worldGW, Soul: soulText, Model: cfg.Model, CoverageLimited: coverageLimited}
 	initToolList, err := theater.InitializationTools(roleArchitect)
 	if err != nil {
 		return nil, fmt.Errorf("role initialization tools: %w", err)

@@ -61,7 +61,66 @@ func (c *RoleCompiler) Compile(ctx context.Context, roleID string) (CompileResul
 	if err != nil {
 		return CompileResult{}, err
 	}
-	raw, err := c.Chat.Complete(ctx, roleCompilerSystem, material)
+	return c.compileMaterial(ctx, d, sources, material)
+}
+
+// CompileBlueprint materializes an approved Blueprint from the exact Corpus
+// chunks cited by it. It avoids feeding a prefix of the raw corpus to the model,
+// which made source order decide what the role could remember.
+func (c *RoleCompiler) CompileBlueprint(ctx context.Context, roleID string, blueprint RoleBlueprint, chunks []RoleChunk) (CompileResult, error) {
+	if c == nil || c.Store == nil || c.Chat == nil {
+		return CompileResult{}, fmt.Errorf("role compiler unavailable")
+	}
+	d, err := c.Store.GetDefinition(ctx, roleID)
+	if err != nil {
+		return CompileResult{}, err
+	}
+	allSources, err := c.Store.ListSources(ctx, roleID)
+	if err != nil {
+		return CompileResult{}, err
+	}
+	byID := make(map[string]RoleSource, len(allSources))
+	for _, source := range allSources {
+		if source.Audience == SourceActor {
+			byID[source.ID] = source
+		}
+	}
+	blueprintJSON, err := json.Marshal(blueprint)
+	if err != nil {
+		return CompileResult{}, err
+	}
+	var material strings.Builder
+	fmt.Fprintf(&material, "ROLE NAME: %s\nROLE KIND: %s\nSUBJECT CLASS: %s\n", d.DisplayName, d.Kind, d.SubjectClass)
+	material.WriteString("<BLUEPRINT>\n")
+	material.Write(blueprintJSON)
+	material.WriteString("\n</BLUEPRINT>\n")
+	seenSources := map[string]bool{}
+	sources := make([]RoleSource, 0)
+	for _, chunk := range chunks {
+		source, ok := byID[chunk.SourceID]
+		if !ok || chunk.RoleID != roleID || chunk.Audience != SourceActor || cleanText(chunk.Content) == "" {
+			continue
+		}
+		if !seenSources[source.ID] {
+			seenSources[source.ID] = true
+			sources = append(sources, source)
+		}
+		fmt.Fprintf(&material, "\n<MATERIAL source_id=%q chunk_id=%q title=%q>\n%s\n</MATERIAL>\n",
+			source.ID, chunk.ID, source.Title, chunk.Content)
+	}
+	if len(sources) == 0 {
+		return CompileResult{}, fmt.Errorf("blueprint has no actor-visible cited evidence")
+	}
+	system := roleCompilerSystem + "\nBLUEPRINT 是待物化方案，不是事实来源。只能从 MATERIAL 证据生成主张；保留 Blueprint 的时期边界与未知策略。"
+	return c.compileMaterialWithSystem(ctx, d, sources, material.String(), system)
+}
+
+func (c *RoleCompiler) compileMaterial(ctx context.Context, d RoleDefinition, sources []RoleSource, material string) (CompileResult, error) {
+	return c.compileMaterialWithSystem(ctx, d, sources, material, roleCompilerSystem)
+}
+
+func (c *RoleCompiler) compileMaterialWithSystem(ctx context.Context, d RoleDefinition, sources []RoleSource, material, system string) (CompileResult, error) {
+	raw, err := c.Chat.Complete(ctx, system, material)
 	if err != nil {
 		return CompileResult{}, err
 	}

@@ -20,6 +20,7 @@ func (s *Server) registerRoleRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/roles", s.handleCreateRole)
 	mux.HandleFunc("GET /api/roles/{id}", s.handleRole)
 	mux.HandleFunc("POST /api/roles/{id}/sources", s.handleAddRoleSource)
+	mux.HandleFunc("POST /api/roles/{id}/subject-class", s.handleSetRoleSubjectClass)
 	mux.HandleFunc("POST /api/roles/{id}/compile", s.handleCompileRole)
 	mux.HandleFunc("POST /api/roles/{id}/publish", s.handlePublishRole)
 	mux.HandleFunc("POST /api/roles/{id}/enter", s.handleEnterRole)
@@ -72,6 +73,27 @@ func (s *Server) handleCreateRole(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = theater.IndexRole(r.Context(), s.App.Graph, s.App.Scope, s.App.Roles, d.ID)
 	writeJSON(w, http.StatusCreated, map[string]any{"role": d})
+}
+
+func (s *Server) handleSetRoleSubjectClass(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		SubjectClass theater.SubjectClass `json:"subject_class"`
+	}
+	if !decodeRoleJSON(w, r, &input) {
+		return
+	}
+	role, err := s.App.Roles.SetSubjectClass(r.Context(), strings.TrimSpace(r.PathValue("id")), input.SubjectClass)
+	if err != nil {
+		writeRoleError(w, err)
+		return
+	}
+	_ = theater.IndexRole(r.Context(), s.App.Graph, s.App.Scope, s.App.Roles, role.ID)
+	if runs, listErr := s.App.Roles.ListInitializations(r.Context(), role.ID, 1); listErr == nil && len(runs) > 0 && runs[0].Status == theater.InitAwaitingFinalApproval {
+		if updated, revisionErr := s.App.Roles.RequestBlueprintRevision(r.Context(), runs[0].ID, "人物性质已修正，必须按新的真实性、知识截止和可用性边界重新审查"); revisionErr == nil {
+			s.continueRoleInitialization(updated.ID)
+		}
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"role": role})
 }
 
 func (s *Server) handleRole(w http.ResponseWriter, r *http.Request) {

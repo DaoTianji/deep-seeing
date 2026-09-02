@@ -56,6 +56,7 @@ export const api = {
   role: (id: string) => json<{ role: RoleDefinition; sources: RoleSource[]; claims: RoleClaim[]; instance?: RoleInstance; worldlines?: RoleWorldline[]; sessions: RoleSession[] }>(`/api/roles/${encodeURIComponent(id)}`),
   createRole: (input: Record<string, unknown>) => post<{ role: RoleDefinition }>("/api/roles", input),
   addRoleSource: (id: string, input: Record<string, unknown>) => post<{ source: RoleSource }>(`/api/roles/${encodeURIComponent(id)}/sources`, input),
+setRoleSubjectClass: (id: string, subjectClass: string) => post<{ role: RoleDefinition }>(`/api/roles/${encodeURIComponent(id)}/subject-class`, { subject_class: subjectClass }),
   compileRole: (id: string) => post<Record<string, unknown>>(`/api/roles/${encodeURIComponent(id)}/compile`),
   publishRole: (id: string) => post<{ role: RoleDefinition }>(`/api/roles/${encodeURIComponent(id)}/publish`),
   enterRole: (id: string) => post<{ definition: RoleDefinition; instance: RoleInstance; session: RoleSession }>(`/api/roles/${encodeURIComponent(id)}/enter`),

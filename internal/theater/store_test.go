@@ -125,3 +125,38 @@ func TestPublishRequiresValidation(t *testing.T) {
 		t.Fatal("publish without validation must fail")
 	}
 }
+
+func TestSetSubjectClassCorrectsDraftAndClearsValidation(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "误分类人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	role.Validation = &ValidationReport{Passed: true}
+	role, _ = store.SaveDefinition(ctx, role, role.Version)
+	updated, err := store.SetSubjectClass(ctx, role.ID, SubjectDeceased)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updated.SubjectClass != SubjectDeceased || updated.Validation != nil {
+		t.Fatalf("subject correction did not invalidate stale validation: %#v", updated)
+	}
+}
+
+func TestAddSourceDeduplicatesSameURLOrBodyWithinAudience(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "资料去重", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	first, err := store.AddSourceWithAudience(ctx, role.ID, "原始网页", "research", "HTTPS://Example.com/adler/#life", "text/html", SourceActor, []byte("same body"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	sameURL, _ := store.AddSourceWithAudience(ctx, role.ID, "重复网址", "research", "https://example.com/adler", "text/html", SourceActor, []byte("changed mirror body"))
+	sameBody, _ := store.AddSourceWithAudience(ctx, role.ID, "重复正文", "upload", "", "text/plain", SourceActor, []byte("same body"))
+	director, _ := store.AddSourceWithAudience(ctx, role.ID, "导演副本", "research", "https://example.com/adler", "text/html", SourceDirector, []byte("same body"))
+	if sameURL.ID != first.ID || sameBody.ID != first.ID || director.ID == first.ID {
+		t.Fatalf("unexpected dedupe: first=%s url=%s body=%s director=%s", first.ID, sameURL.ID, sameBody.ID, director.ID)
+	}
+	sources, _ := store.ListSources(ctx, role.ID)
+	if len(sources) != 2 {
+		t.Fatalf("source count=%d", len(sources))
+	}
+}

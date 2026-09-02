@@ -249,7 +249,7 @@ export type RoleInitializationStatus = "draft" | "planning" | "awaiting_plan_app
 export interface RoleResearchPlan {
   target_period: string;
   knowledge_cutoff?: string;
-  questions: Array<{ id: string; question: string; topics?: string[]; priority?: string }>;
+  questions: Array<{ id: string; question: string; topics?: string[]; search_terms?: string[]; priority?: string }>;
   completion_criteria?: string[];
   approved_at?: string;
 }

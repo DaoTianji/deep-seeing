@@ -1,4 +1,4 @@
-import{Q as fc,h as cc,e as dc,f as hc,c as iv,r as Ar,j as U,b as ha,g as gc,i as pc,X as Bo,S as yc,d as zt}from"./index-dsg600QT.js";var mc=class extends fc{constructor(r,e){super(r,e)}bindMethods(){super.bindMethods(),this.fetchNextPage=this.fetchNextPage.bind(this),this.fetchPreviousPage=this.fetchPreviousPage.bind(this)}setOptions(r){r._type="infinite",super.setOptions(r)}getOptimisticResult(r){return r._type="infinite",super.getOptimisticResult(r)}fetchNextPage(r){return this.fetch({...r,meta:{fetchMore:{direction:"forward"}}})}fetchPreviousPage(r){return this.fetch({...r,meta:{fetchMore:{direction:"backward"}}})}createResult(r,e){var h,d;const{state:t}=r,a=super.createResult(r,e),{isFetching:n,isRefetching:i,isError:s,isRefetchError:o}=a,u=(d=(h=t.fetchMeta)==null?void 0:h.fetchMore)==null?void 0:d.direction,l=s&&u==="forward",v=n&&u==="forward",f=s&&u==="backward",c=n&&u==="backward";return{...a,fetchNextPage:this.fetchNextPage,fetchPreviousPage:this.fetchPreviousPage,hasNextPage:dc(e,t.data),hasPreviousPage:cc(e,t.data),isFetchNextPageError:l,isFetchingNextPage:v,isFetchPreviousPageError:f,isFetchingPreviousPage:c,isRefetchError:o&&!l&&!f,isRefetching:i&&!v&&!c}}};function bc(r,e){return hc(r,mc)}/**
+import{Q as fc,h as cc,e as dc,f as hc,c as iv,r as Ar,j as U,b as ha,g as gc,i as pc,X as Bo,S as yc,d as zt}from"./index-Bc1a6bna.js";var mc=class extends fc{constructor(r,e){super(r,e)}bindMethods(){super.bindMethods(),this.fetchNextPage=this.fetchNextPage.bind(this),this.fetchPreviousPage=this.fetchPreviousPage.bind(this)}setOptions(r){r._type="infinite",super.setOptions(r)}getOptimisticResult(r){return r._type="infinite",super.getOptimisticResult(r)}fetchNextPage(r){return this.fetch({...r,meta:{fetchMore:{direction:"forward"}}})}fetchPreviousPage(r){return this.fetch({...r,meta:{fetchMore:{direction:"backward"}}})}createResult(r,e){var h,d;const{state:t}=r,a=super.createResult(r,e),{isFetching:n,isRefetching:i,isError:s,isRefetchError:o}=a,u=(d=(h=t.fetchMeta)==null?void 0:h.fetchMore)==null?void 0:d.direction,l=s&&u==="forward",v=n&&u==="forward",f=s&&u==="backward",c=n&&u==="backward";return{...a,fetchNextPage:this.fetchNextPage,fetchPreviousPage:this.fetchPreviousPage,hasNextPage:dc(e,t.data),hasPreviousPage:cc(e,t.data),isFetchNextPageError:l,isFetchingNextPage:v,isFetchPreviousPageError:f,isFetchingPreviousPage:c,isRefetchError:o&&!l&&!f,isRefetching:i&&!v&&!c}}};function bc(r,e){return hc(r,mc)}/**
  * @license lucide-react v0.468.0 - ISC
  *
  * This source code is licensed under the ISC license.
@@ -53,10 +53,10 @@ https://github.com/jquery/jquery/blob/master/src/event.js
       vec2 v = ab*vec2(-cs.y,cs.x);
       w = w + dot(p-u,v)/(dot(p-u,u)+dot(v,v));
     }
-
+    
     // compute final point and distance
     float d = length(p-ab*vec2(cos(w),sin(w)));
-
+    
     // return signed distance
     return (dot(p/ab,p/ab)>1.0) ? d : -d;
   }
@@ -65,16 +65,16 @@ https://github.com/jquery/jquery/blob/master/src/event.js
 
       uniform mat3 uPanZoomMatrix;
       uniform int  uAtlasSize;
-
+      
       // instanced
       in vec2 aPosition; // a vertex from the unit square
-
+      
       in mat3 aTransform; // used to transform verticies, eg into a bounding box
       in int aVertType; // the type of thing we are rendering
 
       // the z-index that is output when using picking mode
       in vec4 aIndex;
-
+      
       // For textures
       in int aAtlasId; // which shader unit/atlas to use
       in vec4 aTex; // x/y/w/h of texture in atlas
@@ -94,7 +94,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
       out vec4 vColor;
       out vec2 vPosition;
       // flat values are not interpolated
-      flat out int vAtlasId;
+      flat out int vAtlasId; 
       flat out int vVertType;
       flat out vec2 vTopRight;
       flat out vec2 vBotLeft;
@@ -102,7 +102,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
       flat out vec4 vBorderColor;
       flat out vec2 vBorderWidth;
       flat out vec4 vIndex;
-
+      
       void main(void) {
         int vid = gl_VertexID;
         vec2 position = aPosition; // TODO make this a vec3, simplifies some code below
@@ -125,7 +125,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
 
           gl_Position = vec4(uPanZoomMatrix * aTransform * vec3(position, 1.0), 1.0);
         }
-        else if(aVertType == `).concat(Wt," || aVertType == ").concat(xa,`
+        else if(aVertType == `).concat(Wt," || aVertType == ").concat(xa,` 
              || aVertType == `).concat(vn," || aVertType == ").concat(wa,`) { // simple shapes
 
           // the bounding box is needed by the fragment shader
@@ -155,7 +155,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
 
           gl_Position = vec4(uPanZoomMatrix * vec3(point, 1.0), 1.0);
           vColor = aColor;
-        }
+        } 
         else if(aVertType == `).concat(ev,`) {
           vec2 pointA = aPointAPointB.xy;
           vec2 pointB = aPointAPointB.zw;
@@ -204,7 +204,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
           }
 
           vColor = aColor;
-        }
+        } 
         else if(aVertType == `).concat(Ds,` && vid < 3) {
           // massage the first triangle into an edge arrow
           if(vid == 0)
@@ -256,16 +256,16 @@ https://github.com/jquery/jquery/blob/master/src/event.js
       `).concat(Om,`
 
       vec4 blend(vec4 top, vec4 bot) { // blend colors with premultiplied alpha
-        return vec4(
+        return vec4( 
           top.rgb + (bot.rgb * (1.0 - top.a)),
-          top.a   + (bot.a   * (1.0 - top.a))
+          top.a   + (bot.a   * (1.0 - top.a)) 
         );
       }
 
       vec4 distInterp(vec4 cA, vec4 cB, float d) { // interpolate color using Signed Distance
         // scale to the zoom level so that borders don't look blurry when zoomed in
         // note 1.5 is an aribitrary value chosen because it looks good
-        return mix(cA, cB, 1.0 - smoothstep(0.0, 1.5 / uZoom, abs(d)));
+        return mix(cA, cB, 1.0 - smoothstep(0.0, 1.5 / uZoom, abs(d))); 
       }
 
       void main(void) {
@@ -273,7 +273,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
           // look up the texel from the texture unit
           `).concat(i.map(function(l){return"if(vAtlasId == ".concat(l,") outColor = texture(uTexture").concat(l,", vTexCoord);")}).join(`
 	else `),`
-        }
+        } 
         else if(vVertType == `).concat(Ds,`) {
           // mimics how canvas renderer uses context.globalCompositeOperation = 'destination-out';
           outColor = blend(vColor, uBGColor);
@@ -282,7 +282,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
         else if(vVertType == `).concat(Wt,` && vBorderWidth == vec2(0.0)) { // simple rectangle with no border
           outColor = vColor; // unit square is already transformed to the rectangle, nothing else needs to be done
         }
-        else if(vVertType == `).concat(Wt," || vVertType == ").concat(xa,`
+        else if(vVertType == `).concat(Wt," || vVertType == ").concat(xa,` 
           || vVertType == `).concat(vn," || vVertType == ").concat(wa,`) { // use SDF
 
           float outerBorder = vBorderWidth[0];
@@ -317,7 +317,7 @@ https://github.com/jquery/jquery/blob/master/src/event.js
               vec4 outerColor = outerBorder == 0.0 ? vec4(0) : vBorderColor;
               vec4 innerBorderColor = blend(vBorderColor, vColor);
               outColor = distInterp(innerBorderColor, outerColor, d);
-            }
+            } 
             else {
               vec4 outerColor;
               if(innerBorder == 0.0 && outerBorder == 0.0) {

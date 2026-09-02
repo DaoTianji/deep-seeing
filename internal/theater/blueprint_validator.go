@@ -78,7 +78,34 @@ func ValidateBlueprintEvidence(ctx context.Context, store *Store, corpus *Corpus
 	if len(accepted) == 0 {
 		issues = append(issues, hardIssue("no_accepted_sources", "", "没有已读取并采用的来源"))
 	}
+	if definition, err := store.GetDefinition(ctx, run.RoleID); err == nil && definition.Kind == RoleCharacter && definition.SubjectClass != SubjectFictional {
+		for _, check := range []struct {
+			code, label string
+			section     BlueprintSection
+		}{
+			{"readiness_self_concept", "角色如何理解自己", blueprint.SelfConcept},
+			{"readiness_values", "稳定价值与动机", blueprint.ValuesAndMotives},
+			{"readiness_voice", "思考、论证与语言习惯", blueprint.ReasoningAndVoice},
+		} {
+			if !blueprintSectionSubstantive(check.section) {
+				issues = append(issues, CritiqueIssue{Code: check.code, Severity: CritiqueWarning, Section: check.section.Key, Message: check.label + "仍缺少正面、可追溯的塑造内容；角色可以保持真实，但沉浸与回应能力会明显受限"})
+			}
+		}
+	}
 	return dedupeCritiqueIssues(issues)
+}
+
+func blueprintSectionSubstantive(section BlueprintSection) bool {
+	if cleanText(section.Content) == "" || len(section.ChunkIDs) == 0 {
+		return false
+	}
+	lower := strings.ToLower(section.Content)
+	for _, marker := range []string{"资料不足", "证据不足", "现有材料不足", "尚未", "无法", "不足以", "不能建立", "unknown", "insufficient", "cannot establish"} {
+		if strings.Contains(lower, marker) {
+			return false
+		}
+	}
+	return true
 }
 
 func hardIssue(code, section, message string) CritiqueIssue {
