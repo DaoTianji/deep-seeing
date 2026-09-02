@@ -948,7 +948,7 @@ func (a *CharacterArchitect) critique(ctx context.Context, run RoleInitializatio
 	if a.CriticChat != nil {
 		evidence := a.selectCriticEvidence(ctx, blueprint)
 		claims := a.claimsReferencedByBlueprint(ctx, run.RoleID, blueprint)
-		input, _ := json.Marshal(map[string]any{"blueprint": blueprint, "claims": claims, "coverage": run.Coverage, "assessments": run.Assessments, "conflicts": run.Conflicts, "evidence": evidence})
+		input, _ := json.Marshal(map[string]any{"blueprint": blueprint, "plan": run.Plan, "claims": claims, "coverage": run.Coverage, "assessments": run.Assessments, "conflicts": run.Conflicts, "evidence": evidence})
 		raw, err := a.CriticChat.Complete(ctx, roleCriticSystem, string(input))
 		if err != nil {
 			return RoleCritique{}, err

@@ -595,3 +595,24 @@ func TestDowngradeUnsafeBlueprintHandlesCompositeSectionPath(t *testing.T) {
 		t.Fatalf("composite section path was not downgraded: %#v", repaired.AllowedInferences)
 	}
 }
+
+func TestCriticReceivesApprovedResearchPlan(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	corpus, _ := NewCorpusStore(store.Root())
+	defer corpus.Close()
+	role, _ := store.CreateDefinition(ctx, testScope(), RoleDefinitionWrite{DisplayName: "范围人物", Kind: RoleCharacter, SubjectClass: SubjectDeceased})
+	run, _ := store.CreateInitialization(ctx, role.ID, "test", false, "fixture")
+	run, _ = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "用户批准时期", KnowledgeCutoff: "用户批准截止", Questions: []ResearchQuestion{{ID: "q", Question: "研究"}}})
+	run, _ = store.ApproveResearchPlan(ctx, run.ID)
+	chat := &recordingArchitectCompleter{out: `{"issues":[]}`}
+	unknown := BlueprintSection{Key: "unknown", Content: "保持未知"}
+	blueprint := RoleBlueprint{RunID: run.ID, RoleID: role.ID, TargetPeriod: run.Plan.TargetPeriod, KnowledgeCutoff: run.Plan.KnowledgeCutoff, SelfConcept: unknown, ValuesAndMotives: unknown, Tensions: unknown, ReasoningAndVoice: unknown, UnknownResponsePolicy: unknown, AllowedInferences: unknown, ForbiddenAnachronisms: unknown}
+	architect := &CharacterArchitect{Store: store, Corpus: corpus, CriticChat: chat}
+	if _, err := architect.critique(ctx, run, blueprint); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(chat.input, `"plan"`) || !strings.Contains(chat.input, "用户批准时期") || !strings.Contains(chat.input, "用户批准截止") {
+		t.Fatalf("critic input omitted approved plan: %s", chat.input)
+	}
+}
