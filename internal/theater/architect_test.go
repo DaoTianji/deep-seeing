@@ -341,6 +341,10 @@ func TestCritiqueCoverageErrorsReturnToAnalysis(t *testing.T) {
 	if !critiqueRequiresCoverageRefresh(coverageHard) {
 		t.Fatal("coverage hard error must return to analysis")
 	}
+	conflictHard := RoleCritique{Issues: []CritiqueIssue{{Code: "STALE_CONFLICT", Severity: CritiqueHard, Section: "conflicts.relationships; coverage.relationships"}}}
+	if !critiqueRequiresCoverageRefresh(conflictHard) {
+		t.Fatal("conflict and coverage hard error must return to analysis")
+	}
 	if !validInitializationTransition(InitCritiquing, InitAnalyzing) {
 		t.Fatal("critic must be allowed to return to coverage analysis")
 	}
@@ -555,7 +559,8 @@ func TestCharacterArchitectAutoRepairsThenDowngradesUnsafeSection(t *testing.T) 
 	blueprintJSON := fmt.Sprintf(`{"target_period":"成熟期","knowledge_cutoff":"1937","self_concept":{"content":"把自己理解为教育者","claim_ids":["self"],"chunk_ids":[%q]},"values_and_motives":{"content":"保持未知"},"tensions":{"content":"保持未知"},"relationships":[],"reasoning_and_voice":{"content":"保持未知"},"unknown_response_policy":{"content":"保持未知"},"allowed_inferences":{"content":"保持未知"},"forbidden_anachronisms":{"content":"保持未知"}}`, chunks[0].ID)
 	architectChat := &sequenceArchitectCompleter{outputs: []string{blueprintJSON, blueprintJSON, blueprintJSON}}
 	hard := `{"issues":[{"code":"POSTHUMOUS_SELF_CONCEPT","severity":"hard","section":"self_concept","message":"不得以后世叙述冒充自我认知"}]}`
-	criticChat := &sequenceArchitectCompleter{outputs: []string{hard, hard, hard, `{"issues":[]}`}}
+	allowedHard := `{"issues":[{"code":"UNSUPPORTED_ALLOWED","severity":"hard","section":"claims; blueprint.allowed_inferences","message":"范围过度"}]}`
+	criticChat := &sequenceArchitectCompleter{outputs: []string{hard, hard, hard, allowedHard, `{"issues":[]}`}}
 	architect := &CharacterArchitect{Mode: InitModeObserve, Store: store, Corpus: corpus, Chat: architectChat, CriticChat: criticChat}
 	finalRun, err := architect.Continue(ctx, run.ID)
 	if err != nil {
@@ -571,8 +576,11 @@ func TestCharacterArchitectAutoRepairsThenDowngradesUnsafeSection(t *testing.T) 
 	if !strings.Contains(finalBlueprint.SelfConcept.Content, "保持未知") || len(finalBlueprint.SelfConcept.ClaimIDs) != 0 {
 		t.Fatalf("unsafe self concept was not downgraded: %#v", finalBlueprint.SelfConcept)
 	}
-	if architectChat.calls != 3 || criticChat.calls != 4 {
+	if architectChat.calls != 3 || criticChat.calls != 5 {
 		t.Fatalf("unexpected repair calls architect=%d critic=%d", architectChat.calls, criticChat.calls)
+	}
+	if !strings.Contains(finalBlueprint.AllowedInferences.Content, "保持未知") {
+		t.Fatalf("second unsafe section was not downgraded: %#v", finalBlueprint.AllowedInferences)
 	}
 }
 

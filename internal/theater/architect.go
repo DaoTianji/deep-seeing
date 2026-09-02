@@ -236,7 +236,7 @@ func (a *CharacterArchitect) Continue(ctx context.Context, runID string) (RoleIn
 		return run, err
 	}
 	coverageRefreshes := 0
-	safeDowngradeApplied := false
+	safeDowngradePasses := 0
 
 process:
 	if run.Status == InitPlanning {
@@ -352,7 +352,7 @@ process:
 				}
 				goto process
 			}
-			if !safeDowngradeApplied {
+			if safeDowngradePasses < 4 {
 				repaired, changed := downgradeUnsafeBlueprint(blueprint, critique)
 				if changed {
 					repaired, run, err = a.Store.SaveBlueprint(ctx, repaired)
@@ -367,7 +367,7 @@ process:
 					if err != nil {
 						return run, err
 					}
-					safeDowngradeApplied = true
+					safeDowngradePasses++
 					goto process
 				}
 			}
@@ -431,7 +431,10 @@ func downgradeUnsafeBlueprint(blueprint RoleBlueprint, critique RoleCritique) (R
 		case strings.Contains(key, "unknown_response_policy"):
 			downgrade(&blueprint.UnknownResponsePolicy)
 		case strings.Contains(key, "forbidden_anachronisms"):
-			downgrade(&blueprint.ForbiddenAnachronisms)
+			blueprint.ForbiddenAnachronisms.Content = "不得把知识截止之后的信息、后世评价或现代术语写成角色当时的知识；证据不足时保持未知。"
+			blueprint.ForbiddenAnachronisms.ClaimIDs = nil
+			blueprint.ForbiddenAnachronisms.ChunkIDs = nil
+			changed = true
 		case strings.Contains(key, "relationship"):
 			if len(blueprint.Relationships) > 0 {
 				blueprint.Relationships = nil
@@ -456,7 +459,7 @@ func critiqueRequiresCoverageRefresh(critique RoleCritique) bool {
 		}
 		section := strings.ToLower(cleanText(issue.Section))
 		code := strings.ToUpper(cleanText(issue.Code))
-		if section == "coverage" || strings.HasPrefix(section, "coverage.") || strings.HasPrefix(code, "COVERAGE_") || code == "STALE_COVERAGE_MATRIX" {
+		if section == "coverage" || strings.Contains(section, "coverage.") || strings.Contains(section, "conflicts") || strings.HasPrefix(code, "COVERAGE_") || code == "STALE_COVERAGE_MATRIX" {
 			return true
 		}
 	}
