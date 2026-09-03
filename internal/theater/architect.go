@@ -667,7 +667,19 @@ func (a *CharacterArchitect) collect(ctx context.Context, run *RoleInitializatio
 // real-world entities that should constrain source discovery.
 func roleResearchQuery(definition RoleDefinition, question ResearchQuestion) string {
 	var term string
+	if definition.Kind == RoleProfessional {
+		for _, candidate := range question.SearchTerms {
+			candidate = cleanText(candidate)
+			if strings.Contains(candidate, "site:") && !strings.Contains(candidate, definition.DisplayName) {
+				term = candidate
+				break
+			}
+		}
+	}
 	for _, candidate := range question.SearchTerms {
+		if term != "" {
+			break
+		}
 		candidate = cleanText(candidate)
 		if candidate == "" {
 			continue
@@ -756,6 +768,34 @@ type sourceAssessmentDecision struct {
 	Status     SourceAssessmentStatus `json:"status"`
 	Reliable   string                 `json:"reliable"`
 	ReasonCode string                 `json:"reason_code"`
+}
+
+func (d *sourceAssessmentDecision) UnmarshalJSON(raw []byte) error {
+	var wire struct {
+		Tier       SourceTier             `json:"tier"`
+		Audience   SourceAudience         `json:"audience"`
+		Status     SourceAssessmentStatus `json:"status"`
+		Reliable   json.RawMessage        `json:"reliable"`
+		ReasonCode string                 `json:"reason_code"`
+	}
+	if err := json.Unmarshal(raw, &wire); err != nil {
+		return err
+	}
+	d.Tier, d.Audience, d.Status, d.ReasonCode = wire.Tier, wire.Audience, wire.Status, wire.ReasonCode
+	var text string
+	if json.Unmarshal(wire.Reliable, &text) == nil {
+		d.Reliable = cleanText(text)
+		return nil
+	}
+	var flag bool
+	if json.Unmarshal(wire.Reliable, &flag) == nil {
+		if flag {
+			d.Reliable = "reliable"
+		} else {
+			d.Reliable = "unreliable"
+		}
+	}
+	return nil
 }
 
 func (a *CharacterArchitect) assessSource(ctx context.Context, question ResearchQuestion, hit world.SearchHit, body string, fallbackTier SourceTier, fallbackAudience SourceAudience) (sourceAssessmentDecision, error) {

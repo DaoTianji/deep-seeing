@@ -91,6 +91,16 @@ func TestRoleResearchQueryUsesOneFocusedTerm(t *testing.T) {
 	}
 }
 
+func TestSourceAssessmentDecisionAcceptsBooleanReliability(t *testing.T) {
+	var value sourceAssessmentDecision
+	if err := decodeJSONObject(`{"tier":"scholarship","audience":"director","status":"accepted","reliable":true,"reason_code":"official"}`, &value); err != nil {
+		t.Fatal(err)
+	}
+	if value.Reliable != "reliable" || value.Status != AssessmentAccepted {
+		t.Fatalf("decision = %#v", value)
+	}
+}
+
 func TestDecodeBlueprintAcceptsRelationshipObject(t *testing.T) {
 	raw := `{"target_period":"成熟期","knowledge_cutoff":"1937","self_concept":{"content":"自己"},"values_and_motives":{"content":"价值"},"tensions":{"content":"张力"},"relationships":{"key":"relationships","content":"与同事的关系"},"reasoning_and_voice":{"content":"声音"},"unknown_response_policy":{"content":"承认未知"},"allowed_inferences":{"content":"有限推断"},"forbidden_anachronisms":{"content":"禁止越界"}}`
 	var value RoleBlueprint
