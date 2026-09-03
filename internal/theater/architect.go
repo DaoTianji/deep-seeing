@@ -33,6 +33,7 @@ type CharacterArchitect struct {
 	Scope             identity.TenantScope
 	Store             *Store
 	Corpus            *CorpusStore
+	Reader            *BookReader
 	Compiler          *RoleCompiler
 	Chat              DirectorCompleter
 	AssessmentChat    DirectorCompleter
@@ -277,6 +278,13 @@ process:
 		}
 	}
 	if run.Status == InitAnalyzing {
+		if a.Reader != nil {
+			run, err = a.readAvailableDocuments(ctx, run, definition)
+			if err != nil {
+				_, _ = a.Store.TransitionInitialization(ctx, run.ID, InitFailed, "read_corpus", run.Checkpoint, err.Error())
+				return a.Store.GetInitialization(ctx, run.ID)
+			}
+		}
 		run, err = a.analyze(ctx, run)
 		if err != nil {
 			_, _ = a.Store.TransitionInitialization(ctx, run.ID, InitFailed, "coverage", run.Checkpoint, err.Error())
@@ -641,9 +649,7 @@ func (a *CharacterArchitect) collect(ctx context.Context, run *RoleInitializatio
 		}
 		assessment := SourceAssessment{SourceID: assessmentSourceID, Tier: tier, Audience: audience, Status: AssessmentAccepted, Reliable: decision.Reliable, ReasonCode: decision.ReasonCode, UpdatedAt: time.Now().UTC()}
 		for _, chunk := range chunks {
-			if _, readErr := a.Corpus.ReadChunk(ctx, chunk.ID); readErr == nil {
-				assessment.ReadChunkIDs = append(assessment.ReadChunkIDs, chunk.ID)
-			}
+			assessment.AvailableChunkIDs = append(assessment.AvailableChunkIDs, chunk.ID)
 		}
 		updated, err := a.Store.SaveSourceAssessment(ctx, run.ID, assessment)
 		if err != nil {
@@ -653,6 +659,64 @@ func (a *CharacterArchitect) collect(ctx context.Context, run *RoleInitializatio
 		a.emit(*run, "role_source_accepted", "collect_sources", source.Title, source.ID)
 	}
 	return nil
+}
+
+func (a *CharacterArchitect) readAvailableDocuments(ctx context.Context, run RoleInitializationRun, definition RoleDefinition) (RoleInitializationRun, error) {
+	for _, assessment := range append([]SourceAssessment(nil), run.Assessments...) {
+		if assessment.Status != AssessmentAccepted || assessment.Tier == SourceGenerated || len(assessment.AvailableChunkIDs) == 0 || sameStringSet(assessment.AvailableChunkIDs, assessment.ReadChunkIDs) {
+			continue
+		}
+		first, err := a.Corpus.ReadChunk(ctx, assessment.AvailableChunkIDs[0])
+		if err != nil {
+			return run, fmt.Errorf("locate source document: %w", err)
+		}
+		reading, err := a.Reader.ReadDocument(ctx, definition, first.DocumentID)
+		if err != nil {
+			return run, err
+		}
+		if reading.Status != ReadingCompleted {
+			return run, fmt.Errorf("book reading did not complete: %s", reading.Status)
+		}
+		assessment.SelectedChunkIDs = intersectStringIDs(assessment.AvailableChunkIDs, reading.SelectedChunkIDs)
+		assessment.ReadChunkIDs = intersectStringIDs(assessment.AvailableChunkIDs, reading.ReadChunkIDs)
+		assessment.UpdatedAt = time.Now().UTC()
+		run, err = a.Store.SaveSourceAssessment(ctx, run.ID, assessment)
+		if err != nil {
+			return run, err
+		}
+		a.emit(run, "role_book_read", "read_corpus", fmt.Sprintf("已完成 %d/%d 个片段的真实阅读", len(assessment.ReadChunkIDs), len(assessment.AvailableChunkIDs)), reading.ID)
+	}
+	return run, nil
+}
+
+func sameStringSet(left, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	want := map[string]bool{}
+	for _, id := range left {
+		want[id] = true
+	}
+	for _, id := range right {
+		if !want[id] {
+			return false
+		}
+	}
+	return true
+}
+
+func intersectStringIDs(left, right []string) []string {
+	want := map[string]bool{}
+	for _, id := range right {
+		want[id] = true
+	}
+	var out []string
+	for _, id := range left {
+		if want[id] {
+			out = append(out, id)
+		}
+	}
+	return appendUnique(nil, out...)
 }
 
 func (a *CharacterArchitect) consumeRemote(ctx context.Context, runID string) error {
@@ -799,7 +863,7 @@ func (a *CharacterArchitect) prepareEvidenceClaims(ctx context.Context, run Role
 			actorEvidence = append(actorEvidence, chunk)
 		}
 	}
-	claims, err := a.Compiler.ExtractEvidenceClaims(ctx, run.RoleID, actorEvidence)
+	claims, err := a.Compiler.ExtractEvidenceClaimsWithReading(ctx, run.RoleID, actorEvidence, a.readingContext(ctx, run.RoleID))
 	if err != nil {
 		return nil, err
 	}
@@ -855,7 +919,8 @@ func (a *CharacterArchitect) buildBlueprint(ctx context.Context, run RoleInitial
 	input, _ := json.Marshal(map[string]any{
 		"role": definition, "plan": run.Plan, "coverage": run.Coverage, "conflicts": run.Conflicts,
 		"claims": claims, "actor_evidence": actorEvidence, "director_constraints": directorConstraints,
-		"revision_request": run.RevisionRequest, "previous_blueprint": previousBlueprint, "previous_critique": previousCritique,
+		"whole_book_readings": a.readingContext(ctx, run.RoleID),
+		"revision_request":    run.RevisionRequest, "previous_blueprint": previousBlueprint, "previous_critique": previousCritique,
 	})
 	raw, err := a.Chat.Complete(ctx, architectBlueprintSystem, string(input))
 	if err != nil {
@@ -897,7 +962,7 @@ func (a *CharacterArchitect) buildBlueprint(ctx context.Context, run RoleInitial
 }
 
 const (
-	maxBlueprintEvidenceChunks = 16
+	maxBlueprintEvidenceChunks = 32
 	maxBlueprintChunkRunes     = 3000
 	maxCriticEvidenceChunks    = 24
 	maxCriticChunkRunes        = 1800
@@ -932,6 +997,16 @@ func (a *CharacterArchitect) selectBlueprintEvidence(ctx context.Context, run Ro
 		chunk.Content = truncateActionText(chunk.Content, maxBlueprintChunkRunes)
 		selected[id] = struct{}{}
 		evidence = append(evidence, chunk)
+	}
+
+	// Whole-book reading artifacts are interpretation and navigation aids, not
+	// evidence by themselves. Their cited chunks get first priority so the Claim
+	// compiler sees the passages that actually shaped the chapter-by-chapter
+	// understanding instead of an arbitrary corpus prefix.
+	for _, group := range a.readingEvidenceChunkGroups(ctx, run.RoleID) {
+		for _, id := range group {
+			appendChunk(id)
+		}
 	}
 
 	// Reserve one representative chunk per accepted source before retrieval can
@@ -990,6 +1065,97 @@ func (a *CharacterArchitect) selectBlueprintEvidence(ctx context.Context, run Ro
 		}
 	}
 	return evidence
+}
+
+type architectReadingContext struct {
+	RunID             string                      `json:"run_id"`
+	DocumentID        string                      `json:"document_id"`
+	Title             string                      `json:"title"`
+	Audience          SourceAudience              `json:"audience"`
+	Tier              SourceTier                  `json:"tier"`
+	MapSummary        string                      `json:"map_summary"`
+	Synthesis         string                      `json:"synthesis"`
+	ChapterReceipts   []map[string]any            `json:"chapter_receipts"`
+	Observations      []PassageObservation        `json:"observations"`
+	Perspectives      []CharacterPerspectiveFrame `json:"character_perspectives"`
+	AuthorExpressions []AuthorExpressionFrame     `json:"author_expressions"`
+}
+
+// readingContext exposes the public, provenance-carrying products of actual
+// whole-book reads. It never contains a hidden chain of thought. Every positive
+// conclusion still has to survive Claim extraction against the cited chunks.
+func (a *CharacterArchitect) readingContext(ctx context.Context, roleID string) []architectReadingContext {
+	if a == nil || a.Store == nil || a.Corpus == nil {
+		return nil
+	}
+	runs, err := a.Store.ListBookReadings(ctx, roleID)
+	if err != nil {
+		return nil
+	}
+	out := make([]architectReadingContext, 0, len(runs))
+	for _, reading := range runs {
+		if reading.Status != ReadingCompleted {
+			continue
+		}
+		document, err := a.Corpus.GetDocument(ctx, reading.CorpusRoleID, reading.DocumentID)
+		if err != nil {
+			continue
+		}
+		observations, _ := a.Store.ListPassageObservations(ctx, reading.ID)
+		perspectives, _ := a.Store.ListCharacterPerspectives(ctx, reading.ID)
+		expressions, _ := a.Store.ListAuthorExpressions(ctx, reading.ID)
+		out = append(out, architectReadingContext{
+			RunID: reading.ID, DocumentID: document.ID, Title: document.Title,
+			Audience: document.Audience, Tier: document.Tier,
+			MapSummary:      truncateActionText(reading.MapSummary, 8000),
+			Synthesis:       truncateActionText(reading.Synthesis, 8000),
+			ChapterReceipts: a.Store.ReadingReceiptSummaries(reading.ReceiptIDs),
+			Observations:    observations, Perspectives: perspectives, AuthorExpressions: expressions,
+		})
+	}
+	return out
+}
+
+// readingEvidenceChunkGroups interleaves passages from separate documents.
+// This prevents a long first book from filling the entire Blueprint evidence
+// budget before a second work can contribute a contrasting voice or concept.
+func (a *CharacterArchitect) readingEvidenceChunkGroups(ctx context.Context, roleID string) [][]string {
+	contexts := a.readingContext(ctx, roleID)
+	perDocument := make([][]string, 0, len(contexts))
+	for _, reading := range contexts {
+		var ids []string
+		for _, expression := range reading.AuthorExpressions {
+			ids = appendUnique(ids, expression.ChunkIDs...)
+		}
+		for _, perspective := range reading.Perspectives {
+			ids = appendUnique(ids, perspective.ChunkIDs...)
+		}
+		for _, observation := range reading.Observations {
+			if observation.Explicit {
+				ids = appendUnique(ids, observation.ChunkIDs...)
+			}
+		}
+		for _, observation := range reading.Observations {
+			ids = appendUnique(ids, observation.ChunkIDs...)
+		}
+		if len(ids) > 0 {
+			perDocument = append(perDocument, ids)
+		}
+	}
+	var groups [][]string
+	for index := 0; ; index++ {
+		var group []string
+		for _, ids := range perDocument {
+			if index < len(ids) {
+				group = append(group, ids[index])
+			}
+		}
+		if len(group) == 0 {
+			break
+		}
+		groups = append(groups, group)
+	}
+	return groups
 }
 
 func (a *CharacterArchitect) generateEvidenceQueries(ctx context.Context, run RoleInitializationRun, definition RoleDefinition) []string {
@@ -1202,6 +1368,20 @@ func (a *CharacterArchitect) applyBlueprint(ctx context.Context, run RoleInitial
 	}
 	definition.Identity = blueprint.SelfConcept.Content
 	definition.Voice = blueprint.ReasoningAndVoice.Content
+	relationships := make([]string, 0, len(blueprint.Relationships))
+	for _, relationship := range blueprint.Relationships {
+		if value := cleanText(relationship.Content); value != "" {
+			relationships = append(relationships, value)
+		}
+	}
+	definition.CharacterModel = &RoleCharacterModel{
+		ValuesAndMotives:      cleanText(blueprint.ValuesAndMotives.Content),
+		Tensions:              cleanText(blueprint.Tensions.Content),
+		Relationships:         relationships,
+		UnknownResponsePolicy: cleanText(blueprint.UnknownResponsePolicy.Content),
+		AllowedInferences:     cleanText(blueprint.AllowedInferences.Content),
+		ForbiddenAnachronisms: cleanText(blueprint.ForbiddenAnachronisms.Content),
+	}
 	definition.TargetPeriod = blueprint.TargetPeriod
 	definition.KnowledgeCutoff = blueprint.KnowledgeCutoff
 	definition.BlueprintVersion = blueprint.Version

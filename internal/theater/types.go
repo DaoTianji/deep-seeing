@@ -110,6 +110,18 @@ type RoleToolPolicy struct {
 	Denied  []string `json:"denied,omitempty"`
 }
 
+// RoleCharacterModel keeps the evidence-checked parts of a Blueprint that are
+// needed at performance time. Identity and Voice remain first-class fields for
+// backward compatibility; the rest must not disappear after compilation.
+type RoleCharacterModel struct {
+	ValuesAndMotives      string   `json:"values_and_motives,omitempty"`
+	Tensions              string   `json:"tensions,omitempty"`
+	Relationships         []string `json:"relationships,omitempty"`
+	UnknownResponsePolicy string   `json:"unknown_response_policy,omitempty"`
+	AllowedInferences     string   `json:"allowed_inferences,omitempty"`
+	ForbiddenAnachronisms string   `json:"forbidden_anachronisms,omitempty"`
+}
+
 // RoleDefinition is the versioned, source-backed role blueprint.
 type RoleDefinition struct {
 	ID                  string               `json:"id"`
@@ -129,6 +141,7 @@ type RoleDefinition struct {
 	InitializationRunID string               `json:"initialization_run_id,omitempty"`
 	SourceIDs           []string             `json:"source_ids,omitempty"`
 	ToolPolicy          RoleToolPolicy       `json:"tool_policy,omitempty"`
+	CharacterModel      *RoleCharacterModel  `json:"character_model,omitempty"`
 	PrivateSandbox      bool                 `json:"private_sandbox,omitempty"`
 	MainInstanceID      string               `json:"main_instance_id,omitempty"`
 	Status              DefinitionStatus     `json:"status"`
@@ -153,18 +166,19 @@ type RoleDefinitionWrite struct {
 }
 
 type RoleInstance struct {
-	ID                 string            `json:"id"`
-	RoleID             string            `json:"role_id"`
-	PersonID           string            `json:"person_id"`
-	MainWorldlineID    string            `json:"main_worldline_id"`
-	CurrentWorldlineID string            `json:"current_worldline_id"`
-	Status             InstanceStatus    `json:"status"`
-	Scene              string            `json:"scene,omitempty"`
-	State              map[string]string `json:"state,omitempty"`
-	Relationship       map[string]string `json:"relationship,omitempty"`
-	Version            int64             `json:"version"`
-	CreatedAt          time.Time         `json:"created_at"`
-	UpdatedAt          time.Time         `json:"updated_at"`
+	ID                 string                `json:"id"`
+	RoleID             string                `json:"role_id"`
+	PersonID           string                `json:"person_id"`
+	MainWorldlineID    string                `json:"main_worldline_id"`
+	CurrentWorldlineID string                `json:"current_worldline_id"`
+	Status             InstanceStatus        `json:"status"`
+	Scene              string                `json:"scene,omitempty"`
+	State              map[string]string     `json:"state,omitempty"`
+	Relationship       map[string]string     `json:"relationship,omitempty"`
+	Performance        *PerformanceDirective `json:"performance_directive,omitempty"`
+	Version            int64                 `json:"version"`
+	CreatedAt          time.Time             `json:"created_at"`
+	UpdatedAt          time.Time             `json:"updated_at"`
 }
 
 type RoleWorldline struct {
@@ -187,10 +201,24 @@ type RoleSession struct {
 	RoleInstanceID string        `json:"role_instance_id"`
 	WorldlineID    string        `json:"worldline_id"`
 	Status         SessionStatus `json:"status"`
+	StageTurns     int           `json:"stage_turns"`
 	ExitReason     string        `json:"exit_reason,omitempty"`
 	StartedAt      time.Time     `json:"started_at"`
 	UpdatedAt      time.Time     `json:"updated_at"`
 	EndedAt        *time.Time    `json:"ended_at,omitempty"`
+}
+
+type PerformanceDirective struct {
+	Style             string `json:"style"`
+	Energy            string `json:"energy,omitempty"`
+	Stance            string `json:"stance,omitempty"`
+	Initiative        string `json:"initiative,omitempty"`
+	ResponsePolicy    string `json:"response_policy,omitempty"`
+	Intensity         int    `json:"intensity,omitempty"`
+	Scope             string `json:"scope"`
+	EffectiveFromTurn int    `json:"effective_from_turn"`
+	ExpiresAfterTurn  int    `json:"expires_after_turn,omitempty"`
+	SourceActionID    string `json:"source_action_id"`
 }
 
 type RoleSource struct {
@@ -258,26 +286,38 @@ type ActionStatus string
 const (
 	ActionExpected ActionStatus = "expected"
 	ActionApplied  ActionStatus = "applied"
+	ActionRejected ActionStatus = "rejected"
 	ActionReverted ActionStatus = "reverted"
 )
 
 type DirectorAction struct {
-	ID               string            `json:"id"`
-	RoleID           string            `json:"role_id"`
-	RoleInstanceID   string            `json:"role_instance_id"`
-	RoleSessionID    string            `json:"role_session_id"`
-	WorldlineID      string            `json:"worldline_id"`
-	TurnID           string            `json:"turn_id,omitempty"`
-	Type             ActionType        `json:"type"`
-	Status           ActionStatus      `json:"status"`
-	ReasonCode       string            `json:"reason_code,omitempty"`
-	Before           map[string]string `json:"before,omitempty"`
-	After            map[string]string `json:"after,omitempty"`
-	ExpectedVersion  int64             `json:"expected_version,omitempty"`
-	AppliedVersion   int64             `json:"applied_version,omitempty"`
-	RevertsActionID  string            `json:"reverts_action_id,omitempty"`
-	TouchesCanonical bool              `json:"touches_canonical,omitempty"`
-	CreatedAt        time.Time         `json:"created_at"`
+	ID                string            `json:"id"`
+	RoleID            string            `json:"role_id"`
+	RoleInstanceID    string            `json:"role_instance_id"`
+	RoleSessionID     string            `json:"role_session_id"`
+	WorldlineID       string            `json:"worldline_id"`
+	TurnID            string            `json:"turn_id,omitempty"`
+	Type              ActionType        `json:"type"`
+	Status            ActionStatus      `json:"status"`
+	ReasonCode        string            `json:"reason_code,omitempty"`
+	Before            map[string]string `json:"before,omitempty"`
+	After             map[string]string `json:"after,omitempty"`
+	ExpectedVersion   int64             `json:"expected_version,omitempty"`
+	AppliedVersion    int64             `json:"applied_version,omitempty"`
+	EffectiveFromTurn int               `json:"effective_from_turn,omitempty"`
+	ExpiresAfterTurn  int               `json:"expires_after_turn,omitempty"`
+	ReadbackVerified  bool              `json:"readback_verified,omitempty"`
+	RevertsActionID   string            `json:"reverts_action_id,omitempty"`
+	TouchesCanonical  bool              `json:"touches_canonical,omitempty"`
+	CreatedAt         time.Time         `json:"created_at"`
+}
+
+type DirectorActivation struct {
+	ActionID      string    `json:"action_id"`
+	RoleSessionID string    `json:"role_session_id"`
+	TurnID        string    `json:"turn_id"`
+	StageTurn     int       `json:"stage_turn"`
+	ActivatedAt   time.Time `json:"activated_at"`
 }
 
 type TranscriptMessage struct {

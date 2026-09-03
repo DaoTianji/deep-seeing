@@ -93,3 +93,34 @@ func TestCorpusCanonicalURLDeduplication(t *testing.T) {
 		t.Fatalf("URL dedupe failed: %#v %#v duplicate=%v err=%v", first, second, duplicate, err)
 	}
 }
+
+func TestCorpusRestoresLegacyChunkOrderFromSourceText(t *testing.T) {
+	ctx := context.Background()
+	root := t.TempDir()
+	corpus, err := NewCorpusStore(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer corpus.Close()
+	text := strings.Repeat("甲", 3900) + "\n\n" + strings.Repeat("乙", 3900) + "\n\n" + strings.Repeat("丙", 3900)
+	document, created, _, err := corpus.Ingest(ctx, CorpusIngestInput{RoleID: "legacy-role", Title: "旧书", Audience: SourceActor, Tier: SourcePrimary, Text: []byte(text)})
+	if err != nil || len(created) < 3 {
+		t.Fatalf("ingest chunks=%d err=%v", len(created), err)
+	}
+	for _, chunk := range created {
+		chunk.Sequence = 0
+		path := root + "/corpus/chunks/legacy-role/" + chunk.ID + ".json"
+		if err := writeJSONAtomic(path, chunk); err != nil {
+			t.Fatal(err)
+		}
+	}
+	ordered, err := corpus.ListDocumentChunks(ctx, document.ID)
+	if err != nil || len(ordered) != len(created) {
+		t.Fatalf("list chunks=%d err=%v", len(ordered), err)
+	}
+	for index := range created {
+		if ordered[index].ContentHash != created[index].ContentHash || ordered[index].Sequence != index+1 {
+			t.Fatalf("legacy order not restored at %d: got=%s want=%s", index, ordered[index].ContentHash, created[index].ContentHash)
+		}
+	}
+}

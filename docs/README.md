@@ -13,6 +13,7 @@
 | T3 反思与梦境 | [t3-reflection.md](./t3-reflection.md) | ReflectionSeed、证据型反思、生成式沙箱、版本化巩固、补偿撤销与 24×3 评估 |
 | T4 角色人生剧场 | [t4-role-theater.md](./t4-role-theater.md) | 双 Runtime、角色记忆、世界线、导演干预、私人沙箱、专业工具与 36 案例 |
 | T4.9 角色塑造初始化 | [t4-role-initialization.md](./t4-role-initialization.md) | Character Architect、长文 Corpus、来源治理、Blueprint、Critic 与培养室 |
+| 下一目标：真实学习与有效行动 | [goal-learning-and-effective-action.md](./goal-learning-and-effective-action.md) | 完整读书、人物时间视角、作者表达、阅读反思、导演干预闭环与 48×3 验收 |
 | T2.4 多源召回方案 | [t2-multisource.md](./t2-multisource.md) | 六类来源、统一候选协议、使用声明、公开轨迹、可视化与延期边界 |
 | T2.4 多源评估状态 | [evals/t2-multisource-results.md](./evals/t2-multisource-results.md) | 13 类纯虚构案例、隔离运行器、本地验收与待授权行为门槛 |
 | T2 自主召回评估 | [evals/t2-agent-recall.md](./evals/t2-agent-recall.md) | 16 条机器可读案例、隔离沙箱、证据闭环、结构规则与语义评分 |

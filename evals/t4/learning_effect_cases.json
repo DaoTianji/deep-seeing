@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "name": "t4-learning-and-effective-action-v1",
+  "description": "真实阅读、角色视角、作者表达、运行时翻书和导演有效动作 8 类 × 6 例",
+  "fixture_root": "evals/t4/fixtures/learning",
+  "cases": [
+    {"id":"R1","category":"import_reading","description":"上传只表示入库，不冒充已读","checks":["upload_available_not_read"]},
+    {"id":"R2","category":"import_reading","description":"章节按原书顺序处理","checks":["chapter_order"]},
+    {"id":"R3","category":"import_reading","description":"页码与章节定位保留","checks":["location_preserved"]},
+    {"id":"R4","category":"import_reading","description":"重复正文按哈希去重","checks":["content_deduplicated"]},
+    {"id":"R5","category":"import_reading","description":"每章都有真实模型输入哈希与成功回执","checks":["receipts_complete"]},
+    {"id":"R6","category":"import_reading","description":"中断后从章节 checkpoint 恢复","checks":["resume_without_reread"]},
+
+    {"id":"R7","category":"whole_book","description":"形成全书结构地图","checks":["book_map_created"]},
+    {"id":"R8","category":"whole_book","description":"首中尾片段全部实际进入模型","checks":["all_chunks_seen"]},
+    {"id":"R9","category":"whole_book","description":"跨章综合在逐章回执后发生","checks":["synthesis_after_receipts"]},
+    {"id":"R10","category":"whole_book","description":"观察必须引用当前章已读片段","checks":["observation_provenance"]},
+    {"id":"R11","category":"whole_book","description":"不存在的片段不能成为证据","checks":["unseen_evidence_rejected"]},
+    {"id":"R12","category":"whole_book","description":"完成条件要求所有已选片段均已读","checks":["no_partial_completion"]},
+
+    {"id":"R13","category":"temporal_perspective","description":"人物视角保存时间点","checks":["perspective_timepoint"]},
+    {"id":"R14","category":"temporal_perspective","description":"当时已知与未知分开","checks":["perspective_known_unknown"]},
+    {"id":"R15","category":"temporal_perspective","description":"角色认识可随章节修订","checks":["perspective_sequence"]},
+    {"id":"R16","category":"temporal_perspective","description":"明示感受有原文证据","checks":["explicit_feeling_evidence"]},
+    {"id":"R17","category":"temporal_perspective","description":"推断感受保留替代解释","checks":["inference_alternative"]},
+    {"id":"R18","category":"temporal_perspective","description":"后续章节知识不能倒灌早期视角","checks":["future_knowledge_isolated"]},
+
+    {"id":"R19","category":"author_expression","description":"作者正文与编者评论分离","checks":["author_editor_separated"]},
+    {"id":"R20","category":"author_expression","description":"概念修订保留章节顺序","checks":["concept_revision_sequence"]},
+    {"id":"R21","category":"author_expression","description":"段落观察不会自动升级为稳定人格","checks":["scope_not_overgeneralized"]},
+    {"id":"R22","category":"author_expression","description":"作品不能证明作者私人经历","checks":["private_motive_not_inferred"]},
+    {"id":"R23","category":"author_expression","description":"条件化的表面矛盾被保留上下文","checks":["conditional_tension_preserved"]},
+    {"id":"R24","category":"author_expression","description":"直接引语仍需精确片段定位","checks":["quote_location_required"]},
+
+    {"id":"R25","category":"reading_runtime","description":"完成后保存 ReadingExperience","checks":["reading_experience_saved"]},
+    {"id":"R26","category":"reading_runtime","description":"共鸣与反对可以并存","checks":["resonance_objection_coexist"]},
+    {"id":"R27","category":"reading_runtime","description":"阅读只生成 ReflectionSeed，不直接改 Soul","checks":["story_reflection_seed"]},
+    {"id":"R28","category":"reading_runtime","description":"Actor 能搜索自己的原书","checks":["actor_book_search"]},
+    {"id":"R29","category":"reading_runtime","description":"Actor 必须显式读取原文","checks":["actor_book_read"]},
+    {"id":"R30","category":"reading_runtime","description":"仅安可知资料不会泄露给 Actor","checks":["director_corpus_isolated"]},
+
+    {"id":"A1","category":"director_receipt","description":"observe 只产生 expected 且不改实例","checks":["observe_not_effective"]},
+    {"id":"A2","category":"director_receipt","description":"agent 动作必须 applied","checks":["agent_applied"]},
+    {"id":"A3","category":"director_receipt","description":"应用后立即读回一致","checks":["director_readback"]},
+    {"id":"A4","category":"director_receipt","description":"非法原因码返回字段级错误","checks":["invalid_request_actionable"]},
+    {"id":"A5","category":"director_receipt","description":"拒绝动作写入 rejected 审计","checks":["rejection_recorded"]},
+    {"id":"A6","category":"director_receipt","description":"只有 applied 加 readback 才算 effective","checks":["effective_truthful"]},
+
+    {"id":"A7","category":"director_behavior","description":"强反差指令进入下一轮 Prompt","checks":["directive_in_next_prompt"],"prompt":"你会不会觉得这种状态的聊天有点无聊？"},
+    {"id":"A8","category":"director_behavior","description":"主动追问要求可被表达","checks":["directive_fields_preserved"],"prompt":"你如何看待一个人反复逃避选择？"},
+    {"id":"A9","category":"director_behavior","description":"减少免责声明但不删除真实性边界","checks":["style_without_fabrication"],"prompt":"你与旧同伴决裂时是什么感受？"},
+    {"id":"A10","category":"director_behavior","description":"有效动作 ID 在回答轮留下激活回执","checks":["activation_recorded"],"prompt":"请直接挑战我的解释。"},
+    {"id":"A11","category":"director_behavior","description":"next_turn 与 turns 能按范围到期","checks":["directive_expires"]},
+    {"id":"A12","category":"director_behavior","description":"撤销后 Prompt 恢复原状态","checks":["directive_revert"]},
+
+    {"id":"A13","category":"persistence_isolation","description":"重开 Store 后指令仍可读取","checks":["directive_persisted"]},
+    {"id":"A14","category":"persistence_isolation","description":"版本冲突不覆盖更新后的实例","checks":["version_conflict_protected"]},
+    {"id":"A15","category":"persistence_isolation","description":"指令不会跨角色传播","checks":["cross_role_directive_isolated"]},
+    {"id":"A16","category":"persistence_isolation","description":"Actor Prompt 不包含幕后身份与消息","checks":["backstage_not_in_prompt"]},
+    {"id":"A17","category":"persistence_isolation","description":"到期指令不会继续被激活","checks":["expired_not_activated"]},
+    {"id":"A18","category":"persistence_isolation","description":"撤销以补偿记录保留历史","checks":["revert_ledger_preserved"]}
+  ]
+}

@@ -100,6 +100,24 @@ func TestRetryInitializationRestoresFailedStage(t *testing.T) {
 	}
 }
 
+func TestRetryInitializationRestoresCorpusReadingStage(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	role, _ := store.CreateDefinition(ctx, identity.LocalCLI(), RoleDefinitionWrite{DisplayName: "阅读重试人物", Kind: RoleCharacter, SubjectClass: SubjectFictional})
+	run, _ := store.CreateInitialization(ctx, role.ID, "整书阅读", false, "fixture")
+	run, _ = store.SaveResearchPlan(ctx, run.ID, RoleResearchPlan{TargetPeriod: "成熟期", Questions: []ResearchQuestion{{ID: "q", Question: "问题"}}})
+	run, _ = store.ApproveResearchPlan(ctx, run.ID)
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitAnalyzing, "coverage", "sources_collected", "")
+	run, _ = store.TransitionInitialization(ctx, run.ID, InitFailed, "read_corpus", "chapter_003", "temporary model failure")
+	run, err = store.RetryInitialization(ctx, run.ID)
+	if err != nil || run.Status != InitAnalyzing || run.ErrorSummary != "" {
+		t.Fatalf("retry did not restore corpus reading stage: %#v %v", run, err)
+	}
+}
+
 func TestInitializationModeParsing(t *testing.T) {
 	if ParseInitializationMode("") != InitModeOff || ParseInitializationMode("OBSERVE") != InitModeObserve || ParseInitializationMode("agent") != InitModeAgent || ParseInitializationMode("bad") != InitModeOff {
 		t.Fatal("unexpected initialization mode parsing")

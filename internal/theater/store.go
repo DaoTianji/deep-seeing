@@ -31,7 +31,7 @@ func NewStore(root string) (*Store, error) {
 		root = filepath.Join("data", "memory", "roles")
 	}
 	s := &Store{root: root}
-	for _, dir := range []string{"definitions", "instances", "worldlines", "sessions", "sources", "materials", "transcripts", "actions", "claims", "initializations", "corpus/documents", "corpus/chunks", "blueprints", "critiques"} {
+	for _, dir := range []string{"definitions", "instances", "worldlines", "sessions", "sources", "materials", "transcripts", "actions", "action-activations", "claims", "initializations", "corpus/documents", "corpus/chunks", "blueprints", "critiques", "readings", "reading-receipts", "reading-observations", "character-perspectives", "author-expressions", "reading-experiences"} {
 		if err := os.MkdirAll(filepath.Join(root, dir), 0o700); err != nil {
 			return nil, err
 		}
@@ -578,6 +578,31 @@ func (s *Store) ListActions(_ context.Context, sessionID string) ([]DirectorActi
 	if err := readJSONLines(s.actionPath(sessionID), &out); err != nil {
 		if os.IsNotExist(err) {
 			return []DirectorAction{}, nil
+		}
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s *Store) RecordDirectorActivation(_ context.Context, activation DirectorActivation) error {
+	if cleanText(activation.ActionID) == "" || cleanText(activation.RoleSessionID) == "" || cleanText(activation.TurnID) == "" {
+		return fmt.Errorf("director activation requires action, session and turn")
+	}
+	if activation.ActivatedAt.IsZero() {
+		activation.ActivatedAt = time.Now().UTC()
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return appendJSONLine(filepath.Join(s.root, "action-activations", safeID(activation.RoleSessionID)+".jsonl"), activation)
+}
+
+func (s *Store) ListDirectorActivations(_ context.Context, sessionID string) ([]DirectorActivation, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var out []DirectorActivation
+	if err := readJSONLines(filepath.Join(s.root, "action-activations", safeID(sessionID)+".jsonl"), &out); err != nil {
+		if os.IsNotExist(err) {
+			return []DirectorActivation{}, nil
 		}
 		return nil, err
 	}

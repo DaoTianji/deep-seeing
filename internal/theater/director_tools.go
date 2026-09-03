@@ -172,16 +172,20 @@ func DirectorTools(deps DirectorToolDeps) ([]tool.BaseTool, error) {
 	if err != nil {
 		return nil, err
 	}
-	interveneTool, err := utils.InferTool("apply_role_intervention", "在幕后对当前角色执行结构化干预。所有动作都经过版本、世界线与 Ledger 硬门；observe 只记录 expected，agent 才应用。", func(ctx context.Context, in DirectorActionRequest) (string, error) {
+	interveneTool, err := utils.InferTool("apply_role_intervention", "在幕后对当前角色执行结构化干预。action 只能是 no_change、set_scene、set_role_state、focus_memory、append_simulated_memory、mask_simulated_memory、revise_role_model、fork_worldline、pause_role、exit_role；reason_code 只能是 continuity、drift、scene、memory、canonical_change、safety、user_request、no_material_reason。改变表演方式时使用 set_role_state，state_key 必须为 performance_style，state_value 写完整风格；可选 energy、stance、initiative、response_policy、intensity(0-10)、scope(next_turn|turns|session)、expires_after_turns。默认作用三轮。只有返回 effective=true、action.status=applied 且 readback_verified=true 才能声称已经生效；expected 只是观察建议，rejected 表示没有生效。", func(ctx context.Context, in DirectorActionRequest) (string, error) {
 		if deps.Reviewer == nil {
 			return "{\"ok\":false,\"error\":\"director reviewer unavailable\"}", nil
 		}
 		action, applyErr := deps.Reviewer.ApplyRequested(ctx, "", in)
 		if applyErr != nil {
-			out, _ := json.Marshal(map[string]any{"ok": false, "error": applyErr.Error()})
+			out, _ := json.Marshal(map[string]any{"ok": false, "effective": false, "action": action, "error": applyErr.Error()})
 			return string(out), nil
 		}
-		out, marshalErr := json.Marshal(map[string]any{"ok": true, "action": action})
+		effective := action.Status == ActionApplied && action.ReadbackVerified
+		if action.Type == ActionNoChange || action.Type == ActionAppendSimulatedMemory || action.Type == ActionMaskSimulatedMemory || action.Type == ActionForkWorldline || action.Type == ActionPauseRole || action.Type == ActionExitRole || action.Type == ActionReviseRoleModel {
+			effective = action.Status == ActionApplied
+		}
+		out, marshalErr := json.Marshal(map[string]any{"ok": true, "effective": effective, "action": action})
 		return string(out), marshalErr
 	})
 	if err != nil {

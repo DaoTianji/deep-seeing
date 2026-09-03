@@ -267,8 +267,9 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		HTTPClient: &http.Client{Timeout: 240 * time.Second},
 	}
 	roleCompiler := &theater.RoleCompiler{Store: roleStore, Chat: compilerChat}
+	bookReader := &theater.BookReader{Store: roleStore, Corpus: roleCorpus, Chat: roleArchitectChat, Model: cfg.Model, Scope: scope, Reflections: reflections}
 	searchProvider, coverageLimited := theater.RoleSearchProviderFromEnv(worldGW)
-	roleArchitect := &theater.CharacterArchitect{Mode: roleInitMode, Scope: scope, Store: roleStore, Corpus: roleCorpus, Compiler: roleCompiler, Chat: roleArchitectChat, AssessmentChat: compilerChat, CoverageChat: compilerChat, EvidenceQueryChat: compilerChat, CriticChat: roleCriticChat, Search: searchProvider, World: worldGW, Soul: soulText, Model: cfg.Model, CoverageLimited: coverageLimited}
+	roleArchitect := &theater.CharacterArchitect{Mode: roleInitMode, Scope: scope, Store: roleStore, Corpus: roleCorpus, Reader: bookReader, Compiler: roleCompiler, Chat: roleArchitectChat, AssessmentChat: compilerChat, CoverageChat: compilerChat, EvidenceQueryChat: compilerChat, CriticChat: roleCriticChat, Search: searchProvider, World: worldGW, Soul: soulText, Model: cfg.Model, CoverageLimited: coverageLimited}
 	initToolList, err := theater.InitializationTools(roleArchitect)
 	if err != nil {
 		return nil, fmt.Errorf("role initialization tools: %w", err)
@@ -359,7 +360,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		return nil, fmt.Errorf("director runtime: %w", err)
 	}
 	actorBuilder := &theater.RuntimeActorBuilder{
-		Scope: scope, Store: roleStore, Episodes: episodes, STM: stm, Config: cfg, Model: cfg.Model,
+		Scope: scope, Store: roleStore, Episodes: episodes, Corpus: roleCorpus, STM: stm, Config: cfg, Model: cfg.Model,
 		Compactor: compaction.NewSummarizingCompactor(compaction.ConfigFromEnv(), chat),
 		Graph:     graphStore, Workspace: wsStore,
 	}

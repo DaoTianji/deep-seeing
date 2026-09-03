@@ -112,14 +112,22 @@ func (r *Router) streamStage(ctx context.Context, d RoleDefinition, inst RoleIns
 	if r.Actors == nil {
 		return runtime.TurnResult{}, fmt.Errorf("actor runtime unavailable")
 	}
-	actor, err := r.Actors.Build(ctx, d, inst, session)
+	stageTurn := session.StageTurns + 1
+	activeActionIDs := []string{}
+	actorInstance := inst
+	if directiveActive(inst.Performance, stageTurn) {
+		activeActionIDs = append(activeActionIDs, inst.Performance.SourceActionID)
+	} else {
+		actorInstance.Performance = nil
+	}
+	actor, err := r.Actors.Build(ctx, d, actorInstance, session)
 	if err != nil {
 		return runtime.TurnResult{}, err
 	}
 	knownMemoryIDs := r.roleMemoryIDs(ctx, d.ID, inst.ID, session.ID)
 	emitRole(hooks.OnRoleEvent, RoleEvent{
 		Type: "role_state", RoleID: d.ID, RoleInstanceID: inst.ID, RoleSessionID: session.ID,
-		WorldlineID: session.WorldlineID, Data: map[string]any{"status": session.Status, "display_name": d.DisplayName},
+		WorldlineID: session.WorldlineID, Data: map[string]any{"status": session.Status, "display_name": d.DisplayName, "stage_turn": stageTurn, "activated_director_action_ids": activeActionIDs},
 	})
 	var buffered strings.Builder
 	actorHooks := hooks.Turn
@@ -142,15 +150,24 @@ func (r *Router) streamStage(ctx context.Context, d RoleDefinition, inst RoleIns
 	}); err != nil {
 		return runtime.TurnResult{}, err
 	}
+	updatedSession, err := r.Store.AdvanceStageTurn(ctx, session.ID)
+	if err != nil {
+		return runtime.TurnResult{}, err
+	}
+	for _, actionID := range activeActionIDs {
+		if err := r.Store.RecordDirectorActivation(ctx, DirectorActivation{ActionID: actionID, RoleSessionID: session.ID, TurnID: result.TurnID, StageTurn: stageTurn}); err != nil {
+			return runtime.TurnResult{}, err
+		}
+	}
 	r.emitNewRoleMemories(ctx, d, inst, session, knownMemoryIDs, hooks.OnRoleEvent)
 	if hooks.Turn.WriteDelta != nil {
 		hooks.Turn.WriteDelta(buffered.String())
 	}
 	emitRole(hooks.OnRoleEvent, RoleEvent{
 		Type: "role_state", RoleID: d.ID, RoleInstanceID: inst.ID, RoleSessionID: session.ID,
-		WorldlineID: session.WorldlineID, Data: map[string]any{"status": "answered", "turn_id": result.TurnID},
+		WorldlineID: session.WorldlineID, Data: map[string]any{"status": "answered", "turn_id": result.TurnID, "stage_turn": stageTurn, "activated_director_action_ids": activeActionIDs},
 	})
-	r.reviewAfterStage(ctx, d, inst, session, message, result, hooks)
+	r.reviewAfterStage(ctx, d, inst, updatedSession, message, result, hooks)
 	return result, nil
 }
 
@@ -236,6 +253,7 @@ type RuntimeActorBuilder struct {
 	Scope     identity.TenantScope
 	Store     *Store
 	Episodes  *memory.EpisodeStore
+	Corpus    *CorpusStore
 	STM       memory.SessionStore
 	Config    deepagent.Config
 	Model     string
@@ -261,10 +279,13 @@ func (b *RuntimeActorBuilder) Build(ctx context.Context, d RoleDefinition, inst 
 	}
 	actorTools, err := ActorTools(ActorToolContext{
 		Scope: b.Scope, Definition: d, Instance: inst, Session: session,
-		Worldlines: worlds, Episodes: b.Episodes, Graph: b.Graph, Workspace: b.Workspace,
+		Worldlines: worlds, Episodes: b.Episodes, Corpus: b.Corpus, Graph: b.Graph, Workspace: b.Workspace,
 	})
 	if err != nil {
 		return nil, err
+	}
+	if !directiveActive(inst.Performance, session.StageTurns+1) {
+		inst.Performance = nil
 	}
 	var service *runtime.Service
 	actor, err := deepagent.New(ctx, b.Config, actorTools, func() string {

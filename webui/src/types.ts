@@ -177,6 +177,7 @@ export interface RoleInstance {
   status: string;
   scene?: string;
   state?: Record<string, string>;
+  performance_directive?: PerformanceDirective;
   version: number;
 }
 
@@ -186,6 +187,7 @@ export interface RoleSession {
   role_instance_id: string;
   worldline_id: string;
   status: RoleSessionStatus;
+  stage_turns?: number;
   exit_reason?: string;
   started_at: string;
 }
@@ -225,7 +227,15 @@ export interface DirectorActionView {
   before?: Record<string, string>;
   after?: Record<string, string>;
   reverts_action_id?: string;
+  effective_from_turn?: number;
+  expires_after_turn?: number;
+  readback_verified?: boolean;
   created_at: string;
+}
+
+export interface PerformanceDirective {
+  style: string; energy?: string; stance?: string; initiative?: string; response_policy?: string;
+  intensity?: number; scope: string; effective_from_turn: number; expires_after_turn?: number; source_action_id: string;
 }
 
 export interface RoleTranscriptMessage {
@@ -266,8 +276,9 @@ export interface RoleCritique { id: string; passed: boolean; issues?: RoleCritiq
 export interface RoleInitializationRun {
   id: string; role_id: string; status: RoleInitializationStatus; current_step?: string; checkpoint?: string; objective?: string;
   plan?: RoleResearchPlan; coverage: { items: RoleCoverageItem[]; updated_at: string }; conflicts?: Array<{ id: string; topic: string; disposition?: string }>;
-  assessments?: Array<{ source_id: string; tier: string; audience: "actor" | "director"; status: string; reliable?: string; read_chunk_ids?: string[] }>;
+  assessments?: Array<{ source_id: string; tier: string; audience: "actor" | "director"; status: string; reliable?: string; available_chunk_ids?: string[]; selected_chunk_ids?: string[]; read_chunk_ids?: string[] }>;
   blueprint_id?: string; critique_id?: string; remote_budget: number; remote_used: number; search_provider?: string; error_summary?: string; revision_request?: string;
   readiness_research_attempts?: number; research_focus?: RoleResearchPlan["questions"];
 }
-export interface RoleInitializationDetail { run: RoleInitializationRun; role: RoleDefinition; blueprint?: RoleBlueprint; critique?: RoleCritique; mode: RoleInitializationMode }
+export interface BookReadingRun { id: string; document_id: string; status: string; strategy: string; chapters: Array<{ id: string; title: string; chunk_ids: string[] }>; next_chapter: number; selected_chunk_ids?: string[]; read_chunk_ids?: string[]; receipt_ids?: string[]; map_summary?: string; synthesis?: string; error_summary?: string }
+export interface RoleInitializationDetail { run: RoleInitializationRun; role: RoleDefinition; blueprint?: RoleBlueprint; critique?: RoleCritique; readings?: BookReadingRun[]; mode: RoleInitializationMode }

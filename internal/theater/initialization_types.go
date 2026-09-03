@@ -123,14 +123,16 @@ const (
 )
 
 type SourceAssessment struct {
-	SourceID     string                 `json:"source_id"`
-	Tier         SourceTier             `json:"tier"`
-	Audience     SourceAudience         `json:"audience"`
-	Status       SourceAssessmentStatus `json:"status"`
-	Reliable     string                 `json:"reliable,omitempty"`
-	ReasonCode   string                 `json:"reason_code,omitempty"`
-	ReadChunkIDs []string               `json:"read_chunk_ids,omitempty"`
-	UpdatedAt    time.Time              `json:"updated_at"`
+	SourceID          string                 `json:"source_id"`
+	Tier              SourceTier             `json:"tier"`
+	Audience          SourceAudience         `json:"audience"`
+	Status            SourceAssessmentStatus `json:"status"`
+	Reliable          string                 `json:"reliable,omitempty"`
+	ReasonCode        string                 `json:"reason_code,omitempty"`
+	AvailableChunkIDs []string               `json:"available_chunk_ids,omitempty"`
+	SelectedChunkIDs  []string               `json:"selected_chunk_ids,omitempty"`
+	ReadChunkIDs      []string               `json:"read_chunk_ids,omitempty"`
+	UpdatedAt         time.Time              `json:"updated_at"`
 }
 
 type CoverageState string
@@ -311,6 +313,7 @@ type RoleChunk struct {
 	Title        string         `json:"title"`
 	Section      string         `json:"section,omitempty"`
 	Page         int            `json:"page,omitempty"`
+	Sequence     int            `json:"sequence,omitempty"`
 	Audience     SourceAudience `json:"audience"`
 	Tier         SourceTier     `json:"tier"`
 	ContentHash  string         `json:"content_hash"`

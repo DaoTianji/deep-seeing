@@ -139,11 +139,11 @@ func (c *CorpusStore) Ingest(ctx context.Context, in CorpusIngestInput) (RoleDoc
 		return RoleDocument{}, nil, false, err
 	}
 	defer tx.Rollback()
-	for _, piece := range pieces {
+	for sequence, piece := range pieces {
 		chunk := RoleChunk{
 			ID: "rchunk_" + compactUUID(), RoleID: in.RoleID, CorpusRoleID: in.CorpusRoleID,
 			DocumentID: document.ID, SourceID: in.SourceID, Title: in.Title,
-			Section: piece.section, Page: piece.page, Audience: in.Audience, Tier: in.Tier,
+			Section: piece.section, Page: piece.page, Sequence: sequence + 1, Audience: in.Audience, Tier: in.Tier,
 			Content: piece.content, ContentHash: sha256Hex([]byte(piece.content)), CreatedAt: now,
 		}
 		if err := writeJSONAtomic(filepath.Join(chunkDir, safeID(chunk.ID)+".json"), chunk); err != nil {
@@ -311,6 +311,19 @@ func (c *CorpusStore) ListDocuments(_ context.Context, corpusRoleID string) ([]R
 	return out, nil
 }
 
+func (c *CorpusStore) GetDocument(ctx context.Context, corpusRoleID, documentID string) (RoleDocument, error) {
+	documents, err := c.ListDocuments(ctx, corpusRoleID)
+	if err != nil {
+		return RoleDocument{}, err
+	}
+	for _, document := range documents {
+		if document.ID == cleanText(documentID) {
+			return document, nil
+		}
+	}
+	return RoleDocument{}, os.ErrNotExist
+}
+
 func (c *CorpusStore) ListDocumentChunks(_ context.Context, documentID string) ([]RoleChunk, error) {
 	paths, err := filepath.Glob(filepath.Join(c.root, "corpus", "chunks", "*", "*.json"))
 	if err != nil {
@@ -323,13 +336,76 @@ func (c *CorpusStore) ListDocumentChunks(_ context.Context, documentID string) (
 			out = append(out, chunk)
 		}
 	}
-	sort.Slice(out, func(i, j int) bool {
+	if legacyChunksNeedOrdering(out) {
+		out = c.restoreLegacyChunkOrder(documentID, out)
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Sequence != out[j].Sequence && out[i].Sequence > 0 && out[j].Sequence > 0 {
+			return out[i].Sequence < out[j].Sequence
+		}
 		if out[i].Page != out[j].Page {
 			return out[i].Page < out[j].Page
 		}
 		return out[i].ID < out[j].ID
 	})
 	return out, nil
+}
+
+func legacyChunksNeedOrdering(chunks []RoleChunk) bool {
+	for _, chunk := range chunks {
+		if chunk.Sequence == 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// restoreLegacyChunkOrder reconstructs sequence from the immutable source text.
+// Older corpora persisted page and hash but not an ordinal, so sorting by UUID
+// could shuffle several chunks on the same page.
+func (c *CorpusStore) restoreLegacyChunkOrder(documentID string, chunks []RoleChunk) []RoleChunk {
+	paths, _ := filepath.Glob(filepath.Join(c.root, "corpus", "documents", "*", safeID(documentID)+".json"))
+	if len(paths) == 0 {
+		return chunks
+	}
+	var document RoleDocument
+	if readJSON(paths[0], &document) != nil || cleanText(document.Path) == "" {
+		return chunks
+	}
+	raw, err := os.ReadFile(filepath.Join(c.root, filepath.FromSlash(document.Path)))
+	if err != nil {
+		return chunks
+	}
+	buckets := make(map[string][]int)
+	for index, chunk := range chunks {
+		key := fmt.Sprintf("%d:%s", chunk.Page, chunk.ContentHash)
+		buckets[key] = append(buckets[key], index)
+	}
+	used := make(map[int]bool)
+	ordered := make([]RoleChunk, 0, len(chunks))
+	for sequence, piece := range splitCorpusText(string(raw)) {
+		key := fmt.Sprintf("%d:%s", piece.page, sha256Hex([]byte(piece.content)))
+		indexes := buckets[key]
+		for len(indexes) > 0 && used[indexes[0]] {
+			indexes = indexes[1:]
+		}
+		buckets[key] = indexes
+		if len(indexes) == 0 {
+			continue
+		}
+		index := indexes[0]
+		buckets[key] = indexes[1:]
+		chunk := chunks[index]
+		chunk.Sequence = sequence + 1
+		used[index] = true
+		ordered = append(ordered, chunk)
+	}
+	for index, chunk := range chunks {
+		if !used[index] {
+			ordered = append(ordered, chunk)
+		}
+	}
+	return ordered
 }
 
 func (c *CorpusStore) ReadChunk(_ context.Context, id string) (RoleChunk, error) {

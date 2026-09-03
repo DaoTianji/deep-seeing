@@ -22,6 +22,7 @@ type ActorToolContext struct {
 	Session    RoleSession
 	Worldlines []RoleWorldline
 	Episodes   *memory.EpisodeStore
+	Corpus     *CorpusStore
 	Workspace  *workspace.Store
 	Graph      RoleEpisodeGraph
 }
@@ -158,5 +159,36 @@ func ActorTools(active ActorToolContext) ([]tool.BaseTool, error) {
 	if err != nil {
 		return nil, err
 	}
-	return appendProfessionalTools([]tool.BaseTool{stateTool, searchTool, readTool, writeTool}, active)
+	base := []tool.BaseTool{stateTool, searchTool, readTool, writeTool}
+	if active.Corpus != nil {
+		searchBookTool, bookErr := utils.InferTool("search_book_passages", "在被授权给当前角色的一手资料和书籍中搜索原文候选；结果不含完整正文，引用或依赖前必须读取。", func(ctx context.Context, in struct {
+			Query string `json:"query"`
+			Limit int    `json:"limit,omitempty"`
+		}) (string, error) {
+			cards, err := active.Corpus.Search(ctx, active.Definition.CorpusRoleID, strings.TrimSpace(in.Query), SourceActor, in.Limit)
+			if err != nil {
+				return "", err
+			}
+			out, err := json.Marshal(map[string]any{"ok": true, "candidates": cards})
+			return string(out), err
+		})
+		if bookErr != nil {
+			return nil, bookErr
+		}
+		readBookTool, bookErr := utils.InferTool("read_book_passage", "按候选 id 读取当前角色被授权的一段原书正文，并保留书名、章节和页码。", func(ctx context.Context, in struct {
+			ID string `json:"id"`
+		}) (string, error) {
+			chunk, err := active.Corpus.ReadChunk(ctx, strings.TrimSpace(in.ID))
+			if err != nil || chunk.CorpusRoleID != active.Definition.CorpusRoleID || chunk.Audience != SourceActor {
+				return `{"ok":false,"error":"passage outside current role corpus"}`, nil
+			}
+			out, err := json.Marshal(map[string]any{"ok": true, "passage": chunk})
+			return string(out), err
+		})
+		if bookErr != nil {
+			return nil, bookErr
+		}
+		base = append(base, searchBookTool, readBookTool)
+	}
+	return appendProfessionalTools(base, active)
 }

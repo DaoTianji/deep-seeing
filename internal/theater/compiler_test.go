@@ -78,6 +78,13 @@ func TestParseCompiledRoleNormalizesStringArrays(t *testing.T) {
 	}
 }
 
+func TestParseCompiledRoleAcceptsConfidenceLabels(t *testing.T) {
+	got, err := parseCompiledRole(`{"Identity":"航海者","Voice":"克制","KnowledgeCutoff":"终章","Timeline":[],"Claims":[{"Kind":"fact","Statement":"在海边长大","SourceIDs":["s1"],"Confidence":"high"}]}`)
+	if err != nil || len(got.Claims) != 1 || got.Claims[0].Confidence != 0.9 {
+		t.Fatalf("confidence label was not normalized: %#v err=%v", got.Claims, err)
+	}
+}
+
 func TestRoleCompilerMaterializesOnlyBlueprintCitedChunks(t *testing.T) {
 	ctx := context.Background()
 	store, _ := NewStore(t.TempDir())

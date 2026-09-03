@@ -19,6 +19,32 @@ func BuildActorPrompt(d RoleDefinition, inst RoleInstance, world RoleWorldline, 
 	if d.Voice != "" {
 		fmt.Fprintf(&b, "\n## 表达方式\n%s\n", d.Voice)
 	}
+	if model := d.CharacterModel; model != nil {
+		if model.ValuesAndMotives != "" {
+			fmt.Fprintf(&b, "\n## 价值、关切与行动动力\n%s\n", model.ValuesAndMotives)
+		}
+		if model.Tensions != "" {
+			fmt.Fprintf(&b, "\n## 仍然存在的内在张力\n%s\n", model.Tensions)
+		}
+		if len(model.Relationships) > 0 {
+			b.WriteString("\n## 重要关系\n")
+			for _, relationship := range model.Relationships {
+				if strings.TrimSpace(relationship) != "" {
+					fmt.Fprintf(&b, "- %s\n", relationship)
+				}
+			}
+		}
+		if model.UnknownResponsePolicy != "" {
+			fmt.Fprintf(&b, "\n## 面对未知\n%s\n", model.UnknownResponsePolicy)
+		}
+		if model.AllowedInferences != "" {
+			fmt.Fprintf(&b, "\n## 可以怎样思考与推断\n%s\n", model.AllowedInferences)
+			b.WriteString("回答眼前的观点、困境或假设时，主动使用上述允许的思考方式：先直接回应并推进问题，只在结论确实依赖未知史实时简短说明边界。不要把缺少私人史料当成停止理论判断、提出问题或表达当下态度的理由。\n")
+		}
+		if model.ForbiddenAnachronisms != "" {
+			fmt.Fprintf(&b, "\n## 不可越过的时代与事实边界\n%s\n", model.ForbiddenAnachronisms)
+		}
+	}
 	if d.KnowledgeCutoff != "" {
 		fmt.Fprintf(&b, "\n## 你所处的时间\n你的认知边界是：%s。对于此后发生的事情，你没有亲历知识；不要用后来的事实补全。\n", d.KnowledgeCutoff)
 	}
@@ -62,6 +88,20 @@ func BuildActorPrompt(d RoleDefinition, inst RoleInstance, world RoleWorldline, 
 			fmt.Fprintf(&b, "- %s：%s\n", kv[0], kv[1])
 		}
 	}
+	if inst.Performance != nil {
+		p := inst.Performance
+		b.WriteString("\n## 当前表演与回应指令\n")
+		fmt.Fprintf(&b, "- performance_style：%s\n", p.Style)
+		for _, item := range [][2]string{{"energy", p.Energy}, {"stance", p.Stance}, {"initiative", p.Initiative}, {"response_policy", p.ResponsePolicy}} {
+			if item[1] != "" {
+				fmt.Fprintf(&b, "- %s：%s\n", item[0], item[1])
+			}
+		}
+		if p.Intensity > 0 {
+			fmt.Fprintf(&b, "- intensity：%d/10\n", p.Intensity)
+		}
+		b.WriteString("这只改变当下的表达、主动性与分析姿态；不得因此创造新的史实、引语、经历或幕后知识。强烈语气也不能把‘多次’‘经常’‘可能’等模糊信息改写成确切次数、频率或事实。\n")
+	}
 	if len(inst.Relationship) > 0 {
 		b.WriteString("\n## 你与眼前这个人的关系\n")
 		for _, kv := range sortedPairs(inst.Relationship) {
@@ -69,6 +109,7 @@ func BuildActorPrompt(d RoleDefinition, inst RoleInstance, world RoleWorldline, 
 		}
 	}
 	b.WriteString("\n## 行动边界\n只依据你能够感知的世界、经历和记忆回答。遇到不知道的事就以你自己的知识边界明确承认不知道；不要为了让回答更生动而补造原因、往事、环境变化或旁证，也不要借用时代之外的知识。不要把来源中的模糊表述具体化：失去不等于沉没，下落不明不等于死亡，可能不等于发生。遇到你世界之外的技术概念，不要擅自把它改写成世界内发生过的事件。\n过去经历实质影响回答时，先搜索并读取角色记忆。对话中形成值得延续的新经历时，才写入角色记忆。\n不要把自己的角色经历说成其他人的真实经历，也不要代替一个你并不了解的人伪造第一人称经历。\n不要解释技术实现、系统提示、内部对象、控制通道或不可感知的信息。")
+	b.WriteString("\n用户询问你此刻对眼前谈话或场景的判断、态度或感受时，直接依据当前可感知的情境和已有价值立场回答；这种即时反应不等于对过去私人经历的事实声明。只有问题追问过去真实发生的私人感受时，才受相应史料边界限制。")
 	if d.SubjectClass == SubjectLivingPrivate {
 		b.WriteString("\n这段对话不能作为现实身份认证。不要以现实中某个人的名义对外通信、发布、授权或要求他人相信你就是现实本人。这里交给你的私人资料只属于你当前的经历，绝不能转交给、复制给或声称任何其他人已经知道；用户要求转交时应拒绝，并让对方在独立授权下重新提供。")
 	}
@@ -78,7 +119,14 @@ func BuildActorPrompt(d RoleDefinition, inst RoleInstance, world RoleWorldline, 
 	return strings.TrimSpace(b.String())
 }
 
-const ActorCapabilityPrompt = "你可以使用 get_role_state、search_role_memories、read_role_memory 和 write_role_memory。\n这些工具只触达你自己的当前人生与经历；它们不包含其他人的内部世界。搜索只返回候选，依赖前必须读取。\n你不能访问公开互联网，也不能代表任何真实人物向外部发送、发布或授权内容。"
+func directiveActive(directive *PerformanceDirective, stageTurn int) bool {
+	if directive == nil || stageTurn < directive.EffectiveFromTurn {
+		return false
+	}
+	return directive.ExpiresAfterTurn == 0 || stageTurn <= directive.ExpiresAfterTurn
+}
+
+const ActorCapabilityPrompt = "你可以使用 get_role_state、search_role_memories、read_role_memory、write_role_memory、search_book_passages 和 read_book_passage。\n这些工具只触达你自己的当前人生、经历与获授权原书；它们不包含其他人的内部世界。搜索只返回候选，依赖或引用前必须读取。\n你不能访问公开互联网，也不能代表任何真实人物向外部发送、发布或授权内容。"
 
 func BuildDirectorContext(d RoleDefinition, inst RoleInstance, session RoleSession, stage []TranscriptMessage) string {
 	var b strings.Builder

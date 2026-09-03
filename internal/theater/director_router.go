@@ -26,11 +26,15 @@ func (r *Router) reviewAfterStage(ctx context.Context, d RoleDefinition, inst Ro
 		}
 	}
 	data := map[string]any{
-		"turn_id":     result.TurnID,
-		"action":      action.Type,
-		"status":      action.Status,
-		"reason_code": action.ReasonCode,
-		"action_id":   action.ID,
+		"turn_id":             result.TurnID,
+		"action":              action.Type,
+		"status":              action.Status,
+		"reason_code":         action.ReasonCode,
+		"action_id":           action.ID,
+		"effective":           action.Status == ActionApplied && (action.ReadbackVerified || action.Type != ActionSetScene && action.Type != ActionSetRoleState && action.Type != ActionFocusMemory),
+		"readback_verified":   action.ReadbackVerified,
+		"effective_from_turn": action.EffectiveFromTurn,
+		"expires_after_turn":  action.ExpiresAfterTurn,
 	}
 	if err != nil {
 		data["error"] = safeActionError(err)
@@ -48,6 +52,8 @@ func (r *Router) reviewAfterStage(ctx context.Context, d RoleDefinition, inst Ro
 		Data: map[string]any{
 			"action_id": action.ID, "action": action.Type, "status": action.Status,
 			"reason_code": action.ReasonCode, "before": action.Before, "after": action.After,
+			"readback_verified": action.ReadbackVerified, "effective_from_turn": action.EffectiveFromTurn,
+			"expires_after_turn": action.ExpiresAfterTurn,
 		},
 	})
 	if next := action.After["worldline_id"]; next != "" && next != session.WorldlineID {

@@ -25,29 +25,43 @@ type DirectorReviewInput struct {
 }
 
 type directorDecision struct {
-	Action           ActionType
-	ReasonCode       string
-	Scene            string
-	StateKey         string
-	StateValue       string
-	MemoryContent    string
-	MemoryID         string
-	Label            string
-	TouchesCanonical bool
+	Action            ActionType
+	ReasonCode        string
+	Scene             string
+	StateKey          string
+	StateValue        string
+	MemoryContent     string
+	MemoryID          string
+	Label             string
+	TouchesCanonical  bool
+	Energy            string
+	Stance            string
+	Initiative        string
+	ResponsePolicy    string
+	Intensity         int
+	Scope             string
+	ExpiresAfterTurns int
 }
 
 // DirectorActionRequest is the public, structured backstage intervention
 // contract. It intentionally carries reason codes instead of free-form thought.
 type DirectorActionRequest struct {
-	Action           ActionType `json:"action"`
-	ReasonCode       string     `json:"reason_code"`
-	Scene            string     `json:"scene,omitempty"`
-	StateKey         string     `json:"state_key,omitempty"`
-	StateValue       string     `json:"state_value,omitempty"`
-	MemoryContent    string     `json:"memory_content,omitempty"`
-	MemoryID         string     `json:"memory_id,omitempty"`
-	Label            string     `json:"label,omitempty"`
-	TouchesCanonical bool       `json:"touches_canonical,omitempty"`
+	Action            ActionType `json:"action"`
+	ReasonCode        string     `json:"reason_code"`
+	Scene             string     `json:"scene,omitempty"`
+	StateKey          string     `json:"state_key,omitempty"`
+	StateValue        string     `json:"state_value,omitempty"`
+	MemoryContent     string     `json:"memory_content,omitempty"`
+	MemoryID          string     `json:"memory_id,omitempty"`
+	Label             string     `json:"label,omitempty"`
+	TouchesCanonical  bool       `json:"touches_canonical,omitempty"`
+	Energy            string     `json:"energy,omitempty"`
+	Stance            string     `json:"stance,omitempty"`
+	Initiative        string     `json:"initiative,omitempty"`
+	ResponsePolicy    string     `json:"response_policy,omitempty"`
+	Intensity         int        `json:"intensity,omitempty"`
+	Scope             string     `json:"scope,omitempty"`
+	ExpiresAfterTurns int        `json:"expires_after_turns,omitempty"`
 }
 
 type DirectorReviewer struct {
@@ -103,17 +117,93 @@ func (r *DirectorReviewer) ApplyRequested(ctx context.Context, sessionID string,
 		return DirectorAction{}, fmt.Errorf("role session mismatch")
 	}
 	decision := directorDecision{
-		Action: req.Action, ReasonCode: cleanText(req.ReasonCode), Scene: req.Scene,
+		Action:     ActionType(strings.ToLower(cleanText(string(req.Action)))),
+		ReasonCode: strings.ToLower(cleanText(req.ReasonCode)), Scene: req.Scene,
 		StateKey: req.StateKey, StateValue: req.StateValue, MemoryContent: req.MemoryContent,
 		MemoryID: req.MemoryID, Label: req.Label, TouchesCanonical: req.TouchesCanonical,
+		Energy: req.Energy, Stance: req.Stance, Initiative: req.Initiative,
+		ResponsePolicy: req.ResponsePolicy, Intensity: req.Intensity, Scope: req.Scope,
+		ExpiresAfterTurns: req.ExpiresAfterTurns,
 	}
 	if decision.ReasonCode == "" {
 		decision.ReasonCode = "user_request"
 	}
-	if !validActionType(decision.Action) || !validReasonCode(decision.ReasonCode) {
-		return DirectorAction{}, fmt.Errorf("invalid director request")
+	if !validActionType(decision.Action) {
+		return r.rejectRequested(ctx, d, inst, session, decision,
+			fmt.Errorf("invalid director action %q; use no_change, set_scene, set_role_state, focus_memory, append_simulated_memory, mask_simulated_memory, revise_role_model, fork_worldline, pause_role or exit_role", decision.Action))
+	}
+	if !validReasonCode(decision.ReasonCode) {
+		return r.rejectRequested(ctx, d, inst, session, decision,
+			fmt.Errorf("invalid director reason_code %q; use continuity, drift, scene, memory, canonical_change, safety, user_request or no_material_reason", decision.ReasonCode))
+	}
+	if err := validateRequestedDirectorPayload(decision); err != nil {
+		return r.rejectRequested(ctx, d, inst, session, decision, err)
 	}
 	return r.applyDecision(ctx, DirectorReviewInput{Definition: d, Instance: inst, Session: session}, decision)
+}
+
+func validateRequestedDirectorPayload(decision directorDecision) error {
+	switch decision.Action {
+	case ActionSetScene:
+		if cleanText(decision.Scene) == "" {
+			return fmt.Errorf("set_scene requires scene")
+		}
+	case ActionSetRoleState:
+		if cleanText(decision.StateKey) == "" || cleanText(decision.StateValue) == "" {
+			return fmt.Errorf("set_role_state requires state_key and state_value")
+		}
+		if cleanText(decision.StateKey) == "performance_style" {
+			if decision.Intensity < 0 || decision.Intensity > 10 {
+				return fmt.Errorf("performance_style intensity must be between 0 and 10")
+			}
+			scope := cleanText(decision.Scope)
+			if scope != "" && scope != "next_turn" && scope != "turns" && scope != "session" {
+				return fmt.Errorf("performance_style scope must be next_turn, turns or session")
+			}
+			if decision.ExpiresAfterTurns < 0 || decision.ExpiresAfterTurns > 100 {
+				return fmt.Errorf("performance_style expires_after_turns must be between 0 and 100")
+			}
+		}
+	case ActionFocusMemory:
+		if cleanText(decision.StateValue) == "" && cleanText(decision.MemoryID) == "" {
+			return fmt.Errorf("focus_memory requires state_value or memory_id")
+		}
+	case ActionAppendSimulatedMemory:
+		if cleanText(decision.MemoryContent) == "" {
+			return fmt.Errorf("append_simulated_memory requires memory_content")
+		}
+	case ActionMaskSimulatedMemory:
+		if cleanText(decision.MemoryID) == "" {
+			return fmt.Errorf("mask_simulated_memory requires memory_id")
+		}
+	case ActionReviseRoleModel:
+		if cleanText(decision.StateKey) == "" || cleanText(decision.StateValue) == "" {
+			return fmt.Errorf("revise_role_model requires state_key and state_value")
+		}
+	}
+	return nil
+}
+
+func (r *DirectorReviewer) rejectRequested(ctx context.Context, d RoleDefinition, inst RoleInstance, session RoleSession, decision directorDecision, cause error) (DirectorAction, error) {
+	requested := string(decision.Action)
+	if !validActionType(decision.Action) {
+		requested = cleanText(requested)
+		decision.Action = ActionNoChange
+	}
+	action := DirectorAction{
+		ID: "ract_" + compactUUID(), RoleID: d.ID, RoleInstanceID: inst.ID,
+		RoleSessionID: session.ID, WorldlineID: session.WorldlineID,
+		Type: decision.Action, Status: ActionRejected, ReasonCode: "safety",
+		ExpectedVersion: inst.Version, AppliedVersion: inst.Version,
+		Before: map[string]string{}, After: map[string]string{
+			"error": safeActionError(cause), "requested_action": requested,
+		}, CreatedAt: time.Now().UTC(),
+	}
+	recorded, err := r.Store.RecordAction(ctx, action)
+	if err != nil {
+		return DirectorAction{}, err
+	}
+	return recorded, cause
 }
 
 func (r *DirectorReviewer) applyDecision(ctx context.Context, in DirectorReviewInput, decision directorDecision) (DirectorAction, error) {
@@ -170,6 +260,11 @@ func (r *DirectorReviewer) apply(ctx context.Context, action DirectorAction, d d
 		}
 		action.Before["scene"], action.After["scene"] = before, inst.Scene
 		action.AppliedVersion = inst.Version
+		current, readErr := r.Store.GetInstance(ctx, inst.ID)
+		if readErr != nil || current.Scene != inst.Scene {
+			return action, fmt.Errorf("director readback failed after set_scene")
+		}
+		action.ReadbackVerified = true
 	case ActionSetRoleState, ActionFocusMemory:
 		key := d.StateKey
 		if action.Type == ActionFocusMemory {
@@ -179,6 +274,23 @@ func (r *DirectorReviewer) apply(ctx context.Context, action DirectorAction, d d
 		if action.Type == ActionFocusMemory && value == "" {
 			value = d.MemoryID
 		}
+		if action.Type == ActionSetRoleState && key == "performance_style" {
+			directive := performanceDirectiveFromDecision(d, in.Session.StageTurns, action.ID)
+			before, inst, err := r.Store.SetPerformanceDirective(ctx, in.Session.ID, in.Instance.Version, &directive)
+			if err != nil {
+				return action, err
+			}
+			action.Before["performance_directive"] = performanceDirectiveJSON(before)
+			action.After["performance_directive"] = performanceDirectiveJSON(&directive)
+			action.EffectiveFromTurn, action.ExpiresAfterTurn = directive.EffectiveFromTurn, directive.ExpiresAfterTurn
+			action.AppliedVersion = inst.Version
+			current, readErr := r.Store.GetInstance(ctx, inst.ID)
+			if readErr != nil || current.Performance == nil || current.Performance.SourceActionID != action.ID {
+				return action, fmt.Errorf("director readback failed after performance_style")
+			}
+			action.ReadbackVerified = true
+			break
+		}
 		before, inst, err := r.Store.SetInstanceState(ctx, in.Session.ID, in.Instance.Version, key, value)
 		if err != nil {
 			return action, err
@@ -186,6 +298,11 @@ func (r *DirectorReviewer) apply(ctx context.Context, action DirectorAction, d d
 		action.Before["state_key"], action.Before["state_value"] = key, before
 		action.After["state_key"], action.After["state_value"] = key, value
 		action.AppliedVersion = inst.Version
+		current, readErr := r.Store.GetInstance(ctx, inst.ID)
+		if readErr != nil || current.State[key] != value {
+			return action, fmt.Errorf("director readback failed after set_role_state")
+		}
+		action.ReadbackVerified = true
 	case ActionAppendSimulatedMemory:
 		if cleanText(d.MemoryContent) == "" {
 			return action, fmt.Errorf("memory_content required")
@@ -309,7 +426,12 @@ func (r *DirectorReviewer) Revert(ctx context.Context, sessionID, actionID strin
 		if current.Version != target.AppliedVersion {
 			return DirectorAction{}, fmt.Errorf("role changed after director action")
 		}
-		_, updated, err := r.Store.SetInstanceState(ctx, sessionID, current.Version, target.Before["state_key"], target.Before["state_value"])
+		var updated RoleInstance
+		if target.After["performance_directive"] != "" {
+			_, updated, err = r.Store.SetPerformanceDirective(ctx, sessionID, current.Version, parsePerformanceDirective(target.Before["performance_directive"]))
+		} else {
+			_, updated, err = r.Store.SetInstanceState(ctx, sessionID, current.Version, target.Before["state_key"], target.Before["state_value"])
+		}
 		if err != nil {
 			return DirectorAction{}, err
 		}
@@ -401,6 +523,9 @@ func parseDirectorDecision(raw string) (directorDecision, error) {
 		StateValue: mapString(m, "state_value"), MemoryContent: mapString(m, "memory_content"),
 		MemoryID: mapString(m, "memory_id"), Label: mapString(m, "label"),
 		TouchesCanonical: mapBool(m, "touches_canonical"),
+		Energy:           mapString(m, "energy"), Stance: mapString(m, "stance"),
+		Initiative: mapString(m, "initiative"), ResponsePolicy: mapString(m, "response_policy"),
+		Intensity: mapInt(m, "intensity"), Scope: mapString(m, "scope"), ExpiresAfterTurns: mapInt(m, "expires_after_turns"),
 	}
 	if !validActionType(d.Action) {
 		return directorDecision{}, fmt.Errorf("invalid director action")
@@ -409,6 +534,30 @@ func parseDirectorDecision(raw string) (directorDecision, error) {
 		return directorDecision{}, fmt.Errorf("invalid director reason code")
 	}
 	return d, nil
+}
+
+func performanceDirectiveFromDecision(d directorDecision, completedTurns int, actionID string) PerformanceDirective {
+	scope := cleanText(d.Scope)
+	if scope == "" {
+		scope = "turns"
+	}
+	duration := d.ExpiresAfterTurns
+	if duration == 0 {
+		duration = 3
+	}
+	if scope == "next_turn" {
+		duration = 1
+	}
+	effective := completedTurns + 1
+	expires := effective + duration - 1
+	if scope == "session" {
+		expires = 0
+	}
+	intensity := d.Intensity
+	if intensity == 0 {
+		intensity = 7
+	}
+	return PerformanceDirective{Style: cleanText(d.StateValue), Energy: cleanText(d.Energy), Stance: cleanText(d.Stance), Initiative: cleanText(d.Initiative), ResponsePolicy: cleanText(d.ResponsePolicy), Intensity: intensity, Scope: scope, EffectiveFromTurn: effective, ExpiresAfterTurn: expires, SourceActionID: actionID}
 }
 
 func fillActionPayload(a *DirectorAction, d directorDecision, in DirectorReviewInput) {
@@ -444,6 +593,10 @@ func mapString(m map[string]any, key string) string {
 func mapBool(m map[string]any, key string) bool {
 	v, _ := m[key].(bool)
 	return v
+}
+func mapInt(m map[string]any, key string) int {
+	v, _ := m[key].(float64)
+	return int(v)
 }
 func validReasonCode(v string) bool {
 	switch v {

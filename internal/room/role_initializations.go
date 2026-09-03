@@ -79,6 +79,9 @@ func (s *Server) handleRoleInitialization(w http.ResponseWriter, r *http.Request
 			payload["critique"] = value
 		}
 	}
+	if readings, e := s.App.Roles.ListBookReadings(r.Context(), run.RoleID); e == nil {
+		payload["readings"] = readings
+	}
 	writeJSON(w, http.StatusOK, payload)
 }
 
@@ -260,7 +263,7 @@ func (s *Server) handleAddRoleInitializationDocument(w http.ResponseWriter, r *h
 	}
 	assessment := theater.SourceAssessment{SourceID: assessmentSourceID, Tier: in.Tier, Audience: source.Audience, Status: theater.AssessmentAccepted, Reliable: "user_provided", ReasonCode: "user_material"}
 	for _, chunk := range chunks {
-		assessment.ReadChunkIDs = append(assessment.ReadChunkIDs, chunk.ID)
+		assessment.AvailableChunkIDs = append(assessment.AvailableChunkIDs, chunk.ID)
 	}
 	run, err = s.App.Roles.SaveSourceAssessment(r.Context(), run.ID, assessment)
 	if err != nil {

@@ -2,9 +2,70 @@ package theater
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 )
+
+func (s *Store) SetPerformanceDirective(_ context.Context, sessionID string, expectedVersion int64, directive *PerformanceDirective) (*PerformanceDirective, RoleInstance, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, inst, session, err := s.activeLocked()
+	if err != nil {
+		return nil, RoleInstance{}, err
+	}
+	if session.ID != sessionID {
+		return nil, RoleInstance{}, fmt.Errorf("role session changed")
+	}
+	if expectedVersion > 0 && inst.Version != expectedVersion {
+		return nil, RoleInstance{}, fmt.Errorf("role instance version conflict")
+	}
+	before := inst.Performance
+	inst.Performance = directive
+	inst.Version++
+	inst.UpdatedAt = time.Now().UTC()
+	if err := writeJSONAtomic(s.instancePath(inst.ID), inst); err != nil {
+		return nil, RoleInstance{}, err
+	}
+	return before, inst, nil
+}
+
+func (s *Store) AdvanceStageTurn(_ context.Context, sessionID string) (RoleSession, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, _, session, err := s.activeLocked()
+	if err != nil {
+		return RoleSession{}, err
+	}
+	if session.ID != sessionID || session.Status != SessionActive {
+		return RoleSession{}, fmt.Errorf("role session changed or paused")
+	}
+	session.StageTurns++
+	session.UpdatedAt = time.Now().UTC()
+	if err := writeJSONAtomic(s.sessionPath(session.ID), session); err != nil {
+		return RoleSession{}, err
+	}
+	return session, nil
+}
+
+func performanceDirectiveJSON(value *PerformanceDirective) string {
+	if value == nil {
+		return ""
+	}
+	raw, _ := json.Marshal(value)
+	return string(raw)
+}
+
+func parsePerformanceDirective(value string) *PerformanceDirective {
+	if cleanText(value) == "" {
+		return nil
+	}
+	var directive PerformanceDirective
+	if json.Unmarshal([]byte(value), &directive) != nil {
+		return nil
+	}
+	return &directive
+}
 
 func (s *Store) SetScene(_ context.Context, sessionID string, expectedVersion int64, scene string) (string, RoleInstance, error) {
 	s.mu.Lock()

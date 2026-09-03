@@ -276,7 +276,7 @@ func (s *Store) RetryInitialization(ctx context.Context, id string) (RoleInitial
 			target = InitPlanning
 		case "collect_sources":
 			target = InitCollecting
-		case "coverage":
+		case "read_corpus", "coverage":
 			target = InitAnalyzing
 		case "compile":
 			target = InitCompiling

@@ -83,6 +83,55 @@ func TestRouterSeparatesStageAndBackstage(t *testing.T) {
 	}
 }
 
+func TestRouterActivatesDirectiveForExactTurnWindow(t *testing.T) {
+	ctx := context.Background()
+	store, _ := NewStore(t.TempDir())
+	_, _, session := readyRole(t, store)
+	reviewer := &DirectorReviewer{Mode: ModeAgent, Store: store, Scope: testScope()}
+	action, err := reviewer.ApplyRequested(ctx, session.ID, DirectorActionRequest{Action: ActionSetRoleState, ReasonCode: "user_request", StateKey: "performance_style", StateValue: "高能而尖锐", Scope: "turns", ExpiresAfterTurns: 2, Intensity: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var active []bool
+	actor := &fakeTurnService{answer: "回答"}
+	router := &Router{Mode: ModeAgent, Store: store, Actors: ActorBuilderFunc(func(_ context.Context, _ RoleDefinition, inst RoleInstance, _ RoleSession) (TurnService, error) {
+		active = append(active, inst.Performance != nil)
+		return actor, nil
+	})}
+	var events []RoleEvent
+	for n := 0; n < 3; n++ {
+		if _, err := router.StreamTurnWithHooks(ctx, ChannelStage, session.ID, "同一个问题", RouterHooks{OnRoleEvent: func(event RoleEvent) { events = append(events, event) }}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if len(active) != 3 || !active[0] || !active[1] || active[2] {
+		t.Fatalf("directive window mismatch: %#v", active)
+	}
+	currentSession, _ := store.GetSession(ctx, session.ID)
+	if currentSession.StageTurns != 3 {
+		t.Fatalf("stage turns=%d", currentSession.StageTurns)
+	}
+	activations, err := store.ListDirectorActivations(ctx, session.ID)
+	if err != nil || len(activations) != 2 {
+		t.Fatalf("activations=%#v err=%v", activations, err)
+	}
+	for _, activation := range activations {
+		if activation.ActionID != action.ID {
+			t.Fatalf("wrong action activated: %#v", activation)
+		}
+	}
+	foundPublicID := false
+	for _, event := range events {
+		ids, _ := event.Data["activated_director_action_ids"].([]string)
+		if len(ids) == 1 && ids[0] == action.ID {
+			foundPublicID = true
+		}
+	}
+	if !foundPublicID {
+		t.Fatalf("public activation trace missing: %#v", events)
+	}
+}
+
 func TestRouterNormalAndModeOffCompatibility(t *testing.T) {
 	ctx := context.Background()
 	store, _ := NewStore(t.TempDir())
