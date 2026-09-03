@@ -71,6 +71,26 @@ func TestCharacterArchitectPrivateRoleRequiresModelConsent(t *testing.T) {
 	}
 }
 
+func TestRoleResearchQueryUsesOneFocusedTerm(t *testing.T) {
+	professional := RoleDefinition{DisplayName: "心理学考研王者", Kind: RoleProfessional}
+	question := ResearchQuestion{
+		Question: "一个很长的研究问题，不应该与全部关键词拼接",
+		SearchTerms: []string{
+			"心理学考研王者 角色设定 版本记录",
+			"site:moe.gov.cn 312 心理学专业基础综合 考试大纲",
+			"第三条不应进入同一次查询",
+		},
+	}
+	if got := roleResearchQuery(professional, question); got != question.SearchTerms[1] {
+		t.Fatalf("professional query = %q", got)
+	}
+
+	character := RoleDefinition{DisplayName: "阿德勒", Kind: RoleCharacter}
+	if got := roleResearchQuery(character, ResearchQuestion{SearchTerms: []string{"individual psychology primary works"}}); got != "阿德勒 individual psychology primary works" {
+		t.Fatalf("character query = %q", got)
+	}
+}
+
 func TestDecodeBlueprintAcceptsRelationshipObject(t *testing.T) {
 	raw := `{"target_period":"成熟期","knowledge_cutoff":"1937","self_concept":{"content":"自己"},"values_and_motives":{"content":"价值"},"tensions":{"content":"张力"},"relationships":{"key":"relationships","content":"与同事的关系"},"reasoning_and_voice":{"content":"声音"},"unknown_response_policy":{"content":"承认未知"},"allowed_inferences":{"content":"有限推断"},"forbidden_anachronisms":{"content":"禁止越界"}}`
 	var value RoleBlueprint

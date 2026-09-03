@@ -601,7 +601,7 @@ func (a *CharacterArchitect) collect(ctx context.Context, run *RoleInitializatio
 		if ok, why := a.World.Budget.Allow(time.Now().UTC()); !ok {
 			return fmt.Errorf("%s", why)
 		}
-		query := strings.TrimSpace(strings.Join([]string{definition.DisplayName, run.Plan.TargetPeriod, question.Question, strings.Join(question.SearchTerms, " ")}, " "))
+		query := roleResearchQuery(definition, question)
 		hits, err := a.Search.Search(ctx, query, 4)
 		if err != nil {
 			continue
@@ -659,6 +659,32 @@ func (a *CharacterArchitect) collect(ctx context.Context, run *RoleInitializatio
 		a.emit(*run, "role_source_accepted", "collect_sources", source.Title, source.ID)
 	}
 	return nil
+}
+
+// roleResearchQuery deliberately sends one focused search expression instead
+// of concatenating the whole plan. Search providers perform poorly on the
+// resulting paragraph-sized query, and professional role nicknames are not
+// real-world entities that should constrain source discovery.
+func roleResearchQuery(definition RoleDefinition, question ResearchQuestion) string {
+	var term string
+	for _, candidate := range question.SearchTerms {
+		candidate = cleanText(candidate)
+		if candidate == "" {
+			continue
+		}
+		if definition.Kind == RoleProfessional && strings.Contains(candidate, definition.DisplayName) {
+			continue
+		}
+		term = candidate
+		break
+	}
+	if term == "" {
+		term = cleanText(question.Question)
+	}
+	if definition.Kind == RoleCharacter && definition.DisplayName != "" && !strings.Contains(term, definition.DisplayName) {
+		term = definition.DisplayName + " " + term
+	}
+	return truncateActionText(term, 240)
 }
 
 func (a *CharacterArchitect) readAvailableDocuments(ctx context.Context, run RoleInitializationRun, definition RoleDefinition) (RoleInitializationRun, error) {
