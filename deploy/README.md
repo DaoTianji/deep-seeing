@@ -39,10 +39,15 @@ RECALL_MODE=agent
 REFLECTION_MODE=agent
 ROLE_MODE=off
 ROLE_INIT_MODE=off
-ROLE_SEARCH_PROVIDER=duckduckgo
+ROLE_SEARCH_PROVIDER=bing
 # Set to the Tailscale login emails allowed to open the private room.
 TAILSCALE_ALLOWED_USERS=
 ```
+
+`brave` remains the preferred authenticated provider when
+`BRAVE_SEARCH_API_KEY` is configured. `bing` is the practical no-key fallback;
+`duckduckgo` uses the limited Instant Answer endpoint and is unsuitable for
+broad source discovery.
 
 生产启用允许列表后，应用只信任 Tailscale Serve 在 loopback 代理请求上注入的 `Tailscale-User-Login`。不要把 Room 直接监听到公网地址，也不要把同名请求头当作普通反向代理认证。
 

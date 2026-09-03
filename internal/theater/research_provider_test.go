@@ -24,3 +24,17 @@ func TestBraveRoleSearchUsesAuthenticatedFixedEndpoint(t *testing.T) {
 		t.Fatalf("hits=%#v err=%v", hits, err)
 	}
 }
+
+func TestBingRoleSearchParsesRSSResults(t *testing.T) {
+	provider := &BingRoleSearch{HTTP: &http.Client{Transport: roleSearchRoundTripper(func(req *http.Request) (*http.Response, error) {
+		if req.URL.Host != "cn.bing.com" || req.URL.Query().Get("format") != "rss" {
+			t.Fatalf("unexpected request: %s", req.URL)
+		}
+		body := `<?xml version="1.0"?><rss><channel><item><title>教育部考试大纲</title><link>https://93.184.216.34/syllabus</link><description>312 &amp; 心理学</description></item></channel></rss>`
+		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: make(http.Header)}, nil
+	})}}
+	hits, err := provider.Search(context.Background(), "312 心理学", 3)
+	if err != nil || len(hits) != 1 || hits[0].Title != "教育部考试大纲" || hits[0].Snippet != "312 & 心理学" {
+		t.Fatalf("hits=%#v err=%v", hits, err)
+	}
+}
