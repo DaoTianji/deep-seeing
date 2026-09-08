@@ -60,6 +60,25 @@ def rows(path):
     return [json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
 
 
+def resolved_judgments(path):
+    original = rows(path)
+    done = {r['question_id']: r for r in original}
+    if len(done) != len(original):
+        raise ValueError('duplicate original judgments')
+    for repair in rows(str(path) + '.repairs.jsonl'):
+        qid = repair['question_id']
+        previous = done.get(qid)
+        if not previous or previous.get('label') is not None:
+            raise ValueError('repair may replace only an invalid verdict')
+        if any(previous[k] != repair[k] for k in ('hypothesis_sha256', 'model')):
+            raise ValueError('repair changed answer or judge')
+        merged = dict(repair)
+        merged['attempts'] += previous.get('attempts', 0)
+        merged['recovery_tokens_reported'] = previous.get('recovery_tokens_reported', 0) + previous.get('usage', {}).get('total_tokens', 0)
+        done[qid] = merged
+    return list(done.values())
+
+
 def call(env, model, prompt, max_tokens):
     base = env.get('OPENAI_BASE_URL', env.get('AI_GATEWAY_BASE_URL', '')).rstrip('/')
     key = env.get('OPENAI_API_KEY', env.get('AI_GATEWAY_API_KEY', ''))
@@ -154,12 +173,14 @@ def summarize(refs, hypotheses, judgments):
         'judge_errors_or_missing': sum(scores.get(h['question_id'], {}).get('label') is None for h in hypotheses),
         'mean_searches': mean([len(h.get('searches') or []) for h in hypotheses]),
         'mean_reads': mean([len(h.get('reads') or []) for h in hypotheses]),
+        'mean_search_time_ms_per_question': mean([sum(s.get('duration_ns', 0) for s in (h.get('searches') or [])) / 1e6 for h in hypotheses]),
+        'mean_read_time_ms_per_question': mean([sum(s.get('duration_ns', 0) for s in (h.get('reads') or [])) / 1e6 for h in hypotheses]),
         'no_search_items': sum(not h.get('searches') for h in hypotheses),
         'answer_seconds_p50': pct([h['answer_seconds'] for h in hypotheses], .5),
         'answer_seconds_p95': pct([h['answer_seconds'] for h in hypotheses], .95),
         'ingest_seconds_sum': sum(h.get('ingest_seconds', 0) for h in hypotheses),
         'inference_tokens_successful_final_attempts': sum(h.get('tokens', {}).get('total_tokens', 0) for h in hypotheses),
-        'judge_tokens_reported': sum(j.get('usage', {}).get('total_tokens', 0) for j in judgments),
+        'judge_tokens_reported': sum(j.get('usage', {}).get('total_tokens', 0) + j.get('recovery_tokens_reported', 0) for j in judgments),
         'inference_attempts': sum(h.get('attempts', 0) for h in hypotheses),
         'judge_attempts': sum(j.get('attempts', 0) for j in judgments),
     }
@@ -175,6 +196,7 @@ def main():
     p.add_argument('--workers', type=int, default=4)
     p.add_argument('--summarize-only', action='store_true')
     p.add_argument('--allow-partial', action='store_true')
+    p.add_argument('--retry-invalid', action='store_true', help='append recovery records for invalid verdicts only; never rerun valid scores')
     args = p.parse_args()
     with open(args.data) as f:
         data = json.load(f)
@@ -200,16 +222,19 @@ def main():
     if not mp.exists():
         mp.write_text(json.dumps(manifest, indent=2) + '\n')
         mp.chmod(0o600)
-    previous = rows(path)
+    previous = resolved_judgments(path)
     done = {r['question_id']: r for r in previous}
     if len(done) != len(previous) or not set(done).issubset(hyp_ids):
         raise ValueError('invalid judgment checkpoint IDs')
     if not args.summarize_only:
         fn = official_prompt(args.upstream)
         env = credentials()
-        jobs = [h for h in hyps if h['question_id'] not in done]
-        with path.open('a') as f, concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
-            path.chmod(0o600)
+        if args.retry_invalid and set(done) != set(hyp_ids):
+            raise ValueError('finish original pass before invalid-verdict recovery')
+        jobs = [h for h in hyps if h['question_id'] not in done or (args.retry_invalid and done[h['question_id']].get('label') is None)]
+        output_path = Path(str(path) + '.repairs.jsonl') if args.retry_invalid else path
+        with output_path.open('a') as f, concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
+            output_path.chmod(0o600)
             future_map = {executor.submit(judge_one, refs[h['question_id']], h, fn, env, args): h for h in jobs}
             for future in concurrent.futures.as_completed(future_map):
                 r = future.result()
@@ -218,10 +243,11 @@ def main():
                 os.fsync(f.fileno())
                 done[r['question_id']] = r
                 print(f"judged={len(done)}/{len(hyps)} id={r['question_id']} label={r['label']} error={r.get('error', '')}", flush=True)
+        done = {r['question_id']: r for r in resolved_judgments(path)}
     summary = summarize(refs, hyps, list(done.values()))
     summary.update({'judge': args.judge, 'official_prompt': True, 'dataset_sha256': manifest['data_sha256'],
                     'complete': len(hyps) == 500 and summary['judge_errors_or_missing'] == 0})
-    Path(args.hypotheses + '.summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+    Path(args.hypotheses + '.summary-' + args.judge.replace('/', '_') + '.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps(summary, indent=2))
     if summary['judge_errors_or_missing']:
         raise SystemExit(2)

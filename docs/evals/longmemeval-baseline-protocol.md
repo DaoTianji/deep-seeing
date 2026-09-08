@@ -55,7 +55,7 @@ for diagnostics. Import timestamps are explicitly distinguished from event dates
 
 Each question gets a fresh temporary EpisodeStore and fresh in-memory STM. The
 adapter never constructs the production App, opens production files, connects to
-Redis/Neo4j, loads personal Soul/Bond, or invokes PostTurn/Review/Dream. Only the
+Redis/Neo4j, injects personal Soul/Bond, or invokes PostTurn/Review/Dream. Only the
 three read/evidence tools are exposed. Gold answers are only available to the
 separate scorer. Answer runs do not share state. Worker concurrency is bounded.
 
@@ -74,6 +74,30 @@ both judge calls with valid yes/no responses. Full-run judging therefore uses
 `gpt-4o` with the official prompt, temperature and output limit, but an unpinned
 gateway snapshot. Do not describe this as an exact official-snapshot reproduction
 or a submitted leaderboard result. The failed snapshot probes remain in data/.
+
+### Judge audit amendment (after no-memory scoring, before native scoring)
+
+The completed no-memory `gpt-4o` run gave 49/500. Inspection found seven
+unambiguous false positives on answerable items: `1e043500`, `51c32626`,
+`f0e564bc`, `0bc8ad92`, `0db4c65d`, `gpt4_f420262d`, `gpt4_4edbafa2`.
+Those responses explicitly declined to provide the requested answer, but were
+marked yes despite a definite reference answer. Original judgments are retained.
+
+Therefore a second full judge pass using the configured `gpt-5.6-sol` model and
+the same official prompts/settings is added to **both** fixed answer files. This
+is a reliability check, not best-of selection or a change to answer generation.
+Both scores and their disagreement are reported; no model is declared reliable
+solely because its total score is preferable. The second judge is also the answer
+model, so correlated biases remain possible. Neither score is a certified human
+accuracy or an official leaderboard result. Seven confirmed errors are a lower
+bound, not an exhaustive audit of all false positives and false negatives.
+
+The secondary native pass had two empty (invalid) verdicts because the 10-token
+limit was consumed by reasoning tokens. Only those two requests were repeated,
+with the same model/prompt/limit, using `--retry-invalid`; both returned no.
+Original receipts remain unchanged; `.repairs.jsonl` is an append-only recovery
+journal. Loading rejects any attempt to replace a valid yes/no score. No answer
+inference was rerun. Recovery usage and attempt counts are included in summaries.
 
 Exact yes/no verdicts use the upstream yes/no interpretation. Unexpected judge
 outputs are recorded as errors, not guessed as success. The scorer does not send
@@ -115,6 +139,13 @@ python3 scripts/score-longmemeval.py \
 python3 scripts/score-longmemeval.py \
   --data data/evals/longmemeval-baseline/longmemeval_s_cleaned.mirror.json \
   --hypotheses data/evals/longmemeval-baseline/no-memory.jsonl --judge gpt-4o
+python3 scripts/report-longmemeval.py
+# Independent judge audit, same fixed hypotheses; repeat for no-memory.jsonl.
+python3 scripts/score-longmemeval.py \
+  --data data/evals/longmemeval-baseline/longmemeval_s_cleaned.mirror.json \
+  --hypotheses data/evals/longmemeval-baseline/native.jsonl --judge gpt-5.6-sol
+python3 scripts/report-longmemeval.py --judge gpt-5.6-sol \
+  --out docs/evals/longmemeval-secondary-judge-results.md
 ```
 
 Output files are checkpointed after each question. Rerunning the identical command
