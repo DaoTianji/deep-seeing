@@ -82,6 +82,9 @@ type Result struct {
 	CandidateSessions []string                      `json:"candidate_session_ids"`
 	ReadSessions      []string                      `json:"read_session_ids"`
 	UsedSessions      []string                      `json:"used_session_ids"`
+	ContextSessions   []string                      `json:"context_session_ids,omitempty"`
+	InputBytes        int                           `json:"input_bytes,omitempty"`
+	InputSHA256       string                        `json:"input_sha256,omitempty"`
 	At                time.Time                     `json:"at"`
 }
 
@@ -151,10 +154,17 @@ func sessionText(date string, turns []Turn) string {
 
 func run(ctx context.Context, cfg deepagent.Config, x Input, mode string) (Result, error) {
 	r := Result{Mode: mode, Model: cfg.Model, SessionMap: map[string]int{}}
-	if mode == "no-memory" {
+	if mode == "no-memory" || mode == "full-context" {
 		c := &memory.ChatClient{APIKey: cfg.APIKey, BaseURL: cfg.BaseURL, Model: cfg.Model, MaxTokens: 2048, HTTPClient: &http.Client{Timeout: 180 * time.Second}}
+		input := message(x)
+		if mode == "full-context" {
+			input = fullContext(x)
+			r.InputBytes = len(input)
+			hash := sha256.Sum256([]byte(input))
+			r.InputSHA256 = hex.EncodeToString(hash[:])
+		}
 		t := time.Now()
-		ans, err := c.Complete(ctx, persona, message(x))
+		ans, err := c.Complete(ctx, persona, input)
 		r.Seconds = time.Since(t).Seconds()
 		r.Hypothesis = ans
 		u := c.Usage()
@@ -181,12 +191,20 @@ func run(ctx context.Context, cfg deepagent.Config, x Input, mode string) (Resul
 		return a.Before(b)
 	})
 	t := time.Now()
+	var episodes []memory.Episode
 	for _, i := range order {
 		ep, e := store.WriteEpisode(ctx, scope, memory.EpisodeWrite{Kind: memory.EpisodeEvent, Content: sessionText(x.Dates[i], x.Sessions[i]), PersonIDs: []string{scope.PersonID()}, SessionID: fmt.Sprintf("session-%04d", i), Metadata: map[string]string{"historical_date": x.Dates[i]}})
 		if e != nil {
 			return r, e
 		}
 		r.SessionMap[ep.ID] = i
+		if mode == "bm25" {
+			persisted, e := store.Get(ctx, ep.ID)
+			if e != nil {
+				return r, e
+			}
+			episodes = append(episodes, persisted)
+		}
 	}
 	r.IngestSeconds = time.Since(t).Seconds()
 	all, err := tools.All(tools.Deps{Scope: scope, Episodes: store, RecallMode: "agent", SessionID: "eval", Model: cfg.Model})
@@ -201,6 +219,11 @@ func run(ctx context.Context, cfg deepagent.Config, x Input, mode string) (Resul
 		}
 		switch info.Name {
 		case "search_episodes", "read_episode", "report_recall_evidence":
+			if mode == "bm25" && info.Name == "search_episodes" {
+				started := time.Now()
+				v = newBM25Search(v, episodes)
+				r.IngestSeconds += time.Since(started).Seconds()
+			}
 			selected = append(selected, v)
 		}
 	}
@@ -281,13 +304,13 @@ func sessionIDs(eps []string, r Result, x Item) []string {
 func main() {
 	data := flag.String("data", "data/evals/longmemeval-baseline/longmemeval_s_cleaned.mirror.json", "official dataset")
 	out := flag.String("out", "data/evals/longmemeval-baseline/native.jsonl", "checkpointed results")
-	mode := flag.String("mode", "native", "native or no-memory")
+	mode := flag.String("mode", "native", "native, no-memory, bm25, or full-context")
 	workers := flag.Int("workers", 4, "bounded independent question workers")
 	limit := flag.Int("limit", 0, "smoke only; zero runs all questions")
 	timeout := flag.Duration("timeout", 4*time.Minute, "per-attempt time limit")
 	check := flag.Bool("validate", false, "validate dataset without API calls")
 	flag.Parse()
-	if *mode != "native" && *mode != "no-memory" {
+	if *mode != "native" && *mode != "no-memory" && *mode != "bm25" && *mode != "full-context" {
 		log.Fatal("invalid mode")
 	}
 	if *workers < 1 || *workers > 16 || *limit < 0 {
@@ -331,6 +354,15 @@ func main() {
 		log.Fatal(err)
 	}
 	manifest := map[string]any{"protocol": protocol, "data_sha256": digest, "dataset_questions": count, "mode": *mode, "model": cfg.Model, "limit": *limit, "timeout_seconds": timeout.Seconds(), "base_commit": "974d4e4e9f47896917fe079994a866bdfd260f4d", "persona": persona}
+	if *mode == "bm25" || *mode == "full-context" {
+		if cfg.Model != "gpt-5.6-sol" {
+			log.Fatal("controls must use frozen answer model gpt-5.6-sol")
+		}
+		manifest["protocol"] = "longmemeval-s-controls-v1"
+		manifest["baseline_commit"] = "1de6438"
+		manifest["bm25"] = "session-unit; unicode alnum lowercase; no stemming/stopwords; k1=1.2 b=0.75; positive-score; newest tie-break"
+		manifest["full_context"] = "all raw sessions chronological; no truncation; output limit 2048; same persona"
+	}
 	raw, _ := json.MarshalIndent(manifest, "", "  ")
 	mp := *out + ".manifest.json"
 	if prior, e := os.ReadFile(mp); e == nil {
@@ -417,6 +449,9 @@ func main() {
 				r.CandidateSessions = sessionIDs(cand, r, x)
 				r.ReadSessions = sessionIDs(read, r, x)
 				r.UsedSessions = sessionIDs(used, r, x)
+				if *mode == "full-context" {
+					r.ContextSessions = append([]string(nil), x.SessionIDs...)
+				}
 				results <- r
 			}
 		}()
