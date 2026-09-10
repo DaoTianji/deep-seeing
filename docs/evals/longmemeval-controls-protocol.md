@@ -46,3 +46,23 @@ python3 scripts/score-longmemeval.py --data data/evals/longmemeval-baseline/long
 判读顺序：先审查错误/完整性，再比较证据覆盖与最终正确率，最后比较成本和延迟。
 若BM25明显改善，说明原有搜索是重要瓶颈；若全文明显高于BM25，仍需区分候选覆盖、读取选择及摘要等因素。
 不把比较结果扩张为T1提炼、T3反思或角色学习的整体结论。
+
+## 额度中断与恢复（2026-09-08）
+
+首次运行遇到共享ops-ai网关额度不足（403）。BM25保留171个成功结果和4个步数失败，
+325个额度失败；全文组保留401个成功结果，99个额度失败。未对这些不完整结果评分。
+用户确认额度已恢复后，仅补额度失败的题；语义错误与步数失败不重跑。
+
+原始文件不改动。离线恢复工具生成 `bm25-resumed.jsonl` 和 `full-context-resumed.jsonl`，
+完整保留原有非额度结果，同时保存原文件SHA-256及恢复题号；新检查点沿用相同配置。
+额外增加额度熔断：检测到额度不足时停止派发新题，等待已经在途的请求结束，退出码3。
+该修正只影响调度与恢复，不改变BM25、提示、证据工具或模型参数。
+
+```sh
+python3 scripts/prepare-longmemeval-recovery.py --source data/evals/longmemeval-controls/bm25.jsonl --target data/evals/longmemeval-controls/bm25-resumed.jsonl
+# 相同方式准备full-context；目标必须是尚不存在的新文件。
+go run ./cmd/eval-longmemeval -mode bm25 -workers 4 -out data/evals/longmemeval-controls/bm25-resumed.jsonl
+go run ./cmd/eval-longmemeval -mode full-context -workers 4 -out data/evals/longmemeval-controls/full-context-resumed.jsonl
+# 对恢复完成的文件分别运行两套裁判，再生成报告：
+python3 scripts/report-longmemeval-controls.py --bm25-hypotheses data/evals/longmemeval-controls/bm25-resumed.jsonl --full-context-hypotheses data/evals/longmemeval-controls/full-context-resumed.jsonl
+```

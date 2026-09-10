@@ -1,0 +1,40 @@
+[Unit]
+Description=Deep-Seeing isolated Hindsight retrieval service
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=deep-seeing-memory
+Group=deep-seeing-memory
+WorkingDirectory=/var/lib/deep-seeing-hindsight
+EnvironmentFile=/etc/deep-seeing/memory/hindsight.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=XDG_CACHE_HOME=/var/lib/deep-seeing-hindsight/cache
+Environment=TIKTOKEN_CACHE_DIR=/var/lib/deep-seeing-hindsight/tiktoken
+ExecStart=/opt/deep-seeing/hindsight-0.9.2-locked/bin/hindsight-api
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=45
+MemoryMax=1536M
+CPUQuota=150%
+TasksMax=128
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+InaccessiblePaths=/var/lib/deep-seeing /opt/deep-seeing/seed /etc/deep-seeing/deep-seeing.env
+ReadWritePaths=/var/lib/deep-seeing-hindsight
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

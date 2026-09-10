@@ -3,6 +3,7 @@ package memory
 import (
 	"bytes"
 	"context"
+	"deep-seeing/internal/modelopts"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -61,6 +62,9 @@ func (c *ChatClient) Complete(ctx context.Context, system, user string) (string,
 			{"role": "user", "content": user},
 		},
 		"max_tokens": maxTok,
+	}
+	for key, value := range modelopts.Extra(c.BaseURL, c.Model) {
+		body[key] = value
 	}
 	raw, err := json.Marshal(body)
 	if err != nil {

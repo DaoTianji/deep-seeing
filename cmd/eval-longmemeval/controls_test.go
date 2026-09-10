@@ -13,6 +13,19 @@ import (
 	"github.com/cloudwego/eino/components/tool"
 )
 
+func TestQuotaCircuitBreakerDoesNotTreatModelFailureAsBillingFailure(t *testing.T) {
+	for _, s := range []string{"403 insufficient_user_quota", "用户额度不足", "预扣费额度失败", "insufficient_quota"} {
+		if !quotaFailure(s) {
+			t.Fatal("quota not detected", s)
+		}
+	}
+	for _, s := range []string{"", "exceeds max steps", "403 forbidden", "incorrect answer"} {
+		if quotaFailure(s) {
+			t.Fatal("non-quota failure misclassified", s)
+		}
+	}
+}
+
 func TestBM25RanksRelevantOlderSessionAheadOfRecentNoise(t *testing.T) {
 	s := newBM25Search(nil, []memory.Episode{
 		{ID: "old", Content: "I studied astronomy and purchased a telescope."},

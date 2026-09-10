@@ -42,40 +42,44 @@ type Options struct {
 
 // App owns the long-lived services shared by CLI and room.
 type App struct {
-	Scope          identity.TenantScope
-	SessionID      string
-	Model          string
-	RecallMode     runtime.RecallMode
-	ReflectionMode memory.ReflectionMode
-	RoleMode       theater.Mode
-	RoleInitMode   theater.InitializationMode
-	Theater        *theater.Router
-	Service        *runtime.Service
-	STM            memory.SessionStore
-	STMBackend     string
-	Episodes       *memory.EpisodeStore
-	Proposals      *memory.ProposalStore
-	Ledger         *memory.MutationLedger
-	Reflections    *memory.ReflectionStore
-	Reflection     *memory.ReflectionEngine
-	Generative     *memory.GenerativeDreamer
-	Journal        *observe.Journal
-	Graph          *graph.Store
-	GraphLabel     string
-	Reviewer       *memory.SessionReviewer
-	Dreamer        *memory.Dreamer
-	Queue          *runtime.ExecutionQueue
-	Self           *selfmodel.Store
-	Workspace      *workspace.Store
-	Intents        *intent.Store
-	World          *world.Gateway
-	Roles          *theater.Store
-	RoleCompiler   *theater.RoleCompiler
-	RoleCorpus     *theater.CorpusStore
-	RoleArchitect  *theater.CharacterArchitect
-	Scheduler      *agency.Scheduler
-	OriginLetter   origin.Letter
-	FirstBoot      bool
+	Scope            identity.TenantScope
+	SessionID        string
+	Model            string
+	RecallMode       runtime.RecallMode
+	ReflectionMode   memory.ReflectionMode
+	RoleMode         theater.Mode
+	RoleInitMode     theater.InitializationMode
+	Theater          *theater.Router
+	Service          *runtime.Service
+	STM              memory.SessionStore
+	STMBackend       string
+	Episodes         *memory.EpisodeStore
+	Proposals        *memory.ProposalStore
+	Ledger           *memory.MutationLedger
+	Reflections      *memory.ReflectionStore
+	Reflection       *memory.ReflectionEngine
+	Generative       *memory.GenerativeDreamer
+	Journal          *observe.Journal
+	Graph            *graph.Store
+	GraphLabel       string
+	Reviewer         *memory.SessionReviewer
+	Dreamer          *memory.Dreamer
+	Queue            *runtime.ExecutionQueue
+	Self             *selfmodel.Store
+	Workspace        *workspace.Store
+	Intents          *intent.Store
+	World            *world.Gateway
+	Roles            *theater.Store
+	RoleCompiler     *theater.RoleCompiler
+	RoleCorpus       *theater.CorpusStore
+	RoleArchitect    *theater.CharacterArchitect
+	Scheduler        *agency.Scheduler
+	OriginLetter     origin.Letter
+	FirstBoot        bool
+	RetrievalBackend string
+	IndexSync        *memory.IndexSync
+	indexCancel      context.CancelFunc
+	indexDone        chan struct{}
 }
 
 // New loads environment settings and assembles a complete application.
@@ -234,6 +238,30 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	if graphStore != nil {
 		stores["context_graph"] = "available"
 	}
+	// A derived index is not allowed to mutate identity, roles or the source store.
+	var episodeRetriever *memory.EpisodeRetriever
+	backend, validBackend := memory.ParseRetrievalBackend(os.Getenv("MEMORY_RETRIEVAL_BACKEND"))
+	if !validBackend {
+		log.Printf("invalid MEMORY_RETRIEVAL_BACKEND; using legacy")
+	}
+	stores["episode_retrieval"] = backend
+	if recallMode != runtime.RecallModeAgent {
+		stores["episode_retrieval"] = "legacy"
+	}
+	stores["episode_index_sync"] = "manual; automatic model calls disabled"
+	if recallMode == runtime.RecallModeAgent && backend != "legacy" {
+		episodeRetriever = &memory.EpisodeRetriever{Store: episodes, Scope: scope, Backend: backend}
+		if backend == "hindsight" {
+			client, configErr := memory.NewHindsightClient(os.Getenv("HINDSIGHT_URL"), os.Getenv("HINDSIGHT_API_KEY"))
+			if configErr != nil {
+				log.Printf("hindsight configuration invalid; using bm25")
+				episodeRetriever.Backend = "bm25"
+				stores["episode_retrieval"] = "bm25 (hindsight configuration invalid)"
+			} else {
+				episodeRetriever.Hindsight = client
+			}
+		}
+	}
 
 	epSide := &memory.LLMSideQuery{Store: episodes, Chat: chat}
 	side := memory.SideQuerySelector(&memory.BondAwareSideQuery{
@@ -241,7 +269,7 @@ func New(ctx context.Context, opt Options) (*App, error) {
 	})
 	var svc *runtime.Service
 	toolList, err := tools.All(tools.Deps{
-		Scope: scope, Episodes: episodes, Graph: graphStore, Scenes: sceneStore, Proposals: proposals,
+		Scope: scope, Episodes: episodes, Retriever: episodeRetriever, Graph: graphStore, Scenes: sceneStore, Proposals: proposals,
 		Self: selfStore, Workspace: wsStore, Intents: intentStore, World: worldGW,
 		Ledger: ledger, SessionID: sessionID, Model: cfg.Model, Stores: stores, FirstBoot: firstBoot,
 		RecallMode: string(recallMode), RoleMode: string(roleMode), RoleInitMode: string(roleInitMode), TaskContextFocus: taskFocusController,
@@ -405,6 +433,12 @@ func New(ctx context.Context, opt Options) (*App, error) {
 		Chat: reviewChat, Store: reflections, Live: reflectionLive, Mode: reflectionMode,
 	}
 	app.Reviewer.Context = selfBridge
+	app.RetrievalBackend = stores["episode_retrieval"]
+	if os.Getenv("MEMORY_INDEX_MODE") == "auto" && episodeRetriever != nil && episodeRetriever.Hindsight != nil {
+		app.IndexSync = &memory.IndexSync{Store: episodes, Scope: scope, Client: episodeRetriever.Hindsight,
+			Path: filepath.Join(rtDir, "episode-index-sync.json")}
+		stores["episode_index_sync"] = "auto; 2 per batch, 50 attempts/256 KiB per UTC day; no automatic retries"
+	}
 	return app, nil
 }
 
@@ -423,6 +457,11 @@ func (a *App) RuntimeSnapshot() body.Snapshot {
 	if a.World == nil {
 		stores["source_store"] = "unavailable"
 	}
+	stores["episode_retrieval"] = a.RetrievalBackend
+	stores["episode_index_sync"] = "off"
+	if a.IndexSync != nil {
+		stores["episode_index_sync"] = "auto; bounded; inspect episode-index-sync.json for failures"
+	}
 	snapshot := body.BuildSnapshot(a.Scope, a.SessionID, a.Model, stores, a.FirstBoot)
 	snapshot.RecallMode = string(a.RecallMode)
 	snapshot.ReflectionMode = string(a.ReflectionMode)
@@ -437,6 +476,25 @@ func (a *App) StartScheduler(ctx context.Context) {
 		return
 	}
 	a.Scheduler.Start(ctx)
+	if a.IndexSync != nil && a.indexCancel == nil {
+		indexCtx, cancel := context.WithCancel(ctx)
+		a.indexCancel, a.indexDone = cancel, make(chan struct{})
+		go func() {
+			defer close(a.indexDone)
+			ticker := time.NewTicker(time.Minute)
+			defer ticker.Stop()
+			for {
+				if _, err := a.IndexSync.SyncPending(indexCtx, 2, 128*1024); err != nil && indexCtx.Err() == nil {
+					log.Printf("episode index sync paused batch: %v", err)
+				}
+				select {
+				case <-indexCtx.Done():
+					return
+				case <-ticker.C:
+				}
+			}
+		}()
+	}
 }
 
 // Close releases remote clients.
@@ -446,6 +504,10 @@ func (a *App) Close(ctx context.Context) {
 	}
 	if a.Scheduler != nil {
 		a.Scheduler.Stop()
+	}
+	if a.indexCancel != nil {
+		a.indexCancel()
+		<-a.indexDone
 	}
 	if a.RoleCorpus != nil {
 		_ = a.RoleCorpus.Close()

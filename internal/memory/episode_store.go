@@ -520,7 +520,11 @@ func (s *EpisodeStore) readEpisodeLocked(id string) (Episode, error) {
 	if err != nil {
 		return Episode{}, err
 	}
-	return parseEpisodeFile(id, string(data))
+	info, err := os.Stat(s.episodePath(id))
+	if err != nil {
+		return Episode{}, err
+	}
+	return parseEpisodeFile(id, string(data), info.ModTime().UTC())
 }
 
 func formatEpisodeFile(ep Episode) string {
@@ -584,7 +588,7 @@ func quoteList(xs []string) []string {
 	return out
 }
 
-func parseEpisodeFile(fallbackID, raw string) (Episode, error) {
+func parseEpisodeFile(fallbackID, raw string, fileTime time.Time) (Episode, error) {
 	ep := Episode{ID: fallbackID, Kind: EpisodeEvent, Status: EpisodeActive, ExperienceMode: ExperienceRealInteraction}
 	body := raw
 	if strings.HasPrefix(raw, "---\n") {
@@ -656,8 +660,12 @@ func parseEpisodeFile(fallbackID, raw string) (Episode, error) {
 		ep.Status = EpisodeActive
 	}
 	if ep.UpdatedAt.IsZero() {
-		ep.UpdatedAt = time.Now()
-		ep.CreatedAt = ep.UpdatedAt
+		// Missing legacy timestamps must not change on every read: doing so
+		// invalidates revision hashes and repeatedly bills derived indexing.
+		ep.UpdatedAt = ep.CreatedAt
+		if ep.UpdatedAt.IsZero() {
+			ep.UpdatedAt = fileTime
+		}
 	}
 	if ep.CreatedAt.IsZero() {
 		ep.CreatedAt = ep.UpdatedAt

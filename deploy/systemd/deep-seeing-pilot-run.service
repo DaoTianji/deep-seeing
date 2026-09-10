@@ -1,0 +1,20 @@
+[Unit]
+Description=Deep-Seeing six-case memory pilot
+After=deep-seeing-pilot-budget.service deep-seeing-pilot-hindsight.service
+[Service]
+User=deep-seeing-eval50
+Group=deep-seeing-eval50
+WorkingDirectory=/var/lib/deep-seeing-eval50
+EnvironmentFile=/etc/deep-seeing/pilot50/runner.env
+ExecStart=/opt/deep-seeing/pilot50/eval-hindsight-pilot -hindsight-pilot -data /var/lib/deep-seeing-eval50/pilot-data.json -out /var/lib/deep-seeing-eval50/hindsight-pilot-50/results.jsonl
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/deep-seeing-eval50
+InaccessiblePaths=/var/lib/deep-seeing /opt/deep-seeing/seed /etc/deep-seeing/deep-seeing.env /etc/deep-seeing/memory
+Environment=PYTHONDONTWRITEBYTECODE=1
+MemoryMax=512M
+CPUQuota=75%
+Restart=no

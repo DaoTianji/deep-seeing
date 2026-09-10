@@ -12,6 +12,8 @@ import (
 
 // RecallSearchTrace is the observable, non-content result of one episode search.
 type RecallSearchTrace struct {
+	Backend     string        `json:"backend,omitempty"`
+	Fallback    string        `json:"fallback,omitempty"`
 	Query       string        `json:"query,omitempty"`
 	Limit       int           `json:"limit,omitempty"`
 	ResultCount int           `json:"result_count"`

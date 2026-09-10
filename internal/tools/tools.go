@@ -42,13 +42,14 @@ type GraphStore interface {
 type Deps struct {
 	Scope            identity.TenantScope
 	Episodes         *memory.EpisodeStore
-	Graph            GraphStore            // optional
-	Scenes           *memory.SceneStore    // optional — SceneNorm
-	Proposals        *memory.ProposalStore // optional
-	Self             *selfmodel.Store      // optional — SelfArtifact file store
-	Workspace        *workspace.Store      // optional — unfinished thinking
-	Intents          *intent.Store         // optional — agency intents
-	World            *world.Gateway        // optional — web gateway
+	Retriever        *memory.EpisodeRetriever // optional derived ordinary-Episode index
+	Graph            GraphStore               // optional
+	Scenes           *memory.SceneStore       // optional — SceneNorm
+	Proposals        *memory.ProposalStore    // optional
+	Self             *selfmodel.Store         // optional — SelfArtifact file store
+	Workspace        *workspace.Store         // optional — unfinished thinking
+	Intents          *intent.Store            // optional — agency intents
+	World            *world.Gateway           // optional — web gateway
 	Ledger           *memory.MutationLedger
 	SessionID        string
 	Model            string
@@ -198,9 +199,13 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 	}
 	toolsOut = append(toolsOut, writeEp)
 
+	readDescription := "读取候选 Episode 正文（含归档/失效）；原样传入候选 id。作为历史证据前必须成功读取；ok=false 时不得采用，可用原候选 id 修正重试一次。"
+	if deps.Retriever != nil && agentMode {
+		readDescription = "读取当前用户有效的普通 Episode 候选正文；原样传入候选 id。拒绝角色记忆、归档和失效内容。作为历史证据前必须成功读取，ok=false 时不得采用。"
+	}
 	readEp, err := utils.InferTool(
 		"read_episode",
-		"读取候选 Episode 正文（含归档/失效）；原样传入候选 id。作为历史证据前必须成功读取；ok=false 时不得采用，可用原候选 id 修正重试一次。",
+		readDescription,
 		func(ctx context.Context, in readEpisodeInput) (string, error) {
 			id := strings.TrimSpace(in.ID)
 			if id == "" {
@@ -214,6 +219,10 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Error: err.Error(), Duration: duration})
 				out, _ := json.Marshal(map[string]any{"ok": false, "episode_id": id, "error": err.Error()})
 				return string(out), nil
+			}
+			if deps.Retriever != nil && agentMode && !memory.OrdinaryEpisodeAllowed(ep, scope) {
+				observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Error: "episode access denied", Duration: duration})
+				return `{"ok":false,"error":"episode access denied"}`, nil
 			}
 			observe.RecordRecallRead(ctx, observe.RecallReadTrace{EpisodeID: id, Duration: duration})
 			out, err := json.Marshal(map[string]any{"ok": true, "episode": ep})
@@ -234,11 +243,24 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				limit = 8
 			}
 			started := time.Now()
-			eps, err := store.Search(ctx, scope, memory.Query{Text: strings.TrimSpace(in.Query), Limit: limit})
+			var eps []memory.Episode
+			var err error
+			backend, fallback := "legacy", ""
+			previews := map[string]string{}
+			if deps.Retriever != nil && agentMode {
+				result, searchErr := deps.Retriever.Search(ctx, scope, in.Query, limit)
+				err, backend, fallback = searchErr, result.Backend, result.Fallback
+				for _, hit := range result.Hits {
+					eps = append(eps, hit.Episode)
+					previews[hit.Episode.ID] = hit.Preview
+				}
+			} else {
+				eps, err = store.Search(ctx, scope, memory.Query{Text: strings.TrimSpace(in.Query), Limit: limit})
+			}
 			duration := time.Since(started)
 			if err != nil {
 				observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
-					Query: in.Query, Limit: limit, Error: err.Error(), Duration: duration,
+					Query: in.Query, Limit: limit, Error: err.Error(), Duration: duration, Backend: backend, Fallback: fallback,
 				})
 				out, _ := json.Marshal(map[string]any{"ok": false, "error": err.Error(), "candidates": []any{}})
 				return string(out), nil
@@ -248,15 +270,19 @@ func All(deps Deps) ([]tool.BaseTool, error) {
 				ids = append(ids, ep.ID)
 			}
 			observe.RecordRecallSearch(ctx, observe.RecallSearchTrace{
-				Query: in.Query, Limit: limit, ResultCount: len(eps), ResultIDs: ids, Duration: duration,
+				Query: in.Query, Limit: limit, ResultCount: len(eps), ResultIDs: ids, Duration: duration, Backend: backend, Fallback: fallback,
 			})
 			var cards any
 			if agentMode {
 				unified := make([]contextsource.Candidate, 0, len(eps))
 				for _, ep := range eps {
+					preview := previews[ep.ID]
+					if preview == "" {
+						preview = recallCandidateSummary(ep.Content)
+					}
 					unified = append(unified, contextsource.Candidate{
 						Source: contextsource.Episode, ID: ep.ID, Kind: string(ep.Kind),
-						Preview: recallCandidateSummary(ep.Content), Role: contextsource.Evidence,
+						Preview: preview, Role: contextsource.Evidence,
 						Metadata: map[string]any{
 							"experience_mode": ep.ExperienceMode,
 							"person_ids":      append([]string(nil), ep.PersonIDs...),

@@ -13,6 +13,7 @@ import (
 	"github.com/cloudwego/eino/flow/agent/react"
 	"github.com/cloudwego/eino/schema"
 
+	"deep-seeing/internal/modelopts"
 	"deep-seeing/internal/soul"
 )
 
@@ -42,10 +43,11 @@ func New(ctx context.Context, cfg Config, toolList []tool.BaseTool, systemProvid
 	}
 
 	chatModel, err := openai.NewChatModel(ctx, &openai.ChatModelConfig{
-		APIKey:  cfg.APIKey,
-		BaseURL: strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/"),
-		Model:   cfg.Model,
-		Timeout: 240 * time.Second,
+		APIKey:      cfg.APIKey,
+		BaseURL:     strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/"),
+		Model:       cfg.Model,
+		Timeout:     240 * time.Second,
+		ExtraFields: modelopts.Extra(cfg.BaseURL, cfg.Model),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("create chat model: %w", err)
