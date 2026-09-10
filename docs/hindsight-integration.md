@@ -73,6 +73,35 @@ Never delete the dedicated volume to roll back application code.
 
 ## Models and isolated service
 
+### Official LLM switch (2026-09-10)
+
+Production and the local active `.env` now select `deepseek-v4-pro` at
+`https://api.deepseek.com/v1` for the main application and Hindsight LLM.
+Application reasoning uses the official `thinking.type=enabled` schema with
+`reasoning_effort=high`; extraction keeps thinking disabled via
+`HINDSIGHT_API_LLM_EXTRA_BODY={"thinking":{"type":"disabled"}}`.
+Embedding and reranking retain their original SiliconFlow credentials, models,
+1536 dimensions and index. `.env.local` holds distinct `DEEPSEEK_API_KEY` and
+`SILICONFLOW_API_KEY`; do not overwrite one with the other.
+
+The official provider announces that `deepseek-v4-pro` will route to V4.1 Flash
+from 2026-09-14 12:00 Beijing time until a future V4.1 Pro is available. This is
+an upstream alias change, not a promise of an immutable model revision.
+See [official model lifecycle](https://api-docs.deepseek.com/zh-cn/quick_start/pricing/).
+
+Verification: a bounded live Eino stream/tool round trip passed (two requests),
+as did one server-side synthetic non-thinking JSON request. Ordinary history,
+Mutation/Reflection snapshots and all eight indexed sources remained unchanged.
+No production conversation, retain, recall, role training or reindex was run.
+These probes establish provider compatibility, not full Agent memory quality.
+
+`switch-official-deepseek.py` is a one-time migration from the SiliconFlow LLM
+configuration. It backs up both configuration files and restores them and the
+old application link on activation failure. It must not be blindly rerun after
+an uncertain outcome. Inspect the current release and its manifest first.
+
+### Initial SiliconFlow deployment (historical, 2026-09-09)
+
 Requested generator: `deepseek-ai/DeepSeek-V4-Pro`.
 Embedding: `Qwen/Qwen3-Embedding-8B` at **1536 dimensions**;
 reranker: `Qwen/Qwen3-Reranker-8B`.

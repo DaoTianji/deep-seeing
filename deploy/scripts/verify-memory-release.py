@@ -30,7 +30,8 @@ def request(path, data=None, base='http://127.0.0.1:3319', timeout=15):
 
 with request('/api/runtime') as response:
     runtime = json.load(response)['runtime']
-assert runtime['model'] == 'deepseek-ai/DeepSeek-V4-Pro'
+assert values.get('OPENAI_MODEL'), 'Selected model missing from production config'
+assert runtime['model'] == values['OPENAI_MODEL']
 assert runtime['stores']['episode_retrieval'] == 'hindsight'
 assert runtime['stores']['stm'] == 'redis'
 assert runtime['stores']['context_graph'] == 'available'
