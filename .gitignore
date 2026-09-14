@@ -15,6 +15,7 @@ apps/pet-desktop/dist/
 **/__debug_bin*
 __debug_bin*
 webui/node_modules/
+webui/node_modules
 webui/*.tsbuildinfo
 webui/vite.config.js
 webui/vite.config.d.ts

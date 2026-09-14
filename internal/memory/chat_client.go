@@ -30,7 +30,11 @@ type ChatClient struct {
 	Model      string
 	HTTPClient *http.Client
 	MaxTokens  int
-	usage      ChatUsage
+	// Optional provider parameters; omitted for existing callers.
+	Thinking        string
+	ReasoningEffort string
+	JSONOutput      bool
+	usage           ChatUsage
 }
 
 func (c *ChatClient) Usage() ChatUsage {
@@ -62,6 +66,15 @@ func (c *ChatClient) Complete(ctx context.Context, system, user string) (string,
 		},
 		"max_tokens": maxTok,
 	}
+	if c.Thinking != "" {
+		body["thinking"] = map[string]string{"type": c.Thinking}
+	}
+	if c.ReasoningEffort != "" {
+		body["reasoning_effort"] = c.ReasoningEffort
+	}
+	if c.JSONOutput {
+		body["response_format"] = map[string]string{"type": "json_object"}
+	}
 	raw, err := json.Marshal(body)
 	if err != nil {
 		return "", err
@@ -91,7 +104,8 @@ func (c *ChatClient) Complete(ctx context.Context, system, user string) (string,
 	var parsed struct {
 		Usage   ChatUsage `json:"usage"`
 		Choices []struct {
-			Message struct {
+			FinishReason string `json:"finish_reason"`
+			Message      struct {
 				Content string `json:"content"`
 			} `json:"message"`
 		} `json:"choices"`
@@ -104,8 +118,16 @@ func (c *ChatClient) Complete(ctx context.Context, system, user string) (string,
 	c.usage.CompletionTokens += parsed.Usage.CompletionTokens
 	c.usage.TotalTokens += parsed.Usage.TotalTokens
 	c.mu.Unlock()
+	var receipt struct {
+		Usage json.RawMessage `json:"usage"`
+	}
+	_ = json.Unmarshal(respBody, &receipt)
+	observeChatUsage(ctx, receipt.Usage)
 	if len(parsed.Choices) == 0 {
 		return "", nil
+	}
+	if parsed.Choices[0].FinishReason == "length" {
+		return "", fmt.Errorf("model output exceeded token budget; response not committed")
 	}
 	return strings.TrimSpace(parsed.Choices[0].Message.Content), nil
 }

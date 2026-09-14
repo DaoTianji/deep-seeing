@@ -1,0 +1,2332 @@
+{
+  "version": "eae76e72967421450d39dea499ca6f44f002b93a346ffa62ff75422806267a3a-sentences-v1",
+  "style": "fluent",
+  "target": "zh",
+  "completed": 290,
+  "total": 290,
+  "sentences": [
+    {
+      "id": "p1-s1",
+      "paragraph": 1,
+      "start_byte": 0,
+      "end_byte": 14,
+      "original": "[Illustration]",
+      "translation": "[插图]"
+    },
+    {
+      "id": "p2-s1",
+      "paragraph": 2,
+      "start_byte": 19,
+      "end_byte": 58,
+      "original": "THE LADY OF THE BARGE\nAND OTHER STORIES",
+      "translation": "驳船夫人及其他故事"
+    },
+    {
+      "id": "p3-s1",
+      "paragraph": 3,
+      "start_byte": 60,
+      "end_byte": 75,
+      "original": "By W. W. Jacobs",
+      "translation": "W. W. 雅各布斯 著"
+    },
+    {
+      "id": "p4-s1",
+      "paragraph": 4,
+      "start_byte": 79,
+      "end_byte": 97,
+      "original": "THE MONKEY’S PAW",
+      "translation": "猴爪"
+    },
+    {
+      "id": "p5-s1",
+      "paragraph": 5,
+      "start_byte": 102,
+      "end_byte": 104,
+      "original": "I.",
+      "translation": "一"
+    },
+    {
+      "id": "p6-s1",
+      "paragraph": 6,
+      "start_byte": 107,
+      "end_byte": 238,
+      "original": "Without, the night was cold and wet, but in the small parlour of\nLaburnam Villa the blinds were drawn and the fire burned brightly.",
+      "translation": "屋外，夜晚寒冷潮湿，但在拉伯纳姆别墅的小客厅里，窗帘已经拉上，炉火熊熊燃烧。"
+    },
+    {
+      "id": "p6-s2",
+      "paragraph": 6,
+      "start_byte": 238,
+      "end_byte": 490,
+      "original": "\nFather and son were at chess, the former, who possessed ideas about the\ngame involving radical changes, putting his king into such sharp and\nunnecessary perils that it even provoked comment from the white-haired\nold lady knitting placidly by the fire.",
+      "translation": "父子俩在下棋，父亲对棋局有自己的一套激进想法，把自己的国王置于如此尖锐且不必要的险境，以至于连那位在火旁安静织毛衣的白发老太太都忍不住议论起来。"
+    },
+    {
+      "id": "p7-s1",
+      "paragraph": 7,
+      "start_byte": 492,
+      "end_byte": 646,
+      "original": "“Hark at the wind,” said Mr. White, who, having seen a fatal mistake\nafter it was too late, was amiably desirous of preventing his son from\nseeing it.",
+      "translation": "“听那风声，”怀特先生说，他刚发现了一个致命错误，但为时已晚，于是和蔼地想要阻止儿子发现它。"
+    },
+    {
+      "id": "p8-s1",
+      "paragraph": 8,
+      "start_byte": 648,
+      "end_byte": 744,
+      "original": "“I’m listening,” said the latter, grimly surveying the board as he\nstretched out his hand.",
+      "translation": "“我在听呢，”儿子说，一边伸出手，一边阴沉地扫视着棋盘。"
+    },
+    {
+      "id": "p8-s2",
+      "paragraph": 8,
+      "start_byte": 744,
+      "end_byte": 757,
+      "original": " “Check.”",
+      "translation": "“将军。”"
+    },
+    {
+      "id": "p9-s1",
+      "paragraph": 9,
+      "start_byte": 759,
+      "end_byte": 867,
+      "original": "“I should hardly think that he’d come to-night,” said his father, with\nhis hand poised over the board.",
+      "translation": "“我几乎不指望他今晚会来，”父亲说，手停在棋盘上方。"
+    },
+    {
+      "id": "p10-s1",
+      "paragraph": 10,
+      "start_byte": 869,
+      "end_byte": 897,
+      "original": "“Mate,” replied the son.",
+      "translation": "“将死。”儿子回答。"
+    },
+    {
+      "id": "p11-s1",
+      "paragraph": 11,
+      "start_byte": 899,
+      "end_byte": 1086,
+      "original": "“That’s the worst of living so far out,” bawled Mr. White, with sudden\nand unlooked-for violence; “of all the beastly, slushy, out-of-the-way\nplaces to live in, this is the worst.",
+      "translation": "“住得这么远真是最糟的，”怀特先生突然毫无预兆地暴怒起来，大声嚷道；“在所有令人厌恶、满是泥泞、偏僻的居住地里，这里是最糟的。"
+    },
+    {
+      "id": "p11-s2",
+      "paragraph": 11,
+      "start_byte": 1086,
+      "end_byte": 1133,
+      "original": " Pathway’s a bog, and the road’s a\ntorrent.",
+      "translation": "小路是一片沼泽，大路是一条激流。"
+    },
+    {
+      "id": "p11-s3",
+      "paragraph": 11,
+      "start_byte": 1133,
+      "end_byte": 1180,
+      "original": " I don’t know what people are thinking about.",
+      "translation": "我真不知道人们都在想些什么。"
+    },
+    {
+      "id": "p11-s4",
+      "paragraph": 11,
+      "start_byte": 1180,
+      "end_byte": 1270,
+      "original": " I suppose because\nonly two houses in the road are let, they think it doesn’t matter.”",
+      "translation": "我想是因为这条路上只有两栋房子租出去了，他们就觉得无所谓。”"
+    },
+    {
+      "id": "p12-s1",
+      "paragraph": 12,
+      "start_byte": 1272,
+      "end_byte": 1363,
+      "original": "“Never mind, dear,” said his wife, soothingly; “perhaps you’ll win the\nnext one.”",
+      "translation": "“没关系，亲爱的，”妻子安慰道，“也许下一局你会赢。”"
+    },
+    {
+      "id": "p13-s1",
+      "paragraph": 13,
+      "start_byte": 1365,
+      "end_byte": 1460,
+      "original": "Mr. White looked up sharply, just in time to intercept a knowing glance\nbetween mother and son.",
+      "translation": "怀特先生猛地抬起头，正好捕捉到母子之间会心的一瞥。"
+    },
+    {
+      "id": "p13-s2",
+      "paragraph": 13,
+      "start_byte": 1460,
+      "end_byte": 1542,
+      "original": " The words died away on his lips, and he hid a\nguilty grin in his thin grey beard.",
+      "translation": "话到嘴边又咽了回去，他在稀疏的灰白胡子里藏起一个心虚的笑容。"
+    },
+    {
+      "id": "p14-s1",
+      "paragraph": 14,
+      "start_byte": 1544,
+      "end_byte": 1653,
+      "original": "“There he is,” said Herbert White, as the gate banged to loudly and\nheavy footsteps came toward the door.",
+      "translation": "“他来了。”赫伯特·怀特说，这时大门砰地一声关上，沉重的脚步声朝门口走来。"
+    },
+    {
+      "id": "p15-s1",
+      "paragraph": 15,
+      "start_byte": 1655,
+      "end_byte": 1758,
+      "original": "The old man rose with hospitable haste, and opening the door, was heard\ncondoling with the new arrival.",
+      "translation": "老人殷勤地急忙起身，打开门，只听见他在安慰新来的客人。"
+    },
+    {
+      "id": "p15-s2",
+      "paragraph": 15,
+      "start_byte": 1758,
+      "end_byte": 1963,
+      "original": " The new arrival also condoled with\nhimself, so that Mrs. White said, “Tut, tut!” and coughed gently as her\nhusband entered the room, followed by a tall, burly man, beady of eye\nand rubicund of visage.",
+      "translation": "新来的人自己也叹着气，怀特太太便说：“啧，啧！”她轻轻地咳嗽了一声，这时丈夫走进房间，身后跟着一个高大魁梧的男人，眼睛小而亮，脸色红润。"
+    },
+    {
+      "id": "p16-s1",
+      "paragraph": 16,
+      "start_byte": 1965,
+      "end_byte": 2019,
+      "original": "“Sergeant-Major Morris,” he said, introducing him.",
+      "translation": "“这是莫里斯军士长。”他介绍道。"
+    },
+    {
+      "id": "p17-s1",
+      "paragraph": 17,
+      "start_byte": 2021,
+      "end_byte": 2204,
+      "original": "The sergeant-major shook hands, and taking the proffered seat by the\nfire, watched contentedly while his host got out whiskey and tumblers\nand stood a small copper kettle on the fire.",
+      "translation": "军士长和大家握了手，在炉边让给他的座位上坐下，心满意足地看着主人拿出威士忌和玻璃杯，又把一个小铜壶放在火上。"
+    },
+    {
+      "id": "p18-s1",
+      "paragraph": 18,
+      "start_byte": 2206,
+      "end_byte": 2489,
+      "original": "At the third glass his eyes got brighter, and he began to talk, the\nlittle family circle regarding with eager interest this visitor from\ndistant parts, as he squared his broad shoulders in the chair and spoke\nof wild scenes and doughty deeds; of wars and plagues and strange\npeoples.",
+      "translation": "第三杯下肚，他的眼睛更亮了，开始说起话来。这个小家庭围坐一圈，兴味盎然地注视着这位来自遥远地方的客人。他挺直宽阔的肩膀坐在椅子里，讲起蛮荒的景象和英勇的事迹，讲起战争、瘟疫和奇异的民族。"
+    },
+    {
+      "id": "p19-s1",
+      "paragraph": 19,
+      "start_byte": 2491,
+      "end_byte": 2565,
+      "original": "“Twenty-one years of it,” said Mr. White, nodding at his wife and son.",
+      "translation": "“这一去就是二十一年啊。”怀特先生边说边朝妻子和儿子点了点头。"
+    },
+    {
+      "id": "p19-s2",
+      "paragraph": 19,
+      "start_byte": 2565,
+      "end_byte": 2629,
+      "original": "\n“When he went away he was a slip of a youth in the warehouse.",
+      "translation": "“他走的时候还只是仓库里的一个毛头小伙子。"
+    },
+    {
+      "id": "p19-s3",
+      "paragraph": 19,
+      "start_byte": 2629,
+      "end_byte": 2649,
+      "original": " Now look\nat him.”",
+      "translation": "现在瞧瞧他。”"
+    },
+    {
+      "id": "p20-s1",
+      "paragraph": 20,
+      "start_byte": 2651,
+      "end_byte": 2724,
+      "original": "“He don’t look to have taken much harm,” said Mrs. White, politely.",
+      "translation": "“他看起来倒没受多少苦。”怀特太太客气地说。"
+    },
+    {
+      "id": "p21-s1",
+      "paragraph": 21,
+      "start_byte": 2726,
+      "end_byte": 2825,
+      "original": "“I’d like to go to India myself,” said the old man, “just to look round\na bit, you know.”",
+      "translation": "“我自己也想去印度，”老人说，“只是去转转看看，你知道。”"
+    },
+    {
+      "id": "p22-s1",
+      "paragraph": 22,
+      "start_byte": 2827,
+      "end_byte": 2897,
+      "original": "“Better where you are,” said the sergeant-major, shaking his head.",
+      "translation": "“还是待在这儿好。”军士长摇着头说。"
+    },
+    {
+      "id": "p22-s2",
+      "paragraph": 22,
+      "start_byte": 2897,
+      "end_byte": 2962,
+      "original": " He\nput down the empty glass, and sighing softly, shook it again.",
+      "translation": "他放下空杯子，轻轻叹了口气，又摇了摇头。"
+    },
+    {
+      "id": "p23-s1",
+      "paragraph": 23,
+      "start_byte": 2964,
+      "end_byte": 3051,
+      "original": "“I should like to see those old temples and fakirs and jugglers,” said\nthe old man.",
+      "translation": "“我真想看看那些古老的寺庙、苦行僧和变戏法的人，”老人说。"
+    },
+    {
+      "id": "p23-s2",
+      "paragraph": 23,
+      "start_byte": 3051,
+      "end_byte": 3153,
+      "original": " “What was that you started telling me the other day about\na monkey’s paw or something, Morris?”",
+      "translation": "“莫里斯，你那天跟我提起的什么猴爪之类的东西，是怎么回事？”"
+    },
+    {
+      "id": "p24-s1",
+      "paragraph": 24,
+      "start_byte": 3155,
+      "end_byte": 3196,
+      "original": "“Nothing,” said the soldier, hastily.",
+      "translation": "“没什么，”士兵急忙说。"
+    },
+    {
+      "id": "p24-s2",
+      "paragraph": 24,
+      "start_byte": 3196,
+      "end_byte": 3235,
+      "original": " “Leastways nothing worth\nhearing.”",
+      "translation": "“至少没什么值得听的。”"
+    },
+    {
+      "id": "p25-s1",
+      "paragraph": 25,
+      "start_byte": 3237,
+      "end_byte": 3286,
+      "original": "“Monkey’s paw?” said Mrs. White, curiously.",
+      "translation": "“猴爪？”怀特太太好奇地说。"
+    },
+    {
+      "id": "p26-s1",
+      "paragraph": 26,
+      "start_byte": 3288,
+      "end_byte": 3394,
+      "original": "“Well, it’s just a bit of what you might call magic, perhaps,” said the\nsergeant-major, offhandedly.",
+      "translation": "“嗯，也许只是你们所说的一点魔法罢了，”军士长漫不经心地说。"
+    },
+    {
+      "id": "p27-s1",
+      "paragraph": 27,
+      "start_byte": 3396,
+      "end_byte": 3439,
+      "original": "His three listeners leaned forward eagerly.",
+      "translation": "他的三位听众急切地向前倾身。"
+    },
+    {
+      "id": "p27-s2",
+      "paragraph": 27,
+      "start_byte": 3439,
+      "end_byte": 3527,
+      "original": " The visitor absent-mindedly\nput his empty glass to his lips and then set it down again.",
+      "translation": "来客心不在焉地把空杯子举到嘴边，然后又放了下来。"
+    },
+    {
+      "id": "p27-s3",
+      "paragraph": 27,
+      "start_byte": 3527,
+      "end_byte": 3555,
+      "original": " His host\nfilled it for him.",
+      "translation": "主人给他斟满了酒。"
+    },
+    {
+      "id": "p28-s1",
+      "paragraph": 28,
+      "start_byte": 3557,
+      "end_byte": 3683,
+      "original": "“To look at,” said the sergeant-major, fumbling in his pocket, “it’s\njust an ordinary little paw, dried to a mummy.”",
+      "translation": "“看上去，”军士长一边在口袋里摸索一边说，“它不过是一只普通的小爪子，已经干得像木乃伊一样了。”"
+    },
+    {
+      "id": "p29-s1",
+      "paragraph": 29,
+      "start_byte": 3685,
+      "end_byte": 3738,
+      "original": "He took something out of his pocket and proffered it.",
+      "translation": "他从口袋里掏出一样东西递了过去。"
+    },
+    {
+      "id": "p29-s2",
+      "paragraph": 29,
+      "start_byte": 3738,
+      "end_byte": 3822,
+      "original": " Mrs. White drew\nback with a grimace, but her son, taking it, examined it curiously.",
+      "translation": "怀特太太做了个鬼脸往后退缩，但她儿子接过去，好奇地查看起来。"
+    },
+    {
+      "id": "p30-s1",
+      "paragraph": 30,
+      "start_byte": 3824,
+      "end_byte": 3962,
+      "original": "“And what is there special about it?” inquired Mr. White as he took it\nfrom his son, and having examined it, placed it upon the table.",
+      "translation": "“这东西有什么特别之处呢？”怀特先生从儿子手中接过来，仔细端详了一番后放在桌上，问道。"
+    },
+    {
+      "id": "p31-s1",
+      "paragraph": 31,
+      "start_byte": 3964,
+      "end_byte": 4056,
+      "original": "“It had a spell put on it by an old fakir,” said the sergeant-major, “a\nvery holy man.",
+      "translation": "“有个老苦行僧对它下了咒，”军士长说，“他是个非常神圣的人。"
+    },
+    {
+      "id": "p31-s2",
+      "paragraph": 31,
+      "start_byte": 4056,
+      "end_byte": 4170,
+      "original": " He wanted to show that fate ruled people’s lives, and\nthat those who interfered with it did so to their sorrow.",
+      "translation": "他想证明命运主宰着人们的生活，而干预命运的人只会自食其果。"
+    },
+    {
+      "id": "p31-s3",
+      "paragraph": 31,
+      "start_byte": 4170,
+      "end_byte": 4259,
+      "original": " He put a\nspell on it so that three separate men could each have three wishes\nfrom it.”",
+      "translation": "他下了咒，使得三个不同的人可以各自对着它许三个愿。”"
+    },
+    {
+      "id": "p32-s1",
+      "paragraph": 32,
+      "start_byte": 4261,
+      "end_byte": 4364,
+      "original": "His manner was so impressive that his hearers were conscious that their\nlight laughter jarred somewhat.",
+      "translation": "他的神态如此令人印象深刻，以至于听众意识到自己轻快的笑声有些不合时宜。"
+    },
+    {
+      "id": "p33-s1",
+      "paragraph": 33,
+      "start_byte": 4366,
+      "end_byte": 4440,
+      "original": "“Well, why don’t you have three, sir?” said Herbert White, cleverly.",
+      "translation": "“嘿，您怎么不也许三个愿望呢，先生？”赫伯特·怀特机灵地说。"
+    },
+    {
+      "id": "p34-s1",
+      "paragraph": 34,
+      "start_byte": 4442,
+      "end_byte": 4531,
+      "original": "The soldier regarded him in the way that middle age is wont to regard\npresumptuous youth.",
+      "translation": "老兵用中年人惯常看待鲁莽青年的那种目光注视着他。"
+    },
+    {
+      "id": "p34-s2",
+      "paragraph": 34,
+      "start_byte": 4531,
+      "end_byte": 4594,
+      "original": " “I have,” he said, quietly, and his blotchy face\nwhitened.",
+      "translation": "“我有过，”他平静地说，他那布满斑点的脸变得苍白。"
+    },
+    {
+      "id": "p35-s1",
+      "paragraph": 35,
+      "start_byte": 4596,
+      "end_byte": 4669,
+      "original": "“And did you really have the three wishes granted?” asked Mrs. White.",
+      "translation": "“您真的实现了那三个愿望吗？”怀特太太问道。"
+    },
+    {
+      "id": "p36-s1",
+      "paragraph": 36,
+      "start_byte": 4671,
+      "end_byte": 4755,
+      "original": "“I did,” said the sergeant-major, and his glass tapped against his\nstrong teeth.",
+      "translation": "“实现了，”军士长说，他的酒杯碰在他坚固的牙齿上。"
+    },
+    {
+      "id": "p37-s1",
+      "paragraph": 37,
+      "start_byte": 4757,
+      "end_byte": 4815,
+      "original": "“And has anybody else wished?” persisted the old lady.",
+      "translation": "“还有别人许过愿吗？”老太太追问道。"
+    },
+    {
+      "id": "p38-s1",
+      "paragraph": 38,
+      "start_byte": 4817,
+      "end_byte": 4855,
+      "original": "“The first man had his three wishes.",
+      "translation": "“第一个人实现了他的三个愿望。"
+    },
+    {
+      "id": "p38-s2",
+      "paragraph": 38,
+      "start_byte": 4855,
+      "end_byte": 4950,
+      "original": " Yes,” was the reply; “I don’t know\nwhat the first two were, but the third was for death.",
+      "translation": "“是的，”他回答道，“我不知道前两个愿望是什么，但第三个是求死。"
+    },
+    {
+      "id": "p38-s3",
+      "paragraph": 38,
+      "start_byte": 4950,
+      "end_byte": 4981,
+      "original": " That’s how I got\nthe paw.”",
+      "translation": "“我就是这样得到猴爪的。”"
+    },
+    {
+      "id": "p39-s1",
+      "paragraph": 39,
+      "start_byte": 4983,
+      "end_byte": 5039,
+      "original": "His tones were so grave that a hush fell upon the group.",
+      "translation": "他的语气是如此严肃，大家一下子安静下来。"
+    },
+    {
+      "id": "p40-s1",
+      "paragraph": 40,
+      "start_byte": 5041,
+      "end_byte": 5148,
+      "original": "“If you’ve had your three wishes, it’s no good to you now, then,\nMorris,” said the old man at last.",
+      "translation": "“如果你已经实现了你的三个愿望，那它现在对你也没用了，莫里斯，”老人最后说。"
+    },
+    {
+      "id": "p40-s2",
+      "paragraph": 40,
+      "start_byte": 5148,
+      "end_byte": 5179,
+      "original": " “What do you keep it for?”",
+      "translation": "“你还留着它干什么？”"
+    },
+    {
+      "id": "p41-s1",
+      "paragraph": 41,
+      "start_byte": 5181,
+      "end_byte": 5208,
+      "original": "The soldier shook his head.",
+      "translation": "老兵摇了摇头。"
+    },
+    {
+      "id": "p41-s2",
+      "paragraph": 41,
+      "start_byte": 5208,
+      "end_byte": 5249,
+      "original": " “Fancy, I suppose,” he said, slowly.",
+      "translation": "“我想，是出于喜好，”他缓缓地说。"
+    },
+    {
+      "id": "p41-s3",
+      "paragraph": 41,
+      "start_byte": 5249,
+      "end_byte": 5316,
+      "original": " “I did\nhave some idea of selling it, but I don’t think I will.",
+      "translation": "“我确实想过卖掉它，但我想还是不会卖。”"
+    },
+    {
+      "id": "p41-s4",
+      "paragraph": 41,
+      "start_byte": 5316,
+      "end_byte": 5355,
+      "original": " It has caused\nenough mischief already.",
+      "translation": "它已经造成了足够的麻烦。"
+    },
+    {
+      "id": "p41-s5",
+      "paragraph": 41,
+      "start_byte": 5355,
+      "end_byte": 5384,
+      "original": " Besides, people won’t buy.",
+      "translation": "而且，人们不会买。"
+    },
+    {
+      "id": "p41-s6",
+      "paragraph": 41,
+      "start_byte": 5384,
+      "end_byte": 5514,
+      "original": " They think it’s a\nfairy tale; some of them, and those who do think anything of it want to\ntry it first and pay me afterward.”",
+      "translation": "他们认为这是个童话故事；有些人这样想，而那些真把它当回事的人想先试试，之后再付钱。"
+    },
+    {
+      "id": "p42-s1",
+      "paragraph": 42,
+      "start_byte": 5516,
+      "end_byte": 5625,
+      "original": "“If you could have another three wishes,” said the old man, eyeing him\nkeenly, “would you have them?”",
+      "translation": "“如果你还能再有三个愿望，”老人用锐利的目光打量着他，“你还会要吗？”"
+    },
+    {
+      "id": "p43-s1",
+      "paragraph": 43,
+      "start_byte": 5627,
+      "end_byte": 5664,
+      "original": "“I don’t know,” said the other.",
+      "translation": "“我不知道，”另一个人说。"
+    },
+    {
+      "id": "p43-s2",
+      "paragraph": 43,
+      "start_byte": 5664,
+      "end_byte": 5686,
+      "original": " “I don’t know.”",
+      "translation": "“我不知道。”"
+    },
+    {
+      "id": "p44-s1",
+      "paragraph": 44,
+      "start_byte": 5688,
+      "end_byte": 5787,
+      "original": "He took the paw, and dangling it between his forefinger and thumb,\nsuddenly threw it upon the fire.",
+      "translation": "他拿起猴爪，用食指和拇指夹着晃了晃，突然把它扔进火里。"
+    },
+    {
+      "id": "p44-s2",
+      "paragraph": 44,
+      "start_byte": 5787,
+      "end_byte": 5847,
+      "original": " White, with a slight cry, stooped down\nand snatched it off.",
+      "translation": "怀特轻叫一声，弯下腰把它抢了出来。"
+    },
+    {
+      "id": "p45-s1",
+      "paragraph": 45,
+      "start_byte": 5849,
+      "end_byte": 5902,
+      "original": "“Better let it burn,” said the soldier, solemnly.",
+      "translation": "“还是让它烧掉吧，”士兵严肃地说。"
+    },
+    {
+      "id": "p46-s1",
+      "paragraph": 46,
+      "start_byte": 5904,
+      "end_byte": 5978,
+      "original": "“If you don’t want it, Morris,” said the other, “give it to me.”",
+      "translation": "“如果你不想要它，莫里斯，”另一个人说，“就把它给我吧。”"
+    },
+    {
+      "id": "p47-s1",
+      "paragraph": 47,
+      "start_byte": 5980,
+      "end_byte": 6023,
+      "original": "“I won’t,” said his friend, doggedly.",
+      "translation": "“我不给，”他的朋友固执地说。"
+    },
+    {
+      "id": "p47-s2",
+      "paragraph": 47,
+      "start_byte": 6023,
+      "end_byte": 6050,
+      "original": " “I threw it on the fire.",
+      "translation": "“我把它扔进火里了。"
+    },
+    {
+      "id": "p47-s3",
+      "paragraph": 47,
+      "start_byte": 6050,
+      "end_byte": 6101,
+      "original": " If you\nkeep it, don’t blame me for what happens.",
+      "translation": "如果你留着它，出了什么事可别怪我。"
+    },
+    {
+      "id": "p47-s4",
+      "paragraph": 47,
+      "start_byte": 6101,
+      "end_byte": 6152,
+      "original": " Pitch it on the fire again\nlike a sensible man.”",
+      "translation": "像个明智的人那样，再把它扔进火里吧。”"
+    },
+    {
+      "id": "p48-s1",
+      "paragraph": 48,
+      "start_byte": 6154,
+      "end_byte": 6219,
+      "original": "The other shook his head and examined his new possession closely.",
+      "translation": "另一个人摇了摇头，仔细端详起这个新得到的东西。"
+    },
+    {
+      "id": "p48-s2",
+      "paragraph": 48,
+      "start_byte": 6219,
+      "end_byte": 6256,
+      "original": " “How\ndo you do it?” he inquired.",
+      "translation": "“你是怎么做到的？”他问道。"
+    },
+    {
+      "id": "p49-s1",
+      "paragraph": 49,
+      "start_byte": 6258,
+      "end_byte": 6376,
+      "original": "“Hold it up in your right hand and wish aloud,” said the\nsergeant-major, “but I warn you of the consequences.”",
+      "translation": "“用右手把它举起来，大声许愿，”军士长说，“但我警告你后果。”"
+    },
+    {
+      "id": "p50-s1",
+      "paragraph": 50,
+      "start_byte": 6378,
+      "end_byte": 6475,
+      "original": "“Sounds like the _Arabian Nights_,” said Mrs. White, as she rose and\nbegan to set the supper.",
+      "translation": "“听起来像《天方夜谭》，”怀特太太说着站起来，开始摆晚饭。"
+    },
+    {
+      "id": "p50-s2",
+      "paragraph": 50,
+      "start_byte": 6475,
+      "end_byte": 6546,
+      "original": " “Don’t you think you might wish for four pairs\nof hands for me?”",
+      "translation": "“你不觉得你可以许愿给我四双手吗？”"
+    },
+    {
+      "id": "p51-s1",
+      "paragraph": 51,
+      "start_byte": 6548,
+      "end_byte": 6709,
+      "original": "Her husband drew the talisman from pocket, and then all three burst\ninto laughter as the sergeant-major, with a look of alarm on his face,\ncaught him by the arm.",
+      "translation": "她的丈夫从口袋里掏出护身符，然后当军士长一脸惊恐地抓住他的胳膊时，三个人都大笑起来。"
+    },
+    {
+      "id": "p52-s1",
+      "paragraph": 52,
+      "start_byte": 6711,
+      "end_byte": 6787,
+      "original": "“If you must wish,” he said, gruffly, “wish for something sensible.”",
+      "translation": "“如果你一定要许愿，”他粗声粗气地说，“就许点明智的愿望。”"
+    },
+    {
+      "id": "p53-s1",
+      "paragraph": 53,
+      "start_byte": 6789,
+      "end_byte": 6883,
+      "original": "Mr. White dropped it back in his pocket, and placing chairs, motioned\nhis friend to the table.",
+      "translation": "怀特先生把它放回口袋，摆好椅子，示意朋友到桌边来。"
+    },
+    {
+      "id": "p53-s2",
+      "paragraph": 53,
+      "start_byte": 6883,
+      "end_byte": 7070,
+      "original": " In the business of supper the talisman was\npartly forgotten, and afterward the three sat listening in an\nenthralled fashion to a second instalment of the soldier’s adventures\nin India.",
+      "translation": "在吃晚饭的过程中，护身符被部分遗忘了，之后三个人入迷地坐着听士兵在印度冒险经历的第二部分。"
+    },
+    {
+      "id": "p54-s1",
+      "paragraph": 54,
+      "start_byte": 7072,
+      "end_byte": 7308,
+      "original": "“If the tale about the monkey’s paw is not more truthful than those he\nhas been telling us,” said Herbert, as the door closed behind their\nguest, just in time for him to catch the last train, “we sha’nt make\nmuch out of it.”",
+      "translation": "“如果关于猴爪的故事不比他给我们讲的那些更真实，”赫伯特说，这时客人刚出门，正好赶上末班火车，“我们从中得不到什么好处。”"
+    },
+    {
+      "id": "p55-s1",
+      "paragraph": 55,
+      "start_byte": 7310,
+      "end_byte": 7409,
+      "original": "“Did you give him anything for it, father?” inquired Mrs. White,\nregarding her husband closely.",
+      "translation": "“你给了他什么东西作为交换吗，父亲？”怀特太太仔细地看着丈夫问道。"
+    },
+    {
+      "id": "p56-s1",
+      "paragraph": 56,
+      "start_byte": 7411,
+      "end_byte": 7455,
+      "original": "“A trifle,” said he, colouring slightly.",
+      "translation": "“一点小钱，”他说，脸微微红了。"
+    },
+    {
+      "id": "p56-s2",
+      "paragraph": 56,
+      "start_byte": 7455,
+      "end_byte": 7503,
+      "original": " “He didn’t want it, but I made\nhim take it.",
+      "translation": "“他不想要，但我硬要他收下。”"
+    },
+    {
+      "id": "p56-s3",
+      "paragraph": 56,
+      "start_byte": 7503,
+      "end_byte": 7548,
+      "original": " And he pressed me again to throw it away.”",
+      "translation": "而且他又催我把它扔掉。”"
+    },
+    {
+      "id": "p57-s1",
+      "paragraph": 57,
+      "start_byte": 7550,
+      "end_byte": 7600,
+      "original": "“Likely,” said Herbert, with pretended horror.",
+      "translation": "“很可能，”赫伯特装出害怕的样子说。"
+    },
+    {
+      "id": "p57-s2",
+      "paragraph": 57,
+      "start_byte": 7600,
+      "end_byte": 7656,
+      "original": " “Why, we’re going to be\nrich, and famous and happy.",
+      "translation": "“哎呀，我们就要发财、出名、幸福了。”"
+    },
+    {
+      "id": "p57-s3",
+      "paragraph": 57,
+      "start_byte": 7656,
+      "end_byte": 7736,
+      "original": " Wish to be an emperor, father, to begin\nwith; then you can’t be henpecked.”",
+      "translation": "先许愿当皇帝吧，父亲；这样你就不会怕老婆了。”"
+    },
+    {
+      "id": "p58-s1",
+      "paragraph": 58,
+      "start_byte": 7738,
+      "end_byte": 7827,
+      "original": "He darted round the table, pursued by the maligned Mrs. White armed\nwith an antimacassar.",
+      "translation": "他绕着桌子跑，被诬蔑的怀特太太拿着椅罩追着。"
+    },
+    {
+      "id": "p59-s1",
+      "paragraph": 59,
+      "start_byte": 7829,
+      "end_byte": 7890,
+      "original": "Mr. White took the paw from his pocket and eyed it dubiously.",
+      "translation": "怀特先生从口袋里拿出猴爪，怀疑地看着它。"
+    },
+    {
+      "id": "p59-s2",
+      "paragraph": 59,
+      "start_byte": 7890,
+      "end_byte": 7967,
+      "original": " “I don’t\nknow what to wish for, and that’s a fact,” he said, slowly.",
+      "translation": "“我不知道该许什么愿，这是实话。”他缓缓说道。"
+    },
+    {
+      "id": "p59-s3",
+      "paragraph": 59,
+      "start_byte": 7967,
+      "end_byte": 8011,
+      "original": " “It seems\nto me I’ve got all I want.”",
+      "translation": "“在我看来，我想要的东西都已经有了。”"
+    },
+    {
+      "id": "p60-s1",
+      "paragraph": 60,
+      "start_byte": 8013,
+      "end_byte": 8134,
+      "original": "“If you only cleared the house, you’d be quite happy, wouldn’t you?”\nsaid Herbert, with his hand on his shoulder.",
+      "translation": "“要是你把房子的债还清了，你就会非常开心，对吧？”赫伯特把手搭在他肩上说。"
+    },
+    {
+      "id": "p60-s2",
+      "paragraph": 60,
+      "start_byte": 8134,
+      "end_byte": 8204,
+      "original": " “Well, wish for two\nhundred pounds, then; that ’ll just do it.”",
+      "translation": "“那么，就许愿要两百英镑吧，那正好够了。”"
+    },
+    {
+      "id": "p61-s1",
+      "paragraph": 61,
+      "start_byte": 8206,
+      "end_byte": 8413,
+      "original": "His father, smiling shamefacedly at his own credulity, held up the\ntalisman, as his son, with a solemn face, somewhat marred by a wink at\nhis mother, sat down at the piano and struck a few impressive chords.",
+      "translation": "他的父亲因自己的轻信而羞愧地笑了笑，举起那个护身符；与此同时，他儿子一脸严肃，但朝母亲使了个眼色，破坏了这份严肃，然后坐在钢琴前弹了几个有力的和弦。"
+    },
+    {
+      "id": "p62-s1",
+      "paragraph": 62,
+      "start_byte": 8415,
+      "end_byte": 8480,
+      "original": "“I wish for two hundred pounds,” said the old man distinctly.",
+      "translation": "“我许愿要两百英镑。”老人清清楚楚地说。"
+    },
+    {
+      "id": "p63-s1",
+      "paragraph": 63,
+      "start_byte": 8482,
+      "end_byte": 8578,
+      "original": "A fine crash from the piano greeted the words, interrupted by a\nshuddering cry from the old man.",
+      "translation": "钢琴发出一声巨响，仿佛在回应这句话，紧接着老人发出一声颤抖的惊叫。"
+    },
+    {
+      "id": "p63-s2",
+      "paragraph": 63,
+      "start_byte": 8578,
+      "end_byte": 8611,
+      "original": " His wife and son ran toward him.",
+      "translation": "他的妻子和儿子朝他跑来。"
+    },
+    {
+      "id": "p64-s1",
+      "paragraph": 64,
+      "start_byte": 8613,
+      "end_byte": 8701,
+      "original": "“It moved,” he cried, with a glance of disgust at the object as it lay\non the floor.",
+      "translation": "“它动了。”他叫道，厌恶地瞥了一眼掉在地上的那个东西。"
+    },
+    {
+      "id": "p65-s1",
+      "paragraph": 65,
+      "start_byte": 8703,
+      "end_byte": 8757,
+      "original": "“As I wished, it twisted in my hand like a snake.”",
+      "translation": "“我许愿的时候，它在我手里像蛇一样扭动。”"
+    },
+    {
+      "id": "p66-s1",
+      "paragraph": 66,
+      "start_byte": 8759,
+      "end_byte": 8886,
+      "original": "“Well, I don’t see the money,” said his son as he picked it up and\nplaced it on the table, “and I bet I never shall.”",
+      "translation": "“可是我没看到钱。”他儿子捡起猴爪放到桌上说，“而且我敢打赌我永远也看不到。”"
+    },
+    {
+      "id": "p67-s1",
+      "paragraph": 67,
+      "start_byte": 8888,
+      "end_byte": 8971,
+      "original": "“It must have been your fancy, father,” said his wife, regarding him\nanxiously.",
+      "translation": "“那一定是你的错觉，爸爸。”他妻子焦急地看着他说。"
+    },
+    {
+      "id": "p68-s1",
+      "paragraph": 68,
+      "start_byte": 8973,
+      "end_byte": 8991,
+      "original": "He shook his head.",
+      "translation": "他摇了摇头。"
+    },
+    {
+      "id": "p68-s2",
+      "paragraph": 68,
+      "start_byte": 8991,
+      "end_byte": 9078,
+      "original": " “Never mind, though; there’s no harm done, but it\ngave me a shock all the same.”",
+      "translation": "“不过没关系；没有造成什么伤害，但还是让我吓了一跳。”"
+    },
+    {
+      "id": "p69-s1",
+      "paragraph": 69,
+      "start_byte": 9080,
+      "end_byte": 9151,
+      "original": "They sat down by the fire again while the two men finished their pipes.",
+      "translation": "他们又坐到炉火旁，两个男人抽完了烟斗。"
+    },
+    {
+      "id": "p69-s2",
+      "paragraph": 69,
+      "start_byte": 9151,
+      "end_byte": 9266,
+      "original": "\nOutside, the wind was higher than ever, and the old man started\nnervously at the sound of a door banging upstairs.",
+      "translation": "外面，风比之前更大了，老人听到楼上砰的一声门响，紧张地吓了一跳。"
+    },
+    {
+      "id": "p69-s3",
+      "paragraph": 69,
+      "start_byte": 9266,
+      "end_byte": 9387,
+      "original": " A silence unusual\nand depressing settled upon all three, which lasted until the old\ncouple rose to retire for the night.",
+      "translation": "一种不寻常而令人压抑的沉默笼罩着他们三人，一直持续到老夫妇起身去睡觉。"
+    },
+    {
+      "id": "p70-s1",
+      "paragraph": 70,
+      "start_byte": 9389,
+      "end_byte": 9631,
+      "original": "“I expect you’ll find the cash tied up in a big bag in the middle of\nyour bed,” said Herbert, as he bade them good-night, “and something\nhorrible squatting up on top of the wardrobe watching you as you pocket\nyour ill-gotten gains.”",
+      "translation": "“我预料你们会发现现金捆成一大包放在床中央，”赫伯特跟他们道晚安时说，“还会有什么可怕的东西蹲在衣柜顶上，盯着你们把不义之财揣进口袋。”"
+    },
+    {
+      "id": "p71-s1",
+      "paragraph": 71,
+      "start_byte": 9633,
+      "end_byte": 9712,
+      "original": "He sat alone in the darkness, gazing at the dying fire, and seeing\nfaces in it.",
+      "translation": "他独自坐在黑暗中，凝视着即将熄灭的炉火，在火中看到了许多面孔。"
+    },
+    {
+      "id": "p71-s2",
+      "paragraph": 71,
+      "start_byte": 9712,
+      "end_byte": 9790,
+      "original": " The last face was so horrible and so simian that he gazed\nat it in amazement.",
+      "translation": "最后一张脸是那么可怕、那么像猿猴，他惊讶地盯着它。"
+    },
+    {
+      "id": "p71-s3",
+      "paragraph": 71,
+      "start_byte": 9790,
+      "end_byte": 9917,
+      "original": " It got so vivid that, with a little uneasy laugh,\nhe felt on the table for a glass containing a little water to throw\nover it.",
+      "translation": "那张脸变得如此逼真，他不安地轻笑一声，伸手在桌上摸索一个盛着一点水的玻璃杯，想泼向它。"
+    },
+    {
+      "id": "p71-s4",
+      "paragraph": 71,
+      "start_byte": 9917,
+      "end_byte": 10029,
+      "original": " His hand grasped the monkey’s paw, and with a little shiver he\nwiped his hand on his coat and went up to bed.",
+      "translation": "他的手碰到了猴爪，微微打了个寒颤，他在外套上擦了擦手，上楼睡觉去了。"
+    },
+    {
+      "id": "p72-s1",
+      "paragraph": 72,
+      "start_byte": 10034,
+      "end_byte": 10037,
+      "original": "II.",
+      "translation": "二"
+    },
+    {
+      "id": "p73-s1",
+      "paragraph": 73,
+      "start_byte": 10040,
+      "end_byte": 10153,
+      "original": "In the brightness of the wintry sun next morning as it streamed over\nthe breakfast table he laughed at his fears.",
+      "translation": "第二天早晨，冬日明亮的阳光洒在早餐桌上，他嘲笑自己的恐惧。"
+    },
+    {
+      "id": "p73-s2",
+      "paragraph": 73,
+      "start_byte": 10153,
+      "end_byte": 10387,
+      "original": " There was an air of\nprosaic wholesomeness about the room which it had lacked on the\nprevious night, and the dirty, shrivelled little paw was pitched on the\nsideboard with a carelessness which betokened no great belief in its\nvirtues.",
+      "translation": "房间里有一种平淡而健康的气氛，这是前一夜所没有的；那个肮脏、干瘪的小爪子被随意扔在餐具柜上，显得对它的功效没有多大信心。"
+    },
+    {
+      "id": "p74-s1",
+      "paragraph": 74,
+      "start_byte": 10389,
+      "end_byte": 10452,
+      "original": "“I suppose all old soldiers are the same,” said Mrs. White.",
+      "translation": "“我想所有老兵都一样，”怀特太太说。"
+    },
+    {
+      "id": "p74-s2",
+      "paragraph": 74,
+      "start_byte": 10452,
+      "end_byte": 10499,
+      "original": " “The idea\nof our listening to such nonsense!",
+      "translation": "“我们居然会听信这种胡说八道！"
+    },
+    {
+      "id": "p74-s3",
+      "paragraph": 74,
+      "start_byte": 10499,
+      "end_byte": 10542,
+      "original": " How could wishes be granted in these\ndays?",
+      "translation": "如今这年月，愿望怎么可能实现呢？"
+    },
+    {
+      "id": "p74-s4",
+      "paragraph": 74,
+      "start_byte": 10542,
+      "end_byte": 10611,
+      "original": " And if they could, how could two hundred pounds hurt you,\nfather?”",
+      "translation": "就算能实现，两百英镑又怎么会害你呢，父亲？”"
+    },
+    {
+      "id": "p75-s1",
+      "paragraph": 75,
+      "start_byte": 10613,
+      "end_byte": 10683,
+      "original": "“Might drop on his head from the sky,” said the frivolous Herbert.",
+      "translation": "“说不定会从天上掉下来砸到他的头呢，”轻浮的赫伯特说。"
+    },
+    {
+      "id": "p76-s1",
+      "paragraph": 76,
+      "start_byte": 10685,
+      "end_byte": 10820,
+      "original": "“Morris said the things happened so naturally,” said his father, “that\nyou might if you so wished attribute it to coincidence.”",
+      "translation": "“莫里斯说事情发生得非常自然，”他父亲说，“如果你愿意，完全可以把它归因于巧合。”"
+    },
+    {
+      "id": "p77-s1",
+      "paragraph": 77,
+      "start_byte": 10822,
+      "end_byte": 10922,
+      "original": "“Well, don’t break into the money before I come back,” said Herbert as\nhe rose from the table.",
+      "translation": "“好了，在我回来之前别打那笔钱的主意，”赫伯特说着从桌边站起来。"
+    },
+    {
+      "id": "p77-s2",
+      "paragraph": 77,
+      "start_byte": 10922,
+      "end_byte": 11020,
+      "original": " “I’m afraid it’ll turn you into a mean,\navaricious man, and we shall have to disown you.”",
+      "translation": "“我怕它会把你变成一个吝啬贪婪的人，到那时我们只好不认你了。”"
+    },
+    {
+      "id": "p78-s1",
+      "paragraph": 78,
+      "start_byte": 11022,
+      "end_byte": 11197,
+      "original": "His mother laughed, and following him to the door, watched him down the\nroad; and returning to the breakfast table, was very happy at the\nexpense of her husband’s credulity.",
+      "translation": "他母亲笑了，跟着他到门口，目送他沿路走去；回到早餐桌旁，她拿丈夫的轻信打趣，觉得非常开心。"
+    },
+    {
+      "id": "p78-s2",
+      "paragraph": 78,
+      "start_byte": 11197,
+      "end_byte": 11433,
+      "original": " All of which did not prevent her\nfrom scurrying to the door at the postman’s knock, nor prevent her from\nreferring somewhat shortly to retired sergeant-majors of bibulous\nhabits when she found that the post brought a tailor’s bill.",
+      "translation": "但这并不妨碍她听到邮递员敲门就急忙跑去开门，也不妨碍她在发现邮件里是一张裁缝账单时，有点没好气地提起那些嗜酒成性的退休军士长。"
+    },
+    {
+      "id": "p79-s1",
+      "paragraph": 79,
+      "start_byte": 11435,
+      "end_byte": 11553,
+      "original": "“Herbert will have some more of his funny remarks, I expect, when he\ncomes home,” she said, as they sat at dinner.",
+      "translation": "“我想赫伯特回来时，还会说些他的俏皮话，”他们吃晚饭时她说道。"
+    },
+    {
+      "id": "p80-s1",
+      "paragraph": 80,
+      "start_byte": 11555,
+      "end_byte": 11693,
+      "original": "“I dare say,” said Mr. White, pouring himself out some beer; “but for\nall that, the thing moved in my hand; that I’ll swear to.”",
+      "translation": "“我敢说，”怀特先生一边给自己倒啤酒一边说，“尽管如此，那东西在我手里动了；这我可以发誓。”"
+    },
+    {
+      "id": "p81-s1",
+      "paragraph": 81,
+      "start_byte": 11695,
+      "end_byte": 11750,
+      "original": "“You thought it did,” said the old lady soothingly.",
+      "translation": "“你以为是那样。”老太太安慰地说。"
+    },
+    {
+      "id": "p82-s1",
+      "paragraph": 82,
+      "start_byte": 11752,
+      "end_byte": 11790,
+      "original": "“I say it did,” replied the other.",
+      "translation": "“我说是事实。”另一位回答说。"
+    },
+    {
+      "id": "p82-s2",
+      "paragraph": 82,
+      "start_byte": 11790,
+      "end_byte": 11861,
+      "original": " “There was no thought about it; I\nhad just—What’s the matter?”",
+      "translation": "“不是以为；我刚刚——怎么了？”"
+    },
+    {
+      "id": "p83-s1",
+      "paragraph": 83,
+      "start_byte": 11863,
+      "end_byte": 11886,
+      "original": "His wife made no reply.",
+      "translation": "他妻子没有回答。"
+    },
+    {
+      "id": "p83-s2",
+      "paragraph": 83,
+      "start_byte": 11886,
+      "end_byte": 12049,
+      "original": " She was watching the mysterious movements of a\nman outside, who, peering in an undecided fashion at the house,\nappeared to be trying to make up his mind to enter.",
+      "translation": "她正注视着外面一个男人的神秘举动，那人犹犹豫豫地朝屋里窥探，似乎正试图决定是否进来。"
+    },
+    {
+      "id": "p83-s3",
+      "paragraph": 83,
+      "start_byte": 12049,
+      "end_byte": 12186,
+      "original": " In mental\nconnection with the two hundred pounds, she noticed that the stranger\nwas well dressed, and wore a silk hat of glossy newness.",
+      "translation": "心里联想到那两百英镑，她注意到那个陌生人衣着讲究，戴着一顶崭新发亮的丝质礼帽。"
+    },
+    {
+      "id": "p83-s4",
+      "paragraph": 83,
+      "start_byte": 12186,
+      "end_byte": 12247,
+      "original": " Three times he\npaused at the gate, and then walked on again.",
+      "translation": "他在大门口三次停下脚步，然后又继续往前走。"
+    },
+    {
+      "id": "p83-s5",
+      "paragraph": 83,
+      "start_byte": 12247,
+      "end_byte": 12365,
+      "original": " The fourth time he stood\nwith his hand upon it, and then with sudden resolution flung it open\nand walked up the path.",
+      "translation": "第四次他站在那儿，手放在门上，然后突然下定决心，猛地推开门，沿着小路走了上来。"
+    },
+    {
+      "id": "p83-s6",
+      "paragraph": 83,
+      "start_byte": 12365,
+      "end_byte": 12545,
+      "original": " Mrs. White at the same moment placed her hands\nbehind her, and hurriedly unfastening the strings of her apron, put\nthat useful article of apparel beneath the cushion of her chair.",
+      "translation": "与此同时，怀特太太把手伸到身后，急忙解开围裙带子，把这件实用的衣物塞到椅垫下面。"
+    },
+    {
+      "id": "p84-s1",
+      "paragraph": 84,
+      "start_byte": 12547,
+      "end_byte": 12611,
+      "original": "She brought the stranger, who seemed ill at ease, into the room.",
+      "translation": "她把那个似乎局促不安的陌生人领进了房间。"
+    },
+    {
+      "id": "p84-s2",
+      "paragraph": 84,
+      "start_byte": 12611,
+      "end_byte": 12813,
+      "original": " He\ngazed at her furtively, and listened in a preoccupied fashion as the\nold lady apologized for the appearance of the room, and her husband’s\ncoat, a garment which he usually reserved for the garden.",
+      "translation": "他偷偷地打量着她，心不在焉地听着老太太为房间的凌乱和丈夫的外套道歉，那件外套通常只在花园里穿。"
+    },
+    {
+      "id": "p84-s3",
+      "paragraph": 84,
+      "start_byte": 12813,
+      "end_byte": 12937,
+      "original": " She then\nwaited as patiently as her sex would permit, for him to broach his\nbusiness, but he was at first strangely silent.",
+      "translation": "然后她以女性所能有的耐心等待着他说出正事，但他一开始却出奇地沉默。"
+    },
+    {
+      "id": "p85-s1",
+      "paragraph": 85,
+      "start_byte": 12939,
+      "end_byte": 13044,
+      "original": "“I—was asked to call,” he said at last, and stooped and picked a piece\nof cotton from his trousers.",
+      "translation": "“我——是奉命来访的，”他终于说道，弯腰从裤子上捡起一根棉线。"
+    },
+    {
+      "id": "p85-s2",
+      "paragraph": 85,
+      "start_byte": 13044,
+      "end_byte": 13085,
+      "original": " “I come from ‘Maw and Meggins.’”",
+      "translation": "“我来自‘莫和梅金斯’公司。”"
+    },
+    {
+      "id": "p86-s1",
+      "paragraph": 86,
+      "start_byte": 13087,
+      "end_byte": 13108,
+      "original": "The old lady started.",
+      "translation": "老太太吃了一惊。"
+    },
+    {
+      "id": "p86-s2",
+      "paragraph": 86,
+      "start_byte": 13108,
+      "end_byte": 13163,
+      "original": " “Is anything the matter?” she asked,\nbreathlessly.",
+      "translation": "“出了什么事吗？”她气喘吁吁地问。"
+    },
+    {
+      "id": "p86-s3",
+      "paragraph": 86,
+      "start_byte": 13163,
+      "end_byte": 13200,
+      "original": " “Has anything happened to Herbert?",
+      "translation": "“赫伯特出什么事了吗？"
+    },
+    {
+      "id": "p86-s4",
+      "paragraph": 86,
+      "start_byte": 13200,
+      "end_byte": 13212,
+      "original": " What is it?",
+      "translation": "是什么事？"
+    },
+    {
+      "id": "p86-s5",
+      "paragraph": 86,
+      "start_byte": 13212,
+      "end_byte": 13227,
+      "original": " What is\nit?”",
+      "translation": "是什么事？”"
+    },
+    {
+      "id": "p87-s1",
+      "paragraph": 87,
+      "start_byte": 13229,
+      "end_byte": 13252,
+      "original": "Her husband interposed.",
+      "translation": "她的丈夫插话道。"
+    },
+    {
+      "id": "p87-s2",
+      "paragraph": 87,
+      "start_byte": 13252,
+      "end_byte": 13298,
+      "original": " “There, there, mother,” he said, hastily.",
+      "translation": "“好了，好了，妈妈，”他匆忙地说。"
+    },
+    {
+      "id": "p87-s3",
+      "paragraph": 87,
+      "start_byte": 13298,
+      "end_byte": 13344,
+      "original": " “Sit\ndown, and don’t jump to conclusions.",
+      "translation": "“坐下，别急着下结论。"
+    },
+    {
+      "id": "p87-s4",
+      "paragraph": 87,
+      "start_byte": 13344,
+      "end_byte": 13428,
+      "original": " You’ve not brought bad news, I’m\nsure, sir;” and he eyed the other wistfully.",
+      "translation": "我相信您没有带来坏消息，先生；”他渴望地看着对方。"
+    },
+    {
+      "id": "p88-s1",
+      "paragraph": 88,
+      "start_byte": 13430,
+      "end_byte": 13469,
+      "original": "“I’m sorry—” began the visitor.",
+      "translation": "“我很抱歉——”来访者开口说。"
+    },
+    {
+      "id": "p89-s1",
+      "paragraph": 89,
+      "start_byte": 13471,
+      "end_byte": 13517,
+      "original": "“Is he hurt?” demanded the mother, wildly.",
+      "translation": "“他受伤了吗？”母亲激动地问。"
+    },
+    {
+      "id": "p90-s1",
+      "paragraph": 90,
+      "start_byte": 13519,
+      "end_byte": 13547,
+      "original": "The visitor bowed in assent.",
+      "translation": "来访者点头表示赞成。"
+    },
+    {
+      "id": "p90-s2",
+      "paragraph": 90,
+      "start_byte": 13547,
+      "end_byte": 13616,
+      "original": " “Badly hurt,” he said, quietly, “but he is\nnot in any pain.”",
+      "translation": "“伤得很重，”他轻声说，“但他并不痛苦。”"
+    },
+    {
+      "id": "p91-s1",
+      "paragraph": 91,
+      "start_byte": 13618,
+      "end_byte": 13678,
+      "original": "“Oh, thank God!” said the old woman, clasping her hands.",
+      "translation": "“哦，感谢上帝！”老妇人紧握双手说。"
+    },
+    {
+      "id": "p91-s2",
+      "paragraph": 91,
+      "start_byte": 13678,
+      "end_byte": 13701,
+      "original": " “Thank God for\nthat!",
+      "translation": "“感谢上帝！"
+    },
+    {
+      "id": "p91-s3",
+      "paragraph": 91,
+      "start_byte": 13701,
+      "end_byte": 13713,
+      "original": " Thank—”",
+      "translation": "“谢——”"
+    },
+    {
+      "id": "p92-s1",
+      "paragraph": 92,
+      "start_byte": 13715,
+      "end_byte": 13873,
+      "original": "She broke off suddenly as the sinister meaning of the assurance dawned\nupon her and she saw the awful confirmation of her fears in the other’s\naverted face.",
+      "translation": "她突然停住了，因为她明白了这保证的凶险含义，并从对方扭过去的脸看到了自己恐惧的可怕证实。"
+    },
+    {
+      "id": "p92-s2",
+      "paragraph": 92,
+      "start_byte": 13873,
+      "end_byte": 13976,
+      "original": " She caught her breath, and turning to her slower-witted\nhusband, laid her trembling old hand upon his.",
+      "translation": "她倒吸一口气，转向反应较慢的丈夫，把颤抖的老手放在他的手上。"
+    },
+    {
+      "id": "p92-s3",
+      "paragraph": 92,
+      "start_byte": 13976,
+      "end_byte": 14002,
+      "original": " There was a long\nsilence.",
+      "translation": "一阵长时间的沉默。"
+    },
+    {
+      "id": "p93-s1",
+      "paragraph": 93,
+      "start_byte": 14004,
+      "end_byte": 14084,
+      "original": "“He was caught in the machinery,” said the visitor at length in a low\nvoice.",
+      "translation": "“他被卷进机器里了，”来客最后低声说。"
+    },
+    {
+      "id": "p94-s1",
+      "paragraph": 94,
+      "start_byte": 14086,
+      "end_byte": 14167,
+      "original": "“Caught in the machinery,” repeated Mr. White, in a dazed fashion,\n“yes.”",
+      "translation": "“卷进机器里了，”怀特先生茫然地重复道，“是的。”"
+    },
+    {
+      "id": "p95-s1",
+      "paragraph": 95,
+      "start_byte": 14169,
+      "end_byte": 14347,
+      "original": "He sat staring blankly out at the window, and taking his wife’s hand\nbetween his own, pressed it as he had been wont to do in their old\ncourting-days nearly forty years before.",
+      "translation": "他茫然地凝视着窗外，把妻子的手握在自己两手之间，像近四十年前他们恋爱时常做的那样紧握着。"
+    },
+    {
+      "id": "p96-s1",
+      "paragraph": 96,
+      "start_byte": 14349,
+      "end_byte": 14426,
+      "original": "“He was the only one left to us,” he said, turning gently to the\nvisitor.",
+      "translation": "“他是我们唯一剩下的孩子了，”他轻轻转向来客说。"
+    },
+    {
+      "id": "p96-s2",
+      "paragraph": 96,
+      "start_byte": 14426,
+      "end_byte": 14444,
+      "original": " “It is hard.”",
+      "translation": "“真难啊。”"
+    },
+    {
+      "id": "p97-s1",
+      "paragraph": 97,
+      "start_byte": 14446,
+      "end_byte": 14505,
+      "original": "The other coughed, and rising, walked slowly to the window.",
+      "translation": "对方咳嗽了一声，站起身来，慢慢走到窗前。"
+    },
+    {
+      "id": "p97-s2",
+      "paragraph": 97,
+      "start_byte": 14505,
+      "end_byte": 14624,
+      "original": " “The firm\nwished me to convey their sincere sympathy with you in your great\nloss,” he said, without looking round.",
+      "translation": "“公司希望我向你们表达对你们巨大损失的诚挚慰问，”他说，没有回头。"
+    },
+    {
+      "id": "p97-s3",
+      "paragraph": 97,
+      "start_byte": 14624,
+      "end_byte": 14712,
+      "original": " “I beg that you will understand\nI am only their servant and merely obeying orders.”",
+      "translation": "“我请求你们理解，我只是他们的雇员，仅仅是在执行命令。”"
+    },
+    {
+      "id": "p98-s1",
+      "paragraph": 98,
+      "start_byte": 14714,
+      "end_byte": 14920,
+      "original": "There was no reply; the old woman’s face was white, her eyes staring,\nand her breath inaudible; on the husband’s face was a look such as his\nfriend the sergeant might have carried into his first action.",
+      "translation": "没有回应；老妇人的脸色苍白，眼睛圆睁，呼吸无声；丈夫的脸上带着一种表情，就像他的朋友中士第一次上战场时可能有的那种表情。"
+    },
+    {
+      "id": "p99-s1",
+      "paragraph": 99,
+      "start_byte": 14922,
+      "end_byte": 15017,
+      "original": "“I was to say that ‘Maw and Meggins’ disclaim all responsibility,”\ncontinued the other.",
+      "translation": "“我奉命告诉你们，‘莫和麦金斯’公司不承担任何责任，”来客继续说道。"
+    },
+    {
+      "id": "p99-s2",
+      "paragraph": 99,
+      "start_byte": 15017,
+      "end_byte": 15163,
+      "original": " “They admit no liability at all, but in\nconsideration of your son’s services, they wish to present you with a\ncertain sum as compensation.”",
+      "translation": "“他们完全否认有任何责任，但考虑到您儿子在公司的工作，他们愿意提供一笔钱作为补偿。”"
+    },
+    {
+      "id": "p100-s1",
+      "paragraph": 100,
+      "start_byte": 15165,
+      "end_byte": 15269,
+      "original": "Mr. White dropped his wife’s hand, and rising to his feet, gazed with a\nlook of horror at his visitor.",
+      "translation": "怀特先生放下妻子的手，站起身来，惊恐地凝视着来客。"
+    },
+    {
+      "id": "p100-s2",
+      "paragraph": 100,
+      "start_byte": 15269,
+      "end_byte": 15316,
+      "original": " His dry lips shaped the words, “How\nmuch?”",
+      "translation": "他干涩的嘴唇挤出几个字：“多少钱？”"
+    },
+    {
+      "id": "p101-s1",
+      "paragraph": 101,
+      "start_byte": 15318,
+      "end_byte": 15359,
+      "original": "“Two hundred pounds,” was the answer.",
+      "translation": "“两百英镑，”对方回答。"
+    },
+    {
+      "id": "p102-s1",
+      "paragraph": 102,
+      "start_byte": 15361,
+      "end_byte": 15509,
+      "original": "Unconscious of his wife’s shriek, the old man smiled faintly, put out\nhis hands like a sightless man, and dropped, a senseless heap, to the\nfloor.",
+      "translation": "老人没有听到妻子的尖叫，他微微笑了笑，像盲人一样伸出双手，然后瘫倒在地，不省人事。"
+    },
+    {
+      "id": "p103-s1",
+      "paragraph": 103,
+      "start_byte": 15514,
+      "end_byte": 15518,
+      "original": "III.",
+      "translation": "III."
+    },
+    {
+      "id": "p104-s1",
+      "paragraph": 104,
+      "start_byte": 15521,
+      "end_byte": 15660,
+      "original": "In the huge new cemetery, some two miles distant, the old people buried\ntheir dead, and came back to a house steeped in shadow and silence.",
+      "translation": "在约两英里外的一片巨大的新墓地里，这两位老人埋葬了他们的死者，然后回到了一座笼罩在阴影和寂静中的房子。"
+    },
+    {
+      "id": "p104-s2",
+      "paragraph": 104,
+      "start_byte": 15660,
+      "end_byte": 15892,
+      "original": " It\nwas all over so quickly that at first they could hardly realize it, and\nremained in a state of expectation as though of something else to\nhappen —something else which was to lighten this load, too heavy for\nold hearts to bear.",
+      "translation": "这一切结束得太快，起初他们几乎无法接受，一直处于一种期待的状态，仿佛还会有别的事情发生——那件能减轻这负担的事情，这负担对老年人的心来说太过沉重。"
+    },
+    {
+      "id": "p105-s1",
+      "paragraph": 105,
+      "start_byte": 15894,
+      "end_byte": 16024,
+      "original": "But the days passed, and expectation gave place to resignation—the\nhopeless resignation of the old, sometimes miscalled, apathy.",
+      "translation": "但日子一天天过去，期待变成了听天由命——老年人那种无望的顺从，有时被误称为冷漠。"
+    },
+    {
+      "id": "p105-s2",
+      "paragraph": 105,
+      "start_byte": 16024,
+      "end_byte": 16143,
+      "original": " Sometimes\nthey hardly exchanged a word, for now they had nothing to talk about,\nand their days were long to weariness.",
+      "translation": "有时他们几乎不说一句话，因为现在他们已无话可谈，日子漫长而令人疲惫。"
+    },
+    {
+      "id": "p106-s1",
+      "paragraph": 106,
+      "start_byte": 16145,
+      "end_byte": 16266,
+      "original": "It was about a week after that the old man, waking suddenly in the\nnight, stretched out his hand and found himself alone.",
+      "translation": "大约一周后的一天夜里，老人突然醒来，伸手一摸，发现只有自己一个人。"
+    },
+    {
+      "id": "p106-s2",
+      "paragraph": 106,
+      "start_byte": 16266,
+      "end_byte": 16347,
+      "original": " The room was in\ndarkness, and the sound of subdued weeping came from the window.",
+      "translation": "房间里一片漆黑，从窗户那边传来压抑的哭泣声。"
+    },
+    {
+      "id": "p106-s3",
+      "paragraph": 106,
+      "start_byte": 16347,
+      "end_byte": 16386,
+      "original": " He\nraised himself in bed and listened.",
+      "translation": "他从床上坐起身来倾听。"
+    },
+    {
+      "id": "p107-s1",
+      "paragraph": 107,
+      "start_byte": 16388,
+      "end_byte": 16423,
+      "original": "“Come back,” he said, tenderly.",
+      "translation": "“回来吧，”他温柔地说。"
+    },
+    {
+      "id": "p107-s2",
+      "paragraph": 107,
+      "start_byte": 16423,
+      "end_byte": 16447,
+      "original": " “You will be cold.”",
+      "translation": "“你会着凉的。”"
+    },
+    {
+      "id": "p108-s1",
+      "paragraph": 108,
+      "start_byte": 16449,
+      "end_byte": 16516,
+      "original": "“It is colder for my son,” said the old woman, and wept afresh.",
+      "translation": "“我儿子那儿更冷，”老妇人说着，又哭了起来。"
+    },
+    {
+      "id": "p109-s1",
+      "paragraph": 109,
+      "start_byte": 16518,
+      "end_byte": 16562,
+      "original": "The sound of her sobs died away on his ears.",
+      "translation": "她的啜泣声在他耳边渐渐消失。"
+    },
+    {
+      "id": "p109-s2",
+      "paragraph": 109,
+      "start_byte": 16562,
+      "end_byte": 16611,
+      "original": " The bed was warm, and his\neyes heavy with sleep.",
+      "translation": "床暖烘烘的，他眼皮沉重，困意袭来。"
+    },
+    {
+      "id": "p109-s3",
+      "paragraph": 109,
+      "start_byte": 16611,
+      "end_byte": 16707,
+      "original": " He dozed fitfully, and then slept until a sudden\nwild cry from his wife awoke him with a start.",
+      "translation": "他断断续续地打盹，后来睡着了，直到妻子突然一声狂叫把他惊醒。"
+    },
+    {
+      "id": "p110-s1",
+      "paragraph": 110,
+      "start_byte": 16709,
+      "end_byte": 16743,
+      "original": "“_The paw!_” she cried wildly.",
+      "translation": "“爪子！”她疯狂地喊道。"
+    },
+    {
+      "id": "p110-s2",
+      "paragraph": 110,
+      "start_byte": 16743,
+      "end_byte": 16769,
+      "original": " “The monkey’s paw!”",
+      "translation": "“猴爪！”"
+    },
+    {
+      "id": "p111-s1",
+      "paragraph": 111,
+      "start_byte": 16771,
+      "end_byte": 16794,
+      "original": "He started up in alarm.",
+      "translation": "他惊慌地猛地坐起。"
+    },
+    {
+      "id": "p111-s2",
+      "paragraph": 111,
+      "start_byte": 16794,
+      "end_byte": 16804,
+      "original": " “Where?",
+      "translation": "“在哪儿？”"
+    },
+    {
+      "id": "p111-s3",
+      "paragraph": 111,
+      "start_byte": 16804,
+      "end_byte": 16817,
+      "original": " Where is it?",
+      "translation": "它在哪里？"
+    },
+    {
+      "id": "p111-s4",
+      "paragraph": 111,
+      "start_byte": 16817,
+      "end_byte": 16841,
+      "original": " What’s the matter?”",
+      "translation": "怎么回事？”"
+    },
+    {
+      "id": "p112-s1",
+      "paragraph": 112,
+      "start_byte": 16843,
+      "end_byte": 16889,
+      "original": "She came stumbling across the room toward him.",
+      "translation": "她跌跌撞撞地穿过房间朝他走来。"
+    },
+    {
+      "id": "p112-s2",
+      "paragraph": 112,
+      "start_byte": 16889,
+      "end_byte": 16925,
+      "original": " “I want it,” she said,\nquietly.",
+      "translation": "“我要它，”她轻声说。"
+    },
+    {
+      "id": "p112-s3",
+      "paragraph": 112,
+      "start_byte": 16925,
+      "end_byte": 16958,
+      "original": " “You’ve not destroyed it?”",
+      "translation": "“你没有把它毁掉吧？”"
+    },
+    {
+      "id": "p113-s1",
+      "paragraph": 113,
+      "start_byte": 16960,
+      "end_byte": 17028,
+      "original": "“It’s in the parlour, on the bracket,” he replied, marvelling.",
+      "translation": "“在客厅里，搁架上，”他惊讶地答道。"
+    },
+    {
+      "id": "p113-s2",
+      "paragraph": 113,
+      "start_byte": 17028,
+      "end_byte": 17039,
+      "original": " “Why?”",
+      "translation": "“为什么？”"
+    },
+    {
+      "id": "p114-s1",
+      "paragraph": 114,
+      "start_byte": 17041,
+      "end_byte": 17108,
+      "original": "She cried and laughed together, and bending over, kissed his cheek.",
+      "translation": "她又哭又笑，弯下腰吻了吻他的脸颊。"
+    },
+    {
+      "id": "p115-s1",
+      "paragraph": 115,
+      "start_byte": 17110,
+      "end_byte": 17166,
+      "original": "“I only just thought of it,” she said, hysterically.",
+      "translation": "“我刚刚才想到这个主意，”她歇斯底里地说道。"
+    },
+    {
+      "id": "p115-s2",
+      "paragraph": 115,
+      "start_byte": 17166,
+      "end_byte": 17204,
+      "original": " “Why didn’t I\nthink of it before?",
+      "translation": "“为什么我之前没想到呢？"
+    },
+    {
+      "id": "p115-s3",
+      "paragraph": 115,
+      "start_byte": 17204,
+      "end_byte": 17239,
+      "original": " Why didn’t _you_ think of it?”",
+      "translation": "为什么你也没想到呢？”"
+    },
+    {
+      "id": "p116-s1",
+      "paragraph": 116,
+      "start_byte": 17241,
+      "end_byte": 17276,
+      "original": "“Think of what?” he questioned.",
+      "translation": "“想到什么？”他问道。"
+    },
+    {
+      "id": "p117-s1",
+      "paragraph": 117,
+      "start_byte": 17278,
+      "end_byte": 17327,
+      "original": "“The other two wishes,” she replied, rapidly.",
+      "translation": "“另外两个愿望呀，”她飞快地答道。"
+    },
+    {
+      "id": "p117-s2",
+      "paragraph": 117,
+      "start_byte": 17327,
+      "end_byte": 17355,
+      "original": " “We’ve only had one.”",
+      "translation": "“我们才用了一个。”"
+    },
+    {
+      "id": "p118-s1",
+      "paragraph": 118,
+      "start_byte": 17357,
+      "end_byte": 17406,
+      "original": "“Was not that enough?” he demanded, fiercely.",
+      "translation": "“那还不够吗？”他恶狠狠地问道。"
+    },
+    {
+      "id": "p119-s1",
+      "paragraph": 119,
+      "start_byte": 17408,
+      "end_byte": 17468,
+      "original": "“No,” she cried, triumphantly; “we’ll have one more.",
+      "translation": "“不，”她得意地喊道，“我们还要许一个愿。"
+    },
+    {
+      "id": "p119-s2",
+      "paragraph": 119,
+      "start_byte": 17468,
+      "end_byte": 17529,
+      "original": " Go down and get it\nquickly, and wish our boy alive again.”",
+      "translation": "快下楼去把它拿来，许愿让我们的儿子复活。”"
+    },
+    {
+      "id": "p120-s1",
+      "paragraph": 120,
+      "start_byte": 17531,
+      "end_byte": 17601,
+      "original": "The man sat up in bed and flung the bedclothes from his quaking limbs.",
+      "translation": "男人从床上坐起来，把被子从颤抖的四肢上掀开。"
+    },
+    {
+      "id": "p120-s2",
+      "paragraph": 120,
+      "start_byte": 17601,
+      "end_byte": 17648,
+      "original": "\n“Good God, you are mad!” he cried, aghast.",
+      "translation": "“天哪，你疯了！”他惊恐地叫道。"
+    },
+    {
+      "id": "p121-s1",
+      "paragraph": 121,
+      "start_byte": 17650,
+      "end_byte": 17728,
+      "original": "“Get it,” she panted; “get it quickly, and wish—Oh, my boy, my boy!”",
+      "translation": "“去拿，”她喘着气说，“快去拿，然后许愿——哦，我的儿子，我的儿子！”"
+    },
+    {
+      "id": "p122-s1",
+      "paragraph": 122,
+      "start_byte": 17730,
+      "end_byte": 17776,
+      "original": "Her husband struck a match and lit the candle.",
+      "translation": "她丈夫划了根火柴，点燃了蜡烛。"
+    },
+    {
+      "id": "p122-s2",
+      "paragraph": 122,
+      "start_byte": 17776,
+      "end_byte": 17820,
+      "original": " “Get back to bed,” he\nsaid, unsteadily.",
+      "translation": "“回到床上去，”他声音颤抖地说。"
+    },
+    {
+      "id": "p122-s3",
+      "paragraph": 122,
+      "start_byte": 17820,
+      "end_byte": 17864,
+      "original": " “You don’t know what you are saying.”",
+      "translation": "“你不知道自己在说些什么。”"
+    },
+    {
+      "id": "p123-s1",
+      "paragraph": 123,
+      "start_byte": 17866,
+      "end_byte": 17960,
+      "original": "“We had the first wish granted,” said the old woman, feverishly; “why\nnot the second?”",
+      "translation": "“我们第一个愿望已经实现了，”老妇人狂热地说，“为什么第二个不行呢？”"
+    },
+    {
+      "id": "p124-s1",
+      "paragraph": 124,
+      "start_byte": 17962,
+      "end_byte": 18005,
+      "original": "“A coincidence,” stammered the old man.",
+      "translation": "“一个巧合，”老人结结巴巴地说。"
+    },
+    {
+      "id": "p125-s1",
+      "paragraph": 125,
+      "start_byte": 18007,
+      "end_byte": 18079,
+      "original": "“Go and get it and wish,” cried his wife, quivering with excitement.",
+      "translation": "“去把它拿来许愿，”他妻子喊道，激动得浑身发抖。"
+    },
+    {
+      "id": "p126-s1",
+      "paragraph": 126,
+      "start_byte": 18081,
+      "end_byte": 18138,
+      "original": "The old man turned and regarded her, and his voice shook.",
+      "translation": "老人转过身看着她，声音颤抖。"
+    },
+    {
+      "id": "p126-s2",
+      "paragraph": 126,
+      "start_byte": 18138,
+      "end_byte": 18262,
+      "original": " “He has been\ndead ten days, and besides he—I would not tell you else, but—I could\nonly recognize him by his clothing.",
+      "translation": "“他已经死了十天了，而且他——我本来不想告诉你，但——我只能凭衣服认出他。"
+    },
+    {
+      "id": "p126-s3",
+      "paragraph": 126,
+      "start_byte": 18262,
+      "end_byte": 18318,
+      "original": " If he was too terrible for you to\nsee then, how now?”",
+      "translation": "如果当时他让你都不敢看，那现在呢？”"
+    },
+    {
+      "id": "p127-s1",
+      "paragraph": 127,
+      "start_byte": 18320,
+      "end_byte": 18395,
+      "original": "“Bring him back,” cried the old woman, and dragged him toward the door.",
+      "translation": "“把他带回来，”老妇人喊道，拽着他朝门口走去。"
+    },
+    {
+      "id": "p127-s2",
+      "paragraph": 127,
+      "start_byte": 18395,
+      "end_byte": 18446,
+      "original": "\n“Do you think I fear the child I have nursed?”",
+      "translation": "“你以为我会害怕自己奶大的孩子吗？”"
+    },
+    {
+      "id": "p128-s1",
+      "paragraph": 128,
+      "start_byte": 18448,
+      "end_byte": 18539,
+      "original": "He went down in the darkness, and felt his way to the parlour, and then\nto the mantelpiece.",
+      "translation": "他在黑暗中下楼，摸索着走到客厅，又摸到壁炉台。"
+    },
+    {
+      "id": "p128-s2",
+      "paragraph": 128,
+      "start_byte": 18539,
+      "end_byte": 18786,
+      "original": " The talisman was in its place, and a horrible fear\nthat the unspoken wish might bring his mutilated son before him ere he\ncould escape from the room seized upon him, and he caught his breath as\nhe found that he had lost the direction of the door.",
+      "translation": "护身符还在原处，一种可怕的恐惧攫住了他：他怕自己还没逃出房间，那个没说出口的愿望就会把他那被肢解的儿子带到面前；他发现自己找不到门的方向，不禁屏住了呼吸。"
+    },
+    {
+      "id": "p128-s3",
+      "paragraph": 128,
+      "start_byte": 18786,
+      "end_byte": 18955,
+      "original": " His brow cold with\nsweat, he felt his way round the table, and groped along the wall until\nhe found himself in the small passage with the unwholesome thing in his\nhand.",
+      "translation": "他额头冷汗直流，摸索着绕过桌子，沿墙摸去，直到发现自己站在小过道里，手里拿着那不祥的东西。"
+    },
+    {
+      "id": "p129-s1",
+      "paragraph": 129,
+      "start_byte": 18957,
+      "end_byte": 19018,
+      "original": "Even his wife’s face seemed changed as he entered the room.",
+      "translation": "他走进房间时，连妻子的脸似乎都变了。"
+    },
+    {
+      "id": "p129-s2",
+      "paragraph": 129,
+      "start_byte": 19018,
+      "end_byte": 19105,
+      "original": " It was\nwhite and expectant, and to his fears seemed to have an unnatural look\nupon it.",
+      "translation": "那张脸苍白而满怀期待，在他恐惧的眼中似乎有种不自然的神情。"
+    },
+    {
+      "id": "p129-s3",
+      "paragraph": 129,
+      "start_byte": 19105,
+      "end_byte": 19127,
+      "original": " He was afraid of her.",
+      "translation": "他害怕她。"
+    },
+    {
+      "id": "p130-s1",
+      "paragraph": 130,
+      "start_byte": 19129,
+      "end_byte": 19172,
+      "original": "“_Wish!_” she cried, in a strong voice.",
+      "translation": "“许愿！”她大声喊道。"
+    },
+    {
+      "id": "p131-s1",
+      "paragraph": 131,
+      "start_byte": 19174,
+      "end_byte": 19218,
+      "original": "“It is foolish and wicked,” he faltered.",
+      "translation": "“这是愚蠢又邪恶的，”他支吾道。"
+    },
+    {
+      "id": "p132-s1",
+      "paragraph": 132,
+      "start_byte": 19220,
+      "end_byte": 19252,
+      "original": "“_Wish!_” repeated his wife.",
+      "translation": "“许愿！”他妻子重复道。"
+    },
+    {
+      "id": "p133-s1",
+      "paragraph": 133,
+      "start_byte": 19254,
+      "end_byte": 19273,
+      "original": "He raised his hand.",
+      "translation": "他举起了手。"
+    },
+    {
+      "id": "p133-s2",
+      "paragraph": 133,
+      "start_byte": 19273,
+      "end_byte": 19306,
+      "original": " “I wish my son alive again.”",
+      "translation": "“我希望我的儿子活过来。”"
+    },
+    {
+      "id": "p134-s1",
+      "paragraph": 134,
+      "start_byte": 19308,
+      "end_byte": 19369,
+      "original": "The talisman fell to the floor, and he regarded it fearfully.",
+      "translation": "护身符掉在地板上，他恐惧地看着它。"
+    },
+    {
+      "id": "p134-s2",
+      "paragraph": 134,
+      "start_byte": 19369,
+      "end_byte": 19485,
+      "original": " Then he\nsank trembling into a chair as the old woman, with burning eyes, walked\nto the window and raised the blind.",
+      "translation": "然后，他颤抖着瘫坐在椅子上，而那个老妇人，双眼灼热，走到窗前拉起了百叶窗。"
+    },
+    {
+      "id": "p135-s1",
+      "paragraph": 135,
+      "start_byte": 19487,
+      "end_byte": 19610,
+      "original": "He sat until he was chilled with the cold, glancing occasionally at the\nfigure of the old woman peering through the window.",
+      "translation": "他坐着，直到身体冻得发僵，不时瞥一眼那个透过窗户凝视的老妇人的身影。"
+    },
+    {
+      "id": "p135-s2",
+      "paragraph": 135,
+      "start_byte": 19610,
+      "end_byte": 19796,
+      "original": " The candle-end,\nwhich had burned below the rim of the china candlestick, was throwing\npulsating shadows on the ceiling and walls, until, with a flicker\nlarger than the rest, it expired.",
+      "translation": "烛头已经烧到了瓷烛台的边缘以下，在墙壁和天花板上投下跳动的阴影，直到最后闪了一下比先前更大的光，便熄灭了。"
+    },
+    {
+      "id": "p135-s3",
+      "paragraph": 135,
+      "start_byte": 19796,
+      "end_byte": 19988,
+      "original": " The old man, with an unspeakable\nsense of relief at the failure of the talisman, crept back to his bed,\nand a minute or two afterward the old woman came silently and\napathetically beside him.",
+      "translation": "老人因为护身符失效而感到一种无法言喻的解脱，他悄悄爬回床上，一两分钟后，老妇人无声无息、漠然地来到他身旁。"
+    },
+    {
+      "id": "p136-s1",
+      "paragraph": 136,
+      "start_byte": 19990,
+      "end_byte": 20060,
+      "original": "Neither spoke, but lay silently listening to the ticking of the clock.",
+      "translation": "两人都没有说话，只是静静地躺着，听着时钟的滴答声。"
+    },
+    {
+      "id": "p136-s2",
+      "paragraph": 136,
+      "start_byte": 20060,
+      "end_byte": 20132,
+      "original": "\nA stair creaked, and a squeaky mouse scurried noisily through the wall.",
+      "translation": "楼梯嘎吱一响，一只吱吱叫的老鼠吵吵闹闹地窜过墙壁。"
+    },
+    {
+      "id": "p136-s3",
+      "paragraph": 136,
+      "start_byte": 20132,
+      "end_byte": 20292,
+      "original": "\nThe darkness was oppressive, and after lying for some time screwing up\nhis courage, he took the box of matches, and striking one, went\ndownstairs for a candle.",
+      "translation": "黑暗令人压抑，他躺了一会儿，鼓足勇气，拿起火柴盒，划着一根，下楼去取蜡烛。"
+    },
+    {
+      "id": "p137-s1",
+      "paragraph": 137,
+      "start_byte": 20294,
+      "end_byte": 20480,
+      "original": "At the foot of the stairs the match went out, and he paused to strike\nanother; and at the same moment a knock, so quiet and stealthy as to be\nscarcely audible, sounded on the front door.",
+      "translation": "在楼梯脚下，火柴熄灭了，他停下来再划一根；就在同一时刻，前门传来一声敲门声，那么轻、那么隐蔽，几乎听不见。"
+    },
+    {
+      "id": "p138-s1",
+      "paragraph": 138,
+      "start_byte": 20482,
+      "end_byte": 20540,
+      "original": "The matches fell from his hand and spilled in the passage.",
+      "translation": "火柴从他手中掉落，撒在了过道里。"
+    },
+    {
+      "id": "p138-s2",
+      "paragraph": 138,
+      "start_byte": 20540,
+      "end_byte": 20612,
+      "original": " He stood\nmotionless, his breath suspended until the knock was repeated.",
+      "translation": "他一动不动地站着，屏住呼吸，直到敲门声再次响起。"
+    },
+    {
+      "id": "p138-s3",
+      "paragraph": 138,
+      "start_byte": 20612,
+      "end_byte": 20694,
+      "original": " Then he\nturned and fled swiftly back to his room, and closed the door behind\nhim.",
+      "translation": "然后他转身飞快地逃回自己的房间，随手关上了门。"
+    },
+    {
+      "id": "p138-s4",
+      "paragraph": 138,
+      "start_byte": 20694,
+      "end_byte": 20735,
+      "original": " A third knock sounded through the house.",
+      "translation": "第三次敲门声响彻整栋房子。"
+    },
+    {
+      "id": "p139-s1",
+      "paragraph": 139,
+      "start_byte": 20737,
+      "end_byte": 20751,
+      "original": "[Illustration]",
+      "translation": "[插图]"
+    },
+    {
+      "id": "p140-s1",
+      "paragraph": 140,
+      "start_byte": 20753,
+      "end_byte": 20809,
+      "original": "“_What’s that?_” cried the old woman, starting up.",
+      "translation": "“那是什么？”老太太惊起喊道。"
+    },
+    {
+      "id": "p141-s1",
+      "paragraph": 141,
+      "start_byte": 20811,
+      "end_byte": 20869,
+      "original": "“A rat,” said the old man in shaking tones—“a rat.",
+      "translation": "“老鼠，”老人声音颤抖地说，“一只老鼠。"
+    },
+    {
+      "id": "p141-s2",
+      "paragraph": 141,
+      "start_byte": 20869,
+      "end_byte": 20900,
+      "original": " It passed me on the\nstairs.”",
+      "translation": "它从楼梯上从我身边窜了过去。”"
+    },
+    {
+      "id": "p142-s1",
+      "paragraph": 142,
+      "start_byte": 20902,
+      "end_byte": 20935,
+      "original": "His wife sat up in bed listening.",
+      "translation": "他的妻子坐在床上倾听。"
+    },
+    {
+      "id": "p142-s2",
+      "paragraph": 142,
+      "start_byte": 20935,
+      "end_byte": 20977,
+      "original": " A loud knock resounded through the\nhouse.",
+      "translation": "一阵响亮的敲门声在整座房子里回荡。"
+    },
+    {
+      "id": "p143-s1",
+      "paragraph": 143,
+      "start_byte": 20979,
+      "end_byte": 21014,
+      "original": "“It’s Herbert!” she screamed.",
+      "translation": "“是赫伯特！”她尖叫道。"
+    },
+    {
+      "id": "p143-s2",
+      "paragraph": 143,
+      "start_byte": 21014,
+      "end_byte": 21036,
+      "original": " “It’s Herbert!”",
+      "translation": "“是赫伯特！”"
+    },
+    {
+      "id": "p144-s1",
+      "paragraph": 144,
+      "start_byte": 21038,
+      "end_byte": 21137,
+      "original": "She ran to the door, but her husband was before her, and catching her\nby the arm, held her tightly.",
+      "translation": "她向门口跑去，但她丈夫赶在她前面，一把抓住她的胳膊，紧紧拉住了她。"
+    },
+    {
+      "id": "p145-s1",
+      "paragraph": 145,
+      "start_byte": 21139,
+      "end_byte": 21193,
+      "original": "“What are you going to do?” he whispered hoarsely.",
+      "translation": "“你要干什么？”他嘶哑地低声问道。"
+    },
+    {
+      "id": "p146-s1",
+      "paragraph": 146,
+      "start_byte": 21195,
+      "end_byte": 21267,
+      "original": "“It’s my boy; it’s Herbert!” she cried, struggling mechanically.",
+      "translation": "“那是我儿子；是赫伯特！”她机械地挣扎着喊道。"
+    },
+    {
+      "id": "p146-s2",
+      "paragraph": 146,
+      "start_byte": 21267,
+      "end_byte": 21302,
+      "original": " “I\nforgot it was two miles away.",
+      "translation": "“我忘了那地方离这儿有两英里远。"
+    },
+    {
+      "id": "p146-s3",
+      "paragraph": 146,
+      "start_byte": 21302,
+      "end_byte": 21331,
+      "original": " What are you holding me for?",
+      "translation": "你拉着我干什么？"
+    },
+    {
+      "id": "p146-s4",
+      "paragraph": 146,
+      "start_byte": 21331,
+      "end_byte": 21339,
+      "original": " Let go.",
+      "translation": "放开我。"
+    },
+    {
+      "id": "p146-s5",
+      "paragraph": 146,
+      "start_byte": 21339,
+      "end_byte": 21364,
+      "original": " I\nmust open the door.”",
+      "translation": "我必须开门。”"
+    },
+    {
+      "id": "p147-s1",
+      "paragraph": 147,
+      "start_byte": 21366,
+      "end_byte": 21437,
+      "original": "“For God’s sake don’t let it in,” cried the old man, trembling.",
+      "translation": "“看在上帝份上，别让它进来，”老人浑身发抖地喊道。"
+    },
+    {
+      "id": "p148-s1",
+      "paragraph": 148,
+      "start_byte": 21439,
+      "end_byte": 21500,
+      "original": "“You’re afraid of your own son,” she cried, struggling.",
+      "translation": "“你害怕自己的儿子，”她挣扎着喊道。"
+    },
+    {
+      "id": "p148-s2",
+      "paragraph": 148,
+      "start_byte": 21500,
+      "end_byte": 21514,
+      "original": " “Let me go.",
+      "translation": "“放开我。"
+    },
+    {
+      "id": "p148-s3",
+      "paragraph": 148,
+      "start_byte": 21514,
+      "end_byte": 21554,
+      "original": " I’m\ncoming, Herbert; I’m coming.”",
+      "translation": "我来了，赫伯特；我来了。”"
+    },
+    {
+      "id": "p149-s1",
+      "paragraph": 149,
+      "start_byte": 21556,
+      "end_byte": 21593,
+      "original": "There was another knock, and another.",
+      "translation": "又响了一下敲门声，接着又一下。"
+    },
+    {
+      "id": "p149-s2",
+      "paragraph": 149,
+      "start_byte": 21593,
+      "end_byte": 21662,
+      "original": " The old woman with a sudden\nwrench broke free and ran from the room.",
+      "translation": "老妇人猛地一挣，挣脱开来，跑出了房间。"
+    },
+    {
+      "id": "p149-s3",
+      "paragraph": 149,
+      "start_byte": 21662,
+      "end_byte": 21759,
+      "original": " Her husband followed to the\nlanding, and called after her appealingly as she hurried downstairs.",
+      "translation": "她丈夫跟到楼梯口，在她匆匆下楼时恳切地喊她。"
+    },
+    {
+      "id": "p149-s4",
+      "paragraph": 149,
+      "start_byte": 21759,
+      "end_byte": 21852,
+      "original": " He\nheard the chain rattle back and the bottom bolt drawn slowly and\nstiffly from the socket.",
+      "translation": "他听到链条哗啦一声拉回，底部的门闩被缓慢而僵硬地从门臼中抽了出来。"
+    },
+    {
+      "id": "p149-s5",
+      "paragraph": 149,
+      "start_byte": 21852,
+      "end_byte": 21904,
+      "original": " Then the old woman’s voice, strained and\npanting.",
+      "translation": "接着是老妇人的声音，紧张而气喘吁吁。"
+    },
+    {
+      "id": "p150-s1",
+      "paragraph": 150,
+      "start_byte": 21906,
+      "end_byte": 21940,
+      "original": "“The bolt,” she cried, loudly.",
+      "translation": "“门闩，”她大声喊道。"
+    },
+    {
+      "id": "p150-s2",
+      "paragraph": 150,
+      "start_byte": 21940,
+      "end_byte": 21954,
+      "original": " “Come down.",
+      "translation": "“下来。"
+    },
+    {
+      "id": "p150-s3",
+      "paragraph": 150,
+      "start_byte": 21954,
+      "end_byte": 21977,
+      "original": " I can’t reach it.”",
+      "translation": "我够不着。”"
+    },
+    {
+      "id": "p151-s1",
+      "paragraph": 151,
+      "start_byte": 21979,
+      "end_byte": 22071,
+      "original": "But her husband was on his hands and knees groping wildly on the floor\nin search of the paw.",
+      "translation": "但她的丈夫正双手双膝着地，在地板上疯狂摸索寻找猴爪。"
+    },
+    {
+      "id": "p151-s2",
+      "paragraph": 151,
+      "start_byte": 22071,
+      "end_byte": 22129,
+      "original": " If he could only find it before the thing outside\ngot in.",
+      "translation": "只要他能在外面的那个东西进来之前找到它就好了。"
+    },
+    {
+      "id": "p151-s3",
+      "paragraph": 151,
+      "start_byte": 22129,
+      "end_byte": 22285,
+      "original": " A perfect fusillade of knocks reverberated through the house,\nand he heard the scraping of a chair as his wife put it down in the\npassage against the door.",
+      "translation": "一阵密集的敲门声在整个房子里回荡，他听到椅子刮擦地面的声音，那是他妻子把椅子放在门厅里顶在门后。"
+    },
+    {
+      "id": "p151-s4",
+      "paragraph": 151,
+      "start_byte": 22285,
+      "end_byte": 22445,
+      "original": " He heard the creaking of the bolt as it came\nslowly back, and at the same moment he found the monkey’s paw, and\nfrantically breathed his third and last wish.",
+      "translation": "他听到门闩慢慢拉回时发出的嘎吱声，同时他找到了猴爪，疯狂地轻声说出了他第三个也是最后一个愿望。"
+    },
+    {
+      "id": "p152-s1",
+      "paragraph": 152,
+      "start_byte": 22447,
+      "end_byte": 22527,
+      "original": "The knocking ceased suddenly, although the echoes of it were still in\nthe house.",
+      "translation": "敲门声突然停止了，尽管它的回声仍在屋子里回荡。"
+    },
+    {
+      "id": "p152-s2",
+      "paragraph": 152,
+      "start_byte": 22527,
+      "end_byte": 22579,
+      "original": " He heard the chair drawn back, and the door opened.",
+      "translation": "他听到椅子被拉开，门开了。"
+    },
+    {
+      "id": "p152-s3",
+      "paragraph": 152,
+      "start_byte": 22579,
+      "end_byte": 22751,
+      "original": " A cold\nwind rushed up the staircase, and a long loud wail of disappointment\nand misery from his wife gave him courage to run down to her side, and\nthen to the gate beyond.",
+      "translation": "一股冷风冲上楼梯，妻子那长长一声充满失望和痛苦的哀号给了他勇气，他跑到她身边，接着又跑向外面的大门。"
+    },
+    {
+      "id": "p152-s4",
+      "paragraph": 152,
+      "start_byte": 22751,
+      "end_byte": 22823,
+      "original": " The street lamp flickering opposite shone on a\nquiet and deserted road.",
+      "translation": "对面闪烁的路灯照在一条寂静无人的街道上。"
+    }
+  ],
+  "updated_at": "2026-09-14T08:50:30.833734Z",
+  "model": "deepseek-v4-pro",
+  "scope": "default"
+}

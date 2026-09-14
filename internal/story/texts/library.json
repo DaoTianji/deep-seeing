@@ -1,0 +1,1217 @@
+[
+  {
+    "book": {
+      "id": "magi",
+      "reading_start": "One dollar and eighty-seven cents.",
+      "title": "麦琪的礼物",
+      "author": "欧·亨利",
+      "subtitle": "如果礼物之前，先听见彼此。",
+      "theme": "爱与私有计划",
+      "entry_scene": 1,
+      "version": "magi-v1",
+      "source_url": "https://www.gutenberg.org/ebooks/2776",
+      "source_note": "历史英文公版正文，来源：https://www.gutenberg.org/ebooks/2776。仅摘取该篇完整正文、统一换行；中文场景及导读为编者梗概，不是现代译文或模型已完成的解读。",
+      "characters": [
+        {
+          "id": "della",
+          "name": "德拉",
+          "initial": "德",
+          "description": "珍惜吉姆，希望用一件礼物表达自己的爱。",
+          "color": "#9a6a58"
+        },
+        {
+          "id": "jim",
+          "name": "吉姆",
+          "initial": "吉",
+          "description": "沉静而珍惜家人，生活并不宽裕。",
+          "color": "#596e66"
+        },
+        {
+          "id": "sofronie",
+          "name": "索芙朗妮夫人",
+          "initial": "索",
+          "description": "经营头发买卖，直截了当地谈价钱。",
+          "color": "#787092"
+        }
+      ],
+      "scenes": [
+        {
+          "id": 1,
+          "title": "一美元八十七美分",
+          "time": "圣诞节前一天",
+          "place": "租住的小屋",
+          "summary": "德拉独自数着积攒的钱，为买不起称心的礼物难过。",
+          "question": "表达爱，一定要付出最珍贵的东西吗？",
+          "choice": "先沟通，或独自决定礼物",
+          "resistance": "中",
+          "characters": [
+            "della"
+          ],
+          "evidence_ids": [
+            "e1"
+          ]
+        },
+        {
+          "id": 2,
+          "title": "镜子前的长发",
+          "time": "同日 · 出门之前",
+          "place": "小屋的镜子前",
+          "summary": "德拉放下长发，望着镜中的自己，随后准备出门。",
+          "question": "在不可逆的选择之前，能不能停一下？",
+          "choice": "是否卖掉长发",
+          "resistance": "高",
+          "characters": [
+            "della"
+          ],
+          "evidence_ids": [
+            "e2"
+          ]
+        },
+        {
+          "id": 3,
+          "title": "二十美元",
+          "time": "同日 · 白天",
+          "place": "头发商店",
+          "summary": "德拉询问是否收购头发，索芙朗妮夫人开出二十美元的价格。",
+          "question": "她需要的，是一笔钱，还是另一种选择？",
+          "choice": "接受报价或离开",
+          "resistance": "中",
+          "characters": [
+            "della",
+            "sofronie"
+          ],
+          "evidence_ids": [
+            "e3"
+          ]
+        },
+        {
+          "id": 4,
+          "title": "藏在手心的表链",
+          "time": "同日 · 傍晚",
+          "place": "小屋",
+          "summary": "德拉已卖掉长发、买下表链，整理短发等待吉姆回家。",
+          "question": "已经作出的牺牲，要怎样说出口？",
+          "choice": "如何解释剪发与礼物",
+          "resistance": "中",
+          "characters": [
+            "della"
+          ],
+          "evidence_ids": [
+            "e4"
+          ]
+        },
+        {
+          "id": 5,
+          "title": "打开礼物",
+          "time": "圣诞前夜",
+          "place": "小屋",
+          "summary": "吉姆回家，看见德拉的短发。两人谈起剪发，他拿出准备的礼物。",
+          "question": "彼此的惊讶，究竟意味着什么？",
+          "choice": "解释、倾听与交换礼物",
+          "resistance": "中",
+          "characters": [
+            "della",
+            "jim"
+          ],
+          "evidence_ids": [
+            "e5"
+          ]
+        },
+        {
+          "id": 6,
+          "title": "暂时用不上的宝物",
+          "time": "同夜 · 真相说开",
+          "place": "小屋的餐桌",
+          "summary": "德拉收到了发梳，吉姆收到了表链；两人说清了卖发和卖表的经过，决定把礼物暂存。",
+          "question": "物品暂时失去用处，心意也失去了吗？",
+          "choice": "怎样理解礼物与今后的生活",
+          "resistance": "低",
+          "characters": [
+            "della",
+            "jim"
+          ],
+          "evidence_ids": [
+            "e6"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "id": "e1",
+          "text": "德拉独自数着积攒的钱，为买不起称心的礼物难过。",
+          "note": "编者梗概；点击核对历史原文。表达爱，一定要付出最珍贵的东西吗？",
+          "scene": 1,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e2",
+          "text": "德拉放下长发，望着镜中的自己，随后准备出门。",
+          "note": "编者梗概；点击核对历史原文。在不可逆的选择之前，能不能停一下？",
+          "scene": 2,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e3",
+          "text": "德拉询问是否收购头发，索芙朗妮夫人开出二十美元的价格。",
+          "note": "编者梗概；点击核对历史原文。她需要的，是一笔钱，还是另一种选择？",
+          "scene": 3,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e4",
+          "text": "德拉已卖掉长发、买下表链，整理短发等待吉姆回家。",
+          "note": "编者梗概；点击核对历史原文。已经作出的牺牲，要怎样说出口？",
+          "scene": 4,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e5",
+          "text": "吉姆回家，看见德拉的短发。两人谈起剪发，他拿出准备的礼物。",
+          "note": "编者梗概；点击核对历史原文。彼此的惊讶，究竟意味着什么？",
+          "scene": 5,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e6",
+          "text": "德拉收到了发梳，吉姆收到了表链；两人说清了卖发和卖表的经过，决定把礼物暂存。",
+          "note": "编者梗概；点击核对历史原文。物品暂时失去用处，心意也失去了吗？",
+          "scene": 6,
+          "origin": "editorial_paraphrase"
+        }
+      ]
+    },
+    "anchors": [
+      "One dollar and eighty-seven cents. That was all. And sixty cents of it\nwas in pennies. Pennies saved one and two at a time by bulldozing the\ngrocer and the vegetable man and the butcher until one’s cheeks burned\nwith the silent imputation of parsimony that such close dealing\nimplied. Three times Della counted it. One dollar and eighty-seven\ncents. And the next day would be Christmas.",
+      "So now Della’s beautiful hair fell about her, rippling and shining like\na cascade of brown waters. It reached below her knee and made itself\nalmost a garment for her. And then she did it up again nervously and\nquickly. Once she faltered for a minute and stood still while a tear or\ntwo splashed on the worn red carpet.",
+      "Down rippled the brown cascade. “Twenty dollars,” said Madame, lifting\nthe mass with a practised hand.",
+      "When Della reached home her intoxication gave way a little to prudence\nand reason. She got out her curling irons and lighted the gas and went\nto work repairing the ravages made by generosity added to love. Which\nis always a tremendous task, dear friends—a mammoth task.",
+      "“Don’t make any mistake, Dell,” he said, “about me. I don’t think\nthere’s anything in the way of a haircut or a shave or a shampoo that\ncould make me like my girl any less. But if you’ll unwrap that package\nyou may see why you had me going a while at first.”",
+      "“Dell,” said he, “let’s put our Christmas presents away and keep ’em a\nwhile. They’re too nice to use just at present. I sold the watch to get\nthe money to buy your combs. And now suppose you put the chops on.”"
+    ],
+    "guidance": "围绕表达爱与沟通，而非惩罚牺牲。德拉独处和头发店阶段吉姆不在场；不得自动将私聊告诉他。原著未交代吉姆卖表的精确时刻，只有回家阶段他才明确拥有卖表买梳的私有记忆，不回填到更早场景。买梳与表链在交换前分属私有信息。不得无条件赎回头发或怀表、退款或增加财产。",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "明天是圣诞节，我积攒了1.87美元，想给吉姆买一件配得上他的礼物。",
+        "since": 1,
+        "audience": [
+          "della"
+        ],
+        "evidence_id": "e1"
+      },
+      {
+        "id": "f2",
+        "text": "我们生活拮据。吉姆有祖传金表，德拉有珍爱的长发。",
+        "since": 1,
+        "audience": [
+          "della",
+          "jim"
+        ],
+        "evidence_id": "e2"
+      },
+      {
+        "id": "f3",
+        "text": "夫人为德拉的头发开价二十美元，交易尚可选择。",
+        "since": 3,
+        "audience": [
+          "della",
+          "sofronie"
+        ],
+        "evidence_id": "e3"
+      },
+      {
+        "id": "f4",
+        "text": "我卖了长发，花二十一美元给吉姆买铂金表链，剩下八十七美分。吉姆尚未见到。",
+        "since": 4,
+        "audience": [
+          "della"
+        ],
+        "evidence_id": "e4"
+      },
+      {
+        "id": "f5",
+        "text": "吉姆回家，看见德拉剪短的头发；德拉解释自己卖发是为了买礼物。",
+        "since": 5,
+        "audience": [
+          "della",
+          "jim"
+        ],
+        "evidence_id": "e5"
+      },
+      {
+        "id": "f6",
+        "text": "我卖掉了自己的怀表，给德拉买了她喜欢的发梳。她尚未知道我是怎样筹到钱的。",
+        "since": 5,
+        "audience": [
+          "jim"
+        ],
+        "evidence_id": "e6"
+      },
+      {
+        "id": "f7",
+        "text": "礼物已经拆开，我们彼此知道卖发买表链、卖表买发梳的经过。决定先把礼物放起来。",
+        "since": 6,
+        "audience": [
+          "della",
+          "jim"
+        ],
+        "evidence_id": "e6"
+      }
+    ]
+  },
+  {
+    "book": {
+      "id": "leaf",
+      "reading_start": "In a little district west of Washington Square",
+      "title": "最后一片叶子",
+      "author": "欧·亨利",
+      "subtitle": "如果有人陪她，等过这个夜晚。",
+      "theme": "信念与照护",
+      "entry_scene": 2,
+      "version": "leaf-v1",
+      "source_url": "https://www.gutenberg.org/ebooks/3707",
+      "source_note": "历史英文公版正文，来源：https://www.gutenberg.org/ebooks/3707。仅摘取该篇完整正文、统一换行；中文场景及导读为编者梗概，不是现代译文或模型已完成的解读。",
+      "characters": [
+        {
+          "id": "johnsy",
+          "name": "琼珊",
+          "initial": "琼",
+          "description": "年轻画家，在病中被窗外的落叶牵动。",
+          "color": "#787092"
+        },
+        {
+          "id": "sue",
+          "name": "苏",
+          "initial": "苏",
+          "description": "一边画画谋生，一边照顾朋友。",
+          "color": "#596e66"
+        },
+        {
+          "id": "behrman",
+          "name": "贝尔曼",
+          "initial": "贝",
+          "description": "脾气粗犷的老画家，仍惦记自己的杰作。",
+          "color": "#956849"
+        }
+      ],
+      "scenes": [
+        {
+          "id": 1,
+          "title": "病中的画室",
+          "time": "十一月 · 清晨",
+          "place": "苏与琼珊的画室",
+          "summary": "琼珊患上肺炎，躺在床上望着窗外；苏在照料她。",
+          "question": "一个人的愿望，怎样在病中变得遥远？",
+          "choice": "陪伴与照护安排",
+          "resistance": "高",
+          "characters": [
+            "johnsy",
+            "sue"
+          ],
+          "evidence_ids": [
+            "e1"
+          ]
+        },
+        {
+          "id": 2,
+          "title": "倒数的叶子",
+          "time": "同日 · 白天",
+          "place": "窗边",
+          "summary": "琼珊告诉苏，她相信最后一片常春藤叶落下时，自己也会死去。",
+          "question": "如何回应一种并不真实、却真实影响她的信念？",
+          "choice": "倾听、回应和接受照护",
+          "resistance": "高",
+          "characters": [
+            "johnsy",
+            "sue"
+          ],
+          "evidence_ids": [
+            "e2"
+          ]
+        },
+        {
+          "id": 3,
+          "title": "楼下的老画家",
+          "time": "同日 · 风雨之前",
+          "place": "贝尔曼的画室",
+          "summary": "苏向贝尔曼讲述琼珊的想法，请他上楼当绘画模特。",
+          "question": "关心一个人，可以化为什么具体行动？",
+          "choice": "商量照护与帮助",
+          "resistance": "中",
+          "characters": [
+            "sue",
+            "behrman"
+          ],
+          "evidence_ids": [
+            "e3"
+          ]
+        },
+        {
+          "id": 4,
+          "title": "将临的风雨",
+          "time": "同日 · 入夜前",
+          "place": "画室隔间",
+          "summary": "琼珊已睡，苏和贝尔曼从隔间望向窗外的藤蔓，雨雪和风渐起。",
+          "question": "要帮朋友渡过一夜，有没有更安全的办法？",
+          "choice": "夜间照护和行动安排",
+          "resistance": "高",
+          "characters": [
+            "sue",
+            "behrman"
+          ],
+          "evidence_ids": [
+            "e4"
+          ]
+        },
+        {
+          "id": 5,
+          "title": "仍在墙上的一片",
+          "time": "次日清晨",
+          "place": "琼珊床边",
+          "summary": "窗帘升起，经历风雨的墙上仍留着一片叶子；琼珊看着它。",
+          "question": "同样一片叶子，可以有新的解释吗？",
+          "choice": "如何理解眼前所见",
+          "resistance": "中",
+          "characters": [
+            "johnsy",
+            "sue"
+          ],
+          "evidence_ids": [
+            "e5"
+          ]
+        },
+        {
+          "id": 6,
+          "title": "再想画那不勒斯湾",
+          "time": "又一日",
+          "place": "画室",
+          "summary": "叶子依然可见。琼珊开始愿意进食，并重新谈起画画的愿望。",
+          "question": "愿意活下去之后，还需要哪些实际支持？",
+          "choice": "继续进食、休息和治疗",
+          "resistance": "中",
+          "characters": [
+            "johnsy",
+            "sue"
+          ],
+          "evidence_ids": [
+            "e6"
+          ]
+        },
+        {
+          "id": 7,
+          "title": "一幅没有署名的画",
+          "time": "脱离危险之后",
+          "place": "画室",
+          "summary": "苏告诉琼珊，贝尔曼因肺炎去世；墙上的最后一片叶子是他在风雨夜画下的。",
+          "question": "怎样记住一个人的帮助，而不把牺牲变成要求？",
+          "choice": "悼念与今后的生活",
+          "resistance": "高",
+          "characters": [
+            "johnsy",
+            "sue"
+          ],
+          "evidence_ids": [
+            "e7"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "id": "e1",
+          "text": "琼珊患上肺炎，躺在床上望着窗外；苏在照料她。",
+          "note": "编者梗概；点击核对历史原文。一个人的愿望，怎样在病中变得遥远？",
+          "scene": 1,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e2",
+          "text": "琼珊告诉苏，她相信最后一片常春藤叶落下时，自己也会死去。",
+          "note": "编者梗概；点击核对历史原文。如何回应一种并不真实、却真实影响她的信念？",
+          "scene": 2,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e3",
+          "text": "苏向贝尔曼讲述琼珊的想法，请他上楼当绘画模特。",
+          "note": "编者梗概；点击核对历史原文。关心一个人，可以化为什么具体行动？",
+          "scene": 3,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e4",
+          "text": "琼珊已睡，苏和贝尔曼从隔间望向窗外的藤蔓，雨雪和风渐起。",
+          "note": "编者梗概；点击核对历史原文。要帮朋友渡过一夜，有没有更安全的办法？",
+          "scene": 4,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e5",
+          "text": "窗帘升起，经历风雨的墙上仍留着一片叶子；琼珊看着它。",
+          "note": "编者梗概；点击核对历史原文。同样一片叶子，可以有新的解释吗？",
+          "scene": 5,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e6",
+          "text": "叶子依然可见。琼珊开始愿意进食，并重新谈起画画的愿望。",
+          "note": "编者梗概；点击核对历史原文。愿意活下去之后，还需要哪些实际支持？",
+          "scene": 6,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e7",
+          "text": "苏告诉琼珊，贝尔曼因肺炎去世；墙上的最后一片叶子是他在风雨夜画下的。",
+          "note": "编者梗概；点击核对历史原文。怎样记住一个人的帮助，而不把牺牲变成要求？",
+          "scene": 7,
+          "origin": "editorial_paraphrase"
+        }
+      ]
+    },
+    "anchors": [
+      "Mr. Pneumonia was not what you would call a chivalric old gentleman. A\nmite of a little woman with blood thinned by California zephyrs was\nhardly fair game for the red-fisted, short-breathed old duffer. But\nJohnsy he smote; and she lay, scarcely moving, on her painted iron\nbedstead, looking through the small Dutch window-panes at the blank\nside of the next brick house.",
+      "“Leaves. On the ivy vine. When the last one falls I must go, too. I’ve\nknown that for three days. Didn’t the doctor tell you?”",
+      "Sue found Behrman smelling strongly of juniper berries in his dimly\nlighted den below. In one corner was a blank canvas on an easel that\nhad been waiting there for twenty-five years to receive the first line\nof the masterpiece. She told him of Johnsy’s fancy, and how she feared\nshe would, indeed, light and fragile as a leaf herself, float away when\nher slight hold upon the world grew weaker.",
+      "Johnsy was sleeping when they went upstairs. Sue pulled the shade down\nto the window-sill, and motioned Behrman into the other room. In there\nthey peered out the window fearfully at the ivy vine. Then they looked\nat each other for a moment without speaking. A persistent, cold rain\nwas falling, mingled with snow. Behrman, in his old blue shirt, took\nhis seat as the hermit-miner on an upturned kettle for a rock.",
+      "But, lo! after the beating rain and fierce gusts of wind that had\nendured through the livelong night, there yet stood out against the\nbrick wall one ivy leaf. It was the last on the vine. Still dark green\nnear its stem, but with its serrated edges tinted with the yellow of\ndissolution and decay, it hung bravely from a branch some twenty feet\nabove the ground.",
+      "“I’ve been a bad girl, Sudie,” said Johnsy. “Something has made that\nlast leaf stay there to show me how wicked I was. It is a sin to want\nto die. You may bring me a little broth now, and some milk with a\nlittle port in it, and—no; bring me a hand-mirror first, and then pack\nsome pillows about me, and I will sit up and watch you cook.”",
+      "“I have something to tell you, white mouse,” she said. “Mr. Behrman\ndied of pneumonia to-day in the hospital. He was ill only two days. The\njanitor found him on the morning of the first day in his room\ndownstairs helpless with pain. His shoes and clothing were wet through\nand icy cold. They couldn’t imagine where he had been on such a\ndreadful night. And then they found a lantern, still lighted, and a\nladder that had been dragged from its place, and some scattered\nbrushes, and a palette with green and yellow colors mixed on it,\nand—look out the window, dear, at the last ivy leaf on the wall. Didn’t\nyou wonder why it never fluttered or moved when the wind blew? Ah,\ndarling, it’s Behrman’s masterpiece—he painted it there the night that\nthe last leaf fell.”\n"
+    ],
+    "guidance": "肺炎是病情，落叶决定死亡是琼珊的信念而不是世界规律。安慰或影响力不能直接治愈；康复须有时间、照护及医学观察。医生台词是历史作品表现，不是现代医疗建议。苏与琼珊在叶子真相揭晓前不知道画叶秘密；贝尔曼的秘密行动不能在共同旁白提前揭露。贝尔曼的死亡不是从早期进入必然发生的未来，也不应为戏剧性强迫牺牲；进入原著最终场景后不得让死者归来。",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "我们是合住画室的年轻画家，琼珊患肺炎卧床。",
+        "since": 1,
+        "audience": [
+          "johnsy",
+          "sue"
+        ],
+        "evidence_id": "e1"
+      },
+      {
+        "id": "f2",
+        "text": "我曾希望去画那不勒斯湾。",
+        "since": 1,
+        "audience": [
+          "johnsy"
+        ],
+        "evidence_id": "e6"
+      },
+      {
+        "id": "f3",
+        "text": "医生向我谈了病情与求生意愿，我仍需照护琼珊；他的判断不是保证。",
+        "since": 1,
+        "audience": [
+          "sue"
+        ],
+        "evidence_id": "e1"
+      },
+      {
+        "id": "f4",
+        "text": "我相信最后一片常春藤叶落下时，我也会死去。这是我的想法，不是证实的事实。",
+        "since": 2,
+        "audience": [
+          "johnsy"
+        ],
+        "evidence_id": "e2"
+      },
+      {
+        "id": "f5",
+        "text": "琼珊向我说出了落叶与死亡的想法，我不相信二者有必然联系，想帮助她。",
+        "since": 2,
+        "audience": [
+          "sue"
+        ],
+        "evidence_id": "e2"
+      },
+      {
+        "id": "f6",
+        "text": "苏已把琼珊的落叶想法告诉贝尔曼，并请他上楼作模特。",
+        "since": 3,
+        "audience": [
+          "sue",
+          "behrman"
+        ],
+        "evidence_id": "e3"
+      },
+      {
+        "id": "f7",
+        "text": "我是住在楼下的老画家，一直想画出杰作，关心楼上的两位年轻画家。",
+        "since": 3,
+        "audience": [
+          "behrman"
+        ],
+        "evidence_id": "e3"
+      },
+      {
+        "id": "f8",
+        "text": "琼珊睡下了，我们在隔间看向窗外，风雨将至。",
+        "since": 4,
+        "audience": [
+          "sue",
+          "behrman"
+        ],
+        "evidence_id": "e4"
+      },
+      {
+        "id": "f9",
+        "text": "经过昨夜风雨，墙上的最后一片叶子还在；我们尚不知道它为何留下。",
+        "since": 5,
+        "audience": [
+          "johnsy",
+          "sue"
+        ],
+        "evidence_id": "e5"
+      },
+      {
+        "id": "f10",
+        "text": "琼珊开始想喝汤并重新谈起画那不勒斯湾；仍需要照护，不能当作已经完全痊愈。",
+        "since": 6,
+        "audience": [
+          "johnsy",
+          "sue"
+        ],
+        "evidence_id": "e6"
+      },
+      {
+        "id": "f11",
+        "text": "医生说琼珊已脱离危险；苏告诉琼珊贝尔曼已因肺炎去世，最后一片叶子是他冒风雨画下的。",
+        "since": 7,
+        "audience": [
+          "johnsy",
+          "sue"
+        ],
+        "evidence_id": "e7"
+      }
+    ]
+  },
+  {
+    "book": {
+      "id": "paw",
+      "reading_start": "Without, the night was cold and wet",
+      "title": "猴爪",
+      "author": "W. W. 雅各布斯",
+      "subtitle": "如果愿望出口前，再想一想。",
+      "theme": "选择与未知代价",
+      "entry_scene": 2,
+      "version": "paw-v1",
+      "source_url": "https://www.gutenberg.org/ebooks/12122",
+      "source_note": "历史英文公版正文，来源：https://www.gutenberg.org/ebooks/12122。仅摘取该篇完整正文、统一换行；中文场景及导读为编者梗概，不是现代译文或模型已完成的解读。",
+      "characters": [
+        {
+          "id": "white",
+          "name": "怀特先生",
+          "initial": "怀",
+          "description": "好奇而犹疑，珍惜家人也向往改变。",
+          "color": "#956849"
+        },
+        {
+          "id": "mrs_white",
+          "name": "怀特夫人",
+          "initial": "怀",
+          "description": "关心家人，面对未知有自己的判断。",
+          "color": "#787092"
+        },
+        {
+          "id": "herbert",
+          "name": "赫伯特",
+          "initial": "赫",
+          "description": "年轻而爱开玩笑，对奇异故事带着怀疑。",
+          "color": "#596e66"
+        }
+      ],
+      "scenes": [
+        {
+          "id": 1,
+          "title": "炉边的来客",
+          "time": "寒冷的夜晚",
+          "place": "怀特家的客厅",
+          "summary": "一家人迎来莫里斯军士长，听他讲述远方的经历。",
+          "question": "好奇从什么时候变成冒险？",
+          "choice": "如何对待陌生经历与传闻",
+          "resistance": "低",
+          "characters": [
+            "white",
+            "mrs_white",
+            "herbert"
+          ],
+          "evidence_ids": [
+            "e1"
+          ]
+        },
+        {
+          "id": 2,
+          "title": "从火中捡回",
+          "time": "同夜 · 晚饭前",
+          "place": "壁炉旁",
+          "summary": "莫里斯讲述猴爪的三个愿望与警告，把它投入火中；怀特先生将它捡了回来。",
+          "question": "没有证实的危险，值得认真对待吗？",
+          "choice": "保留、丢弃或不使用猴爪",
+          "resistance": "高",
+          "characters": [
+            "white",
+            "mrs_white",
+            "herbert"
+          ],
+          "evidence_ids": [
+            "e2"
+          ]
+        },
+        {
+          "id": 3,
+          "title": "两百英镑的愿望",
+          "time": "客人离开之后",
+          "place": "客厅",
+          "summary": "怀特先生许愿得到两百英镑，自称猴爪在手中扭动；眼前并没有钱出现。",
+          "question": "一种感受能证明什么？",
+          "choice": "是否继续相信、怎样面对不确定",
+          "resistance": "中",
+          "characters": [
+            "white",
+            "mrs_white",
+            "herbert"
+          ],
+          "evidence_ids": [
+            "e3"
+          ]
+        },
+        {
+          "id": 4,
+          "title": "公司的来信人",
+          "time": "次日",
+          "place": "怀特家",
+          "summary": "来人告知赫伯特在机器事故中死亡，公司给予两百英镑慰问金。",
+          "question": "悲痛与巧合之间，能否急于认定因果？",
+          "choice": "接受支持、面对失去",
+          "resistance": "高",
+          "characters": [
+            "white",
+            "mrs_white"
+          ],
+          "evidence_ids": [
+            "e4"
+          ]
+        },
+        {
+          "id": 5,
+          "title": "剩下的愿望",
+          "time": "安葬之后的夜晚",
+          "place": "卧室",
+          "summary": "失去儿子的夫妻在寂静中生活，怀特夫人想起猴爪，要求丈夫许愿让儿子回来。",
+          "question": "爱与恐惧分别在保护什么？",
+          "choice": "是否再次许愿",
+          "resistance": "高",
+          "characters": [
+            "white",
+            "mrs_white"
+          ],
+          "evidence_ids": [
+            "e5"
+          ]
+        },
+        {
+          "id": 6,
+          "title": "门外的敲击",
+          "time": "第二个愿望之后",
+          "place": "楼梯与门前",
+          "summary": "怀特先生已许愿让儿子复生，随后传来敲门声，夫妻对是否开门意见相反。",
+          "question": "门外是谁，真的已经知道了吗？",
+          "choice": "开门、等待或使用最后的愿望",
+          "resistance": "高",
+          "characters": [
+            "white",
+            "mrs_white"
+          ],
+          "evidence_ids": [
+            "e6"
+          ]
+        },
+        {
+          "id": 7,
+          "title": "空荡的路",
+          "time": "同夜 · 门打开后",
+          "place": "家门口",
+          "summary": "怀特先生找到猴爪许下最后的愿望。敲门停止，门外只有空荡的道路。",
+          "question": "一个没有解释的夜晚，可以怎样结束？",
+          "choice": "相互陪伴与承担选择",
+          "resistance": "中",
+          "characters": [
+            "white",
+            "mrs_white"
+          ],
+          "evidence_ids": [
+            "e7"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "id": "e1",
+          "text": "一家人迎来莫里斯军士长，听他讲述远方的经历。",
+          "note": "编者梗概；点击核对历史原文。好奇从什么时候变成冒险？",
+          "scene": 1,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e2",
+          "text": "莫里斯讲述猴爪的三个愿望与警告，把它投入火中；怀特先生将它捡了回来。",
+          "note": "编者梗概；点击核对历史原文。没有证实的危险，值得认真对待吗？",
+          "scene": 2,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e3",
+          "text": "怀特先生许愿得到两百英镑，自称猴爪在手中扭动；眼前并没有钱出现。",
+          "note": "编者梗概；点击核对历史原文。一种感受能证明什么？",
+          "scene": 3,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e4",
+          "text": "来人告知赫伯特在机器事故中死亡，公司给予两百英镑慰问金。",
+          "note": "编者梗概；点击核对历史原文。悲痛与巧合之间，能否急于认定因果？",
+          "scene": 4,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e5",
+          "text": "失去儿子的夫妻在寂静中生活，怀特夫人想起猴爪，要求丈夫许愿让儿子回来。",
+          "note": "编者梗概；点击核对历史原文。爱与恐惧分别在保护什么？",
+          "scene": 5,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e6",
+          "text": "怀特先生已许愿让儿子复生，随后传来敲门声，夫妻对是否开门意见相反。",
+          "note": "编者梗概；点击核对历史原文。门外是谁，真的已经知道了吗？",
+          "scene": 6,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e7",
+          "text": "怀特先生找到猴爪许下最后的愿望。敲门停止，门外只有空荡的道路。",
+          "note": "编者梗概；点击核对历史原文。一个没有解释的夜晚，可以怎样结束？",
+          "scene": 7,
+          "origin": "editorial_paraphrase"
+        }
+      ]
+    },
+    "anchors": [
+      "At the third glass his eyes got brighter, and he began to talk, the\nlittle family circle regarding with eager interest this visitor from\ndistant parts, as he squared his broad shoulders in the chair and spoke\nof wild scenes and doughty deeds; of wars and plagues and strange\npeoples.",
+      "He took the paw, and dangling it between his forefinger and thumb,\nsuddenly threw it upon the fire. White, with a slight cry, stooped down\nand snatched it off.",
+      "“I wish for two hundred pounds,” said the old man distinctly.",
+      "“Two hundred pounds,” was the answer.",
+      "“No,” she cried, triumphantly; “we’ll have one more. Go down and get it\nquickly, and wish our boy alive again.”",
+      "His wife sat up in bed listening. A loud knock resounded through the\nhouse.",
+      "The knocking ceased suddenly, although the echoes of it were still in\nthe house. He heard the chair drawn back, and the door opened. A cold\nwind rushed up the staircase, and a long loud wail of disappointment\nand misery from his wife gave him courage to run down to her side, and\nthen to the gate beyond. The street lamp flickering opposite shone on a\nquiet and deserted road.\n"
+    ],
+    "guidance": "恐怖与丧亲主题，不描写血腥细节。莫里斯的咒语规则是角色听闻，不是可任意扩写的精确物理定律；事故与金额对应不证明超自然因果。门外身份、第三个愿望的具体措辞均未被原文明示，保持未知，不强造复活者或怪物。赫伯特在原著第4场起已经死亡，只能在此前进入的新分支中避免尚未发生的事故，不得在后续召回他作在场人物。原著结局不强制应用于改变许愿的新分支。",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "我们在家迎来莫里斯军士长，听他谈远方经历。",
+        "since": 1,
+        "audience": [
+          "white",
+          "mrs_white",
+          "herbert"
+        ],
+        "evidence_id": "e1"
+      },
+      {
+        "id": "f2",
+        "text": "莫里斯说猴爪能让三个人各许三个愿望，警告干涉命运有代价；怀特先生从火中捡回它。我们只是听到他的说法。",
+        "since": 2,
+        "audience": [
+          "white",
+          "mrs_white",
+          "herbert"
+        ],
+        "evidence_id": "e2"
+      },
+      {
+        "id": "f3",
+        "text": "我许愿得到两百英镑，感觉猴爪在手里扭动；还没有见到钱。",
+        "since": 3,
+        "audience": [
+          "white"
+        ],
+        "evidence_id": "e3"
+      },
+      {
+        "id": "f4",
+        "text": "怀特先生许愿得到两百英镑，并声称猴爪动了；我们没有看到钱出现。",
+        "since": 3,
+        "audience": [
+          "mrs_white",
+          "herbert"
+        ],
+        "evidence_id": "e3"
+      },
+      {
+        "id": "f5",
+        "text": "公司来人通知赫伯特在机器事故中死亡，并给予两百英镑。这种对应令人震动，但因果未获证实。",
+        "since": 4,
+        "audience": [
+          "white",
+          "mrs_white"
+        ],
+        "evidence_id": "e4"
+      },
+      {
+        "id": "f6",
+        "text": "赫伯特已经安葬。母亲要求再许愿让儿子活过来，父亲害怕。",
+        "since": 5,
+        "audience": [
+          "white",
+          "mrs_white"
+        ],
+        "evidence_id": "e5"
+      },
+      {
+        "id": "f7",
+        "text": "父亲已许愿让儿子活过来；随后有人敲门，我们没有看清门外是谁。",
+        "since": 6,
+        "audience": [
+          "white",
+          "mrs_white"
+        ],
+        "evidence_id": "e6"
+      },
+      {
+        "id": "f8",
+        "text": "我相信门外是赫伯特，想开门。这是我的确信，还没有亲眼确认。",
+        "since": 6,
+        "audience": [
+          "mrs_white"
+        ],
+        "evidence_id": "e6"
+      },
+      {
+        "id": "f9",
+        "text": "最后敲门停止，开门后只看见空路。我们不能向对方或访客断言门外究竟是什么。",
+        "since": 7,
+        "audience": [
+          "white",
+          "mrs_white"
+        ],
+        "evidence_id": "e7"
+      }
+    ]
+  },
+  {
+    "book": {
+      "id": "kong",
+      "title": "孔乙己",
+      "author": "鲁迅",
+      "subtitle": "如果笑声里，有人认真听他说话。",
+      "theme": "尊严与旁观者",
+      "entry_scene": 3,
+      "version": "kong-v1",
+      "source_url": "https://zh.wikisource.org/w/index.php?title=孔乙己&oldid=2605389",
+      "source_note": "鲁迅《孔乙己》完整公版正文，按维基文库修订版 2605389 转为简体并规范部分异体字；保留原段落及措辞，不是改写或现代教材注释。",
+      "characters": [
+        {
+          "id": "kong",
+          "name": "孔乙己",
+          "initial": "孔",
+          "description": "穿着破长衫的读书人，困窘中仍在维护体面。",
+          "color": "#787092"
+        },
+        {
+          "id": "boy",
+          "name": "小伙计",
+          "initial": "小",
+          "description": "在酒店温酒，从周围人的目光学习看人。",
+          "color": "#596e66"
+        },
+        {
+          "id": "keeper",
+          "name": "掌柜",
+          "initial": "掌",
+          "description": "经营酒店，习惯从酒钱和生意看待来客。",
+          "color": "#956849"
+        }
+      ],
+      "scenes": [
+        {
+          "id": 1,
+          "title": "站着喝酒的长衫客",
+          "time": "往日 · 酒店日常",
+          "place": "咸亨酒店",
+          "summary": "孔乙己穿破长衫站着喝酒，在短衣客和长衫客之间显得格格不入。",
+          "question": "一件长衫能给人身份，也会带来什么？",
+          "choice": "怎样与来客说话",
+          "resistance": "中",
+          "characters": [
+            "kong",
+            "boy",
+            "keeper"
+          ],
+          "evidence_ids": [
+            "e1"
+          ]
+        },
+        {
+          "id": 2,
+          "title": "笑声与伤疤",
+          "time": "一次到店",
+          "place": "柜台前",
+          "summary": "旁人取笑孔乙己的伤疤与偷书传闻，他涨红了脸为自己辩解。",
+          "question": "一个人辩解的时候，旁人听见的是什么？",
+          "choice": "是否继续取笑、如何回应",
+          "resistance": "高",
+          "characters": [
+            "kong",
+            "boy",
+            "keeper"
+          ],
+          "evidence_ids": [
+            "e2"
+          ]
+        },
+        {
+          "id": 3,
+          "title": "茴字的写法",
+          "time": "另一次到店",
+          "place": "柜台旁",
+          "summary": "孔乙己想教小伙计写字，小伙计不耐烦，尚未认真接受他的好意。",
+          "question": "如果有人愿意认真听，他会怎样说下去？",
+          "choice": "倾听、拒绝或换一种交谈",
+          "resistance": "中",
+          "characters": [
+            "kong",
+            "boy"
+          ],
+          "evidence_ids": [
+            "e3"
+          ]
+        },
+        {
+          "id": 4,
+          "title": "分给孩子的豆",
+          "time": "几次日常相遇",
+          "place": "酒店门口",
+          "summary": "孩子们围过来，孔乙己给每人一颗茴香豆，随后护住所剩不多的豆子。",
+          "question": "困窘的人也能给予什么？",
+          "choice": "回应善意与保持尊严",
+          "resistance": "中",
+          "characters": [
+            "kong",
+            "boy"
+          ],
+          "evidence_ids": [
+            "e4"
+          ]
+        },
+        {
+          "id": 5,
+          "title": "十九个钱",
+          "time": "中秋前",
+          "place": "酒店柜台",
+          "summary": "掌柜说孔乙己久未来店、还欠酒钱。一个酒客声称他在丁举人家被打折了腿。",
+          "question": "听到一个人的坏消息，除了议论还能做什么？",
+          "choice": "核实消息或寻求帮助",
+          "resistance": "高",
+          "characters": [
+            "boy",
+            "keeper"
+          ],
+          "evidence_ids": [
+            "e5"
+          ]
+        },
+        {
+          "id": 6,
+          "title": "门槛下的再见",
+          "time": "中秋之后 · 近初冬",
+          "place": "酒店门槛",
+          "summary": "孔乙己坐在门槛下，身体衰弱，用手移动。他付现钱买酒，面对取笑低声求不要再提。",
+          "question": "最需要帮助的时候，他还在担心什么？",
+          "choice": "提供实际帮助、停止羞辱",
+          "resistance": "高",
+          "characters": [
+            "kong",
+            "boy",
+            "keeper"
+          ],
+          "evidence_ids": [
+            "e6"
+          ]
+        },
+        {
+          "id": 7,
+          "title": "再没有等到的人",
+          "time": "后来的节令",
+          "place": "酒店",
+          "summary": "孔乙己长久未再出现，掌柜曾几次提起欠钱；小伙计再没有见到他。",
+          "question": "一个人的消失，留下的难道只有欠账？",
+          "choice": "寻找、记住或反思旁观",
+          "resistance": "高",
+          "characters": [
+            "boy",
+            "keeper"
+          ],
+          "evidence_ids": [
+            "e7"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "id": "e1",
+          "text": "孔乙己穿破长衫站着喝酒，在短衣客和长衫客之间显得格格不入。",
+          "note": "编者梗概；点击核对历史原文。一件长衫能给人身份，也会带来什么？",
+          "scene": 1,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e2",
+          "text": "旁人取笑孔乙己的伤疤与偷书传闻，他涨红了脸为自己辩解。",
+          "note": "编者梗概；点击核对历史原文。一个人辩解的时候，旁人听见的是什么？",
+          "scene": 2,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e3",
+          "text": "孔乙己想教小伙计写字，小伙计不耐烦，尚未认真接受他的好意。",
+          "note": "编者梗概；点击核对历史原文。如果有人愿意认真听，他会怎样说下去？",
+          "scene": 3,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e4",
+          "text": "孩子们围过来，孔乙己给每人一颗茴香豆，随后护住所剩不多的豆子。",
+          "note": "编者梗概；点击核对历史原文。困窘的人也能给予什么？",
+          "scene": 4,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e5",
+          "text": "掌柜说孔乙己久未来店、还欠酒钱。一个酒客声称他在丁举人家被打折了腿。",
+          "note": "编者梗概；点击核对历史原文。听到一个人的坏消息，除了议论还能做什么？",
+          "scene": 5,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e6",
+          "text": "孔乙己坐在门槛下，身体衰弱，用手移动。他付现钱买酒，面对取笑低声求不要再提。",
+          "note": "编者梗概；点击核对历史原文。最需要帮助的时候，他还在担心什么？",
+          "scene": 6,
+          "origin": "editorial_paraphrase"
+        },
+        {
+          "id": "e7",
+          "text": "孔乙己长久未再出现，掌柜曾几次提起欠钱；小伙计再没有见到他。",
+          "note": "编者梗概；点击核对历史原文。一个人的消失，留下的难道只有欠账？",
+          "scene": 7,
+          "origin": "editorial_paraphrase"
+        }
+      ],
+      "language": "zh"
+    },
+    "anchors": [
+      "孔乙己是站着喝酒而穿长衫的唯一的人。他身材很高大；青白脸色，皱纹间时常夹些伤痕；一部乱蓬蓬的花白的胡子。穿的虽然是长衫，可是又脏又破，似乎十多年没有补，也没有洗。他对人说话，总是满口之乎者也，教人半懂不懂的。因为他姓孔，别人便从描红纸上的『上大人孔乙己』这半懂不懂的话里，替他取下一个绰号，叫作孔乙己。孔乙己一到店，所有喝酒的人便都看着他笑，有的叫道：『孔乙己，你脸上又添上新伤疤了！』他不回答，对柜里说：『温两碗酒，要一碟茴香豆。』便排出九文大钱。他们又故意的高声嚷道：『你一定又偷了人家的东西了！』孔乙己睁大眼睛说：『你怎么这样凭空污人清白……』『什么清白？我前天亲眼见你偷了何家的书，吊着打。』孔乙己便涨红了脸，额上的青筋条条绽出，争辩道：『窃书不能算偷……窃书！……读书人的事，能算偷么？』接连便是难懂的话，什么『君子固穷』，什么『者乎』之类，引得众人都哄笑起来；店内外充满了快活的空气。",
+      "孔乙己喝过半碗酒，涨红的脸色渐渐复了原，旁人便又问道，『孔乙己，你当真认识字么？』孔乙己看着问他的人，显出不屑置辩的神气。他们便接着说道：『你怎的连半个秀才也捞不到呢？』孔乙己立刻显出颓唐不安模样，脸上笼上了一层灰色，嘴里说些话；这回可是全是之乎者也之类，一些不懂了。在这时候，众人也都哄笑起来：店内外充满了快活的空气。",
+      "在这些时候，我可以附和着笑，掌柜是决不责备的。而且掌柜见了孔乙己，也每每这样问他，引人发笑。孔乙己自己知道不能和他们谈天，便只好向孩子说话。有一回对我说道，『你读过书么？』我略略点一点头。他说，『读过书，……我便考你一考。茴香豆的茴字，怎样写的？』我想，讨饭一样的人，也配考我么？便回过脸去，不再理会。孔乙己等了许久，很恳切的说道：『不能写罢？……我教给你，记着！这些字应该记着。将来做掌柜的时候，写帐要用。』我暗想我和掌柜的等级还很远呢，而且我们掌柜也从不将茴香豆上帐；又好笑，又不耐烦，懒懒的答他道：『谁要你教，不是草头底下一个来回的回字么？』孔乙己显出极高兴的样子，将两个指头的长指甲敲着柜台，点头说：『对呀对呀！……回字有四样写法，你知道么？』我愈不耐烦了，努着嘴走远。孔乙己刚用指甲蘸了酒，想在柜上写字，见我毫不热心，便又叹一口气，显出极惋惜的样子。",
+      "有几回，邻舍孩子听得笑声，也赶热闹，围住了孔乙己。他便给他们茴香豆吃，一人一颗。孩子吃完豆，仍然不散，眼睛都望着碟子。孔乙己着了慌，伸开五指将碟子罩住，弯腰下去说道：『不多了，我已经不多了。』直起身又看一看豆，自己摇头说：『不多不多！多乎哉？不多也。』于是这一群孩子都在笑声里走散了。",
+      "有一天，大约是中秋前的两三天，掌柜正在慢慢的结帐，取下粉板，忽然说：『孔乙己长久没有来了。还欠十九个钱呢！』我才也觉得他的确长久没有来了。一个喝酒的人说道，『他怎么会来？……他打折了腿了。』掌柜说：『哦！』『他总仍旧是偷。这一回，是自己发昏，竟偷到丁举人家里去了。他家的东西，偷得的么？』『后来怎么样？』『怎么样？先写服辩，后来是打，打了大半夜，再打折了腿。』『后来呢？』『后来打折了腿了。』『打折了怎样呢？』『怎样？……谁晓得？许是死了。』掌柜也不再问，仍然慢慢的算他的帐。",
+      "中秋过后，秋风是一天凉比一天，看看将近初冬；我整天的靠着火，也须穿上棉袄了。一天的下半天，没有一个顾客，我正合了眼坐着。忽然间听得一个声音，『温一碗酒。』这声音虽然极低，却很耳熟。看时又全没有人。站起来向外一望，那孔乙己便在柜台下对了门槛坐着。他脸上黑而且瘦，已经不成样子；穿一件破夹袄，盘着两腿，下面垫一个蒲包，用草绳在肩上挂住；见了我，又说道，『温一碗酒。』掌柜也伸出头去，一面说：『孔乙己么？你还欠十九个钱呢！』孔乙己很颓唐的仰面答道，『这……下回还清罢。这一回是现钱，酒要好。』掌柜仍然同平常一样，笑着对他说，『孔乙己，你又偷了东西了！』但他这回却不十分分辩，单说了一句『不要取笑！』『取笑？要是不偷，怎么会打断腿？』孔乙己低声说道：『跌断，跌，跌……』他的眼色，很像恳求掌柜，不要再提。此时已经聚集了几个人，便和掌柜都笑了。我温了酒，端出去，放在门槛上。他从破衣袋里摸出四文大钱，放在我手里，见他满手是泥，原来他便用这手走来的。不一会，他喝完酒，便又在旁人的说笑声中，坐着用这手慢慢走去了。",
+      "我到现在终于没有见——大约孔乙己的确死了。"
+    ],
+    "guidance": "社会现实与旁观者主题。早期日常片段是叙述性重复事件，不虚构精确日期。背后流言与酒店目击分开；不能把酒客指控都当作司法定论。小伙计是当年的孩子，不拥有成年叙述者的结尾知识。结尾死亡为叙述者推测，不能宣称已证实。尊严、贫穷、暴力和社会结构不能被一句劝说或凭空工作机会消除，但可以形成实际的小改变。第7场孔乙己失去踪迹，不能无依据把他直接写成在场或假定找到。",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "孔乙己穿着破旧长衫，常在咸亨酒店站着喝酒，生活窘困。",
+        "since": 1,
+        "audience": [
+          "kong",
+          "boy",
+          "keeper"
+        ],
+        "evidence_id": "e1"
+      },
+      {
+        "id": "f2",
+        "text": "我在酒店做温酒的小伙计，掌柜严厉，孔乙己常被人取笑。",
+        "since": 1,
+        "audience": [
+          "boy"
+        ],
+        "evidence_id": "e1"
+      },
+      {
+        "id": "f3",
+        "text": "酒客取笑伤疤和偷书，孔乙己争辩；现场的人听到指控，不等于亲眼见过指控的全部经过。",
+        "since": 2,
+        "audience": [
+          "kong",
+          "boy",
+          "keeper"
+        ],
+        "evidence_id": "e2"
+      },
+      {
+        "id": "f4",
+        "text": "孔乙己想教小伙计写茴香豆的茴字，小伙计不太愿意听。",
+        "since": 3,
+        "audience": [
+          "kong",
+          "boy"
+        ],
+        "evidence_id": "e3"
+      },
+      {
+        "id": "f5",
+        "text": "孔乙己把少量茴香豆分给围来的孩子，自己剩得也不多。",
+        "since": 4,
+        "audience": [
+          "kong",
+          "boy"
+        ],
+        "evidence_id": "e4"
+      },
+      {
+        "id": "f6",
+        "text": "孔乙己已许久不来，欠十九个钱。酒客声称他在丁举人家被打折腿，后续下落还不清楚。",
+        "since": 5,
+        "audience": [
+          "boy",
+          "keeper"
+        ],
+        "evidence_id": "e5"
+      },
+      {
+        "id": "f7",
+        "text": "孔乙己再次来店，坐在门槛下用手移动，付四文现钱买酒，请人不要取笑。",
+        "since": 6,
+        "audience": [
+          "kong",
+          "boy",
+          "keeper"
+        ],
+        "evidence_id": "e6"
+      },
+      {
+        "id": "f8",
+        "text": "我身体衰弱，行动困难，面对追问只说跌断，不愿被继续羞辱。",
+        "since": 6,
+        "audience": [
+          "kong"
+        ],
+        "evidence_id": "e6"
+      },
+      {
+        "id": "f9",
+        "text": "自从门槛下那次相遇，我们很久未再见到孔乙己；没有确证他的下落。",
+        "since": 7,
+        "audience": [
+          "boy",
+          "keeper"
+        ],
+        "evidence_id": "e7"
+      }
+    ]
+  }
+]

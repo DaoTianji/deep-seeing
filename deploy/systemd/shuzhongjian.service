@@ -1,0 +1,32 @@
+[Unit]
+Description=Shuzhongjian isolated reading competition demo
+Wants=network-online.target
+After=network-online.target tailscaled.service
+
+[Service]
+Type=simple
+User=shuzhongjian
+Group=shuzhongjian
+WorkingDirectory=/var/lib/shuzhongjian
+EnvironmentFile=/etc/shuzhongjian/model.env
+Environment=GOMEMLIMIT=512MiB
+ExecStart=/opt/shuzhongjian/current/reading -addr 127.0.0.1:3320 -data /var/lib/shuzhongjian/data -public-demo -daily-model-calls 300
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/shuzhongjian
+MemoryMax=768M
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,180 @@
+{
+  "version": "2efa17abd6348278fa8b33d50f2c5331dfa71c1c98f96863558bed3991f51b7a-sentences-v1",
+  "style": "fluent",
+  "target": "zh",
+  "completed": 21,
+  "total": 21,
+  "sentences": [
+    {
+      "id": "p1-s1",
+      "paragraph": 1,
+      "start_byte": 0,
+      "end_byte": 36,
+      "original": "唧唧复唧唧，木兰当户织。",
+      "translation": "叹息声一声接着一声，木兰对着门在织布。"
+    },
+    {
+      "id": "p1-s2",
+      "paragraph": 1,
+      "start_byte": 36,
+      "end_byte": 72,
+      "original": "不闻机杼声，唯闻女叹息。",
+      "translation": "听不到织布机的声音，只听到木兰的叹息声。"
+    },
+    {
+      "id": "p2-s1",
+      "paragraph": 2,
+      "start_byte": 74,
+      "end_byte": 110,
+      "original": "问女何所思，问女何所忆。",
+      "translation": "问木兰在想什么，问木兰在思念什么。"
+    },
+    {
+      "id": "p2-s2",
+      "paragraph": 2,
+      "start_byte": 110,
+      "end_byte": 146,
+      "original": "女亦无所思，女亦无所忆。",
+      "translation": "木兰没有想什么，木兰也没有思念什么。"
+    },
+    {
+      "id": "p2-s3",
+      "paragraph": 2,
+      "start_byte": 146,
+      "end_byte": 218,
+      "original": "昨夜见军帖，可汗大点兵，军书十二卷，卷卷有爷名。",
+      "translation": "昨夜看到军中的文告，可汗大规模征兵，征兵的名册有很多卷，每一卷都有父亲的名字。"
+    },
+    {
+      "id": "p2-s4",
+      "paragraph": 2,
+      "start_byte": 218,
+      "end_byte": 290,
+      "original": "阿爷无大儿，木兰无长兄，愿为市鞍马，从此替爷征。",
+      "translation": "父亲没有大儿子，木兰没有兄长，愿意为此去买鞍马，从此替代父亲去出征。"
+    },
+    {
+      "id": "p3-s1",
+      "paragraph": 3,
+      "start_byte": 292,
+      "end_byte": 364,
+      "original": "东市买骏马，西市买鞍鞯，南市买辔头，北市买长鞭。",
+      "translation": "到东边集市买骏马，到西边集市买马鞍和鞍垫，到南边集市买马嚼子和缰绳，到北边集市买长鞭。"
+    },
+    {
+      "id": "p3-s2",
+      "paragraph": 3,
+      "start_byte": 364,
+      "end_byte": 454,
+      "original": "旦辞爷娘去，暮宿黄河边，不闻爷娘唤女声，但闻黄河流水鸣溅溅。",
+      "translation": "早晨辞别父母离开，晚上宿营在黄河边，听不到父母呼唤女儿的声音，只听到黄河水奔流的溅溅声。"
+    },
+    {
+      "id": "p3-s3",
+      "paragraph": 3,
+      "start_byte": 454,
+      "end_byte": 544,
+      "original": "旦辞黄河去，暮至黑山头，不闻爷娘唤女声，但闻燕山胡骑鸣啾啾。",
+      "translation": "早晨离开黄河出发，晚上到达黑山头，听不到父母呼唤女儿的声音，只听到燕山胡人战马的啾啾嘶鸣。"
+    },
+    {
+      "id": "p4-s1",
+      "paragraph": 4,
+      "start_byte": 546,
+      "end_byte": 582,
+      "original": "万里赴戎机，关山度若飞。",
+      "translation": "不远万里奔赴战场，像飞一样地跨过一道道的关隘和山岭。"
+    },
+    {
+      "id": "p4-s2",
+      "paragraph": 4,
+      "start_byte": 582,
+      "end_byte": 618,
+      "original": "朔气传金柝，寒光照铁衣。",
+      "translation": "北方的寒气传送着打更的声音，寒冷的月光照在铠甲上。"
+    },
+    {
+      "id": "p4-s3",
+      "paragraph": 4,
+      "start_byte": 618,
+      "end_byte": 654,
+      "original": "将军百战死，壮士十年归。",
+      "translation": "将士们经历了多年征战，有的战死沙场，有的终于归来。"
+    },
+    {
+      "id": "p5-s1",
+      "paragraph": 5,
+      "start_byte": 656,
+      "end_byte": 692,
+      "original": "归来见天子，天子坐明堂。",
+      "translation": "胜利归来朝见天子，天子坐在殿堂上。"
+    },
+    {
+      "id": "p5-s2",
+      "paragraph": 5,
+      "start_byte": 692,
+      "end_byte": 728,
+      "original": "策勋十二转，赏赐百千强。",
+      "translation": "给木兰记了很大的功勋，赏赐了很多财物。"
+    },
+    {
+      "id": "p5-s3",
+      "paragraph": 5,
+      "start_byte": 728,
+      "end_byte": 806,
+      "original": "可汗问所欲，木兰不用尚书郎，愿驰千里足，送儿还故乡。",
+      "translation": "可汗问木兰想要什么，木兰不愿做尚书郎，只希望骑上千里马，回到自己的故乡。"
+    },
+    {
+      "id": "p6-s1",
+      "paragraph": 6,
+      "start_byte": 808,
+      "end_byte": 922,
+      "original": "爷娘闻女来，出郭相扶将；阿姊闻妹来，当户理红妆；小弟闻姊来，磨刀霍霍向猪羊。",
+      "translation": "父母听说女儿回来了，互相搀扶着到城外迎接；姐姐听说妹妹回来了，对着门梳妆打扮；弟弟听说姐姐回来了，忙着磨刀霍霍准备杀猪宰羊。"
+    },
+    {
+      "id": "p6-s2",
+      "paragraph": 6,
+      "start_byte": 922,
+      "end_byte": 958,
+      "original": "开我东阁门，坐我西阁床。",
+      "translation": "打开我东屋的房门，坐在我西屋的床上。"
+    },
+    {
+      "id": "p6-s3",
+      "paragraph": 6,
+      "start_byte": 958,
+      "end_byte": 994,
+      "original": "脱我战时袍，著我旧时裳。",
+      "translation": "脱下我打仗时穿的战袍，穿上我以前的衣裳。"
+    },
+    {
+      "id": "p6-s4",
+      "paragraph": 6,
+      "start_byte": 994,
+      "end_byte": 1030,
+      "original": "当窗理云鬓，对镜帖花黄。",
+      "translation": "对着窗户梳理像云一样柔美的鬓发，照着镜子在额上贴好花黄。"
+    },
+    {
+      "id": "p6-s5",
+      "paragraph": 6,
+      "start_byte": 1030,
+      "end_byte": 1108,
+      "original": "出门看火伴，火伴皆惊忙：同行十二年，不知木兰是女郎。",
+      "translation": "出门去见同行的伙伴，伙伴们都非常惊讶慌乱：共同生活战斗了十二年，竟然不知道木兰是个女子。"
+    },
+    {
+      "id": "p7-s1",
+      "paragraph": 7,
+      "start_byte": 1110,
+      "end_byte": 1188,
+      "original": "雄兔脚扑朔，雌兔眼迷离；双兔傍地走，安能辨我是雄雌？",
+      "translation": "雄兔的脚时常乱动，雌兔的眼睛时常眯着；两只兔子贴着地面一起跑，怎能分辨出哪只是雄兔，哪只是雌兔呢？"
+    }
+  ],
+  "updated_at": "2026-09-14T08:42:03.255925Z",
+  "model": "deepseek-v4-pro",
+  "scope": "default"
+}

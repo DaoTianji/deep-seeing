@@ -1,0 +1,1404 @@
+{
+  "version": "07b9b7822fb3d7c636ba836389ccfa6c944cafb355b4c96f7d18e7174c7fa24c-sentences-v1",
+  "style": "fluent",
+  "target": "zh",
+  "completed": 174,
+  "total": 174,
+  "sentences": [
+    {
+      "id": "p1-s1",
+      "paragraph": 1,
+      "start_byte": 0,
+      "end_byte": 13,
+      "original": "THE LAST LEAF",
+      "translation": "最后一片叶子"
+    },
+    {
+      "id": "p2-s1",
+      "paragraph": 2,
+      "start_byte": 16,
+      "end_byte": 150,
+      "original": "In a little district west of Washington Square the streets have run\ncrazy and broken themselves into small strips called “places.”",
+      "translation": "在华盛顿广场西边的一个小小区里，街道都发了疯似的，岔成了一条条叫做“巷子”的小胡同。"
+    },
+    {
+      "id": "p2-s2",
+      "paragraph": 2,
+      "start_byte": 150,
+      "end_byte": 201,
+      "original": " These\n“places” make strange angles and curves.",
+      "translation": "这些“巷子”形成许多奇怪的角度和曲线。"
+    },
+    {
+      "id": "p2-s3",
+      "paragraph": 2,
+      "start_byte": 201,
+      "end_byte": 242,
+      "original": " One street crosses itself a\ntime or two.",
+      "translation": "一条街有时自己本身还交叉个一两回。"
+    },
+    {
+      "id": "p2-s4",
+      "paragraph": 2,
+      "start_byte": 242,
+      "end_byte": 307,
+      "original": " An artist once discovered a valuable possibility in this\nstreet.",
+      "translation": "有一个画家曾经发现这条街有它的可贵之处。"
+    },
+    {
+      "id": "p2-s5",
+      "paragraph": 2,
+      "start_byte": 307,
+      "end_byte": 481,
+      "original": " Suppose a collector with a bill for paints, paper and canvas\nshould, in traversing this route, suddenly meet himself coming back,\nwithout a cent having been paid on account!",
+      "translation": "要是一个商人去收颜料、纸张和画布的账款，在这条街上转弯抹角、大兜圈子的时候，突然碰上一文钱也没收到、空手回来的自己，那才有意思呢！"
+    },
+    {
+      "id": "p3-s1",
+      "paragraph": 3,
+      "start_byte": 483,
+      "end_byte": 641,
+      "original": "So, to quaint old Greenwich Village the art people soon came prowling,\nhunting for north windows and eighteenth-century gables and Dutch\nattics and low rents.",
+      "translation": "所以不久之后，不少搞艺术的人就都到这个古色古香的格林威治村来了，他们逛来逛去，找寻朝北的窗户、十八世纪的三角墙、荷兰式的阁楼，以及低廉的房租。"
+    },
+    {
+      "id": "p3-s2",
+      "paragraph": 3,
+      "start_byte": 641,
+      "end_byte": 749,
+      "original": " Then they imported some pewter mugs and a chafing\ndish or two from Sixth avenue, and became a “colony.”",
+      "translation": "然后，他们又从第六大道买来一些锡镴杯子和一两只烘锅，组成了一个“艺术区”。"
+    },
+    {
+      "id": "p4-s1",
+      "paragraph": 4,
+      "start_byte": 751,
+      "end_byte": 826,
+      "original": "At the top of a squatty, three-story brick Sue and Johnsy had their\nstudio.",
+      "translation": "苏和琼珊在一座矮墩墩的、三层砖砌房屋的顶楼设立了她们的画室。"
+    },
+    {
+      "id": "p4-s2",
+      "paragraph": 4,
+      "start_byte": 826,
+      "end_byte": 864,
+      "original": " “Johnsy” was familiar for Joanna.",
+      "translation": "“琼珊”是琼娜的昵称。"
+    },
+    {
+      "id": "p4-s3",
+      "paragraph": 4,
+      "start_byte": 864,
+      "end_byte": 911,
+      "original": " One was from Maine; the other\nfrom California.",
+      "translation": "一个是从缅因州来的；另一个的家乡是加利福尼亚州。"
+    },
+    {
+      "id": "p4-s4",
+      "paragraph": 4,
+      "start_byte": 911,
+      "end_byte": 1099,
+      "original": " They had met at the _table d’hôte_ of an Eighth street\n“Delmonico’s,” and found their tastes in art, chicory salad and bishop\nsleeves so congenial that the joint studio resulted.",
+      "translation": "她们是在第八街上一家“德尔莫尼科”的饭馆里吃客饭时碰到的，彼此一谈起来，觉得在艺术、饮食、衣著等方面的口味十分相投，便联合租下了那间画室。"
+    },
+    {
+      "id": "p5-s1",
+      "paragraph": 5,
+      "start_byte": 1101,
+      "end_byte": 1117,
+      "original": "That was in May.",
+      "translation": "那是五月里的事。"
+    },
+    {
+      "id": "p5-s2",
+      "paragraph": 5,
+      "start_byte": 1117,
+      "end_byte": 1265,
+      "original": " In November a cold, unseen stranger, whom the doctors\ncalled Pneumonia, stalked about the colony, touching one here and there\nwith his icy fingers.",
+      "translation": "到了十一月，一个冷酷的、肉眼看不见的、医生们叫做“肺炎”的不速之客，在艺术区里蹑手蹑脚，用他那冰冷的手指这儿碰碰那儿碰碰。"
+    },
+    {
+      "id": "p5-s3",
+      "paragraph": 5,
+      "start_byte": 1265,
+      "end_byte": 1431,
+      "original": " Over on the east side this ravager strode boldly,\nsmiting his victims by scores, but his feet trod slowly through the\nmaze of the narrow and moss-grown “places.”",
+      "translation": "在广场的东边，这个坏家伙明目张胆地走动，每闯一次祸，受害的人总有几十个；但是，在这些错综复杂、苔藓遍地、狭窄的“巷子”里，他的脚步却放慢了。"
+    },
+    {
+      "id": "p6-s1",
+      "paragraph": 6,
+      "start_byte": 1433,
+      "end_byte": 1501,
+      "original": "Mr. Pneumonia was not what you would call a chivalric old gentleman.",
+      "translation": "“肺炎先生”并不是你们所谓的扶弱济困的老绅士。"
+    },
+    {
+      "id": "p6-s2",
+      "paragraph": 6,
+      "start_byte": 1501,
+      "end_byte": 1635,
+      "original": " A\nmite of a little woman with blood thinned by California zephyrs was\nhardly fair game for the red-fisted, short-breathed old duffer.",
+      "translation": "一个被加利福尼亚的和风吹得血液稀薄的瘦小女人，本不该是那个拳头红肿、气喘吁吁的老家伙轻易下手的对象。"
+    },
+    {
+      "id": "p6-s3",
+      "paragraph": 6,
+      "start_byte": 1635,
+      "end_byte": 1804,
+      "original": " But\nJohnsy he smote; and she lay, scarcely moving, on her painted iron\nbedstead, looking through the small Dutch window-panes at the blank\nside of the next brick house.",
+      "translation": "但他偏偏击中了琼珊；她躺在油漆过的铁床上，几乎一动不动，透过小小的荷兰式窗玻璃望着隔壁砖房那面光秃秃的墙壁。"
+    },
+    {
+      "id": "p7-s1",
+      "paragraph": 7,
+      "start_byte": 1806,
+      "end_byte": 1891,
+      "original": "One morning the busy doctor invited Sue into the hallway with a shaggy,\ngray eyebrow.",
+      "translation": "一天早晨，忙碌的医生扬了扬他那浓密的灰白眉毛，示意苏到走廊里来。"
+    },
+    {
+      "id": "p8-s1",
+      "paragraph": 8,
+      "start_byte": 1893,
+      "end_byte": 2006,
+      "original": "“She has one chance in—let us say, ten,” he said, as he shook down the\nmercury in his clinical thermometer.",
+      "translation": "“她的机会只有——这么说吧，十分之一，”他一边说着，一边甩下体温计里的水银柱。"
+    },
+    {
+      "id": "p8-s2",
+      "paragraph": 8,
+      "start_byte": 2006,
+      "end_byte": 2053,
+      "original": " “And that chance is for her to\nwant to live.",
+      "translation": "“而那一线希望就是她自己要有活下去的意愿。”"
+    },
+    {
+      "id": "p8-s3",
+      "paragraph": 8,
+      "start_byte": 2053,
+      "end_byte": 2159,
+      "original": " This way people have of lining-up on the side of the\nundertaker makes the entire pharmacopeia look silly.",
+      "translation": "人们这样一心站在殡仪馆一边，让整个药典都显得毫无用处。"
+    },
+    {
+      "id": "p8-s4",
+      "paragraph": 8,
+      "start_byte": 2159,
+      "end_byte": 2233,
+      "original": " Your little lady\nhas made up her mind that she’s not going to get well.",
+      "translation": "“你那位小姐已经认定自己好不了了。”"
+    },
+    {
+      "id": "p8-s5",
+      "paragraph": 8,
+      "start_byte": 2233,
+      "end_byte": 2266,
+      "original": " Has she anything\non her mind?”",
+      "translation": "“她心里有没有什么牵挂？”"
+    },
+    {
+      "id": "p9-s1",
+      "paragraph": 9,
+      "start_byte": 2268,
+      "end_byte": 2337,
+      "original": "“She—she wanted to paint the Bay of Naples some day,” said Sue.",
+      "translation": "“她——她一直想有一天去画那不勒斯海湾，”苏说。"
+    },
+    {
+      "id": "p10-s1",
+      "paragraph": 10,
+      "start_byte": 2339,
+      "end_byte": 2356,
+      "original": "“Paint?—bosh!",
+      "translation": "“画画？——胡扯！”"
+    },
+    {
+      "id": "p10-s2",
+      "paragraph": 10,
+      "start_byte": 2356,
+      "end_byte": 2438,
+      "original": " Has she anything on her mind worth thinking about twice—a\nman, for instance?”",
+      "translation": "“她心里有没有什么值得反复想的事情——比如，一个男人？”"
+    },
+    {
+      "id": "p11-s1",
+      "paragraph": 11,
+      "start_byte": 2440,
+      "end_byte": 2502,
+      "original": "“A man?” said Sue, with a jew’s-harp twang in her voice.",
+      "translation": "“一个男人？”苏说，声音里带着一丝口簧琴似的颤音。"
+    },
+    {
+      "id": "p11-s2",
+      "paragraph": 11,
+      "start_byte": 2502,
+      "end_byte": 2572,
+      "original": " “Is a man\nworth—but, no, doctor; there is nothing of the kind.”",
+      "translation": "“一个男人值得——不，医生，没有这种事。”"
+    },
+    {
+      "id": "p12-s1",
+      "paragraph": 12,
+      "start_byte": 2574,
+      "end_byte": 2628,
+      "original": "“Well, it is the weakness, then,” said the doctor.",
+      "translation": "“那么，就是身体虚弱了，”医生说。"
+    },
+    {
+      "id": "p12-s2",
+      "paragraph": 12,
+      "start_byte": 2628,
+      "end_byte": 2719,
+      "original": " “I will do all that\nscience, so far as it may filter through my efforts, can accomplish.",
+      "translation": "“我会尽我所能，用科学的一切方法来治疗。”"
+    },
+    {
+      "id": "p12-s3",
+      "paragraph": 12,
+      "start_byte": 2719,
+      "end_byte": 2861,
+      "original": "\nBut whenever my patient begins to count the carriages in her funeral\nprocession I subtract 50 per cent. from the curative power of\nmedicines.",
+      "translation": "“但是，只要我的病人开始数自己出殡队伍里的马车，我就把药物的疗效扣掉百分之五十。”"
+    },
+    {
+      "id": "p12-s4",
+      "paragraph": 12,
+      "start_byte": 2861,
+      "end_byte": 3021,
+      "original": " If you will get her to ask one question about the new winter\nstyles in cloak sleeves I will promise you a one-in-five chance for\nher, instead of one in ten.”",
+      "translation": "如果你能让她问一个关于冬季新式斗篷袖子的问题，我就可以保证她的机会是五分之一，而不是十分之一。"
+    },
+    {
+      "id": "p13-s1",
+      "paragraph": 13,
+      "start_byte": 3023,
+      "end_byte": 3114,
+      "original": "After the doctor had gone Sue went into the workroom and cried a\nJapanese napkin to a pulp.",
+      "translation": "医生走后，苏走进工作室，把一条日本餐巾哭成了一团纸浆。"
+    },
+    {
+      "id": "p13-s2",
+      "paragraph": 13,
+      "start_byte": 3114,
+      "end_byte": 3197,
+      "original": " Then she swaggered into Johnsy’s room with\nher drawing board, whistling ragtime.",
+      "translation": "然后她拿着画板，吹着拉格泰姆口哨，大摇大摆地走进琼珊的房间。"
+    },
+    {
+      "id": "p14-s1",
+      "paragraph": 14,
+      "start_byte": 3199,
+      "end_byte": 3290,
+      "original": "Johnsy lay, scarcely making a ripple under the bedclothes, with her\nface toward the window.",
+      "translation": "琼珊躺着，脸朝着窗户，被子底下几乎纹丝不动。"
+    },
+    {
+      "id": "p14-s2",
+      "paragraph": 14,
+      "start_byte": 3290,
+      "end_byte": 3338,
+      "original": " Sue stopped whistling, thinking she was asleep.",
+      "translation": "苏以为她睡着了，停止了吹口哨。"
+    },
+    {
+      "id": "p15-s1",
+      "paragraph": 15,
+      "start_byte": 3340,
+      "end_byte": 3426,
+      "original": "She arranged her board and began a pen-and-ink drawing to illustrate a\nmagazine story.",
+      "translation": "她摆好画板，开始为杂志故事画钢笔画插图。"
+    },
+    {
+      "id": "p15-s2",
+      "paragraph": 15,
+      "start_byte": 3426,
+      "end_byte": 3566,
+      "original": " Young artists must pave their way to Art by drawing\npictures for magazine stories that young authors write to pave their\nway to Literature.",
+      "translation": "年轻的艺术家必须通过为杂志故事画插图来铺平通往艺术的道路，而这些故事是年轻作家为了铺平通往文学的道路而写的。"
+    },
+    {
+      "id": "p16-s1",
+      "paragraph": 16,
+      "start_byte": 3568,
+      "end_byte": 3737,
+      "original": "As Sue was sketching a pair of elegant horseshow riding trousers and a\nmonocle on the figure of the hero, an Idaho cowboy, she heard a low\nsound, several times repeated.",
+      "translation": "当苏正在给主人公——一个爱达荷州牛仔——画上一条优雅的马术裤和单片眼镜时，她听到一个低低的声音，重复了好几次。"
+    },
+    {
+      "id": "p16-s2",
+      "paragraph": 16,
+      "start_byte": 3737,
+      "end_byte": 3770,
+      "original": " She went quickly to the bedside.",
+      "translation": "她迅速走到床边。"
+    },
+    {
+      "id": "p17-s1",
+      "paragraph": 17,
+      "start_byte": 3772,
+      "end_byte": 3803,
+      "original": "Johnsy’s eyes were open wide.",
+      "translation": "琼珊的眼睛睁得大大的。"
+    },
+    {
+      "id": "p17-s2",
+      "paragraph": 17,
+      "start_byte": 3803,
+      "end_byte": 3868,
+      "original": " She was looking out the window and\ncounting—counting backward.",
+      "translation": "她正望着窗外，数着数——倒着数。"
+    },
+    {
+      "id": "p18-s1",
+      "paragraph": 18,
+      "start_byte": 3870,
+      "end_byte": 4017,
+      "original": "“Twelve,” she said, and a little later “eleven;” and then “ten,” and\n“nine;” and then “eight” and “seven,” almost together.",
+      "translation": "“十二，”她说，过了一会儿“十一”；然后“十”，“九”；接着“八”和“七”几乎同时说出来。"
+    },
+    {
+      "id": "p19-s1",
+      "paragraph": 19,
+      "start_byte": 4019,
+      "end_byte": 4058,
+      "original": "Sue looked solicitously out the window.",
+      "translation": "苏关切地望向窗外。"
+    },
+    {
+      "id": "p19-s2",
+      "paragraph": 19,
+      "start_byte": 4058,
+      "end_byte": 4083,
+      "original": " What was there to count?",
+      "translation": "有什么可数的呢？"
+    },
+    {
+      "id": "p19-s3",
+      "paragraph": 19,
+      "start_byte": 4083,
+      "end_byte": 4186,
+      "original": " There\nwas only a bare, dreary yard to be seen, and the blank side of the\nbrick house twenty feet away.",
+      "translation": "只能看到一个光秃秃、阴沉的院子，以及二十英尺外砖房光秃秃的墙壁。"
+    },
+    {
+      "id": "p19-s4",
+      "paragraph": 19,
+      "start_byte": 4186,
+      "end_byte": 4278,
+      "original": " An old, old ivy vine, gnarled and decayed\nat the roots, climbed half way up the brick wall.",
+      "translation": "一棵老极了的常春藤，根部扭曲枯萎，攀到了砖墙的一半。"
+    },
+    {
+      "id": "p19-s5",
+      "paragraph": 19,
+      "start_byte": 4278,
+      "end_byte": 4415,
+      "original": " The cold breath of\nautumn had stricken its leaves from the vine until its skeleton\nbranches clung, almost bare, to the crumbling bricks.",
+      "translation": "秋天的寒气吹落了藤上的叶子，只剩下光秃秃的枝条，几乎光秃秃地贴在残破的砖墙上。"
+    },
+    {
+      "id": "p20-s1",
+      "paragraph": 20,
+      "start_byte": 4417,
+      "end_byte": 4451,
+      "original": "“What is it, dear?” asked Sue.",
+      "translation": "“怎么了，亲爱的？”苏问。"
+    },
+    {
+      "id": "p21-s1",
+      "paragraph": 21,
+      "start_byte": 4453,
+      "end_byte": 4497,
+      "original": "“Six,” said Johnsy, in almost a whisper.",
+      "translation": "“六片，”琼珊说，声音轻得几乎像耳语。"
+    },
+    {
+      "id": "p21-s2",
+      "paragraph": 21,
+      "start_byte": 4497,
+      "end_byte": 4530,
+      "original": " “They’re falling faster now.",
+      "translation": "“现在它们掉得更快了。"
+    },
+    {
+      "id": "p21-s3",
+      "paragraph": 21,
+      "start_byte": 4530,
+      "end_byte": 4574,
+      "original": "\nThree days ago there were almost a hundred.",
+      "translation": "三天前还有将近一百片。"
+    },
+    {
+      "id": "p21-s4",
+      "paragraph": 21,
+      "start_byte": 4574,
+      "end_byte": 4610,
+      "original": " It made my head ache to\ncount them.",
+      "translation": "数它们数得我头疼。"
+    },
+    {
+      "id": "p21-s5",
+      "paragraph": 21,
+      "start_byte": 4610,
+      "end_byte": 4631,
+      "original": " But now it’s easy.",
+      "translation": "但现在容易了。"
+    },
+    {
+      "id": "p21-s6",
+      "paragraph": 21,
+      "start_byte": 4631,
+      "end_byte": 4655,
+      "original": " There goes another one.",
+      "translation": "又掉了一片。"
+    },
+    {
+      "id": "p21-s7",
+      "paragraph": 21,
+      "start_byte": 4655,
+      "end_byte": 4688,
+      "original": " There are only\nfive left now.”",
+      "translation": "现在只剩下五片了。”"
+    },
+    {
+      "id": "p22-s1",
+      "paragraph": 22,
+      "start_byte": 4690,
+      "end_byte": 4709,
+      "original": "“Five what, dear.",
+      "translation": "“五片什么，亲爱的。"
+    },
+    {
+      "id": "p22-s2",
+      "paragraph": 22,
+      "start_byte": 4709,
+      "end_byte": 4729,
+      "original": " Tell your Sudie.”",
+      "translation": "告诉你的苏迪。”"
+    },
+    {
+      "id": "p23-s1",
+      "paragraph": 23,
+      "start_byte": 4731,
+      "end_byte": 4741,
+      "original": "“Leaves.",
+      "translation": "“叶子。"
+    },
+    {
+      "id": "p23-s2",
+      "paragraph": 23,
+      "start_byte": 4741,
+      "end_byte": 4758,
+      "original": " On the ivy vine.",
+      "translation": "在常春藤上。"
+    },
+    {
+      "id": "p23-s3",
+      "paragraph": 23,
+      "start_byte": 4758,
+      "end_byte": 4798,
+      "original": " When the last one falls I must go, too.",
+      "translation": "当最后一片落下时，我也得走了。"
+    },
+    {
+      "id": "p23-s4",
+      "paragraph": 23,
+      "start_byte": 4798,
+      "end_byte": 4832,
+      "original": " I’ve\nknown that for three days.",
+      "translation": "我已经知道三天了。"
+    },
+    {
+      "id": "p23-s5",
+      "paragraph": 23,
+      "start_byte": 4832,
+      "end_byte": 4865,
+      "original": " Didn’t the doctor tell you?”",
+      "translation": "医生没告诉你吗？”"
+    },
+    {
+      "id": "p24-s1",
+      "paragraph": 24,
+      "start_byte": 4867,
+      "end_byte": 4948,
+      "original": "“Oh, I never heard of such nonsense,” complained Sue, with magnificent\nscorn.",
+      "translation": "“哦，我从没听过这种胡话，”苏带着极大的轻蔑抱怨道。"
+    },
+    {
+      "id": "p24-s2",
+      "paragraph": 24,
+      "start_byte": 4948,
+      "end_byte": 5006,
+      "original": " “What have old ivy leaves to do with your getting well?",
+      "translation": "“老常春藤叶子跟你康复有什么关系？"
+    },
+    {
+      "id": "p24-s3",
+      "paragraph": 24,
+      "start_byte": 5006,
+      "end_byte": 5059,
+      "original": " And you\nused to love that vine so, you naughty girl.",
+      "translation": "而且你以前那么喜欢那棵藤，你这个淘气的姑娘。"
+    },
+    {
+      "id": "p24-s4",
+      "paragraph": 24,
+      "start_byte": 5059,
+      "end_byte": 5080,
+      "original": " Don’t be a goosey.",
+      "translation": "别犯傻了。"
+    },
+    {
+      "id": "p24-s5",
+      "paragraph": 24,
+      "start_byte": 5080,
+      "end_byte": 5241,
+      "original": " Why,\nthe doctor told me this morning that your chances for getting well real\nsoon were—let’s see exactly what he said—he said the chances were ten\nto one!",
+      "translation": "哎呀，医生今早告诉我，你很快康复的机会是——让我想想他原话——他说机会是十比一！"
+    },
+    {
+      "id": "p24-s6",
+      "paragraph": 24,
+      "start_byte": 5241,
+      "end_byte": 5363,
+      "original": " Why, that’s almost as good a chance as we have in New York when\nwe ride on the street cars or walk past a new building.",
+      "translation": "哎呀，这机会几乎跟我们在纽约乘电车或走过新建筑时一样好。"
+    },
+    {
+      "id": "p24-s7",
+      "paragraph": 24,
+      "start_byte": 5363,
+      "end_byte": 5546,
+      "original": " Try to take\nsome broth now, and let Sudie go back to her drawing, so she can sell\nthe editor man with it, and buy port wine for her sick child, and pork\nchops for her greedy self.”",
+      "translation": "现在试着喝点肉汤，让苏迪回去画画，这样她才能把画卖给编辑先生，给她生病的孩子买波特酒，给贪吃的自己买猪排。”"
+    },
+    {
+      "id": "p25-s1",
+      "paragraph": 25,
+      "start_byte": 5548,
+      "end_byte": 5638,
+      "original": "“You needn’t get any more wine,” said Johnsy, keeping her eyes fixed\nout the window.",
+      "translation": "“你不用再买酒了，”琼珊说，眼睛一直盯着窗外。"
+    },
+    {
+      "id": "p25-s2",
+      "paragraph": 25,
+      "start_byte": 5638,
+      "end_byte": 5661,
+      "original": " “There goes another.",
+      "translation": "“又一片落了。"
+    },
+    {
+      "id": "p25-s3",
+      "paragraph": 25,
+      "start_byte": 5661,
+      "end_byte": 5691,
+      "original": " No, I don’t want any broth.",
+      "translation": "不，我不想喝肉汤。"
+    },
+    {
+      "id": "p25-s4",
+      "paragraph": 25,
+      "start_byte": 5691,
+      "end_byte": 5714,
+      "original": " That\nleaves just four.",
+      "translation": "那就只剩四片了。"
+    },
+    {
+      "id": "p25-s5",
+      "paragraph": 25,
+      "start_byte": 5714,
+      "end_byte": 5767,
+      "original": " I want to see the last one fall before it gets dark.",
+      "translation": "我要在天黑前看到最后一片落下。"
+    },
+    {
+      "id": "p25-s6",
+      "paragraph": 25,
+      "start_byte": 5767,
+      "end_byte": 5791,
+      "original": "\nThen I’ll go, too.”",
+      "translation": "然后我也就走了。”"
+    },
+    {
+      "id": "p26-s1",
+      "paragraph": 26,
+      "start_byte": 5793,
+      "end_byte": 5942,
+      "original": "“Johnsy, dear,” said Sue, bending over her, “will you promise me to\nkeep your eyes closed, and not look out the window until I am done\nworking?",
+      "translation": "“琼珊，亲爱的，”苏俯身对她说，“你能答应我闭上眼睛，在我完成工作之前不朝窗外看吗？"
+    },
+    {
+      "id": "p26-s2",
+      "paragraph": 26,
+      "start_byte": 5942,
+      "end_byte": 5986,
+      "original": " I must hand those drawings in by to-morrow.",
+      "translation": "我必须明天之前交出那些画。"
+    },
+    {
+      "id": "p26-s3",
+      "paragraph": 26,
+      "start_byte": 5986,
+      "end_byte": 6039,
+      "original": " I need the light,\nor I would draw the shade down.”",
+      "translation": "我需要光线，否则我会把窗帘拉下来。”"
+    },
+    {
+      "id": "p27-s1",
+      "paragraph": 27,
+      "start_byte": 6041,
+      "end_byte": 6107,
+      "original": "“Couldn’t you draw in the other room?” asked Johnsy, coldly.",
+      "translation": "“你难道不能到另一个房间去画吗？”琼珊冷冷地问。"
+    },
+    {
+      "id": "p28-s1",
+      "paragraph": 28,
+      "start_byte": 6109,
+      "end_byte": 6153,
+      "original": "“I’d rather be here by you,” said Sue.",
+      "translation": "“我宁愿在这里陪着你，”苏说。"
+    },
+    {
+      "id": "p28-s2",
+      "paragraph": 28,
+      "start_byte": 6153,
+      "end_byte": 6229,
+      "original": " “Besides I don’t want you to\nkeep looking at those silly ivy leaves.”",
+      "translation": "“再说，我也不愿意你一直盯着那些愚蠢的常春藤叶子。”"
+    },
+    {
+      "id": "p29-s1",
+      "paragraph": 29,
+      "start_byte": 6231,
+      "end_byte": 6395,
+      "original": "“Tell me as soon as you have finished,” said Johnsy, closing her eyes,\nand lying white and still as a fallen statue, “because I want to see\nthe last one fall.",
+      "translation": "“你画完就马上告诉我，”琼珊说，她闭上眼睛，脸色苍白，一动不动地躺着，像一座倒下的雕像，“因为我想看着最后一片叶子掉下来。”"
+    },
+    {
+      "id": "p29-s2",
+      "paragraph": 29,
+      "start_byte": 6395,
+      "end_byte": 6419,
+      "original": " I’m tired of waiting.",
+      "translation": "我已经等得不耐烦了。"
+    },
+    {
+      "id": "p29-s3",
+      "paragraph": 29,
+      "start_byte": 6419,
+      "end_byte": 6444,
+      "original": " I’m tired of thinking.",
+      "translation": "我也懒得再去想了。"
+    },
+    {
+      "id": "p29-s4",
+      "paragraph": 29,
+      "start_byte": 6444,
+      "end_byte": 6561,
+      "original": " I want\nto turn loose my hold on everything, and go sailing down, down, just\nlike one of those poor, tired leaves.”",
+      "translation": "我想松开手，抛开一切，就那么飘下去，飘下去，像一片可怜的、疲倦的叶子一样。”"
+    },
+    {
+      "id": "p30-s1",
+      "paragraph": 30,
+      "start_byte": 6563,
+      "end_byte": 6592,
+      "original": "“Try to sleep,” said Sue.",
+      "translation": "“试着睡一会儿吧，”苏说。"
+    },
+    {
+      "id": "p30-s2",
+      "paragraph": 30,
+      "start_byte": 6592,
+      "end_byte": 6659,
+      "original": " “I must call Behrman up to be my model for\nthe old hermit miner.",
+      "translation": "“我得叫贝尔曼上来，给我当老隐居矿工的模特儿。"
+    },
+    {
+      "id": "p30-s3",
+      "paragraph": 30,
+      "start_byte": 6659,
+      "end_byte": 6688,
+      "original": " I’ll not be gone a minute.",
+      "translation": "我去去就回。"
+    },
+    {
+      "id": "p30-s4",
+      "paragraph": 30,
+      "start_byte": 6688,
+      "end_byte": 6732,
+      "original": " Don’t try to move\n’till I come back.”",
+      "translation": "在我回来之前，不要动。”"
+    },
+    {
+      "id": "p31-s1",
+      "paragraph": 31,
+      "start_byte": 6734,
+      "end_byte": 6803,
+      "original": "Old Behrman was a painter who lived on the ground floor beneath them.",
+      "translation": "老贝尔曼是住在她俩楼下的一个画家。"
+    },
+    {
+      "id": "p31-s2",
+      "paragraph": 31,
+      "start_byte": 6803,
+      "end_byte": 6926,
+      "original": "\nHe was past sixty and had a Michael Angelo’s Moses beard curling down\nfrom the head of a satyr along the body of an imp.",
+      "translation": "他年过六十，留着米开朗琪罗的摩西雕像上那样卷曲的大胡子，从萨梯般的脑袋上垂下来，顺着小魔鬼似的身躯。"
+    },
+    {
+      "id": "p31-s3",
+      "paragraph": 31,
+      "start_byte": 6926,
+      "end_byte": 6956,
+      "original": " Behrman was a\nfailure in art.",
+      "translation": "贝尔曼在艺术上是个失败者。"
+    },
+    {
+      "id": "p31-s4",
+      "paragraph": 31,
+      "start_byte": 6956,
+      "end_byte": 7064,
+      "original": " Forty years he had wielded the brush without getting\nnear enough to touch the hem of his Mistress’s robe.",
+      "translation": "四十年来，他挥舞画笔，却始终没能靠近他那位艺术女神的裙裾。"
+    },
+    {
+      "id": "p31-s5",
+      "paragraph": 31,
+      "start_byte": 7064,
+      "end_byte": 7141,
+      "original": " He had been always\nabout to paint a masterpiece, but had never yet begun it.",
+      "translation": "他一直说要画一幅杰作，却从未动笔。"
+    },
+    {
+      "id": "p31-s6",
+      "paragraph": 31,
+      "start_byte": 7141,
+      "end_byte": 7249,
+      "original": " For several\nyears he had painted nothing except now and then a daub in the line of\ncommerce or advertising.",
+      "translation": "近年来，他除了偶尔涂抹些商业画或广告画之外，什么也没画。"
+    },
+    {
+      "id": "p31-s7",
+      "paragraph": 31,
+      "start_byte": 7249,
+      "end_byte": 7374,
+      "original": " He earned a little by serving as a model to\nthose young artists in the colony who could not pay the price of a\nprofessional.",
+      "translation": "他靠给艺术区里那些雇不起职业模特的年轻艺术家当模特，挣点小钱。"
+    },
+    {
+      "id": "p31-s8",
+      "paragraph": 31,
+      "start_byte": 7374,
+      "end_byte": 7442,
+      "original": " He drank gin to excess, and still talked of his coming\nmasterpiece.",
+      "translation": "他喝杜松子酒过量，仍然谈论着他那即将诞生的杰作。"
+    },
+    {
+      "id": "p31-s9",
+      "paragraph": 31,
+      "start_byte": 7442,
+      "end_byte": 7642,
+      "original": " For the rest he was a fierce little old man, who scoffed\nterribly at softness in any one, and who regarded himself as especial\nmastiff-in-waiting to protect the two young artists in the studio\nabove.",
+      "translation": "此外，他是个凶猛的小老头，对任何人的软弱都嗤之以鼻，并自视为专门守护楼上画室里两位年轻艺术家的看门猛犬。"
+    },
+    {
+      "id": "p32-s1",
+      "paragraph": 32,
+      "start_byte": 7644,
+      "end_byte": 7730,
+      "original": "Sue found Behrman smelling strongly of juniper berries in his dimly\nlighted den below.",
+      "translation": "苏在楼下光线昏暗的小屋里找到了贝尔曼，他身上散发着浓烈的杜松子酒味。"
+    },
+    {
+      "id": "p32-s2",
+      "paragraph": 32,
+      "start_byte": 7730,
+      "end_byte": 7871,
+      "original": " In one corner was a blank canvas on an easel that\nhad been waiting there for twenty-five years to receive the first line\nof the masterpiece.",
+      "translation": "角落里有一块空白的画布，放在画架上，已经等了二十五年，等着杰作的第一笔落下。"
+    },
+    {
+      "id": "p32-s3",
+      "paragraph": 32,
+      "start_byte": 7871,
+      "end_byte": 8040,
+      "original": " She told him of Johnsy’s fancy, and how she feared\nshe would, indeed, light and fragile as a leaf herself, float away when\nher slight hold upon the world grew weaker.",
+      "translation": "她告诉他琼珊的幻想，以及她担心琼珊真的会像一片叶子那样轻飘、脆弱，当她对这世界的微弱把握变得更弱时，就此飘走。"
+    },
+    {
+      "id": "p33-s1",
+      "paragraph": 33,
+      "start_byte": 8042,
+      "end_byte": 8154,
+      "original": "Old Behrman, with his red eyes plainly streaming, shouted his contempt\nand derision for such idiotic imaginings.",
+      "translation": "老贝尔曼红红的眼睛明显在流泪，他大声喊叫着，对这种愚蠢的幻想表示轻蔑和嘲笑。"
+    },
+    {
+      "id": "p34-s1",
+      "paragraph": 34,
+      "start_byte": 8156,
+      "end_byte": 8177,
+      "original": "“Vass!” he cried.",
+      "translation": "“什么！”他嚷道。"
+    },
+    {
+      "id": "p34-s2",
+      "paragraph": 34,
+      "start_byte": 8177,
+      "end_byte": 8285,
+      "original": " “Is dere people in de world mit der foolishness to\ndie because leafs dey drop off from a confounded vine?",
+      "translation": "“世界上竟有这种傻子，因为可恶的藤上掉下叶子来就想到死？”"
+    },
+    {
+      "id": "p34-s3",
+      "paragraph": 34,
+      "start_byte": 8285,
+      "end_byte": 8318,
+      "original": " I haf not heard\nof such a thing.",
+      "translation": "“我从没听过这种事。”"
+    },
+    {
+      "id": "p34-s4",
+      "paragraph": 34,
+      "start_byte": 8318,
+      "end_byte": 8382,
+      "original": " No, I will not bose as a model for your fool\nhermit-dunderhead.",
+      "translation": "“不，我不愿意给你那愚蠢的隐士傻瓜当模特。”"
+    },
+    {
+      "id": "p34-s5",
+      "paragraph": 34,
+      "start_byte": 8382,
+      "end_byte": 8446,
+      "original": " Vy do you allow dot silly pusiness to come in der\nprain of her?",
+      "translation": "“你为什么要让她脑子里产生这种傻念头？”"
+    },
+    {
+      "id": "p34-s6",
+      "paragraph": 34,
+      "start_byte": 8446,
+      "end_byte": 8483,
+      "original": " Ach, dot poor lettle Miss Johnsy.”",
+      "translation": "“唉，可怜的琼珊小姐。”"
+    },
+    {
+      "id": "p35-s1",
+      "paragraph": 35,
+      "start_byte": 8485,
+      "end_byte": 8597,
+      "original": "“She is very ill and weak,” said Sue, “and the fever has left her mind\nmorbid and full of strange fancies.",
+      "translation": "“她病得很重，很虚弱，”苏说，“高烧使她的脑子变得病态，充满了古怪的幻想。"
+    },
+    {
+      "id": "p35-s2",
+      "paragraph": 35,
+      "start_byte": 8597,
+      "end_byte": 8730,
+      "original": " Very well, Mr. Behrman, if you do\nnot care to pose for me, you needn’t. But I think you are a horrid\nold—old flibbertigibbet.”",
+      "translation": "“好吧，贝尔曼先生，如果你不愿意给我当模特，那就算了。不过我觉得你是个讨厌的老——老碎嘴子。”"
+    },
+    {
+      "id": "p36-s1",
+      "paragraph": 36,
+      "start_byte": 8732,
+      "end_byte": 8780,
+      "original": "“You are just like a woman!” yelled Behrman.",
+      "translation": "“你就像个女人一样！”贝尔曼嚷道。"
+    },
+    {
+      "id": "p36-s2",
+      "paragraph": 36,
+      "start_byte": 8780,
+      "end_byte": 8809,
+      "original": " “Who said I will not bose?",
+      "translation": "“谁说我不愿意摆姿势？"
+    },
+    {
+      "id": "p36-s3",
+      "paragraph": 36,
+      "start_byte": 8809,
+      "end_byte": 8816,
+      "original": "\nGo on.",
+      "translation": "走吧。"
+    },
+    {
+      "id": "p36-s4",
+      "paragraph": 36,
+      "start_byte": 8816,
+      "end_byte": 8832,
+      "original": " I come mit you.",
+      "translation": "我跟你一起去。"
+    },
+    {
+      "id": "p36-s5",
+      "paragraph": 36,
+      "start_byte": 8832,
+      "end_byte": 8898,
+      "original": " For half an hour I haf peen trying to say dot I\nam ready to bose.",
+      "translation": "这半个小时我一直想说我已经准备好摆姿势了。"
+    },
+    {
+      "id": "p36-s6",
+      "paragraph": 36,
+      "start_byte": 8898,
+      "end_byte": 8977,
+      "original": " Gott! dis is not any blace in which one so goot as\nMiss Yohnsy shall lie sick.",
+      "translation": "老天！这可不是像琼珊小姐这样的好人该生病躺着的地方。"
+    },
+    {
+      "id": "p36-s7",
+      "paragraph": 36,
+      "start_byte": 8977,
+      "end_byte": 9040,
+      "original": " Some day I vill baint a masterpiece, and ve\nshall all go away.",
+      "translation": "总有一天我会画出一幅杰作，然后我们就都离开这儿。"
+    },
+    {
+      "id": "p36-s8",
+      "paragraph": 36,
+      "start_byte": 9040,
+      "end_byte": 9054,
+      "original": " Gott! yes.”",
+      "translation": "老天！没错。”"
+    },
+    {
+      "id": "p37-s1",
+      "paragraph": 37,
+      "start_byte": 9056,
+      "end_byte": 9100,
+      "original": "Johnsy was sleeping when they went upstairs.",
+      "translation": "他们上楼时，琼珊正睡着。"
+    },
+    {
+      "id": "p37-s2",
+      "paragraph": 37,
+      "start_byte": 9100,
+      "end_byte": 9188,
+      "original": " Sue pulled the shade down\nto the window-sill, and motioned Behrman into the other room.",
+      "translation": "苏把窗帘拉到窗台，然后示意贝尔曼去另一个房间。"
+    },
+    {
+      "id": "p37-s3",
+      "paragraph": 37,
+      "start_byte": 9188,
+      "end_byte": 9251,
+      "original": " In there\nthey peered out the window fearfully at the ivy vine.",
+      "translation": "在那里，他们害怕地望着窗外的常春藤。"
+    },
+    {
+      "id": "p37-s4",
+      "paragraph": 37,
+      "start_byte": 9251,
+      "end_byte": 9313,
+      "original": " Then they looked\nat each other for a moment without speaking.",
+      "translation": "然后他们彼此对视了一会儿，没有说话。"
+    },
+    {
+      "id": "p37-s5",
+      "paragraph": 37,
+      "start_byte": 9313,
+      "end_byte": 9369,
+      "original": " A persistent, cold rain\nwas falling, mingled with snow.",
+      "translation": "连绵不断的冷雨下个不停，还夹着雪。"
+    },
+    {
+      "id": "p37-s6",
+      "paragraph": 37,
+      "start_byte": 9369,
+      "end_byte": 9469,
+      "original": " Behrman, in his old blue shirt, took\nhis seat as the hermit-miner on an upturned kettle for a rock.",
+      "translation": "贝尔曼穿着他的旧蓝衬衫，坐在一个倒扣的水壶上当作岩石，扮作隐居的矿工。"
+    },
+    {
+      "id": "p38-s1",
+      "paragraph": 38,
+      "start_byte": 9471,
+      "end_byte": 9602,
+      "original": "When Sue awoke from an hour’s sleep the next morning she found Johnsy\nwith dull, wide-open eyes staring at the drawn green shade.",
+      "translation": "第二天早上，苏睡了一个小时后醒来，发现琼珊睁着无神的双眼，盯着拉下的绿色窗帘。"
+    },
+    {
+      "id": "p39-s1",
+      "paragraph": 39,
+      "start_byte": 9604,
+      "end_byte": 9663,
+      "original": "“Pull it up; I want to see,” she ordered, in a whisper.",
+      "translation": "“把它拉起来；我想看看，”她低声命令道。"
+    },
+    {
+      "id": "p40-s1",
+      "paragraph": 40,
+      "start_byte": 9665,
+      "end_byte": 9684,
+      "original": "Wearily Sue obeyed.",
+      "translation": "苏疲倦地照做了。"
+    },
+    {
+      "id": "p41-s1",
+      "paragraph": 41,
+      "start_byte": 9686,
+      "end_byte": 9844,
+      "original": "But, lo! after the beating rain and fierce gusts of wind that had\nendured through the livelong night, there yet stood out against the\nbrick wall one ivy leaf.",
+      "translation": "但是，瞧！经过整夜的暴雨和狂风，砖墙上仍有一片常春藤叶挺立着。"
+    },
+    {
+      "id": "p41-s2",
+      "paragraph": 41,
+      "start_byte": 9844,
+      "end_byte": 9873,
+      "original": " It was the last on the vine.",
+      "translation": "那是藤上的最后一片叶子。"
+    },
+    {
+      "id": "p41-s3",
+      "paragraph": 41,
+      "start_byte": 9873,
+      "end_byte": 10047,
+      "original": " Still dark green\nnear its stem, but with its serrated edges tinted with the yellow of\ndissolution and decay, it hung bravely from a branch some twenty feet\nabove the ground.",
+      "translation": "靠近茎的地方仍是深绿色，但锯齿状的边缘已染上枯萎腐烂的黄色，它勇敢地挂在一根离地面约二十英尺的树枝上。"
+    },
+    {
+      "id": "p42-s1",
+      "paragraph": 42,
+      "start_byte": 10049,
+      "end_byte": 10087,
+      "original": "“It is the last one,” said Johnsy.",
+      "translation": "“这是最后一片了，”琼珊说。"
+    },
+    {
+      "id": "p42-s2",
+      "paragraph": 42,
+      "start_byte": 10087,
+      "end_byte": 10139,
+      "original": " “I thought it would surely fall\nduring the night.",
+      "translation": "我原以为夜里它肯定会掉下来。"
+    },
+    {
+      "id": "p42-s3",
+      "paragraph": 42,
+      "start_byte": 10139,
+      "end_byte": 10157,
+      "original": " I heard the wind.",
+      "translation": "我听到了风声。"
+    },
+    {
+      "id": "p42-s4",
+      "paragraph": 42,
+      "start_byte": 10157,
+      "end_byte": 10215,
+      "original": " It will fall to-day, and I shall\ndie at the same time.”",
+      "translation": "今天它会掉落，而我也将同时死去。”"
+    },
+    {
+      "id": "p43-s1",
+      "paragraph": 43,
+      "start_byte": 10217,
+      "end_byte": 10336,
+      "original": "“Dear, dear!” said Sue, leaning her worn face down to the pillow,\n“think of me, if you won’t think of yourself.",
+      "translation": "“亲爱的，亲爱的！”苏把她憔悴的脸俯向枕头说，“如果你不想想自己，就想想我吧。”"
+    },
+    {
+      "id": "p43-s2",
+      "paragraph": 43,
+      "start_byte": 10336,
+      "end_byte": 10356,
+      "original": " What would I do?”",
+      "translation": "我该怎么办呢？”"
+    },
+    {
+      "id": "p44-s1",
+      "paragraph": 44,
+      "start_byte": 10358,
+      "end_byte": 10384,
+      "original": "But Johnsy did not answer.",
+      "translation": "但琼珊没有回答。"
+    },
+    {
+      "id": "p44-s2",
+      "paragraph": 44,
+      "start_byte": 10384,
+      "end_byte": 10494,
+      "original": " The lonesomest thing in all the world is a\nsoul when it is making ready to go on its mysterious, far journey.",
+      "translation": "世上最寂寞的，莫过于一个灵魂准备踏上它那神秘而遥远的旅程之时。"
+    },
+    {
+      "id": "p44-s3",
+      "paragraph": 44,
+      "start_byte": 10494,
+      "end_byte": 10618,
+      "original": " The\nfancy seemed to possess her more strongly as one by one the ties that\nbound her to friendship and to earth were loosed.",
+      "translation": "随着把她与友谊和尘世联结在一起的纽带一一松开，这个幻想似乎更强烈地攫住了她。"
+    },
+    {
+      "id": "p45-s1",
+      "paragraph": 45,
+      "start_byte": 10620,
+      "end_byte": 10740,
+      "original": "The day wore away, and even through the twilight they could see the\nlone ivy leaf clinging to its stem against the wall.",
+      "translation": "一天过去了，即使在暮色中，她们仍能看见那片孤单的常春藤叶贴在墙上，紧抓着它的茎。"
+    },
+    {
+      "id": "p45-s2",
+      "paragraph": 45,
+      "start_byte": 10740,
+      "end_byte": 10902,
+      "original": " And then, with the\ncoming of the night the north wind was again loosed, while the rain\nstill beat against the windows and pattered down from the low Dutch\neaves.",
+      "translation": "然后，随着夜幕降临，北风又刮了起来，雨点仍敲打着窗户，从低矮的荷兰式屋檐上淅沥而下。"
+    },
+    {
+      "id": "p46-s1",
+      "paragraph": 46,
+      "start_byte": 10904,
+      "end_byte": 10987,
+      "original": "When it was light enough Johnsy, the merciless, commanded that the\nshade be raised.",
+      "translation": "天刚亮到足够看清时，无情的琼珊命令把窗帘拉起来。"
+    },
+    {
+      "id": "p47-s1",
+      "paragraph": 47,
+      "start_byte": 10989,
+      "end_byte": 11018,
+      "original": "The ivy leaf was still there.",
+      "translation": "那片常春藤叶子还在那里。"
+    },
+    {
+      "id": "p48-s1",
+      "paragraph": 48,
+      "start_byte": 11020,
+      "end_byte": 11061,
+      "original": "Johnsy lay for a long time looking at it.",
+      "translation": "琼珊躺了很久，一直看着它。"
+    },
+    {
+      "id": "p48-s2",
+      "paragraph": 48,
+      "start_byte": 11061,
+      "end_byte": 11144,
+      "original": " And then she called to Sue,\nwho was stirring her chicken broth over the gas stove.",
+      "translation": "然后她叫苏，苏正在煤气炉上搅着她的鸡汤。"
+    },
+    {
+      "id": "p49-s1",
+      "paragraph": 49,
+      "start_byte": 11146,
+      "end_byte": 11195,
+      "original": "“I’ve been a bad girl, Sudie,” said Johnsy.",
+      "translation": "“我一直是个坏女孩，苏迪，”琼珊说。"
+    },
+    {
+      "id": "p49-s2",
+      "paragraph": 49,
+      "start_byte": 11195,
+      "end_byte": 11272,
+      "original": " “Something has made that\nlast leaf stay there to show me how wicked I was.",
+      "translation": "“有什么东西让那最后一片叶子留在那里，好让我看看自己有多邪恶。"
+    },
+    {
+      "id": "p49-s3",
+      "paragraph": 49,
+      "start_byte": 11272,
+      "end_byte": 11300,
+      "original": " It is a sin to want\nto die.",
+      "translation": "想死是一种罪过。"
+    },
+    {
+      "id": "p49-s4",
+      "paragraph": 49,
+      "start_byte": 11300,
+      "end_byte": 11495,
+      "original": " You may bring me a little broth now, and some milk with a\nlittle port in it, and—no; bring me a hand-mirror first, and then pack\nsome pillows about me, and I will sit up and watch you cook.”",
+      "translation": "你现在可以给我拿点肉汤来，再来点加了少许波尔图葡萄酒的牛奶，还有——不；先给我拿面镜子来，然后在我身边垫些枕头，我要坐起来看你做饭。”"
+    },
+    {
+      "id": "p50-s1",
+      "paragraph": 50,
+      "start_byte": 11497,
+      "end_byte": 11520,
+      "original": "An hour later she said.",
+      "translation": "一个小时后，她说。"
+    },
+    {
+      "id": "p51-s1",
+      "paragraph": 51,
+      "start_byte": 11522,
+      "end_byte": 11578,
+      "original": "“Sudie, some day I hope to paint the Bay of Naples.”",
+      "translation": "“苏迪，我希望有一天能画那不勒斯湾。”"
+    },
+    {
+      "id": "p52-s1",
+      "paragraph": 52,
+      "start_byte": 11580,
+      "end_byte": 11670,
+      "original": "The doctor came in the afternoon, and Sue had an excuse to go into the\nhallway as he left.",
+      "translation": "下午医生来了，苏在他离开时找了个借口走到走廊里。"
+    },
+    {
+      "id": "p53-s1",
+      "paragraph": 53,
+      "start_byte": 11672,
+      "end_byte": 11750,
+      "original": "“Even chances,” said the doctor, taking Sue’s thin, shaking hand in\nhis.",
+      "translation": "“有一半的希望，”医生说着，握住苏瘦削颤抖的手。"
+    },
+    {
+      "id": "p53-s2",
+      "paragraph": 53,
+      "start_byte": 11750,
+      "end_byte": 11785,
+      "original": " “With good nursing you’ll win.",
+      "translation": "“只要好好护理，你会赢的。”"
+    },
+    {
+      "id": "p53-s3",
+      "paragraph": 53,
+      "start_byte": 11785,
+      "end_byte": 11836,
+      "original": " And now I must see another case I\nhave downstairs.",
+      "translation": "现在我得去看看楼下的另一个病人。"
+    },
+    {
+      "id": "p53-s4",
+      "paragraph": 53,
+      "start_byte": 11836,
+      "end_byte": 11894,
+      "original": " Behrman, his name is—some kind of an artist, I\nbelieve.",
+      "translation": "他叫贝尔曼——我想是位画家之类的。"
+    },
+    {
+      "id": "p53-s5",
+      "paragraph": 53,
+      "start_byte": 11894,
+      "end_byte": 11910,
+      "original": " Pneumonia, too.",
+      "translation": "也是肺炎。"
+    },
+    {
+      "id": "p53-s6",
+      "paragraph": 53,
+      "start_byte": 11910,
+      "end_byte": 11959,
+      "original": " He is an old, weak man, and the attack is\nacute.",
+      "translation": "他是个年老体弱的人，病情来势凶猛。"
+    },
+    {
+      "id": "p53-s7",
+      "paragraph": 53,
+      "start_byte": 11959,
+      "end_byte": 12052,
+      "original": " There is no hope for him; but he goes to the hospital to-day to\nbe made more comfortable.”",
+      "translation": "他已经没有希望了；但他今天去医院，只是为了让他更舒服一点。”"
+    },
+    {
+      "id": "p54-s1",
+      "paragraph": 54,
+      "start_byte": 12054,
+      "end_byte": 12116,
+      "original": "The next day the doctor said to Sue: “She’s out of danger.",
+      "translation": "第二天医生对苏说：“她脱离危险了。”"
+    },
+    {
+      "id": "p54-s2",
+      "paragraph": 54,
+      "start_byte": 12116,
+      "end_byte": 12130,
+      "original": " You’ve won.",
+      "translation": "你赢了。"
+    },
+    {
+      "id": "p54-s3",
+      "paragraph": 54,
+      "start_byte": 12130,
+      "end_byte": 12172,
+      "original": "\nNutrition and care now—that’s all.”",
+      "translation": "现在只需要营养和照顾——就这些。”"
+    },
+    {
+      "id": "p55-s1",
+      "paragraph": 55,
+      "start_byte": 12174,
+      "end_byte": 12348,
+      "original": "And that afternoon Sue came to the bed where Johnsy lay, contentedly\nknitting a very blue and very useless woolen shoulder scarf, and put\none arm around her, pillows and all.",
+      "translation": "那天下午，苏来到琼珊躺着的床边，琼珊正心满意足地织着一条颜色很蓝、又毫无用处的羊毛披肩，苏伸出一只胳膊搂住她，连枕头一起抱着。"
+    },
+    {
+      "id": "p56-s1",
+      "paragraph": 56,
+      "start_byte": 12350,
+      "end_byte": 12408,
+      "original": "“I have something to tell you, white mouse,” she said.",
+      "translation": "“我有件事要告诉你，小白鼠，”她说。"
+    },
+    {
+      "id": "p56-s2",
+      "paragraph": 56,
+      "start_byte": 12408,
+      "end_byte": 12465,
+      "original": " “Mr. Behrman\ndied of pneumonia to-day in the hospital.",
+      "translation": "“贝尔曼先生今天在医院里死于肺炎。”"
+    },
+    {
+      "id": "p56-s3",
+      "paragraph": 56,
+      "start_byte": 12465,
+      "end_byte": 12491,
+      "original": " He was ill only two days.",
+      "translation": "他只病了两天。"
+    },
+    {
+      "id": "p56-s4",
+      "paragraph": 56,
+      "start_byte": 12491,
+      "end_byte": 12588,
+      "original": " The\njanitor found him on the morning of the first day in his room\ndownstairs helpless with pain.",
+      "translation": "看门人第一天早晨发现他在楼下的房间里，疼得动弹不得。"
+    },
+    {
+      "id": "p56-s5",
+      "paragraph": 56,
+      "start_byte": 12588,
+      "end_byte": 12642,
+      "original": " His shoes and clothing were wet through\nand icy cold.",
+      "translation": "他的鞋子和衣服都湿透了，冰冷冰冷的。"
+    },
+    {
+      "id": "p56-s6",
+      "paragraph": 56,
+      "start_byte": 12642,
+      "end_byte": 12710,
+      "original": " They couldn’t imagine where he had been on such a\ndreadful night.",
+      "translation": "他们无法想象，在那样一个可怕的夜晚，他去了哪里。"
+    },
+    {
+      "id": "p56-s7",
+      "paragraph": 56,
+      "start_byte": 12710,
+      "end_byte": 12958,
+      "original": " And then they found a lantern, still lighted, and a\nladder that had been dragged from its place, and some scattered\nbrushes, and a palette with green and yellow colors mixed on it,\nand—look out the window, dear, at the last ivy leaf on the wall.",
+      "translation": "后来他们发现了一盏还亮着的灯笼，一架从原处拖来的梯子，几支散落的画笔，还有一块调色板，上面调着绿色和黄色的颜料，还有——亲爱的，看看窗外，墙上那最后一片常春藤叶。"
+    },
+    {
+      "id": "p56-s8",
+      "paragraph": 56,
+      "start_byte": 12958,
+      "end_byte": 13030,
+      "original": " Didn’t\nyou wonder why it never fluttered or moved when the wind blew?",
+      "translation": "难道你不觉得奇怪，为什么风刮的时候，它从来不飘动也不摇晃吗？"
+    },
+    {
+      "id": "p56-s9",
+      "paragraph": 56,
+      "start_byte": 13030,
+      "end_byte": 13134,
+      "original": " Ah,\ndarling, it’s Behrman’s masterpiece—he painted it there the night that\nthe last leaf fell.”",
+      "translation": "啊，亲爱的，这是贝尔曼的杰作——最后一片叶子掉下来的那个夜晚，他把它画在了那里。”"
+    }
+  ],
+  "updated_at": "2026-09-14T08:46:27.552135Z",
+  "model": "deepseek-v4-pro",
+  "scope": "default"
+}

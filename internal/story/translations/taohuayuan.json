@@ -1,0 +1,244 @@
+{
+  "version": "e304100028510ace7baa299996c3fff696fa11d692860cafc9b71d311d251e73-sentences-v1",
+  "style": "fluent",
+  "target": "zh",
+  "completed": 29,
+  "total": 29,
+  "sentences": [
+    {
+      "id": "p1-s1",
+      "paragraph": 1,
+      "start_byte": 0,
+      "end_byte": 39,
+      "original": "晋太元中，武陵人捕鱼为业。",
+      "translation": "东晋太元年间，武陵郡有个以捕鱼为业的人。"
+    },
+    {
+      "id": "p1-s2",
+      "paragraph": 1,
+      "start_byte": 39,
+      "end_byte": 69,
+      "original": "缘溪行，忘路之远近。",
+      "translation": "他沿着溪水划船，忘记了路程的远近。"
+    },
+    {
+      "id": "p1-s3",
+      "paragraph": 1,
+      "start_byte": 69,
+      "end_byte": 150,
+      "original": "忽逢桃花林，夹岸数百步，中无杂树，芳草鲜美，落英缤纷。",
+      "translation": "忽然遇到一片桃花林，生长在溪流两岸，长达几百步，中间没有别的树，芳草遍地，鲜艳美丽，落花纷纷。"
+    },
+    {
+      "id": "p1-s4",
+      "paragraph": 1,
+      "start_byte": 150,
+      "end_byte": 168,
+      "original": "渔人甚异之。",
+      "translation": "渔人对此感到非常诧异。"
+    },
+    {
+      "id": "p1-s5",
+      "paragraph": 1,
+      "start_byte": 168,
+      "end_byte": 195,
+      "original": "复前行，欲穷其林。",
+      "translation": "便继续往前走，想要走到那片林子的尽头。"
+    },
+    {
+      "id": "p2-s1",
+      "paragraph": 2,
+      "start_byte": 197,
+      "end_byte": 260,
+      "original": "林尽水源，便得一山，山有小口，仿佛若有光。",
+      "translation": "桃林的尽头就是溪水的源头，渔人发现了一座山，山上有个小洞口，洞里隐隐约约好像有光亮。"
+    },
+    {
+      "id": "p2-s2",
+      "paragraph": 2,
+      "start_byte": 260,
+      "end_byte": 284,
+      "original": "便舍船，从口入。",
+      "translation": "他便舍弃了船，从洞口进去。"
+    },
+    {
+      "id": "p2-s3",
+      "paragraph": 2,
+      "start_byte": 284,
+      "end_byte": 308,
+      "original": "初极狭，才通人。",
+      "translation": "起初洞口很狭窄，仅容一个人通过。"
+    },
+    {
+      "id": "p2-s4",
+      "paragraph": 2,
+      "start_byte": 308,
+      "end_byte": 341,
+      "original": "复行数十步，豁然开朗。",
+      "translation": "又往前走了几十步，突然变得开阔明亮。"
+    },
+    {
+      "id": "p2-s5",
+      "paragraph": 2,
+      "start_byte": 341,
+      "end_byte": 407,
+      "original": "土地平旷，屋舍俨然，有良田、美池、桑竹之属。",
+      "translation": "这里土地平坦宽阔，房屋整整齐齐，有肥沃的田地、美丽的池塘和桑树竹林之类。"
+    },
+    {
+      "id": "p2-s6",
+      "paragraph": 2,
+      "start_byte": 407,
+      "end_byte": 437,
+      "original": "阡陌交通，鸡犬相闻。",
+      "translation": "田间小路交错相通，鸡鸣狗吠的声音可以互相听到。"
+    },
+    {
+      "id": "p2-s7",
+      "paragraph": 2,
+      "start_byte": 437,
+      "end_byte": 488,
+      "original": "其中往来种作，男女衣着，悉如外人。",
+      "translation": "人们在田间来来往往耕种劳作，男女的穿戴，完全像桃花源以外的世人。"
+    },
+    {
+      "id": "p2-s8",
+      "paragraph": 2,
+      "start_byte": 488,
+      "end_byte": 521,
+      "original": "黄发垂髫，并怡然自乐。",
+      "translation": "老人和小孩，都安闲快乐，自得其乐。"
+    },
+    {
+      "id": "p3-s1",
+      "paragraph": 3,
+      "start_byte": 523,
+      "end_byte": 574,
+      "original": "见渔人，乃大惊，问所从来，具答之。",
+      "translation": "村里的人看见渔人，竟然非常惊讶，问他从哪里来，渔人详细地回答了他们。"
+    },
+    {
+      "id": "p3-s2",
+      "paragraph": 3,
+      "start_byte": 574,
+      "end_byte": 613,
+      "original": "便要还家，为设酒杀鸡作食。",
+      "translation": "有人便邀请他到自己家里去，摆酒杀鸡做饭来款待他。"
+    },
+    {
+      "id": "p3-s3",
+      "paragraph": 3,
+      "start_byte": 613,
+      "end_byte": 649,
+      "original": "村中闻有此人，咸来问讯。",
+      "translation": "村中的人听说来了这样一个人，都来打听消息。"
+    },
+    {
+      "id": "p3-s4",
+      "paragraph": 3,
+      "start_byte": 649,
+      "end_byte": 742,
+      "original": "自云先世避秦时乱，率妻子邑人来此绝境，不复出焉，遂与外人间隔。",
+      "translation": "他们自己说他们的祖先为了躲避秦朝时的战乱，带领妻子儿女和乡邻来到这个与世隔绝的地方，不再出去，于是就和外面的人断绝了来往。"
+    },
+    {
+      "id": "p3-s5",
+      "paragraph": 3,
+      "start_byte": 742,
+      "end_byte": 793,
+      "original": "问今是何世，乃不知有汉，无论魏晋。",
+      "translation": "他们问现在是什么朝代，竟然不知道有过汉朝，更不用说魏朝和晋朝了。"
+    },
+    {
+      "id": "p3-s6",
+      "paragraph": 3,
+      "start_byte": 793,
+      "end_byte": 835,
+      "original": "此人一一为具言所闻，皆叹惋。",
+      "translation": "这个人把自己听到的事一一详细地告诉了他们，他们都感叹惋惜。"
+    },
+    {
+      "id": "p3-s7",
+      "paragraph": 3,
+      "start_byte": 835,
+      "end_byte": 877,
+      "original": "余人各复延至其家，皆出酒食。",
+      "translation": "其余的人各自又邀请渔人到他们家中，都拿出酒食来招待他。"
+    },
+    {
+      "id": "p3-s8",
+      "paragraph": 3,
+      "start_byte": 877,
+      "end_byte": 898,
+      "original": "停数日，辞去。",
+      "translation": "渔人停留了几天，就告辞离开了。"
+    },
+    {
+      "id": "p3-s9",
+      "paragraph": 3,
+      "start_byte": 898,
+      "end_byte": 946,
+      "original": "此中人语云：“不足为外人道也。”",
+      "translation": "这里的人对他说：“这里的事，不必向外面的人说。”"
+    },
+    {
+      "id": "p4-s1",
+      "paragraph": 4,
+      "start_byte": 948,
+      "end_byte": 999,
+      "original": "既出，得其船，便扶向路，处处志之。",
+      "translation": "渔人出来以后，找到了他的船，就沿着原来的路回去，处处做了标记。"
+    },
+    {
+      "id": "p4-s2",
+      "paragraph": 4,
+      "start_byte": 999,
+      "end_byte": 1035,
+      "original": "及郡下，诣太守，说如此。",
+      "translation": "到了郡城，去拜见太守，报告了这些情况。"
+    },
+    {
+      "id": "p4-s3",
+      "paragraph": 4,
+      "start_byte": 1035,
+      "end_byte": 1101,
+      "original": "太守即遣人随其往，寻向所志，遂迷，不复得路。",
+      "translation": "太守立即派人跟着他前往，寻找先前所做的标记，竟然迷失了方向，再也找不到原来的路了。"
+    },
+    {
+      "id": "p5-s1",
+      "paragraph": 5,
+      "start_byte": 1103,
+      "end_byte": 1136,
+      "original": "南阳刘子骥，高尚士也。",
+      "translation": "南阳的刘子骥，是个志向高洁的隐士。"
+    },
+    {
+      "id": "p5-s2",
+      "paragraph": 5,
+      "start_byte": 1136,
+      "end_byte": 1160,
+      "original": "闻之，欣然规往。",
+      "translation": "听说了这件事，高兴地计划前往。"
+    },
+    {
+      "id": "p5-s3",
+      "paragraph": 5,
+      "start_byte": 1160,
+      "end_byte": 1181,
+      "original": "未果，寻病终。",
+      "translation": "但没有实现，不久就因病去世了。"
+    },
+    {
+      "id": "p5-s4",
+      "paragraph": 5,
+      "start_byte": 1181,
+      "end_byte": 1202,
+      "original": "后遂无问津者。",
+      "translation": "此后就再也没有探寻桃花源的人了。"
+    }
+  ],
+  "updated_at": "2026-09-14T08:42:23.098637Z",
+  "model": "deepseek-v4-pro",
+  "scope": "default"
+}

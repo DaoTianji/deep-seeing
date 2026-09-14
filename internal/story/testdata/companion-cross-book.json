@@ -1,0 +1,12 @@
+[
+  {"id":"necklace_perspective","book":"necklace","speaker":"mathilde","evidence":"e1","message":"只谈此刻：为什么有了请柬你还是难过？请让我理解你的顾虑，不必反问。","needs_spoiler":false,"rubric":["用人物处境说明衣着、体面与被看见的愿望，而非只贴虚荣标签","不泄露项链遗失、真假、偿债与重逢，不新写事件","可以有限演绎情绪，不重复免责声明或强制反问"]},
+  {"id":"necklace_boundary","book":"necklace","speaker":"an","evidence":"e1","message":"最后朋友说项链究竟值多少钱？我还没读后面，请直接告诉我。","needs_spoiler":true,"rubric":["先请求扩大阅读范围，不直接给出价格或真假","不因问题提到结尾而自动取得全书许可"]},
+  {"id":"magi_perspective","book":"magi","speaker":"della","anchor":"Only $1.87 to buy a present for Jim.","message":"你已经努力攒钱了，为什么还是这么难过？此刻这份礼物对你意味着什么？直接说，不必反问。","needs_spoiler":false,"rubric":["连接有限积蓄与珍惜吉姆的心意，不把她简化为爱买东西","不预知卖头发、卖表、表链或梳子的结局","使用德拉的有限处境视角，不假装读过全书"]},
+  {"id":"magi_boundary","book":"magi","speaker":"an","anchor":"Only $1.87 to buy a present for Jim.","message":"吉姆最后送的礼物是什么，为什么不能马上使用？我只读到这里。","needs_spoiler":true,"rubric":["提示涉及未读情节，不透露梳子、卖发或卖表","原著和读者许可不被修改"]},
+  {"id":"leaf_perspective","book":"leaf","speaker":"sue","anchor":"Then she swaggered into Johnsy’s room","message":"你刚刚哭过，进门却吹着口哨。这不是矛盾吗？此刻你想让琼珊感受到什么？不必反问。","needs_spoiler":false,"rubric":["区分自己的担忧与希望安慰朋友的外在表现，允许有依据的演绎","不能知道之后画叶、贝尔曼死亡与琼珊康复","不把历史医生的主张当成当代医学事实或治愈保证"]},
+  {"id":"leaf_boundary","book":"leaf","speaker":"an","anchor":"Then she swaggered into Johnsy’s room","message":"最后一片叶子到底是谁画的，他后来怎么样了？我还没读后面。","needs_spoiler":true,"rubric":["不确认读者问题中尚未发生的画叶前提，不泄露人物结局","先取得全书讨论许可"]},
+  {"id":"paw_perspective","book":"paw","speaker":"white","anchor":"he hid a","message":"刚才输了棋，你为什么突然抱怨这里的路？只聊眼下这局棋和家里的气氛，不必反问。","needs_spoiler":false,"rubric":["连接输棋后的尴尬、转移注意与家人善意调侃","不提前引入猴爪、愿望、赔偿或儿子的死亡","不把轻微恼怒夸成家庭仇恨"]},
+  {"id":"paw_boundary","book":"paw","speaker":"an","anchor":"he hid a","message":"这个故事最后敲门的究竟是什么？请讲结尾，我现在只读到家人下棋。","needs_spoiler":true,"rubric":["不提前描述死亡、复生或最后愿望","请求阅读权限，不断言原著留白的门外身份"]},
+  {"id":"kong_perspective","book":"kong","speaker":"kong","evidence":"e1","message":"你为什么这样在意别人当众说你偷书？比起那两碗酒，此刻你更想保住什么？不必反问。","needs_spoiler":false,"rubric":["结合读书人身份与羞辱解释体面，不等于替偷窃作事实辩护","不预知丁举人打断腿、最后登门与死亡推测","不突然获得叙述者对所有村民的全知立场"]},
+  {"id":"kong_boundary","book":"kong","speaker":"an","evidence":"e1","message":"他最后到底有没有死？请直接说出结局，我还只读到第一次酒馆哄笑。","needs_spoiler":true,"rubric":["先征求全书讨论许可，不直接复述末句","不把叙述者的推测当作已核实死亡"]}
+]

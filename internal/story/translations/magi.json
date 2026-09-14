@@ -1,0 +1,1236 @@
+{
+  "version": "a35f58e1aa43f3c8a4d9da08d8384257934d787c5ff1318410cd17bd397f7f0c-sentences-v1",
+  "style": "fluent",
+  "target": "zh",
+  "completed": 153,
+  "total": 153,
+  "sentences": [
+    {
+      "id": "p1-s1",
+      "paragraph": 1,
+      "start_byte": 0,
+      "end_byte": 20,
+      "original": "THE GIFT OF THE MAGI",
+      "translation": "麦琪的礼物"
+    },
+    {
+      "id": "p2-s1",
+      "paragraph": 2,
+      "start_byte": 23,
+      "end_byte": 57,
+      "original": "One dollar and eighty-seven cents.",
+      "translation": "一块八毛七分钱。"
+    },
+    {
+      "id": "p2-s2",
+      "paragraph": 2,
+      "start_byte": 57,
+      "end_byte": 71,
+      "original": " That was all.",
+      "translation": "这就是全部了。"
+    },
+    {
+      "id": "p2-s3",
+      "paragraph": 2,
+      "start_byte": 71,
+      "end_byte": 109,
+      "original": " And sixty cents of it\nwas in pennies.",
+      "translation": "其中六毛钱是零零碎碎的分币。"
+    },
+    {
+      "id": "p2-s4",
+      "paragraph": 2,
+      "start_byte": 109,
+      "end_byte": 309,
+      "original": " Pennies saved one and two at a time by bulldozing the\ngrocer and the vegetable man and the butcher until one’s cheeks burned\nwith the silent imputation of parsimony that such close dealing\nimplied.",
+      "translation": "这些分币是一分两分省下来的，靠的是对杂货店老板、菜贩、肉铺老板软磨硬泡，直到你因为这种斤斤计较的交易暗含吝啬的指责而脸颊发烧。"
+    },
+    {
+      "id": "p2-s5",
+      "paragraph": 2,
+      "start_byte": 309,
+      "end_byte": 339,
+      "original": " Three times Della counted it.",
+      "translation": "德拉数了三遍。"
+    },
+    {
+      "id": "p2-s6",
+      "paragraph": 2,
+      "start_byte": 339,
+      "end_byte": 374,
+      "original": " One dollar and eighty-seven\ncents.",
+      "translation": "一块八毛七分钱。"
+    },
+    {
+      "id": "p2-s7",
+      "paragraph": 2,
+      "start_byte": 374,
+      "end_byte": 411,
+      "original": " And the next day would be Christmas.",
+      "translation": "而明天就是圣诞节了。"
+    },
+    {
+      "id": "p3-s1",
+      "paragraph": 3,
+      "start_byte": 413,
+      "end_byte": 495,
+      "original": "There was clearly nothing to do but flop down on the shabby little\ncouch and howl.",
+      "translation": "显然，只有倒在那破旧的小沙发上大哭一场。"
+    },
+    {
+      "id": "p3-s2",
+      "paragraph": 3,
+      "start_byte": 495,
+      "end_byte": 512,
+      "original": " So Della did it.",
+      "translation": "于是德拉就这么做了。"
+    },
+    {
+      "id": "p3-s3",
+      "paragraph": 3,
+      "start_byte": 512,
+      "end_byte": 631,
+      "original": " Which instigates the moral reflection\nthat life is made up of sobs, sniffles, and smiles, with sniffles\npredominating.",
+      "translation": "这不禁让人想到：生活是由啜泣、抽噎和微笑组成的，而抽噎占了大多数。"
+    },
+    {
+      "id": "p4-s1",
+      "paragraph": 4,
+      "start_byte": 633,
+      "end_byte": 747,
+      "original": "While the mistress of the home is gradually subsiding from the first\nstage to the second, take a look at the home.",
+      "translation": "当女主人正从号啕大哭渐渐转为抽抽噎噎时，来看看这个家吧。"
+    },
+    {
+      "id": "p4-s2",
+      "paragraph": 4,
+      "start_byte": 747,
+      "end_byte": 780,
+      "original": " A furnished flat at $8\nper week.",
+      "translation": "一套每周八美元租金的带家具公寓。"
+    },
+    {
+      "id": "p4-s3",
+      "paragraph": 4,
+      "start_byte": 780,
+      "end_byte": 891,
+      "original": " It did not exactly beggar description, but it certainly had\nthat word on the lookout for the mendicancy squad.",
+      "translation": "这地方倒还没有到“无法形容”的地步，不过“无法形容”这个词倒是需要乞丐收容队来搭救了。"
+    },
+    {
+      "id": "p5-s1",
+      "paragraph": 5,
+      "start_byte": 893,
+      "end_byte": 1033,
+      "original": "In the vestibule below was a letter-box into which no letter would go,\nand an electric button from which no mortal finger could coax a ring.",
+      "translation": "楼下门厅里有一个信箱，但从来没有信投进去；还有一个电铃按钮，但任凭凡人的手指怎么按，也按不出铃声。"
+    },
+    {
+      "id": "p5-s2",
+      "paragraph": 5,
+      "start_byte": 1033,
+      "end_byte": 1123,
+      "original": "\nAlso appertaining thereunto was a card bearing the name “Mr. James\nDillingham Young.”",
+      "translation": "那里还挂着一张名片，上面写着“詹姆斯·迪林厄姆·扬先生”。"
+    },
+    {
+      "id": "p5-s3",
+      "paragraph": 5,
+      "start_byte": 1123,
+      "end_byte": 1258,
+      "original": " The “Dillingham” had been flung to the breeze during\na former period of prosperity when its possessor was being paid $30 per\nweek.",
+      "translation": "在昔日每周挣三十美元的兴旺时期，“迪林厄姆”这个姓氏曾被炫耀地展示出来。"
+    },
+    {
+      "id": "p5-s4",
+      "paragraph": 5,
+      "start_byte": 1258,
+      "end_byte": 1590,
+      "original": " Now, when the income was shrunk to $20, the letters of\n“Dillingham” looked blurred, as though they were thinking seriously of\ncontracting to a modest and unassuming D. But whenever Mr. James\nDillingham Young came home and reached his flat above he was called\n“Jim” and greatly hugged by Mrs. James Dillingham Young, already",
+      "translation": "现在收入缩减到二十美元，“迪林厄姆”这几个字也显得模糊了，仿佛它们正在郑重考虑缩成一个谦逊朴素的“迪”字。不过，每当詹姆斯·迪林厄姆·杨先生回到楼上的公寓时，詹姆斯·迪林厄姆·杨太太总是叫他“吉姆”，并热烈地拥抱他。这位太太已经"
+    },
+    {
+      "id": "p6-s1",
+      "paragraph": 6,
+      "start_byte": 1592,
+      "end_byte": 1619,
+      "original": "introduced to you as Della.",
+      "translation": "已经向你介绍过了，她叫德拉。"
+    },
+    {
+      "id": "p6-s2",
+      "paragraph": 6,
+      "start_byte": 1619,
+      "end_byte": 1643,
+      "original": " Which is all very good.",
+      "translation": "这一切都很好。"
+    },
+    {
+      "id": "p7-s1",
+      "paragraph": 7,
+      "start_byte": 1645,
+      "end_byte": 1715,
+      "original": "Della finished her cry and attended to her cheeks with the powder rag.",
+      "translation": "德拉哭完了以后，用粉扑在脸颊上扑了点粉。"
+    },
+    {
+      "id": "p7-s2",
+      "paragraph": 7,
+      "start_byte": 1715,
+      "end_byte": 1815,
+      "original": "\nShe stood by the window and looked out dully at a grey cat walking a\ngrey fence in a grey backyard.",
+      "translation": "她站在窗前，呆呆地瞅着外面灰蒙蒙的后院里，一只灰猫正在灰色的篱笆上行走。"
+    },
+    {
+      "id": "p7-s3",
+      "paragraph": 7,
+      "start_byte": 1815,
+      "end_byte": 1904,
+      "original": " Tomorrow would be Christmas Day, and she\nhad only $1.87 with which to buy Jim a present.",
+      "translation": "明天就是圣诞节了，而她只有一块八毛七分钱给吉姆买礼物。"
+    },
+    {
+      "id": "p7-s4",
+      "paragraph": 7,
+      "start_byte": 1904,
+      "end_byte": 1976,
+      "original": " She had been saving\nevery penny she could for months, with this result.",
+      "translation": "几个月来，她省吃俭用，能攒一分是一分，结果只攒下这么点钱。"
+    },
+    {
+      "id": "p7-s5",
+      "paragraph": 7,
+      "start_byte": 1976,
+      "end_byte": 2016,
+      "original": " Twenty dollars a\nweek doesn’t go far.",
+      "translation": "每周二十美元的收入，经不起花销。"
+    },
+    {
+      "id": "p7-s6",
+      "paragraph": 7,
+      "start_byte": 2016,
+      "end_byte": 2067,
+      "original": " Expenses had been greater than she had calculated.",
+      "translation": "开支比她预算的要大。"
+    },
+    {
+      "id": "p7-s7",
+      "paragraph": 7,
+      "start_byte": 2067,
+      "end_byte": 2084,
+      "original": "\nThey always are.",
+      "translation": "总是这样。"
+    },
+    {
+      "id": "p7-s8",
+      "paragraph": 7,
+      "start_byte": 2084,
+      "end_byte": 2121,
+      "original": " Only $1.87 to buy a present for Jim.",
+      "translation": "只有一块八毛七分钱，给吉姆买礼物。"
+    },
+    {
+      "id": "p7-s9",
+      "paragraph": 7,
+      "start_byte": 2121,
+      "end_byte": 2130,
+      "original": " Her Jim.",
+      "translation": "她的吉姆。"
+    },
+    {
+      "id": "p7-s10",
+      "paragraph": 7,
+      "start_byte": 2130,
+      "end_byte": 2199,
+      "original": " Many a\nhappy hour she had spent planning for something nice for him.",
+      "translation": "为了给他买件好东西，德拉曾经花了多少快乐的时间筹划着。"
+    },
+    {
+      "id": "p7-s11",
+      "paragraph": 7,
+      "start_byte": 2199,
+      "end_byte": 2324,
+      "original": " Something\nfine and rare and sterling—something just a little bit near to being\nworthy of the honour of being owned by Jim.",
+      "translation": "要买一件精致、珍奇而真有价值的东西——一件配得上让吉姆拥有的东西。"
+    },
+    {
+      "id": "p8-s1",
+      "paragraph": 8,
+      "start_byte": 2326,
+      "end_byte": 2381,
+      "original": "There was a pier-glass between the windows of the room.",
+      "translation": "房间里两扇窗户之间有一面穿衣镜。"
+    },
+    {
+      "id": "p8-s2",
+      "paragraph": 8,
+      "start_byte": 2381,
+      "end_byte": 2431,
+      "original": " Perhaps you\nhave seen a pier-glass in an $8 flat.",
+      "translation": "也许你在八美元的公寓里见过穿衣镜。"
+    },
+    {
+      "id": "p8-s3",
+      "paragraph": 8,
+      "start_byte": 2431,
+      "end_byte": 2592,
+      "original": " A very thin and very agile person\nmay, by observing his reflection in a rapid sequence of longitudinal\nstrips, obtain a fairly accurate conception of his looks.",
+      "translation": "一个非常瘦且非常敏捷的人，通过观察自己在纵向条状镜面上的快速连续影像，可以相当准确地了解自己的模样。"
+    },
+    {
+      "id": "p8-s4",
+      "paragraph": 8,
+      "start_byte": 2592,
+      "end_byte": 2636,
+      "original": " Della, being\nslender, had mastered the art.",
+      "translation": "德拉身材苗条，已经掌握了这门艺术。"
+    },
+    {
+      "id": "p9-s1",
+      "paragraph": 9,
+      "start_byte": 2638,
+      "end_byte": 2702,
+      "original": "Suddenly she whirled from the window and stood before the glass.",
+      "translation": "突然，她从窗边转过身来，站在镜子前。"
+    },
+    {
+      "id": "p9-s2",
+      "paragraph": 9,
+      "start_byte": 2702,
+      "end_byte": 2793,
+      "original": " Her\neyes were shining brilliantly, but her face had lost its colour within\ntwenty seconds.",
+      "translation": "她的眼睛闪闪发亮，但她的脸在二十秒内失去了血色。"
+    },
+    {
+      "id": "p9-s3",
+      "paragraph": 9,
+      "start_byte": 2793,
+      "end_byte": 2862,
+      "original": " Rapidly she pulled down her hair and let it fall to its\nfull length.",
+      "translation": "她迅速放下头发，让它垂到完全的长度。"
+    },
+    {
+      "id": "p10-s1",
+      "paragraph": 10,
+      "start_byte": 2864,
+      "end_byte": 2966,
+      "original": "Now, there were two possessions of the James Dillingham Youngs in which\nthey both took a mighty pride.",
+      "translation": "现在，詹姆斯·迪林汉·杨夫妇有两件他们都非常引以为豪的财产。"
+    },
+    {
+      "id": "p10-s2",
+      "paragraph": 10,
+      "start_byte": 2966,
+      "end_byte": 3077,
+      "original": " One was Jim’s gold watch that had been\nhis father’s and his grandfather’s. The other was Della’s hair.",
+      "translation": "一件是吉姆的金表，那是他父亲和他祖父的。另一件是德拉的头发。"
+    },
+    {
+      "id": "p10-s3",
+      "paragraph": 10,
+      "start_byte": 3077,
+      "end_byte": 3258,
+      "original": " Had the\nQueen of Sheba lived in the flat across the airshaft, Della would have\nlet her hair hang out the window some day to dry just to depreciate Her\nMajesty’s jewels and gifts.",
+      "translation": "如果示巴女王住在天井对面的公寓里，德拉某天会把头发挂在窗外晾干，只是为了贬低女王陛下的珠宝和礼物。"
+    },
+    {
+      "id": "p10-s4",
+      "paragraph": 10,
+      "start_byte": 3258,
+      "end_byte": 3446,
+      "original": " Had King Solomon been the janitor, with all\nhis treasures piled up in the basement, Jim would have pulled out his\nwatch every time he passed, just to see him pluck at his beard from\nenvy.",
+      "translation": "如果所罗门王是看门人，把他所有的财宝都堆在地下室里，吉姆每次经过都会掏出手表，只是为了看看他嫉妒地揪着胡子。"
+    },
+    {
+      "id": "p11-s1",
+      "paragraph": 11,
+      "start_byte": 3448,
+      "end_byte": 3548,
+      "original": "So now Della’s beautiful hair fell about her, rippling and shining like\na cascade of brown waters.",
+      "translation": "所以现在德拉美丽的头发披散在她身上，像一挂棕色的瀑布般波光粼粼。"
+    },
+    {
+      "id": "p11-s2",
+      "paragraph": 11,
+      "start_byte": 3548,
+      "end_byte": 3616,
+      "original": " It reached below her knee and made itself\nalmost a garment for her.",
+      "translation": "它垂到膝盖以下，几乎成了她的一件衣服。"
+    },
+    {
+      "id": "p11-s3",
+      "paragraph": 11,
+      "start_byte": 3616,
+      "end_byte": 3668,
+      "original": " And then she did it up again nervously and\nquickly.",
+      "translation": "然后她又紧张而迅速地把头发挽了起来。"
+    },
+    {
+      "id": "p11-s4",
+      "paragraph": 11,
+      "start_byte": 3668,
+      "end_byte": 3768,
+      "original": " Once she faltered for a minute and stood still while a tear or\ntwo splashed on the worn red carpet.",
+      "translation": "她犹豫了一分钟，静静地站着，一两滴眼泪溅在破旧的红地毯上。"
+    },
+    {
+      "id": "p12-s1",
+      "paragraph": 12,
+      "start_byte": 3770,
+      "end_byte": 3826,
+      "original": "On went her old brown jacket; on went her old brown hat.",
+      "translation": "她穿上旧棕色外套，戴上旧棕色帽子。"
+    },
+    {
+      "id": "p12-s2",
+      "paragraph": 12,
+      "start_byte": 3826,
+      "end_byte": 3961,
+      "original": " With a whirl\nof skirts and with the brilliant sparkle still in her eyes, she\nfluttered out the door and down the stairs to the street.",
+      "translation": "裙摆一旋，眼里依然闪着明亮的光芒，她翩然出门，下楼来到街上。"
+    },
+    {
+      "id": "p13-s1",
+      "paragraph": 13,
+      "start_byte": 3963,
+      "end_byte": 4003,
+      "original": "Where she stopped the sign read: “Mme.",
+      "translation": "她停下的地方，招牌上写着：“夫人。"
+    },
+    {
+      "id": "p13-s2",
+      "paragraph": 13,
+      "start_byte": 4003,
+      "end_byte": 4013,
+      "original": " Sofronie.",
+      "translation": "索芙朗妮。"
+    },
+    {
+      "id": "p13-s3",
+      "paragraph": 13,
+      "start_byte": 4013,
+      "end_byte": 4041,
+      "original": " Hair Goods of All\nKinds.”",
+      "translation": "各种发制品。”"
+    },
+    {
+      "id": "p13-s4",
+      "paragraph": 13,
+      "start_byte": 4041,
+      "end_byte": 4098,
+      "original": " One flight up Della ran, and collected herself, panting.",
+      "translation": "德拉跑上一段楼梯，喘着气定了定神。"
+    },
+    {
+      "id": "p13-s5",
+      "paragraph": 13,
+      "start_byte": 4098,
+      "end_byte": 4166,
+      "original": "\nMadame, large, too white, chilly, hardly looked the “Sofronie.”",
+      "translation": "这位夫人身材高大，皮肤太白，态度冷淡，看上去一点也不像“索芙朗妮”。"
+    },
+    {
+      "id": "p14-s1",
+      "paragraph": 14,
+      "start_byte": 4168,
+      "end_byte": 4208,
+      "original": "“Will you buy my hair?” asked Della.",
+      "translation": "“你买我的头发吗？”德拉问道。"
+    },
+    {
+      "id": "p15-s1",
+      "paragraph": 15,
+      "start_byte": 4210,
+      "end_byte": 4240,
+      "original": "“I buy hair,” said Madame.",
+      "translation": "“我买头发，”夫人说。"
+    },
+    {
+      "id": "p15-s2",
+      "paragraph": 15,
+      "start_byte": 4240,
+      "end_byte": 4308,
+      "original": " “Take yer hat off and let’s have a sight at\nthe looks of it.”",
+      "translation": "“把帽子摘下来，让我看看它的样子。”"
+    },
+    {
+      "id": "p16-s1",
+      "paragraph": 16,
+      "start_byte": 4310,
+      "end_byte": 4341,
+      "original": "Down rippled the brown cascade.",
+      "translation": "棕色的瀑布倾泻而下。"
+    },
+    {
+      "id": "p16-s2",
+      "paragraph": 16,
+      "start_byte": 4341,
+      "end_byte": 4416,
+      "original": " “Twenty dollars,” said Madame, lifting\nthe mass with a practised hand.",
+      "translation": "“二十美元，”夫人一边用熟练的手托起那团头发，一边说。"
+    },
+    {
+      "id": "p17-s1",
+      "paragraph": 17,
+      "start_byte": 4418,
+      "end_byte": 4456,
+      "original": "“Give it to me quick,” said Della.",
+      "translation": "“快给我吧，”德拉说。"
+    },
+    {
+      "id": "p18-s1",
+      "paragraph": 18,
+      "start_byte": 4458,
+      "end_byte": 4510,
+      "original": "Oh, and the next two hours tripped by on rosy wings.",
+      "translation": "哦，接下来的两个小时乘着玫瑰色的翅膀飞逝而过。"
+    },
+    {
+      "id": "p18-s2",
+      "paragraph": 18,
+      "start_byte": 4510,
+      "end_byte": 4538,
+      "original": " Forget the hashed\nmetaphor.",
+      "translation": "别管那个蹩脚的比喻了。"
+    },
+    {
+      "id": "p18-s3",
+      "paragraph": 18,
+      "start_byte": 4538,
+      "end_byte": 4589,
+      "original": " She was ransacking the stores for Jim’s present.",
+      "translation": "她正在各家商店里翻找，为吉姆挑选礼物。"
+    },
+    {
+      "id": "p19-s1",
+      "paragraph": 19,
+      "start_byte": 4591,
+      "end_byte": 4612,
+      "original": "She found it at last.",
+      "translation": "她终于找到了。"
+    },
+    {
+      "id": "p19-s2",
+      "paragraph": 19,
+      "start_byte": 4612,
+      "end_byte": 4661,
+      "original": " It surely had been made for Jim and no one else.",
+      "translation": "它肯定是为吉姆做的，而不是为别的任何人。"
+    },
+    {
+      "id": "p19-s3",
+      "paragraph": 19,
+      "start_byte": 4661,
+      "end_byte": 4753,
+      "original": "\nThere was no other like it in any of the stores, and she had turned all\nof them inside out.",
+      "translation": "她翻遍了所有商店，也没有找到第二件这样的东西。"
+    },
+    {
+      "id": "p19-s4",
+      "paragraph": 19,
+      "start_byte": 4753,
+      "end_byte": 4930,
+      "original": " It was a platinum fob chain simple and chaste in\ndesign, properly proclaiming its value by substance alone and not by\nmeretricious ornamentation—as all good things should do.",
+      "translation": "那是一条铂金表链，设计简洁素雅，恰如其分地仅凭材质本身来显现价值，而不是靠华而不实的装饰——正如一切好东西应有的样子。"
+    },
+    {
+      "id": "p19-s5",
+      "paragraph": 19,
+      "start_byte": 4930,
+      "end_byte": 4963,
+      "original": " It was even\nworthy of The Watch.",
+      "translation": "它甚至配得上那只金表。"
+    },
+    {
+      "id": "p19-s6",
+      "paragraph": 19,
+      "start_byte": 4963,
+      "end_byte": 5036,
+      "original": " As soon as she saw it she knew that it must be\nJim’s. It was like him.",
+      "translation": "她一看到它就知道这一定是给吉姆的。它和他很相配。"
+    },
+    {
+      "id": "p19-s7",
+      "paragraph": 19,
+      "start_byte": 5036,
+      "end_byte": 5091,
+      "original": " Quietness and value—the description applied to\nboth.",
+      "translation": "安静与价值——这个描述同时适用于两者。"
+    },
+    {
+      "id": "p19-s8",
+      "paragraph": 19,
+      "start_byte": 5091,
+      "end_byte": 5177,
+      "original": " Twenty-one dollars they took from her for it, and she hurried\nhome with the 87 cents.",
+      "translation": "她花了二十一美元买下它，然后带着剩下的八十七美分匆匆赶回家。"
+    },
+    {
+      "id": "p19-s9",
+      "paragraph": 19,
+      "start_byte": 5177,
+      "end_byte": 5267,
+      "original": " With that chain on his watch Jim might be\nproperly anxious about the time in any company.",
+      "translation": "有了那条表链挂在表上，吉姆无论和什么人在一起都可以体面地看时间了。"
+    },
+    {
+      "id": "p19-s10",
+      "paragraph": 19,
+      "start_byte": 5267,
+      "end_byte": 5398,
+      "original": " Grand as the watch was,\nhe sometimes looked at it on the sly on account of the old leather\nstrap that he used in place of a chain.",
+      "translation": "尽管那只表很贵重，但有时他因为用的是旧皮带来代替表链，只好偷偷地看时间。"
+    },
+    {
+      "id": "p20-s1",
+      "paragraph": 20,
+      "start_byte": 5400,
+      "end_byte": 5482,
+      "original": "When Della reached home her intoxication gave way a little to prudence\nand reason.",
+      "translation": "德拉回到家后，她的陶醉稍稍让位给了谨慎和理智。"
+    },
+    {
+      "id": "p20-s2",
+      "paragraph": 20,
+      "start_byte": 5482,
+      "end_byte": 5605,
+      "original": " She got out her curling irons and lighted the gas and went\nto work repairing the ravages made by generosity added to love.",
+      "translation": "她拿出卷发钳，点亮煤气灯，开始修复由慷慨加上爱情所造成的破坏。"
+    },
+    {
+      "id": "p20-s3",
+      "paragraph": 20,
+      "start_byte": 5605,
+      "end_byte": 5671,
+      "original": " Which\nis always a tremendous task, dear friends—a mammoth task.",
+      "translation": "亲爱的朋友们，这总是一项极其艰巨的任务——一项庞大的工程。"
+    },
+    {
+      "id": "p21-s1",
+      "paragraph": 21,
+      "start_byte": 5673,
+      "end_byte": 5799,
+      "original": "Within forty minutes her head was covered with tiny, close-lying curls\nthat made her look wonderfully like a truant schoolboy.",
+      "translation": "不到四十分钟，她的头上就布满了细密的小卷发，使她看起来活像一个逃学的小男孩。"
+    },
+    {
+      "id": "p21-s2",
+      "paragraph": 21,
+      "start_byte": 5799,
+      "end_byte": 5875,
+      "original": " She looked at\nher reflection in the mirror long, carefully, and critically.",
+      "translation": "她久久地、仔细地、挑剔地看着镜中的自己。"
+    },
+    {
+      "id": "p22-s1",
+      "paragraph": 22,
+      "start_byte": 5877,
+      "end_byte": 6021,
+      "original": "“If Jim doesn’t kill me,” she said to herself, “before he takes a\nsecond look at me, he’ll say I look like a Coney Island chorus girl.",
+      "translation": "“如果吉姆不先杀了我，”她自言自语道，“他只要再看我一眼，准会说我看上去像康尼岛合唱队的女孩。"
+    },
+    {
+      "id": "p22-s2",
+      "paragraph": 22,
+      "start_byte": 6021,
+      "end_byte": 6104,
+      "original": "\nBut what could I do—oh! what could I do with a dollar and eighty-seven\ncents?”",
+      "translation": "但我又能怎么办呢——哦！拿着一美元八十七美分，我能做什么呢？”"
+    },
+    {
+      "id": "p23-s1",
+      "paragraph": 23,
+      "start_byte": 6106,
+      "end_byte": 6221,
+      "original": "At 7 o’clock the coffee was made and the frying-pan was on the back of\nthe stove hot and ready to cook the chops.",
+      "translation": "七点钟时，咖啡已经煮好，煎锅也放在炉子后面烧热，准备煎肉排。"
+    },
+    {
+      "id": "p24-s1",
+      "paragraph": 24,
+      "start_byte": 6223,
+      "end_byte": 6242,
+      "original": "Jim was never late.",
+      "translation": "吉姆从来不迟到。"
+    },
+    {
+      "id": "p24-s2",
+      "paragraph": 24,
+      "start_byte": 6242,
+      "end_byte": 6355,
+      "original": " Della doubled the fob chain in her hand and sat on\nthe corner of the table near the door that he always entered.",
+      "translation": "德拉把表链在手里对折起来，坐在靠近他总进来的那扇门的桌子角上。"
+    },
+    {
+      "id": "p24-s3",
+      "paragraph": 24,
+      "start_byte": 6355,
+      "end_byte": 6463,
+      "original": " Then she\nheard his step on the stair away down on the first flight, and she\nturned white for just a moment.",
+      "translation": "随后她听见他走在楼下第一段楼梯上的脚步声，脸色一下子白了片刻。"
+    },
+    {
+      "id": "p24-s4",
+      "paragraph": 24,
+      "start_byte": 6463,
+      "end_byte": 6623,
+      "original": " She had a habit for saying little\nsilent prayers about the simplest everyday things, and now she\nwhispered: “Please God, make him think I am still pretty.”",
+      "translation": "她有个习惯，对最平常的日常小事也要默默祈祷几句，这时她低声说：“求求上帝，让他觉得我依然漂亮。”"
+    },
+    {
+      "id": "p25-s1",
+      "paragraph": 25,
+      "start_byte": 6625,
+      "end_byte": 6674,
+      "original": "The door opened and Jim stepped in and closed it.",
+      "translation": "门开了，吉姆走进来，关上了门。"
+    },
+    {
+      "id": "p25-s2",
+      "paragraph": 25,
+      "start_byte": 6674,
+      "end_byte": 6707,
+      "original": " He looked thin and\nvery serious.",
+      "translation": "他看上去很瘦，也很严肃。"
+    },
+    {
+      "id": "p25-s3",
+      "paragraph": 25,
+      "start_byte": 6707,
+      "end_byte": 6779,
+      "original": " Poor fellow, he was only twenty-two—and to be burdened\nwith a family!",
+      "translation": "可怜的人，他才二十二岁——就要背负起一个家庭的重担！"
+    },
+    {
+      "id": "p25-s4",
+      "paragraph": 25,
+      "start_byte": 6779,
+      "end_byte": 6831,
+      "original": " He needed a new overcoat and he was without gloves.",
+      "translation": "他需要一件新大衣，而且连手套也没有。"
+    },
+    {
+      "id": "p26-s1",
+      "paragraph": 26,
+      "start_byte": 6833,
+      "end_byte": 6909,
+      "original": "Jim stopped inside the door, as immovable as a setter at the scent of\nquail.",
+      "translation": "吉姆在门内站住了，像一条嗅到鹌鹑气味的塞特犬一样一动不动。"
+    },
+    {
+      "id": "p26-s2",
+      "paragraph": 26,
+      "start_byte": 6909,
+      "end_byte": 7024,
+      "original": " His eyes were fixed upon Della, and there was an expression in\nthem that she could not read, and it terrified her.",
+      "translation": "他的眼睛盯着德拉，眼神里有一种她读不懂的表情，这让她害怕。"
+    },
+    {
+      "id": "p26-s3",
+      "paragraph": 26,
+      "start_byte": 7024,
+      "end_byte": 7143,
+      "original": " It was not anger,\nnor surprise, nor disapproval, nor horror, nor any of the sentiments\nthat she had been prepared for.",
+      "translation": "那不是愤怒，不是惊讶，不是不赞成，不是恐惧，也不是她预想过的任何一种情绪。"
+    },
+    {
+      "id": "p26-s4",
+      "paragraph": 26,
+      "start_byte": 7143,
+      "end_byte": 7218,
+      "original": " He simply stared at her fixedly with\nthat peculiar expression on his face.",
+      "translation": "他只是带着脸上那副古怪的表情，定定地凝视着她。"
+    },
+    {
+      "id": "p27-s1",
+      "paragraph": 27,
+      "start_byte": 7220,
+      "end_byte": 7266,
+      "original": "Della wriggled off the table and went for him.",
+      "translation": "德拉从桌子上扭身下来，朝他走去。"
+    },
+    {
+      "id": "p28-s1",
+      "paragraph": 28,
+      "start_byte": 7268,
+      "end_byte": 7330,
+      "original": "“Jim, darling,” she cried, “don’t look at me that way.",
+      "translation": "“吉姆，亲爱的，”她叫道，“别那样看着我。"
+    },
+    {
+      "id": "p28-s2",
+      "paragraph": 28,
+      "start_byte": 7330,
+      "end_byte": 7441,
+      "original": " I had my hair\ncut off and sold because I couldn’t have lived through Christmas\nwithout giving you a present.",
+      "translation": "我把头发剪掉卖了，因为不送你一件礼物，我没法过这个圣诞节。"
+    },
+    {
+      "id": "p28-s3",
+      "paragraph": 28,
+      "start_byte": 7441,
+      "end_byte": 7494,
+      "original": " It’ll grow out again—you won’t mind, will\nyou?",
+      "translation": "头发会再长出来的——你不会介意的，对吗？"
+    },
+    {
+      "id": "p28-s4",
+      "paragraph": 28,
+      "start_byte": 7494,
+      "end_byte": 7515,
+      "original": " I just had to do it.",
+      "translation": "我不得不这么做。"
+    },
+    {
+      "id": "p28-s5",
+      "paragraph": 28,
+      "start_byte": 7515,
+      "end_byte": 7543,
+      "original": " My hair grows awfully fast.",
+      "translation": "我的头发长得特别快。"
+    },
+    {
+      "id": "p28-s6",
+      "paragraph": 28,
+      "start_byte": 7543,
+      "end_byte": 7570,
+      "original": " Say ‘Merry\nChristmas!’",
+      "translation": "说“圣诞快乐！”"
+    },
+    {
+      "id": "p28-s7",
+      "paragraph": 28,
+      "start_byte": 7570,
+      "end_byte": 7597,
+      "original": " Jim, and let’s be happy.",
+      "translation": "吉姆，我们高兴点吧。"
+    },
+    {
+      "id": "p28-s8",
+      "paragraph": 28,
+      "start_byte": 7597,
+      "end_byte": 7679,
+      "original": " You don’t know what a nice—what a\nbeautiful, nice gift I’ve got for you.”",
+      "translation": "你不知道我给你准备了一件多好——多漂亮、多好的礼物。"
+    },
+    {
+      "id": "p29-s1",
+      "paragraph": 29,
+      "start_byte": 7681,
+      "end_byte": 7824,
+      "original": "“You’ve cut off your hair?” asked Jim, laboriously, as if he had not\narrived at that patent fact yet even after the hardest mental labor.",
+      "translation": "“你把头发剪掉了？”吉姆吃力地问，仿佛即使经过最艰苦的脑力劳动，他还没弄明白这个明摆着的事实。"
+    },
+    {
+      "id": "p30-s1",
+      "paragraph": 30,
+      "start_byte": 7826,
+      "end_byte": 7867,
+      "original": "“Cut it off and sold it,” said Della.",
+      "translation": "“剪掉卖了，”德拉说。"
+    },
+    {
+      "id": "p30-s2",
+      "paragraph": 30,
+      "start_byte": 7867,
+      "end_byte": 7912,
+      "original": " “Don’t you like me just as well,\nanyhow?",
+      "translation": "“难道你就不喜欢我了吗？"
+    },
+    {
+      "id": "p30-s3",
+      "paragraph": 30,
+      "start_byte": 7912,
+      "end_byte": 7952,
+      "original": " I’m me without my hair, ain’t I?”",
+      "translation": "没有头发，我还是我，不是吗？”"
+    },
+    {
+      "id": "p31-s1",
+      "paragraph": 31,
+      "start_byte": 7954,
+      "end_byte": 7990,
+      "original": "Jim looked about the room curiously.",
+      "translation": "吉姆好奇地环顾房间。"
+    },
+    {
+      "id": "p32-s1",
+      "paragraph": 32,
+      "start_byte": 7992,
+      "end_byte": 8063,
+      "original": "“You say your hair is gone?” he said, with an air almost of idiocy.",
+      "translation": "“你说你的头发没了？”他说，神情近乎痴呆。"
+    },
+    {
+      "id": "p33-s1",
+      "paragraph": 33,
+      "start_byte": 8065,
+      "end_byte": 8109,
+      "original": "“You needn’t look for it,” said Della.",
+      "translation": "“你不必找了，”德拉说。"
+    },
+    {
+      "id": "p33-s2",
+      "paragraph": 33,
+      "start_byte": 8109,
+      "end_byte": 8158,
+      "original": " “It’s sold, I tell you—sold and\ngone, too.",
+      "translation": "“我告诉你，已经卖了——卖了就没了。"
+    },
+    {
+      "id": "p33-s3",
+      "paragraph": 33,
+      "start_byte": 8158,
+      "end_byte": 8185,
+      "original": " It’s Christmas Eve, boy.",
+      "translation": "今天是平安夜，亲爱的。"
+    },
+    {
+      "id": "p33-s4",
+      "paragraph": 33,
+      "start_byte": 8185,
+      "end_byte": 8221,
+      "original": " Be good to me, for it went for you.",
+      "translation": "对我好一点，因为我是为了你才卖的。"
+    },
+    {
+      "id": "p33-s5",
+      "paragraph": 33,
+      "start_byte": 8221,
+      "end_byte": 8357,
+      "original": "\nMaybe the hairs of my head were numbered,” she went on with sudden\nserious sweetness, “but nobody could ever count my love for you.",
+      "translation": "“也许我的头发数得清，”她突然带着严肃而温柔的神情接着说，“但谁也算不清我对你的爱。”"
+    },
+    {
+      "id": "p33-s6",
+      "paragraph": 33,
+      "start_byte": 8357,
+      "end_byte": 8391,
+      "original": " Shall\nI put the chops on, Jim?”",
+      "translation": "我把猪排煎上好吗，吉姆？"
+    },
+    {
+      "id": "p34-s1",
+      "paragraph": 34,
+      "start_byte": 8393,
+      "end_byte": 8438,
+      "original": "Out of his trance Jim seemed quickly to wake.",
+      "translation": "吉姆好像从恍惚中很快醒了过来。"
+    },
+    {
+      "id": "p34-s2",
+      "paragraph": 34,
+      "start_byte": 8438,
+      "end_byte": 8461,
+      "original": " He enfolded his Della.",
+      "translation": "他搂住了他的德拉。"
+    },
+    {
+      "id": "p34-s3",
+      "paragraph": 34,
+      "start_byte": 8461,
+      "end_byte": 8566,
+      "original": "\nFor ten seconds let us regard with discreet scrutiny some\ninconsequential object in the other direction.",
+      "translation": "让我们用十秒钟，谨慎地打量一下另一个方向某个无关紧要的东西。"
+    },
+    {
+      "id": "p34-s4",
+      "paragraph": 34,
+      "start_byte": 8566,
+      "end_byte": 8633,
+      "original": " Eight dollars a week or\na million a year—what is the difference?",
+      "translation": "一星期八块钱，或一年一百万——这有什么区别呢？"
+    },
+    {
+      "id": "p34-s5",
+      "paragraph": 34,
+      "start_byte": 8633,
+      "end_byte": 8691,
+      "original": " A mathematician or a wit would\ngive you the wrong answer.",
+      "translation": "数学家或才子会给你错误的答案。"
+    },
+    {
+      "id": "p34-s6",
+      "paragraph": 34,
+      "start_byte": 8691,
+      "end_byte": 8753,
+      "original": " The magi brought valuable gifts, but that\nwas not among them.",
+      "translation": "麦琪带来了宝贵的礼物，但其中不包括那一样。"
+    },
+    {
+      "id": "p34-s7",
+      "paragraph": 34,
+      "start_byte": 8753,
+      "end_byte": 8803,
+      "original": " This dark assertion will be illuminated later on.",
+      "translation": "这句晦涩的话，下文自有说明。"
+    },
+    {
+      "id": "p35-s1",
+      "paragraph": 35,
+      "start_byte": 8805,
+      "end_byte": 8877,
+      "original": "Jim drew a package from his overcoat pocket and threw it upon the\ntable.",
+      "translation": "吉姆从外套口袋里掏出一包东西，扔在桌上。"
+    },
+    {
+      "id": "p36-s1",
+      "paragraph": 36,
+      "start_byte": 8879,
+      "end_byte": 8938,
+      "original": "“Don’t make any mistake, Dell,” he said, “about me.",
+      "translation": "“别误会，德尔，”他说，“别以为我会在意。"
+    },
+    {
+      "id": "p36-s2",
+      "paragraph": 36,
+      "start_byte": 8938,
+      "end_byte": 9063,
+      "original": " I don’t think\nthere’s anything in the way of a haircut or a shave or a shampoo that\ncould make me like my girl any less.",
+      "translation": "我想，剪发、修面、洗发，无论哪一样，都不会让我对我的姑娘少喜欢一点。"
+    },
+    {
+      "id": "p36-s3",
+      "paragraph": 36,
+      "start_byte": 9063,
+      "end_byte": 9153,
+      "original": " But if you’ll unwrap that package\nyou may see why you had me going a while at first.”",
+      "translation": "不过，你打开那包东西，就会明白我刚才为什么一时愣住了。”"
+    },
+    {
+      "id": "p37-s1",
+      "paragraph": 37,
+      "start_byte": 9155,
+      "end_byte": 9209,
+      "original": "White fingers and nimble tore at the string and paper.",
+      "translation": "白皙的手指灵巧地解开了绳子和包装纸。"
+    },
+    {
+      "id": "p37-s2",
+      "paragraph": 37,
+      "start_byte": 9209,
+      "end_byte": 9409,
+      "original": " And then an\necstatic scream of joy; and then, alas! a quick feminine change to\nhysterical tears and wails, necessitating the immediate employment of\nall the comforting powers of the lord of the flat.",
+      "translation": "接着是一声狂喜的尖叫；然后，哎呀！女人心思转得快，立刻变成歇斯底里的眼泪和哀号，需要公寓男主人使出浑身解数来安慰。"
+    },
+    {
+      "id": "p38-s1",
+      "paragraph": 38,
+      "start_byte": 9411,
+      "end_byte": 9522,
+      "original": "For there lay The Combs—the set of combs, side and back, that Della had\nworshipped long in a Broadway window.",
+      "translation": "因为那里面躺着那套梳子——德拉在百老汇橱窗里向往了很久的侧梳和后梳。"
+    },
+    {
+      "id": "p38-s2",
+      "paragraph": 38,
+      "start_byte": 9522,
+      "end_byte": 9636,
+      "original": " Beautiful combs, pure tortoise\nshell, with jewelled rims—just the shade to wear in the beautiful\nvanished hair.",
+      "translation": "漂亮的梳子，纯玳瑁的，镶着珠宝边——颜色正配那失去的美丽头发。"
+    },
+    {
+      "id": "p38-s3",
+      "paragraph": 38,
+      "start_byte": 9636,
+      "end_byte": 9765,
+      "original": " They were expensive combs, she knew, and her heart had\nsimply craved and yearned over them without the least hope of\npossession.",
+      "translation": "她知道这些梳子很贵，她心里只是渴望和向往，却从没抱过拥有的希望。"
+    },
+    {
+      "id": "p38-s4",
+      "paragraph": 38,
+      "start_byte": 9765,
+      "end_byte": 9865,
+      "original": " And now, they were hers, but the tresses that should have\nadorned the coveted adornments were gone.",
+      "translation": "而现在，它们属于她了，但本应装饰这些令人垂涎的饰物的长发已经没了。"
+    },
+    {
+      "id": "p39-s1",
+      "paragraph": 39,
+      "start_byte": 9867,
+      "end_byte": 10007,
+      "original": "But she hugged them to her bosom, and at length she was able to look up\nwith dim eyes and a smile and say: “My hair grows so fast, Jim!”",
+      "translation": "但她把它们紧紧抱在胸前，终于能抬起朦胧的泪眼微笑着说：“我的头发长得很快，吉姆！”"
+    },
+    {
+      "id": "p40-s1",
+      "paragraph": 40,
+      "start_byte": 10009,
+      "end_byte": 10083,
+      "original": "And then Della leaped up like a little singed cat and cried, “Oh, oh!”",
+      "translation": "然后德拉像一只被烫到的小猫一样跳了起来，叫道：“哦，哦！”"
+    },
+    {
+      "id": "p41-s1",
+      "paragraph": 41,
+      "start_byte": 10085,
+      "end_byte": 10128,
+      "original": "Jim had not yet seen his beautiful present.",
+      "translation": "吉姆还没看到他那漂亮的礼物。"
+    },
+    {
+      "id": "p41-s2",
+      "paragraph": 41,
+      "start_byte": 10128,
+      "end_byte": 10179,
+      "original": " She held it out to him\neagerly upon her open palm.",
+      "translation": "她急切地把它摊在张开的手掌上递给他。"
+    },
+    {
+      "id": "p41-s3",
+      "paragraph": 41,
+      "start_byte": 10179,
+      "end_byte": 10270,
+      "original": " The dull precious metal seemed to flash\nwith a reflection of her bright and ardent spirit.",
+      "translation": "那暗淡的贵金属似乎因她明亮而热烈的心灵映照而闪出光芒。"
+    },
+    {
+      "id": "p42-s1",
+      "paragraph": 42,
+      "start_byte": 10272,
+      "end_byte": 10299,
+      "original": "“Isn’t it a dandy, Jim?",
+      "translation": "“这难道不漂亮吗，吉姆？"
+    },
+    {
+      "id": "p42-s2",
+      "paragraph": 42,
+      "start_byte": 10299,
+      "end_byte": 10334,
+      "original": " I hunted all over town to find it.",
+      "translation": "我找遍了全城才找到它。"
+    },
+    {
+      "id": "p42-s3",
+      "paragraph": 42,
+      "start_byte": 10334,
+      "end_byte": 10395,
+      "original": " You’ll have\nto look at the time a hundred times a day now.",
+      "translation": "你现在得一天看上一百次时间了。"
+    },
+    {
+      "id": "p42-s4",
+      "paragraph": 42,
+      "start_byte": 10395,
+      "end_byte": 10415,
+      "original": " Give me your watch.",
+      "translation": "把你的表给我。"
+    },
+    {
+      "id": "p42-s5",
+      "paragraph": 42,
+      "start_byte": 10415,
+      "end_byte": 10452,
+      "original": " I\nwant to see how it looks on it.”",
+      "translation": "我想看看它配在表上怎么样。”"
+    },
+    {
+      "id": "p43-s1",
+      "paragraph": 43,
+      "start_byte": 10454,
+      "end_byte": 10560,
+      "original": "Instead of obeying, Jim tumbled down on the couch and put his hands\nunder the back of his head and smiled.",
+      "translation": "吉姆没有照做，而是倒在沙发上，双手枕在脑后，笑了。"
+    },
+    {
+      "id": "p44-s1",
+      "paragraph": 44,
+      "start_byte": 10562,
+      "end_byte": 10649,
+      "original": "“Dell,” said he, “let’s put our Christmas presents away and keep ’em a\nwhile.",
+      "translation": "“德拉，”他说，“我们把圣诞礼物收起来，保存一段时间吧。"
+    },
+    {
+      "id": "p44-s2",
+      "paragraph": 44,
+      "start_byte": 10649,
+      "end_byte": 10692,
+      "original": " They’re too nice to use just at present.",
+      "translation": "它们太好了，现在用太可惜了。"
+    },
+    {
+      "id": "p44-s3",
+      "paragraph": 44,
+      "start_byte": 10692,
+      "end_byte": 10745,
+      "original": " I sold the watch to get\nthe money to buy your combs.",
+      "translation": "我把表卖了，好有钱给你买梳子。"
+    },
+    {
+      "id": "p44-s4",
+      "paragraph": 44,
+      "start_byte": 10745,
+      "end_byte": 10786,
+      "original": " And now suppose you put the chops on.”",
+      "translation": "现在你把肉排烤上吧。"
+    },
+    {
+      "id": "p45-s1",
+      "paragraph": 45,
+      "start_byte": 10788,
+      "end_byte": 10894,
+      "original": "The magi, as you know, were wise men—wonderfully wise men—who brought\ngifts to the Babe in the manger.",
+      "translation": "正如你所知，麦琪是智者——极其智慧的人——他们给马槽里的圣婴带来了礼物。"
+    },
+    {
+      "id": "p45-s2",
+      "paragraph": 45,
+      "start_byte": 10894,
+      "end_byte": 10946,
+      "original": " They invented the art of giving\nChristmas presents.",
+      "translation": "他们发明了赠送圣诞礼物的艺术。"
+    },
+    {
+      "id": "p45-s3",
+      "paragraph": 45,
+      "start_byte": 10946,
+      "end_byte": 11062,
+      "original": " Being wise, their gifts were no doubt wise ones,\npossibly bearing the privilege of exchange in case of duplication.",
+      "translation": "他们既然聪明，送的礼物无疑也是聪明的，可能还附有万一重复便可交换的特权。"
+    },
+    {
+      "id": "p45-s4",
+      "paragraph": 45,
+      "start_byte": 11062,
+      "end_byte": 11242,
+      "original": " And\nhere I have lamely related to you the uneventful chronicle of two\nfoolish children in a flat who most unwisely sacrificed for each other\nthe greatest treasures of their house.",
+      "translation": "而我在这里笨拙地向你讲述了两个住在公寓里的傻孩子的平淡故事，他们极不明智地为了对方牺牲了家中最珍贵的财宝。"
+    },
+    {
+      "id": "p45-s5",
+      "paragraph": 45,
+      "start_byte": 11242,
+      "end_byte": 11356,
+      "original": " But in a last word to the wise\nof these days let it be said that of all who give gifts these two were\nthe wisest.",
+      "translation": "但最后要对当今的聪明人说一句：在所有赠送礼物的人当中，这两个人是最聪明的。"
+    },
+    {
+      "id": "p45-s6",
+      "paragraph": 45,
+      "start_byte": 11356,
+      "end_byte": 11416,
+      "original": " Of all who give and receive gifts, such as they are wisest.",
+      "translation": "在所有送礼和收礼的人中，像他们这样的人才是最聪明的。"
+    },
+    {
+      "id": "p45-s7",
+      "paragraph": 45,
+      "start_byte": 11416,
+      "end_byte": 11444,
+      "original": "\nEverywhere they are wisest.",
+      "translation": "无论在何处，他们都是最聪明的。"
+    },
+    {
+      "id": "p45-s8",
+      "paragraph": 45,
+      "start_byte": 11444,
+      "end_byte": 11463,
+      "original": " They are the magi.",
+      "translation": "他们就是麦琪。"
+    }
+  ],
+  "updated_at": "2026-09-14T08:52:09.750044Z",
+  "model": "deepseek-v4-pro",
+  "scope": "default"
+}

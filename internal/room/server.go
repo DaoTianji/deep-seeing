@@ -91,6 +91,9 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("POST /api/mutations/{id}/revert", s.handleRevertMutation)
 	s.registerRoleRoutes(mux)
 	s.registerRoleInitializationRoutes(mux)
+	if err := s.registerReadingRoutes(mux); err != nil {
+		return nil, err
+	}
 
 	sub, err := fs.Sub(webFS, "web")
 	if err != nil {
@@ -136,6 +139,8 @@ func (s *Server) Handler() (http.Handler, error) {
 	mux.HandleFunc("GET /roles/", serveApp)
 	mux.HandleFunc("GET /theater", serveApp)
 	mux.HandleFunc("GET /theater/", serveApp)
+	mux.HandleFunc("GET /reading", serveApp)
+	mux.HandleFunc("GET /reading/", serveApp)
 	mux.HandleFunc("GET /turn/{id}", serveApp)
 	mux.HandleFunc("GET /turn/{id}/", serveApp)
 	return s.securityHeaders(mux), nil

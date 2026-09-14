@@ -1,0 +1,1932 @@
+{
+  "version": "5a35ff36270ca64e9205996cd1afdaa5061ac91ee9986f700e86c9ee6e9dda04-sentences-v1",
+  "style": "fluent",
+  "target": "zh",
+  "completed": 240,
+  "total": 240,
+  "sentences": [
+    {
+      "id": "p1-s1",
+      "paragraph": 1,
+      "start_byte": 0,
+      "end_byte": 117,
+      "original": "She was one of those pretty and charming girls who, as if by a mistake\nof destiny, are born in a family of employees.",
+      "translation": "她是一个漂亮迷人的姑娘，仿佛由于命运的差错，出生在一个小职员家庭。"
+    },
+    {
+      "id": "p1-s2",
+      "paragraph": 1,
+      "start_byte": 117,
+      "end_byte": 329,
+      "original": " She had no dowry, no\nexpectations, no means of becoming known, understood, loved, wedded by\nany rich and distinguished man; and so she let herself be married to a\npetty clerk in the Bureau of Public Instruction.",
+      "translation": "她没有嫁妆，没有指望，没有任何方法能让富有而有名望的男人认识她、了解她、爱上她、娶她；于是她只得嫁给了教育部的一个小科员。"
+    },
+    {
+      "id": "p2-s1",
+      "paragraph": 2,
+      "start_byte": 333,
+      "end_byte": 530,
+      "original": "She was simple in her dress because she could not be elaborate, but she\nwas as unhappy as if she had fallen from a higher rank, for with women\nthere is no inherited distinction of higher and lower.",
+      "translation": "她的穿着很朴素，因为她没法打扮得精致，但她就像从更高的阶层跌落下来一样痛苦，因为对女人来说，并没有出身高低之分。"
+    },
+    {
+      "id": "p2-s2",
+      "paragraph": 2,
+      "start_byte": 530,
+      "end_byte": 617,
+      "original": " Their beauty,\ntheir grace, and their natural charm fill the place of birth and family.",
+      "translation": "她们的美貌、优雅和天生的魅力取代了出身和门第。"
+    },
+    {
+      "id": "p2-s3",
+      "paragraph": 2,
+      "start_byte": 617,
+      "end_byte": 797,
+      "original": "\nNatural delicacy, instinctive elegance, a lively wit, are the ruling\nforces in the social realm, and these make the daughters of the common\npeople the equals of the finest ladies.",
+      "translation": "天生的精致、本能的优雅、机敏的才智，是社交场合的主宰力量，它们使平民百姓的女儿与最高贵的夫人平起平坐。"
+    },
+    {
+      "id": "p3-s1",
+      "paragraph": 3,
+      "start_byte": 801,
+      "end_byte": 891,
+      "original": "She suffered intensely, feeling herself born for all the refinements and\nluxuries of life.",
+      "translation": "她痛苦不堪，觉得自己生来就应该享受生活中一切精美和奢华的东西。"
+    },
+    {
+      "id": "p3-s2",
+      "paragraph": 3,
+      "start_byte": 891,
+      "end_byte": 1007,
+      "original": " She suffered from the poverty of her home as she\nlooked at the dirty walls, the worn-out chairs, the ugly curtains.",
+      "translation": "她看着家里肮脏的墙壁、破旧的椅子和难看的窗帘，因为家庭的贫穷而痛苦。"
+    },
+    {
+      "id": "p3-s3",
+      "paragraph": 3,
+      "start_byte": 1007,
+      "end_byte": 1133,
+      "original": " All\nthose things of which another woman of her station would have been quite\nunconscious tortured her and made her indignant.",
+      "translation": "所有那些在她这种地位的别的女人不会在意的东西，却折磨着她，使她愤怒。"
+    },
+    {
+      "id": "p3-s4",
+      "paragraph": 3,
+      "start_byte": 1133,
+      "end_byte": 1248,
+      "original": " The sight of the\ncountry girl who was maid-of-all-work in her humble household filled her\nalmost with desperation.",
+      "translation": "看到那个在她寒酸家里做全部家务的乡下姑娘，她几乎绝望了。"
+    },
+    {
+      "id": "p3-s5",
+      "paragraph": 3,
+      "start_byte": 1248,
+      "end_byte": 1464,
+      "original": " She dreamed of echoing halls hung with Oriental\ndraperies and lighted by tall bronze candelabra, while two tall footmen\nin knee-breeches drowsed in great armchairs by reason of the heating\nstove's oppressive warmth.",
+      "translation": "她梦想着挂有东方帷幔、由高大青铜烛台照明的回音长廊，两个穿着及膝短裤的高大男仆因暖炉的闷热而昏昏欲睡在宽大的扶手椅里。"
+    },
+    {
+      "id": "p3-s6",
+      "paragraph": 3,
+      "start_byte": 1464,
+      "end_byte": 1742,
+      "original": " She dreamed of splendid parlors furnished in\nrare old silks, of carved cabinets loaded with priceless bric-a-brac,\nand of entrancing little boudoirs just right for afternoon chats with\nbosom friends—men famous and sought after, the envy and the desire of\nall the other women.",
+      "translation": "她梦想着用稀有古丝绸装饰的华丽客厅，雕刻精美的柜子上摆满了无价的古玩，还有迷人的小闺房，正适合与密友下午闲聊——那些闻名遐迩、备受追捧的男人，所有其他女人都羡慕和渴望的对象。"
+    },
+    {
+      "id": "p4-s1",
+      "paragraph": 4,
+      "start_byte": 1746,
+      "end_byte": 1949,
+      "original": "When she sat down to dinner at a little table covered with a cloth three\ndays old, and looked across at her husband as he uncovered the soup and\nexclaimed with an air of rapture, \"Oh, the delicious stew!",
+      "translation": "当她坐在一张铺着三天没换的桌布的餐桌前吃晚饭，看着对面的丈夫揭开汤锅盖子，欣喜若狂地叫起来：“啊，多美味的炖肉！"
+    },
+    {
+      "id": "p4-s2",
+      "paragraph": 4,
+      "start_byte": 1949,
+      "end_byte": 2309,
+      "original": " I know\nnothing better than that,\" she dreamed of dainty dinners, of shining\nsilverware, of tapestries which peopled the walls with antique figures\nand strange birds in fairy forests; she dreamed of delicious viands\nserved in wonderful dishes, of whispered gallantries heard with a\nsphinx-like smile as you eat the pink flesh of a trout or the wing of a\nquail.",
+      "translation": "我再也想不出比这更好的东西了，”她梦想着精美的晚餐，闪亮的银器，以及挂毯——挂毯上古代的图案和仙境森林中的奇鸟布满了墙壁；她梦想着用精美的盘子盛着的美味佳肴，梦想着在享用鳟鱼的粉红肉或鹌鹑的翅膀时，带着斯芬克斯般的微笑听到的低声调情。"
+    },
+    {
+      "id": "p5-s1",
+      "paragraph": 5,
+      "start_byte": 2313,
+      "end_byte": 2380,
+      "original": "She had no dresses, no jewels, nothing; and she loved nothing else.",
+      "translation": "她没有衣服，没有珠宝，什么都没有；而她只爱这些。"
+    },
+    {
+      "id": "p5-s2",
+      "paragraph": 5,
+      "start_byte": 2380,
+      "end_byte": 2410,
+      "original": " She\nfelt made for that alone.",
+      "translation": "她觉得自己天生就是为了这些。"
+    },
+    {
+      "id": "p5-s3",
+      "paragraph": 5,
+      "start_byte": 2410,
+      "end_byte": 2499,
+      "original": " She was filled with a desire to please, to be\nenvied, to be bewitching and sought after.",
+      "translation": "她充满了取悦他人、被人羡慕、迷人且被人追求的渴望。"
+    },
+    {
+      "id": "p5-s4",
+      "paragraph": 5,
+      "start_byte": 2499,
+      "end_byte": 2642,
+      "original": " She had a rich friend, a\nformer schoolmate at the convent, whom she no longer wished to visit\nbecause she suffered so much when she came home.",
+      "translation": "她有一个有钱的朋友，是修道院时的同学，但她再也不愿去看望她，因为每次回家她都痛苦不堪。"
+    },
+    {
+      "id": "p5-s5",
+      "paragraph": 5,
+      "start_byte": 2642,
+      "end_byte": 2727,
+      "original": " For whole days at a\ntime she wept without ceasing in bitterness and hopeless misery.",
+      "translation": "她常常整天整天地哭泣，沉浸在痛苦和绝望的悲惨中。"
+    },
+    {
+      "id": "p6-s1",
+      "paragraph": 6,
+      "start_byte": 2731,
+      "end_byte": 2830,
+      "original": "Now, one evening her husband came home with a triumphant air, holding in\nhis hand a large envelope.",
+      "translation": "一天晚上，她丈夫兴高采烈地回到家，手里拿着一个大信封。"
+    },
+    {
+      "id": "p7-s1",
+      "paragraph": 7,
+      "start_byte": 2834,
+      "end_byte": 2881,
+      "original": "\"There,\" said he, \"there is something for you.\"",
+      "translation": "“给，”他说，“这是给你的东西。”"
+    },
+    {
+      "id": "p8-s1",
+      "paragraph": 8,
+      "start_byte": 2885,
+      "end_byte": 2969,
+      "original": "She quickly tore open the paper and drew out a printed card, bearing\nthese words:—",
+      "translation": "她急忙撕开信封，抽出一张印着字的卡片，上面写着：——"
+    },
+    {
+      "id": "p9-s1",
+      "paragraph": 9,
+      "start_byte": 2973,
+      "end_byte": 3017,
+      "original": "\"The Minister of Public Instruction and Mme.",
+      "translation": "“教育部长暨夫人"
+    },
+    {
+      "id": "p9-s2",
+      "paragraph": 9,
+      "start_byte": 3017,
+      "end_byte": 3069,
+      "original": " Georges Rampouneau request\nthe honor of M. and Mme.",
+      "translation": "乔治·朗波诺先生恭请"
+    },
+    {
+      "id": "p9-s3",
+      "paragraph": 9,
+      "start_byte": 3069,
+      "end_byte": 3148,
+      "original": " Loisel's company at the palace of the Ministry,\nMonday evening, January 18th.\"",
+      "translation": "路瓦栽先生及夫人光临，于一月十八日星期一晚在教育部大楼举行宴会。”"
+    },
+    {
+      "id": "p10-s1",
+      "paragraph": 10,
+      "start_byte": 3152,
+      "end_byte": 3279,
+      "original": "Instead of being overcome with delight, as her husband expected, she\nthrew the invitation on the table with disdain, murmuring:",
+      "translation": "她并没有像丈夫预料的那样欣喜若狂，而是轻蔑地把请柬扔在桌上，低声说："
+    },
+    {
+      "id": "p11-s1",
+      "paragraph": 11,
+      "start_byte": 3283,
+      "end_byte": 3321,
+      "original": "\"What do you wish me to do with that?\"",
+      "translation": "\"你让我拿这个做什么？\""
+    },
+    {
+      "id": "p12-s1",
+      "paragraph": 12,
+      "start_byte": 3325,
+      "end_byte": 3371,
+      "original": "\"Why, my dear, I thought you would be pleased.",
+      "translation": "\"哎呀，亲爱的，我还以为你会高兴呢。"
+    },
+    {
+      "id": "p12-s2",
+      "paragraph": 12,
+      "start_byte": 3371,
+      "end_byte": 3426,
+      "original": " You never go out, and\nthis is such a fine opportunity!",
+      "translation": "你从来不出门，这可是个好机会！"
+    },
+    {
+      "id": "p12-s3",
+      "paragraph": 12,
+      "start_byte": 3426,
+      "end_byte": 3461,
+      "original": " I had awful trouble in getting it.",
+      "translation": "我好不容易才弄到这份请柬。"
+    },
+    {
+      "id": "p12-s4",
+      "paragraph": 12,
+      "start_byte": 3461,
+      "end_byte": 3555,
+      "original": "\nEvery one wants to go; it is very select, and they are not giving many\ninvitations to clerks.",
+      "translation": "人人都想去；这是很精选的，他们给职员发的请柬不多。"
+    },
+    {
+      "id": "p12-s5",
+      "paragraph": 12,
+      "start_byte": 3555,
+      "end_byte": 3593,
+      "original": " You will see all the official world.\"",
+      "translation": "你会见到整个官场的。\""
+    },
+    {
+      "id": "p13-s1",
+      "paragraph": 13,
+      "start_byte": 3597,
+      "end_byte": 3654,
+      "original": "She looked at him with irritation, and said, impatiently:",
+      "translation": "她恼怒地看了他一眼，不耐烦地说："
+    },
+    {
+      "id": "p14-s1",
+      "paragraph": 14,
+      "start_byte": 3658,
+      "end_byte": 3708,
+      "original": "\"What do you expect me to put on my back if I go?\"",
+      "translation": "如果我去了，你打算让我穿什么衣服呢？"
+    },
+    {
+      "id": "p15-s1",
+      "paragraph": 15,
+      "start_byte": 3712,
+      "end_byte": 3739,
+      "original": "He had not thought of that.",
+      "translation": "他没想到这一点。"
+    },
+    {
+      "id": "p15-s2",
+      "paragraph": 15,
+      "start_byte": 3739,
+      "end_byte": 3753,
+      "original": " He stammered:",
+      "translation": "他结结巴巴地说："
+    },
+    {
+      "id": "p16-s1",
+      "paragraph": 16,
+      "start_byte": 3757,
+      "end_byte": 3798,
+      "original": "\"Why, the dress you go to the theatre in.",
+      "translation": "“哎呀，你上剧院穿的那件衣服。"
+    },
+    {
+      "id": "p16-s2",
+      "paragraph": 16,
+      "start_byte": 3798,
+      "end_byte": 3825,
+      "original": " It seems all right to me.\"",
+      "translation": "我觉得挺合适的。”"
+    },
+    {
+      "id": "p17-s1",
+      "paragraph": 17,
+      "start_byte": 3829,
+      "end_byte": 3899,
+      "original": "He stopped, stupefied, distracted, on seeing that his wife was crying.",
+      "translation": "他看到妻子在哭，便住了口，惊愕万分，心神不宁。"
+    },
+    {
+      "id": "p17-s2",
+      "paragraph": 17,
+      "start_byte": 3899,
+      "end_byte": 3994,
+      "original": "\nTwo great tears descended slowly from the corners of her eyes toward the\ncorners of her mouth.",
+      "translation": "两大滴眼泪从她的眼角慢慢滑向嘴角。"
+    },
+    {
+      "id": "p17-s3",
+      "paragraph": 17,
+      "start_byte": 3994,
+      "end_byte": 4008,
+      "original": " He stuttered:",
+      "translation": "他结结巴巴地说："
+    },
+    {
+      "id": "p18-s1",
+      "paragraph": 18,
+      "start_byte": 4012,
+      "end_byte": 4031,
+      "original": "\"What's the matter?",
+      "translation": "“怎么了？"
+    },
+    {
+      "id": "p18-s2",
+      "paragraph": 18,
+      "start_byte": 4031,
+      "end_byte": 4051,
+      "original": " What's the matter?\"",
+      "translation": "怎么了？”"
+    },
+    {
+      "id": "p19-s1",
+      "paragraph": 19,
+      "start_byte": 4055,
+      "end_byte": 4157,
+      "original": "By a violent effort she subdued her feelings and replied in a calm\nvoice, as she wiped her wet cheeks:",
+      "translation": "她竭力控制住自己的情绪，一边擦着湿润的脸颊，一边平静地回答："
+    },
+    {
+      "id": "p20-s1",
+      "paragraph": 20,
+      "start_byte": 4161,
+      "end_byte": 4170,
+      "original": "\"Nothing.",
+      "translation": "“没什么。"
+    },
+    {
+      "id": "p20-s2",
+      "paragraph": 20,
+      "start_byte": 4170,
+      "end_byte": 4234,
+      "original": " Only I have no dress and consequently I cannot go to this\nball.",
+      "translation": "只是我没有衣服，因此不能去参加这个舞会。"
+    },
+    {
+      "id": "p20-s3",
+      "paragraph": 20,
+      "start_byte": 4234,
+      "end_byte": 4309,
+      "original": " Give your invitation to some friend whose wife has better clothes\nthan I.\"",
+      "translation": "把请柬送给某个朋友吧，他的妻子穿得比我好。”"
+    },
+    {
+      "id": "p21-s1",
+      "paragraph": 21,
+      "start_byte": 4313,
+      "end_byte": 4348,
+      "original": "He was in despair, but began again:",
+      "translation": "他感到很失望，但又开始说："
+    },
+    {
+      "id": "p22-s1",
+      "paragraph": 22,
+      "start_byte": 4352,
+      "end_byte": 4374,
+      "original": "\"Let us see, Mathilde.",
+      "translation": "“玛蒂尔德，我们再想想吧。"
+    },
+    {
+      "id": "p22-s2",
+      "paragraph": 22,
+      "start_byte": 4374,
+      "end_byte": 4488,
+      "original": " How much would it cost, a suitable dress, which\nyou could wear again on future occasions, something very simple?\"",
+      "translation": "一件合适的、以后还能再穿的、非常简单的衣服，要多少钱？”"
+    },
+    {
+      "id": "p23-s1",
+      "paragraph": 23,
+      "start_byte": 4492,
+      "end_byte": 4698,
+      "original": "She reflected for some seconds, computing the cost, and also wondering\nwhat sum she could ask without bringing down upon herself an immediate\nrefusal and an astonished exclamation from the economical clerk.",
+      "translation": "她考虑了几秒钟，计算着费用，也琢磨着要多少钱才能不立刻招致这个节俭的科员的拒绝和惊叫。"
+    },
+    {
+      "id": "p24-s1",
+      "paragraph": 24,
+      "start_byte": 4702,
+      "end_byte": 4736,
+      "original": "At last she answered hesitatingly:",
+      "translation": "最后她犹豫地回答："
+    },
+    {
+      "id": "p25-s1",
+      "paragraph": 25,
+      "start_byte": 4740,
+      "end_byte": 4811,
+      "original": "\"I don't know exactly, but it seems to me that with four hundred francs",
+      "translation": "“我不太清楚，但我觉得有四百法郎"
+    },
+    {
+      "id": "p26-s1",
+      "paragraph": 26,
+      "start_byte": 4813,
+      "end_byte": 4829,
+      "original": "I could manage.\"",
+      "translation": "我就能对付了。”"
+    },
+    {
+      "id": "p27-s1",
+      "paragraph": 27,
+      "start_byte": 4834,
+      "end_byte": 5064,
+      "original": "He turned a trifle pale, for he had been saving just that sum to buy a\ngun and treat himself to a little hunting trip the following summer, in\nthe country near Nanterre, with a few friends who went there to shoot\nlarks on Sundays.",
+      "translation": "他脸色有点发白，因为他正好攒了这笔钱，准备买一支枪，好在来年夏天和几个朋友到南泰尔附近的乡下去打猎，他们每个星期天都去那里打云雀。"
+    },
+    {
+      "id": "p28-s1",
+      "paragraph": 28,
+      "start_byte": 5068,
+      "end_byte": 5085,
+      "original": "However, he said:",
+      "translation": "然而，他说："
+    },
+    {
+      "id": "p29-s1",
+      "paragraph": 29,
+      "start_byte": 5089,
+      "end_byte": 5139,
+      "original": "\"Well, I think I can give you four hundred francs.",
+      "translation": "“好吧，我想我可以给你四百法郎。"
+    },
+    {
+      "id": "p29-s2",
+      "paragraph": 29,
+      "start_byte": 5139,
+      "end_byte": 5178,
+      "original": " But see that you have\na pretty dress.\"",
+      "translation": "不过你要准备一件漂亮的衣服。”"
+    },
+    {
+      "id": "p30-s1",
+      "paragraph": 30,
+      "start_byte": 5189,
+      "end_byte": 5222,
+      "original": "*       *       *       *       *",
+      "translation": "* * * * *"
+    },
+    {
+      "id": "p31-s1",
+      "paragraph": 31,
+      "start_byte": 5226,
+      "end_byte": 5305,
+      "original": "The day of the ball drew near, and Madame Loisel seemed sad, restless,\nanxious.",
+      "translation": "舞会的日子临近了，路瓦栽太太却显得忧伤、不安、焦虑。"
+    },
+    {
+      "id": "p31-s2",
+      "paragraph": 31,
+      "start_byte": 5305,
+      "end_byte": 5335,
+      "original": " Her dress was ready, however.",
+      "translation": "不过，她的连衣裙已经准备好了。"
+    },
+    {
+      "id": "p31-s3",
+      "paragraph": 31,
+      "start_byte": 5335,
+      "end_byte": 5372,
+      "original": " Her husband said to her one\nevening:",
+      "translation": "一天晚上，她的丈夫对她说："
+    },
+    {
+      "id": "p32-s1",
+      "paragraph": 32,
+      "start_byte": 5376,
+      "end_byte": 5396,
+      "original": "\"What is the matter?",
+      "translation": "“出什么事了？"
+    },
+    {
+      "id": "p32-s2",
+      "paragraph": 32,
+      "start_byte": 5396,
+      "end_byte": 5457,
+      "original": " Come, now, you've been looking queer these last\nthree days.\"",
+      "translation": "好了，这三天你一直怪怪的。”"
+    },
+    {
+      "id": "p33-s1",
+      "paragraph": 33,
+      "start_byte": 5461,
+      "end_byte": 5477,
+      "original": "And she replied:",
+      "translation": "她回答说："
+    },
+    {
+      "id": "p34-s1",
+      "paragraph": 34,
+      "start_byte": 5481,
+      "end_byte": 5557,
+      "original": "\"It worries me that I have no jewels, not a single stone, nothing to put\non.",
+      "translation": "我发愁自己没有一件首饰，没有一颗宝石，身上什么可戴的都没有。"
+    },
+    {
+      "id": "p34-s2",
+      "paragraph": 34,
+      "start_byte": 5557,
+      "end_byte": 5587,
+      "original": " I shall look wretched enough.",
+      "translation": "我会显得很寒酸。"
+    },
+    {
+      "id": "p34-s3",
+      "paragraph": 34,
+      "start_byte": 5587,
+      "end_byte": 5632,
+      "original": " I would almost rather not go to this\nparty.\"",
+      "translation": "我简直不想去参加这次晚会了。"
+    },
+    {
+      "id": "p35-s1",
+      "paragraph": 35,
+      "start_byte": 5636,
+      "end_byte": 5648,
+      "original": "He answered:",
+      "translation": "他回答说："
+    },
+    {
+      "id": "p36-s1",
+      "paragraph": 36,
+      "start_byte": 5652,
+      "end_byte": 5684,
+      "original": "\"You might wear natural flowers.",
+      "translation": "你可以戴几朵鲜花。"
+    },
+    {
+      "id": "p36-s2",
+      "paragraph": 36,
+      "start_byte": 5684,
+      "end_byte": 5723,
+      "original": " They are very fashionable this season.",
+      "translation": "这个季节鲜花十分时髦。"
+    },
+    {
+      "id": "p37-s1",
+      "paragraph": 37,
+      "start_byte": 5725,
+      "end_byte": 5784,
+      "original": "For ten francs you can get two or three magnificent roses.\"",
+      "translation": "花上十个法郎，你就能买到两三朵漂亮的玫瑰花。"
+    },
+    {
+      "id": "p38-s1",
+      "paragraph": 38,
+      "start_byte": 5789,
+      "end_byte": 5811,
+      "original": "She was not convinced.",
+      "translation": "她没有被说服。"
+    },
+    {
+      "id": "p39-s1",
+      "paragraph": 39,
+      "start_byte": 5815,
+      "end_byte": 5899,
+      "original": "\"No; there is nothing more humiliating than to look poor among a lot of\nrich women.\"",
+      "translation": "“不；没有什么比在一群阔太太中间显得穷酸更丢脸的了。”"
+    },
+    {
+      "id": "p40-s1",
+      "paragraph": 40,
+      "start_byte": 5903,
+      "end_byte": 5925,
+      "original": "But her husband cried:",
+      "translation": "但她的丈夫嚷道："
+    },
+    {
+      "id": "p41-s1",
+      "paragraph": 41,
+      "start_byte": 5929,
+      "end_byte": 5949,
+      "original": "\"How stupid you are!",
+      "translation": "“你多傻呀！"
+    },
+    {
+      "id": "p41-s2",
+      "paragraph": 41,
+      "start_byte": 5949,
+      "end_byte": 6027,
+      "original": " Go and find your friend Madame Forestier and ask\nher to lend you some jewels.",
+      "translation": "去找你的朋友佛来思节夫人，向她借几件首饰。"
+    },
+    {
+      "id": "p41-s3",
+      "paragraph": 41,
+      "start_byte": 6027,
+      "end_byte": 6071,
+      "original": " You are intimate enough with her for that.\"",
+      "translation": "你跟她够熟的，可以这么做。”"
+    },
+    {
+      "id": "p42-s1",
+      "paragraph": 42,
+      "start_byte": 6075,
+      "end_byte": 6100,
+      "original": "She uttered a cry of joy.",
+      "translation": "她发出一声欢呼。"
+    },
+    {
+      "id": "p43-s1",
+      "paragraph": 43,
+      "start_byte": 6104,
+      "end_byte": 6115,
+      "original": "\"Of course.",
+      "translation": "“当然啦。"
+    },
+    {
+      "id": "p43-s2",
+      "paragraph": 43,
+      "start_byte": 6115,
+      "end_byte": 6143,
+      "original": " I had not thought of that.\"",
+      "translation": "我怎么没想到这个。”"
+    },
+    {
+      "id": "p44-s1",
+      "paragraph": 44,
+      "start_byte": 6147,
+      "end_byte": 6213,
+      "original": "The next day she went to her friend's house and told her distress.",
+      "translation": "第二天她去了朋友家，诉说了她的苦恼。"
+    },
+    {
+      "id": "p45-s1",
+      "paragraph": 45,
+      "start_byte": 6217,
+      "end_byte": 6344,
+      "original": "Madame Forestier went to her handsome wardrobe, took out a large casket,\nbrought it back, opened it, and said to Madame Loisel:",
+      "translation": "佛来思节夫人走到她那漂亮的衣橱前，取出一个大匣子，拿回来打开，对路瓦栽太太说："
+    },
+    {
+      "id": "p46-s1",
+      "paragraph": 46,
+      "start_byte": 6348,
+      "end_byte": 6366,
+      "original": "\"Choose, my dear.\"",
+      "translation": "“挑吧，亲爱的。”"
+    },
+    {
+      "id": "p47-s1",
+      "paragraph": 47,
+      "start_byte": 6370,
+      "end_byte": 6510,
+      "original": "She saw first of all some bracelets, then a pearl necklace, then a\nVenetian cross of gold set with precious stones of wonderful\nworkmanship.",
+      "translation": "她首先看到的是一些手镯，然后是一条珍珠项链，接着是一个威尼斯式金十字架，镶嵌着宝石，做工精美绝伦。"
+    },
+    {
+      "id": "p47-s2",
+      "paragraph": 47,
+      "start_byte": 6510,
+      "end_byte": 6631,
+      "original": " She tried on the ornaments before the glass, hesitated,\ncould not make up her mind to part with them, to give them back.",
+      "translation": "她在镜子前试戴这些首饰，犹豫不决，舍不得摘下来，舍不得还回去。"
+    },
+    {
+      "id": "p47-s3",
+      "paragraph": 47,
+      "start_byte": 6631,
+      "end_byte": 6648,
+      "original": " She\nkept asking:",
+      "translation": "她不停地问："
+    },
+    {
+      "id": "p48-s1",
+      "paragraph": 48,
+      "start_byte": 6652,
+      "end_byte": 6676,
+      "original": "\"You have nothing else?\"",
+      "translation": "“你没有别的了吗？”"
+    },
+    {
+      "id": "p49-s1",
+      "paragraph": 49,
+      "start_byte": 6680,
+      "end_byte": 6690,
+      "original": "\"Why, yes.",
+      "translation": "“嗯，有啊。"
+    },
+    {
+      "id": "p49-s2",
+      "paragraph": 49,
+      "start_byte": 6690,
+      "end_byte": 6731,
+      "original": " But I do not know what will please you.\"",
+      "translation": "“但我不知道什么会合你的意。”"
+    },
+    {
+      "id": "p50-s1",
+      "paragraph": 50,
+      "start_byte": 6735,
+      "end_byte": 6864,
+      "original": "All at once she discovered, in a black satin box, a splendid diamond\nnecklace, and her heart began to beat with boundless desire.",
+      "translation": "突然，她在一个黑缎盒子里发现了一条华丽的钻石项链，她的心开始因无限的渴望而狂跳。"
+    },
+    {
+      "id": "p50-s2",
+      "paragraph": 50,
+      "start_byte": 6864,
+      "end_byte": 6899,
+      "original": " Her hands\ntrembled as she took it.",
+      "translation": "她拿起来时双手颤抖。"
+    },
+    {
+      "id": "p50-s3",
+      "paragraph": 50,
+      "start_byte": 6899,
+      "end_byte": 7014,
+      "original": " She fastened it around her throat, over her\nhigh-necked dress, and stood lost in ecstasy as she looked at herself.",
+      "translation": "她把它戴在脖子上，套在高领连衣裙外面，站在那里看着自己，陶醉其中。"
+    },
+    {
+      "id": "p51-s1",
+      "paragraph": 51,
+      "start_byte": 7018,
+      "end_byte": 7062,
+      "original": "Then she asked, hesitating, full of anxiety:",
+      "translation": "然后她犹豫着，满心焦虑地问："
+    },
+    {
+      "id": "p52-s1",
+      "paragraph": 52,
+      "start_byte": 7066,
+      "end_byte": 7104,
+      "original": "\"Would you lend me that,—only that?\"",
+      "translation": "“你能把这个借给我吗——就这个？”"
+    },
+    {
+      "id": "p53-s1",
+      "paragraph": 53,
+      "start_byte": 7108,
+      "end_byte": 7130,
+      "original": "\"Why, yes, certainly.\"",
+      "translation": "“哎呀，当然可以。”"
+    },
+    {
+      "id": "p54-s1",
+      "paragraph": 54,
+      "start_byte": 7134,
+      "end_byte": 7228,
+      "original": "She sprang upon the neck of her friend, embraced her rapturously, then\nfled with her treasure.",
+      "translation": "她扑向朋友的脖子，欣喜若狂地拥抱了她，然后带着她的宝贝逃走了。"
+    },
+    {
+      "id": "p55-s1",
+      "paragraph": 55,
+      "start_byte": 7239,
+      "end_byte": 7272,
+      "original": "*       *       *       *       *",
+      "translation": "* * * * *"
+    },
+    {
+      "id": "p56-s1",
+      "paragraph": 56,
+      "start_byte": 7276,
+      "end_byte": 7304,
+      "original": "The day of the ball arrived.",
+      "translation": "舞会的日子到了。"
+    },
+    {
+      "id": "p56-s2",
+      "paragraph": 56,
+      "start_byte": 7304,
+      "end_byte": 7333,
+      "original": " Madame Loisel was a success.",
+      "translation": "路瓦栽太太大获成功。"
+    },
+    {
+      "id": "p56-s3",
+      "paragraph": 56,
+      "start_byte": 7333,
+      "end_byte": 7419,
+      "original": " She was\nprettier than all the others, elegant, gracious, smiling, and crazy with\njoy.",
+      "translation": "她比所有其他女人都漂亮，优雅，亲切，面带微笑，欣喜若狂。"
+    },
+    {
+      "id": "p56-s4",
+      "paragraph": 56,
+      "start_byte": 7419,
+      "end_byte": 7486,
+      "original": " All the men stared at her, asked her name, tried to be introduced.",
+      "translation": "所有男人都盯着她看，打听她的名字，想让人引荐。"
+    },
+    {
+      "id": "p56-s5",
+      "paragraph": 56,
+      "start_byte": 7486,
+      "end_byte": 7538,
+      "original": "\nAll the cabinet officials wished to waltz with her.",
+      "translation": "所有内阁官员都想和她跳华尔兹。"
+    },
+    {
+      "id": "p56-s6",
+      "paragraph": 56,
+      "start_byte": 7538,
+      "end_byte": 7564,
+      "original": " The minister noticed\nher.",
+      "translation": "部长注意到了她。"
+    },
+    {
+      "id": "p57-s1",
+      "paragraph": 57,
+      "start_byte": 7568,
+      "end_byte": 7880,
+      "original": "She danced with delight, with passion, intoxicated with pleasure,\nforgetting all in the triumph of her beauty, in the glory of her\nsuccess, in a sort of mist of happiness, the result of all this homage,\nall this admiration, all these awakened desires, this victory so\ncomplete and so sweet to the heart of woman.",
+      "translation": "她欣喜若狂、满怀激情地跳着舞，陶醉在快乐里，在美貌的胜利中、在成功的荣耀中、在一种幸福的迷雾里忘掉了一切，这种幸福来自所有这些敬意、所有这些赞美、所有这些被激起的欲望，来自这场对女人的心来说如此彻底、如此甜蜜的胜利。"
+    },
+    {
+      "id": "p58-s1",
+      "paragraph": 58,
+      "start_byte": 7884,
+      "end_byte": 7927,
+      "original": "She left about four o'clock in the morning.",
+      "translation": "她大约凌晨四点离开。"
+    },
+    {
+      "id": "p58-s2",
+      "paragraph": 58,
+      "start_byte": 7927,
+      "end_byte": 8065,
+      "original": " Her husband had been dozing\nsince midnight in a little deserted anteroom with three other gentlemen,\nwhose wives were having a good time.",
+      "translation": "她丈夫从午夜起就在一间冷清的小前厅里打盹，那里还有另外三位先生，他们的妻子都在尽情玩乐。"
+    },
+    {
+      "id": "p59-s1",
+      "paragraph": 59,
+      "start_byte": 8069,
+      "end_byte": 8253,
+      "original": "He threw about her shoulders the wraps which he had brought for her to\ngo out in, the modest wraps of common life, whose poverty contrasted\nsharply with the elegance of the ball dress.",
+      "translation": "他把带来的出门穿的衣物披在她肩上，那些是日常简朴的衣物，寒酸的样子与舞会礼服的华美形成鲜明对比。"
+    },
+    {
+      "id": "p59-s2",
+      "paragraph": 59,
+      "start_byte": 8253,
+      "end_byte": 8383,
+      "original": " She felt this and wished to\nescape, that she might not be noticed by the other women who were\nwrapping themselves in costly furs.",
+      "translation": "她感觉到了这一点，想要赶紧离开，以免被那些正裹着昂贵裘皮的其他女人注意到。"
+    },
+    {
+      "id": "p60-s1",
+      "paragraph": 60,
+      "start_byte": 8387,
+      "end_byte": 8408,
+      "original": "Loisel held her back.",
+      "translation": "路瓦栽拉住了她。"
+    },
+    {
+      "id": "p61-s1",
+      "paragraph": 61,
+      "start_byte": 8412,
+      "end_byte": 8452,
+      "original": "\"Wait here, you will catch cold outside.",
+      "translation": "“在这里等着，外面你会着凉的。"
+    },
+    {
+      "id": "p61-s2",
+      "paragraph": 61,
+      "start_byte": 8452,
+      "end_byte": 8479,
+      "original": " I will go and find a cab.\"",
+      "translation": "我去找辆马车。”"
+    },
+    {
+      "id": "p62-s1",
+      "paragraph": 62,
+      "start_byte": 8483,
+      "end_byte": 8549,
+      "original": "But she would not listen to him, and rapidly descended the stairs.",
+      "translation": "但她不听他的，迅速地下了楼梯。"
+    },
+    {
+      "id": "p62-s2",
+      "paragraph": 62,
+      "start_byte": 8549,
+      "end_byte": 8694,
+      "original": " When\nthey were at last in the street, they could find no carriage, and began\nto look for one, hailing the cabmen they saw passing at a distance.",
+      "translation": "他们最后来到街上时，找不到马车，便开始寻找，向远远看到的马车夫招手。"
+    },
+    {
+      "id": "p63-s1",
+      "paragraph": 63,
+      "start_byte": 8698,
+      "end_byte": 8768,
+      "original": "They walked down toward the Seine in despair, shivering with the cold.",
+      "translation": "他们绝望地朝塞纳河方向走去，冻得瑟瑟发抖。"
+    },
+    {
+      "id": "p63-s2",
+      "paragraph": 63,
+      "start_byte": 8768,
+      "end_byte": 8945,
+      "original": "\nAt last they found on the quay one of those ancient nocturnal cabs that\none sees in Paris only after dark, as if they were ashamed to display\ntheir wretchedness during the day.",
+      "translation": "最后他们在河岸上找到了一辆那种古老的夜间马车，这种马车在巴黎只有天黑后才能见到，仿佛它们羞于在白天展示自己的寒酸。"
+    },
+    {
+      "id": "p64-s1",
+      "paragraph": 64,
+      "start_byte": 8949,
+      "end_byte": 9054,
+      "original": "They were put down at their door in the Rue des Martyrs, and sadly\nmounted the steps to their apartments.",
+      "translation": "他们在殉道者街的家门口下了车，伤心地上了楼回到自己的公寓。"
+    },
+    {
+      "id": "p64-s2",
+      "paragraph": 64,
+      "start_byte": 9054,
+      "end_byte": 9080,
+      "original": " It was all over, for her.",
+      "translation": "对她来说，一切都结束了。"
+    },
+    {
+      "id": "p64-s3",
+      "paragraph": 64,
+      "start_byte": 9080,
+      "end_byte": 9155,
+      "original": " And as\nfor him, he reflected that he must be at his office at ten o'clock.",
+      "translation": "而他则在想，他十点钟还得去办公室。"
+    },
+    {
+      "id": "p65-s1",
+      "paragraph": 65,
+      "start_byte": 9159,
+      "end_byte": 9285,
+      "original": "She took off the wraps which covered her shoulders, before the mirror,\nso as to take a final look at herself in all her glory.",
+      "translation": "她在镜子前脱下披在肩上的外衣，想最后看一眼自己光彩照人的样子。"
+    },
+    {
+      "id": "p65-s2",
+      "paragraph": 65,
+      "start_byte": 9285,
+      "end_byte": 9317,
+      "original": " But suddenly she\nuttered a cry.",
+      "translation": "但她突然发出一声惊叫。"
+    },
+    {
+      "id": "p65-s3",
+      "paragraph": 65,
+      "start_byte": 9317,
+      "end_byte": 9364,
+      "original": " She no longer had the necklace about her neck!",
+      "translation": "她脖子上已不再有那条项链了！"
+    },
+    {
+      "id": "p66-s1",
+      "paragraph": 66,
+      "start_byte": 9368,
+      "end_byte": 9414,
+      "original": "Her husband, already half undressed, inquired:",
+      "translation": "她的丈夫已经脱了一半衣服，问道："
+    },
+    {
+      "id": "p67-s1",
+      "paragraph": 67,
+      "start_byte": 9418,
+      "end_byte": 9439,
+      "original": "\"What is the matter?\"",
+      "translation": "“怎么了？”"
+    },
+    {
+      "id": "p68-s1",
+      "paragraph": 68,
+      "start_byte": 9443,
+      "end_byte": 9471,
+      "original": "She turned madly toward him.",
+      "translation": "她发疯似的转向他。"
+    },
+    {
+      "id": "p69-s1",
+      "paragraph": 69,
+      "start_byte": 9475,
+      "end_byte": 9540,
+      "original": "\"I have—I have—I no longer have Madame Forestier's necklace.\"",
+      "translation": "“我……我……我丢了佛来思节夫人的项链。”"
+    },
+    {
+      "id": "p70-s1",
+      "paragraph": 70,
+      "start_byte": 9544,
+      "end_byte": 9568,
+      "original": "He stood up, distracted.",
+      "translation": "他惊慌失措地站了起来。"
+    },
+    {
+      "id": "p71-s1",
+      "paragraph": 71,
+      "start_byte": 9572,
+      "end_byte": 9606,
+      "original": "\"What!—how!—it is impossible!\"",
+      "translation": "“什么！——怎么！——这不可能！”"
+    },
+    {
+      "id": "p72-s1",
+      "paragraph": 72,
+      "start_byte": 9610,
+      "end_byte": 9703,
+      "original": "They looked in the folds of her dress, in the folds of her cloak, in the\npockets, everywhere.",
+      "translation": "他们翻遍了她的裙褶、斗篷的皱褶、口袋，到处都找遍了。"
+    },
+    {
+      "id": "p72-s2",
+      "paragraph": 72,
+      "start_byte": 9703,
+      "end_byte": 9738,
+      "original": " They could not find a trace of it.",
+      "translation": "他们连一点踪迹也没找到。"
+    },
+    {
+      "id": "p73-s1",
+      "paragraph": 73,
+      "start_byte": 9742,
+      "end_byte": 9751,
+      "original": "He asked:",
+      "translation": "他问道："
+    },
+    {
+      "id": "p74-s1",
+      "paragraph": 74,
+      "start_byte": 9755,
+      "end_byte": 9810,
+      "original": "\"You are sure you still had it when you left the ball?\"",
+      "translation": "“你确定你离开舞会时它还在你身上吗？”"
+    },
+    {
+      "id": "p75-s1",
+      "paragraph": 75,
+      "start_byte": 9814,
+      "end_byte": 9819,
+      "original": "\"Yes.",
+      "translation": "“是的。"
+    },
+    {
+      "id": "p75-s2",
+      "paragraph": 75,
+      "start_byte": 9819,
+      "end_byte": 9868,
+      "original": " I felt it on me in the vestibule at the palace.\"",
+      "translation": "我在王宫的前厅时还感觉到它在我身上。”"
+    },
+    {
+      "id": "p76-s1",
+      "paragraph": 76,
+      "start_byte": 9872,
+      "end_byte": 9939,
+      "original": "\"But if you had lost it in the street we should have heard it fall.",
+      "translation": "“可是如果你在街上丢的，我们应该会听见它掉在地上的声音。"
+    },
+    {
+      "id": "p76-s2",
+      "paragraph": 76,
+      "start_byte": 9939,
+      "end_byte": 9963,
+      "original": " It\nmust be in the cab.\"",
+      "translation": "那一定是在马车里。”"
+    },
+    {
+      "id": "p77-s1",
+      "paragraph": 77,
+      "start_byte": 9967,
+      "end_byte": 9972,
+      "original": "\"Yes.",
+      "translation": "“是的。"
+    },
+    {
+      "id": "p77-s2",
+      "paragraph": 77,
+      "start_byte": 9972,
+      "end_byte": 9989,
+      "original": " That's probable.",
+      "translation": "这很有可能。"
+    },
+    {
+      "id": "p77-s3",
+      "paragraph": 77,
+      "start_byte": 9989,
+      "end_byte": 10015,
+      "original": " Did you take the number?\"",
+      "translation": "你记下车牌号了吗？"
+    },
+    {
+      "id": "p78-s1",
+      "paragraph": 78,
+      "start_byte": 10019,
+      "end_byte": 10023,
+      "original": "\"No.",
+      "translation": "没有。"
+    },
+    {
+      "id": "p78-s2",
+      "paragraph": 78,
+      "start_byte": 10023,
+      "end_byte": 10056,
+      "original": " And you, you did not notice it?\"",
+      "translation": "你呢，你没注意吗？"
+    },
+    {
+      "id": "p79-s1",
+      "paragraph": 79,
+      "start_byte": 10060,
+      "end_byte": 10065,
+      "original": "\"No.\"",
+      "translation": "没有。"
+    },
+    {
+      "id": "p80-s1",
+      "paragraph": 80,
+      "start_byte": 10069,
+      "end_byte": 10109,
+      "original": "They looked at each other thunderstruck.",
+      "translation": "他们目瞪口呆地互相看着。"
+    },
+    {
+      "id": "p80-s2",
+      "paragraph": 80,
+      "start_byte": 10109,
+      "end_byte": 10150,
+      "original": " At last Loisel put on his\nclothes again.",
+      "translation": "最后路瓦栽重新穿上衣服。"
+    },
+    {
+      "id": "p81-s1",
+      "paragraph": 81,
+      "start_byte": 10154,
+      "end_byte": 10247,
+      "original": "\"I am going back,\" said he, \"over every foot of the way we came, to see\nif I cannot find it.\"",
+      "translation": "“我要回去，”他说，“沿着我们来的路一步一步找，看看能不能找到它。”"
+    },
+    {
+      "id": "p82-s1",
+      "paragraph": 82,
+      "start_byte": 10251,
+      "end_byte": 10265,
+      "original": "So he started.",
+      "translation": "于是他出发了。"
+    },
+    {
+      "id": "p82-s2",
+      "paragraph": 82,
+      "start_byte": 10265,
+      "end_byte": 10379,
+      "original": " She remained in her ball dress without strength to go to\nbed, sitting on a chair, with no fire, her mind a blank.",
+      "translation": "她仍穿着参加舞会的衣服，没有力气上床睡觉，坐在椅子上，没有生火，脑子里一片空白。"
+    },
+    {
+      "id": "p83-s1",
+      "paragraph": 83,
+      "start_byte": 10383,
+      "end_byte": 10424,
+      "original": "Her husband returned about seven o'clock.",
+      "translation": "她丈夫大约七点钟回来了。"
+    },
+    {
+      "id": "p83-s2",
+      "paragraph": 83,
+      "start_byte": 10424,
+      "end_byte": 10446,
+      "original": " He had found nothing.",
+      "translation": "他什么也没找到。"
+    },
+    {
+      "id": "p84-s1",
+      "paragraph": 84,
+      "start_byte": 10450,
+      "end_byte": 10593,
+      "original": "He went to police headquarters, to the newspapers to offer a reward, to\nthe cab companies, everywhere, in short, where a trace of hope led him.",
+      "translation": "他去了警察局，去了报馆悬赏寻物，去了出租马车行，总而言之，凡有一线希望的地方都去了。"
+    },
+    {
+      "id": "p85-s1",
+      "paragraph": 85,
+      "start_byte": 10597,
+      "end_byte": 10684,
+      "original": "She watched all day, in the same state of blank despair before this\nfrightful disaster.",
+      "translation": "她整天守着，面对这场可怕的灾难，她一直处在同样的绝望和空虚之中。"
+    },
+    {
+      "id": "p86-s1",
+      "paragraph": 86,
+      "start_byte": 10688,
+      "end_byte": 10769,
+      "original": "Loisel returned in the evening with cheeks hollow and pale; he had found\nnothing.",
+      "translation": "晚上路瓦栽回来了，脸颊凹陷，面色苍白；他什么也没找到。"
+    },
+    {
+      "id": "p87-s1",
+      "paragraph": 87,
+      "start_byte": 10773,
+      "end_byte": 10899,
+      "original": "\"You must write to your friend,\" said he, \"that you have broken the\nclasp of her necklace and that you are having it repaired.",
+      "translation": "“你必须给你朋友写信，”他说，“就说你把她的项链搭扣弄断了，正在请人修理。”"
+    },
+    {
+      "id": "p87-s2",
+      "paragraph": 87,
+      "start_byte": 10899,
+      "end_byte": 10937,
+      "original": " It will give\nus time to turn around.\"",
+      "translation": "“这会给我们时间周转。”"
+    },
+    {
+      "id": "p88-s1",
+      "paragraph": 88,
+      "start_byte": 10941,
+      "end_byte": 10966,
+      "original": "She wrote as he dictated.",
+      "translation": "他口述时她照写。"
+    },
+    {
+      "id": "p89-s1",
+      "paragraph": 89,
+      "start_byte": 10977,
+      "end_byte": 11010,
+      "original": "*       *       *       *       *",
+      "translation": "*       *       *       *       *"
+    },
+    {
+      "id": "p90-s1",
+      "paragraph": 90,
+      "start_byte": 11014,
+      "end_byte": 11058,
+      "original": "At the end of a week they had lost all hope.",
+      "translation": "一周后，他们已不抱任何希望。"
+    },
+    {
+      "id": "p91-s1",
+      "paragraph": 91,
+      "start_byte": 11062,
+      "end_byte": 11109,
+      "original": "And Loisel, looking five years older, declared:",
+      "translation": "而路瓦栽，看上去老了五岁，说："
+    },
+    {
+      "id": "p92-s1",
+      "paragraph": 92,
+      "start_byte": 11113,
+      "end_byte": 11160,
+      "original": "\"We must consider how to replace the necklace.\"",
+      "translation": "“我们必须考虑如何赔偿这条项链。”"
+    },
+    {
+      "id": "p93-s1",
+      "paragraph": 93,
+      "start_byte": 11164,
+      "end_byte": 11286,
+      "original": "The next day they took the box which had contained it, and went to the\nplace of the jeweller whose name they found inside.",
+      "translation": "第二天，他们带着装项链的盒子，按照盒内找到的珠宝商名字，去了那家店铺。"
+    },
+    {
+      "id": "p93-s2",
+      "paragraph": 93,
+      "start_byte": 11286,
+      "end_byte": 11310,
+      "original": " He consulted his\nbooks.",
+      "translation": "他查了查他的账本。"
+    },
+    {
+      "id": "p94-s1",
+      "paragraph": 94,
+      "start_byte": 11314,
+      "end_byte": 11401,
+      "original": "\"It was not I, madame, who sold the necklace; I must simply have\nfurnished the casket.\"",
+      "translation": "太太，项链不是我卖的；我只是提供了那个盒子。"
+    },
+    {
+      "id": "p95-s1",
+      "paragraph": 95,
+      "start_byte": 11405,
+      "end_byte": 11547,
+      "original": "Then they went from jeweller to jeweller, looking for an ornament like\nthe other, consulting their memories, both sick with grief and anguish.",
+      "translation": "于是他们一家一家地跑珠宝店，寻找一件与原来那件相似的首饰，一边回忆着，两个人又伤心又痛苦。"
+    },
+    {
+      "id": "p96-s1",
+      "paragraph": 96,
+      "start_byte": 11551,
+      "end_byte": 11671,
+      "original": "They found, in a shop at the Palais Royal, a string of diamonds which\nseemed to them exactly what they were looking for.",
+      "translation": "他们在王宫市场的一家店里找到了一串钻石项链，觉得正是他们要寻找的那件。"
+    },
+    {
+      "id": "p96-s2",
+      "paragraph": 96,
+      "start_byte": 11671,
+      "end_byte": 11754,
+      "original": " It was worth forty\nthousand francs.[*] They could have it for thirty-six thousand.",
+      "translation": "它价值四万法郎。他们可以用三万六千法郎买下。"
+    },
+    {
+      "id": "p97-s1",
+      "paragraph": 97,
+      "start_byte": 11758,
+      "end_byte": 11808,
+      "original": "[* A franc is equal to twenty cents of our money.]",
+      "translation": "[* 一法郎等于我国货币的二十分。]"
+    },
+    {
+      "id": "p98-s1",
+      "paragraph": 98,
+      "start_byte": 11812,
+      "end_byte": 11870,
+      "original": "So they begged the jeweller not to sell it for three days.",
+      "translation": "于是他们请求珠宝商三天之内不要卖掉它。"
+    },
+    {
+      "id": "p98-s2",
+      "paragraph": 98,
+      "start_byte": 11870,
+      "end_byte": 12011,
+      "original": " And they made\nan arrangement that he should take it back for thirty-four thousand\nfrancs if the other were found before the end of February.",
+      "translation": "并且他们约定，如果在二月底之前找到原来那串，他愿意以三万四千法郎收回这串。"
+    },
+    {
+      "id": "p99-s1",
+      "paragraph": 99,
+      "start_byte": 12015,
+      "end_byte": 12081,
+      "original": "Loisel had eighteen thousand francs which his father had left him.",
+      "translation": "路瓦栽有他父亲遗留给他的一万八千法郎。"
+    },
+    {
+      "id": "p99-s2",
+      "paragraph": 99,
+      "start_byte": 12081,
+      "end_byte": 12107,
+      "original": " He\nwould borrow the rest.",
+      "translation": "他会借来剩下的钱。"
+    },
+    {
+      "id": "p100-s1",
+      "paragraph": 100,
+      "start_byte": 12111,
+      "end_byte": 12219,
+      "original": "He did borrow, asking a thousand francs of one, five hundred of another,\nfive louis here, three louis there.",
+      "translation": "他确实去借了，向这个人借一千法郎，向那个人借五百，这里借五个路易，那里借三个路易。"
+    },
+    {
+      "id": "p100-s2",
+      "paragraph": 100,
+      "start_byte": 12219,
+      "end_byte": 12317,
+      "original": " He gave notes, made ruinous\nengagements, dealt with usurers, with all the tribe of money-lenders.",
+      "translation": "他签了借据，订了倾家荡产的契约，跟高利贷者以及所有放债的人打交道。"
+    },
+    {
+      "id": "p100-s3",
+      "paragraph": 100,
+      "start_byte": 12317,
+      "end_byte": 12687,
+      "original": " He\ncompromised the rest of his life, risked his signature without knowing\nif he might not be involving his honor, and, terrified by the anguish\nyet to come, by the black misery about to fall upon him, by the prospect\nof every physical privation and every mental torture, he went to get the\nnew necklace, and laid down on the dealer's counter thirty-six thousand\nfrancs.",
+      "translation": "他搭上了后半辈子，冒险签下自己的名字，却不知道是否连累了自己的名誉；他害怕即将到来的痛苦、即将降临的悲惨、所有物质匮乏和精神折磨的前景，于是去买了那串新项链，把三万六千法郎放在了珠宝商的柜台上。"
+    },
+    {
+      "id": "p101-s1",
+      "paragraph": 101,
+      "start_byte": 12691,
+      "end_byte": 12777,
+      "original": "When Madame Loisel took the necklace back to Madame Forestier, the\nlatter said coldly:",
+      "translation": "当路瓦栽太太把项链还给佛来思节夫人时，后者冷淡地说："
+    },
+    {
+      "id": "p102-s1",
+      "paragraph": 102,
+      "start_byte": 12781,
+      "end_byte": 12846,
+      "original": "\"You should have returned it sooner, for I might have needed it.\"",
+      "translation": "“你应该早点还回来，因为我可能要用。”"
+    },
+    {
+      "id": "p103-s1",
+      "paragraph": 103,
+      "start_byte": 12850,
+      "end_byte": 12905,
+      "original": "She did not open the case, to the relief of her friend.",
+      "translation": "她没有打开盒子，这让她的朋友松了一口气。"
+    },
+    {
+      "id": "p103-s2",
+      "paragraph": 103,
+      "start_byte": 12905,
+      "end_byte": 12972,
+      "original": " If she had\ndetected the substitution, what would she have thought?",
+      "translation": "如果她发现了替换，她会怎么想呢？"
+    },
+    {
+      "id": "p103-s3",
+      "paragraph": 103,
+      "start_byte": 12972,
+      "end_byte": 12998,
+      "original": " What would she\nhave said?",
+      "translation": "她会说什么呢？"
+    },
+    {
+      "id": "p103-s4",
+      "paragraph": 103,
+      "start_byte": 12998,
+      "end_byte": 13043,
+      "original": " Would she have taken her friend for a thief?",
+      "translation": "她会把她的朋友当成小偷吗？"
+    },
+    {
+      "id": "p104-s1",
+      "paragraph": 104,
+      "start_byte": 13054,
+      "end_byte": 13087,
+      "original": "*       *       *       *       *",
+      "translation": "＊ ＊ ＊ ＊ ＊"
+    },
+    {
+      "id": "p105-s1",
+      "paragraph": 105,
+      "start_byte": 13091,
+      "end_byte": 13145,
+      "original": "Madame Loisel now knew the horrible life of the needy.",
+      "translation": "路瓦栽太太现在懂得了穷人生活的可怕。"
+    },
+    {
+      "id": "p105-s2",
+      "paragraph": 105,
+      "start_byte": 13145,
+      "end_byte": 13179,
+      "original": " But she took her\npart heroically.",
+      "translation": "但她勇敢地承担起了自己的责任。"
+    },
+    {
+      "id": "p105-s3",
+      "paragraph": 105,
+      "start_byte": 13179,
+      "end_byte": 13214,
+      "original": " They must pay this frightful debt.",
+      "translation": "他们必须偿还这笔可怕的债务。"
+    },
+    {
+      "id": "p105-s4",
+      "paragraph": 105,
+      "start_byte": 13214,
+      "end_byte": 13232,
+      "original": " She would pay it.",
+      "translation": "她会还清的。"
+    },
+    {
+      "id": "p105-s5",
+      "paragraph": 105,
+      "start_byte": 13232,
+      "end_byte": 13321,
+      "original": "\nThey dismissed their maid; they gave up their room; they rented another,\nunder the roof.",
+      "translation": "他们辞退了女佣，搬出了原来的房间，在屋顶下租了一间阁楼。"
+    },
+    {
+      "id": "p106-s1",
+      "paragraph": 106,
+      "start_byte": 13325,
+      "end_byte": 13402,
+      "original": "She came to know the drudgery of housework, the odious labors of the\nkitchen.",
+      "translation": "她逐渐熟悉了家务的辛苦，厨房里的讨厌活儿。"
+    },
+    {
+      "id": "p106-s2",
+      "paragraph": 106,
+      "start_byte": 13402,
+      "end_byte": 13502,
+      "original": " She washed the dishes, staining her rosy nails on the greasy\npots and the bottoms of the saucepans.",
+      "translation": "她洗碗，油腻的锅和炖锅底把她玫瑰色的指甲弄得污迹斑斑。"
+    },
+    {
+      "id": "p106-s3",
+      "paragraph": 106,
+      "start_byte": 13502,
+      "end_byte": 13712,
+      "original": " She washed the dirty linen, the\nshirts and the dishcloths, which she hung to dry on a line; she carried\nthe garbage down to the street every morning, and carried up the water,\nstopping at each landing to rest.",
+      "translation": "她洗脏内衣、衬衫和抹布，然后把它们晾在一根绳子上；她每天早上把垃圾拎到街上，再提水上来，每到一层楼梯平台都要停下来歇口气。"
+    },
+    {
+      "id": "p106-s4",
+      "paragraph": 106,
+      "start_byte": 13712,
+      "end_byte": 13900,
+      "original": " And, dressed like a woman of the\npeople, she went to the fruiterer's, the grocer's, the butcher's, her\nbasket on her arm, bargaining, abusing, defending sou[*] by sou her\nmiserable money.",
+      "translation": "而且，她穿着像平民妇女，胳膊上挎着篮子，去水果店、杂货店、肉店，讨价还价，挨骂，一个苏一个苏地护着她那点可怜的钱。"
+    },
+    {
+      "id": "p107-s1",
+      "paragraph": 107,
+      "start_byte": 13904,
+      "end_byte": 13972,
+      "original": "[* A sou, or five-centime piece, is equal to one cent of our money.]",
+      "translation": "[*一苏，即五生丁，等于我们的一分钱。]"
+    },
+    {
+      "id": "p108-s1",
+      "paragraph": 108,
+      "start_byte": 13976,
+      "end_byte": 14046,
+      "original": "Each month they had to pay some notes, renew others, obtain more time.",
+      "translation": "每个月他们都要偿还一些借据，续借另一些，争取更多时间。"
+    },
+    {
+      "id": "p109-s1",
+      "paragraph": 109,
+      "start_byte": 14050,
+      "end_byte": 14214,
+      "original": "The husband worked every evening, neatly footing up the account books of\nsome tradesman, and often far into the night he sat copying manuscript\nat five sous a page.",
+      "translation": "丈夫每天晚上都工作，给某个商人仔细地结算账本，而且常常熬夜到很晚，抄写手稿，每页挣五个苏。"
+    },
+    {
+      "id": "p110-s1",
+      "paragraph": 110,
+      "start_byte": 14218,
+      "end_byte": 14249,
+      "original": "And this life lasted ten years.",
+      "translation": "而这种生活持续了十年。"
+    },
+    {
+      "id": "p111-s1",
+      "paragraph": 111,
+      "start_byte": 14253,
+      "end_byte": 14388,
+      "original": "At the end of ten years they had paid everything,—everything, with the\nexactions of usury and the accumulations of compound interest.",
+      "translation": "十年之后，他们还清了所有债务，——所有债务，连同高利贷的盘剥和复利的累积。"
+    },
+    {
+      "id": "p112-s1",
+      "paragraph": 112,
+      "start_byte": 14392,
+      "end_byte": 14422,
+      "original": "Madame Loisel seemed aged now.",
+      "translation": "路瓦栽太太现在显得苍老了。"
+    },
+    {
+      "id": "p112-s2",
+      "paragraph": 112,
+      "start_byte": 14422,
+      "end_byte": 14504,
+      "original": " She had become the woman of impoverished\nhouseholds,—strong and hard and rough.",
+      "translation": "她变成了穷苦人家的女人，——强壮、泼辣、粗鲁。"
+    },
+    {
+      "id": "p112-s3",
+      "paragraph": 112,
+      "start_byte": 14504,
+      "end_byte": 14634,
+      "original": " With hair half combed, with\nskirts awry, and reddened hands, she talked loud as she washed the floor\nwith great swishes of water.",
+      "translation": "头发半梳着，裙子歪斜，双手通红，她一边大声说话，一边用大把水冲刷地板。"
+    },
+    {
+      "id": "p112-s4",
+      "paragraph": 112,
+      "start_byte": 14634,
+      "end_byte": 14814,
+      "original": " But sometimes, when her husband was at the\noffice, she sat down near the window and thought of that evening at the\nball so long ago, when she had been so beautiful and so admired.",
+      "translation": "但有时候，当她丈夫去办公室时，她坐在窗边，想起那次很久以前的舞会之夜，那时她那么美丽，那么受人仰慕。"
+    },
+    {
+      "id": "p113-s1",
+      "paragraph": 113,
+      "start_byte": 14818,
+      "end_byte": 14877,
+      "original": "What would have happened if she had not lost that necklace?",
+      "translation": "如果她没有弄丢那条项链，事情会怎样呢？"
+    },
+    {
+      "id": "p113-s2",
+      "paragraph": 113,
+      "start_byte": 14877,
+      "end_byte": 14899,
+      "original": " Who knows,\nwho knows?",
+      "translation": "谁知道呢，谁知道呢？"
+    },
+    {
+      "id": "p113-s3",
+      "paragraph": 113,
+      "start_byte": 14899,
+      "end_byte": 14935,
+      "original": " How strange life is, how changeful!",
+      "translation": "生活多么奇怪，多么变幻无常！"
+    },
+    {
+      "id": "p113-s4",
+      "paragraph": 113,
+      "start_byte": 14935,
+      "end_byte": 14998,
+      "original": " How little a thing is\nneeded for us to be lost or to be saved!",
+      "translation": "一件多么微不足道的小事就足以让我们迷失或得救！"
+    },
+    {
+      "id": "p114-s1",
+      "paragraph": 114,
+      "start_byte": 15009,
+      "end_byte": 15042,
+      "original": "*       *       *       *       *",
+      "translation": "*       *       *       *       *"
+    },
+    {
+      "id": "p115-s1",
+      "paragraph": 115,
+      "start_byte": 15046,
+      "end_byte": 15212,
+      "original": "But one Sunday, as she was going for a walk in the Champs Élysées to\nrefresh herself after the labors of the week, all at once she saw a\nwoman walking with a child.",
+      "translation": "然而有一个星期天，她去香榭丽舍大街散步，想缓解一周的劳累，忽然看见一个女人带着一个孩子也在散步。"
+    },
+    {
+      "id": "p115-s2",
+      "paragraph": 115,
+      "start_byte": 15212,
+      "end_byte": 15283,
+      "original": " It was Madame Forestier, still young, still\nbeautiful, still charming.",
+      "translation": "那正是佛来思节夫人，仍然年轻，仍然美丽，仍然迷人。"
+    },
+    {
+      "id": "p116-s1",
+      "paragraph": 116,
+      "start_byte": 15287,
+      "end_byte": 15314,
+      "original": "Madame Loisel was agitated.",
+      "translation": "路瓦栽太太心情激动。"
+    },
+    {
+      "id": "p116-s2",
+      "paragraph": 116,
+      "start_byte": 15314,
+      "end_byte": 15339,
+      "original": " Should she speak to her?",
+      "translation": "她要不要跟她说话呢？"
+    },
+    {
+      "id": "p116-s3",
+      "paragraph": 116,
+      "start_byte": 15339,
+      "end_byte": 15355,
+      "original": " Why, of course.",
+      "translation": "当然要。"
+    },
+    {
+      "id": "p116-s4",
+      "paragraph": 116,
+      "start_byte": 15355,
+      "end_byte": 15406,
+      "original": " And\nnow that she had paid, she would tell her all.",
+      "translation": "既然她已经还清了债，她就要把一切都告诉她。"
+    },
+    {
+      "id": "p116-s5",
+      "paragraph": 116,
+      "start_byte": 15406,
+      "end_byte": 15415,
+      "original": " Why not?",
+      "translation": "为什么不呢？"
+    },
+    {
+      "id": "p117-s1",
+      "paragraph": 117,
+      "start_byte": 15419,
+      "end_byte": 15433,
+      "original": "She drew near.",
+      "translation": "她走近了。"
+    },
+    {
+      "id": "p118-s1",
+      "paragraph": 118,
+      "start_byte": 15437,
+      "end_byte": 15460,
+      "original": "\"Good morning, Jeanne.\"",
+      "translation": "“早上好，让娜。”"
+    },
+    {
+      "id": "p119-s1",
+      "paragraph": 119,
+      "start_byte": 15464,
+      "end_byte": 15567,
+      "original": "The other, astonished to be addressed so familiarly by this woman of the\npeople, did not recognize her.",
+      "translation": "对方被这个平民女子如此亲昵地称呼，感到惊讶，没有认出她来。"
+    },
+    {
+      "id": "p119-s2",
+      "paragraph": 119,
+      "start_byte": 15567,
+      "end_byte": 15582,
+      "original": " She stammered:",
+      "translation": "她结结巴巴地说："
+    },
+    {
+      "id": "p120-s1",
+      "paragraph": 120,
+      "start_byte": 15586,
+      "end_byte": 15620,
+      "original": "\"But—madame—I do not know you.",
+      "translation": "“可是——夫人——我不认识您。"
+    },
+    {
+      "id": "p120-s2",
+      "paragraph": 120,
+      "start_byte": 15620,
+      "end_byte": 15651,
+      "original": " You must have made a mistake.\"",
+      "translation": "您一定是认错人了。”"
+    },
+    {
+      "id": "p121-s1",
+      "paragraph": 121,
+      "start_byte": 15655,
+      "end_byte": 15682,
+      "original": "\"No, I am Mathilde Loisel.\"",
+      "translation": "“不，我是玛蒂尔德·路瓦栽。”"
+    },
+    {
+      "id": "p122-s1",
+      "paragraph": 122,
+      "start_byte": 15686,
+      "end_byte": 15711,
+      "original": "Her friend uttered a cry.",
+      "translation": "她的朋友发出一声惊呼。"
+    },
+    {
+      "id": "p123-s1",
+      "paragraph": 123,
+      "start_byte": 15715,
+      "end_byte": 15759,
+      "original": "\"Oh! my poor Mathilde, how changed you are!\"",
+      "translation": "哦！我可怜的玛蒂尔德，你怎么变成这样了！"
+    },
+    {
+      "id": "p124-s1",
+      "paragraph": 124,
+      "start_byte": 15763,
+      "end_byte": 15861,
+      "original": "\"Yes, I have had days hard enough since I saw you, days wretched\nenough—and all because of you!\"",
+      "translation": "是啊，自从上次见到你以后，我过的日子够苦的，够可怜的——而且都是因为你！"
+    },
+    {
+      "id": "p125-s1",
+      "paragraph": 125,
+      "start_byte": 15865,
+      "end_byte": 15869,
+      "original": "\"Me?",
+      "translation": "因为我？"
+    },
+    {
+      "id": "p125-s2",
+      "paragraph": 125,
+      "start_byte": 15869,
+      "end_byte": 15878,
+      "original": " How so?\"",
+      "translation": "怎么回事？"
+    },
+    {
+      "id": "p126-s1",
+      "paragraph": 126,
+      "start_byte": 15882,
+      "end_byte": 15972,
+      "original": "\"You remember that necklace of diamonds that you lent me to wear to the\nministerial ball?\"",
+      "translation": "你还记得你借给我去参加部长舞会的那条钻石项链吗？"
+    },
+    {
+      "id": "p127-s1",
+      "paragraph": 127,
+      "start_byte": 15976,
+      "end_byte": 15981,
+      "original": "\"Yes.",
+      "translation": "记得。"
+    },
+    {
+      "id": "p127-s2",
+      "paragraph": 127,
+      "start_byte": 15981,
+      "end_byte": 15988,
+      "original": " Well?\"",
+      "translation": "然后呢？"
+    },
+    {
+      "id": "p128-s1",
+      "paragraph": 128,
+      "start_byte": 15992,
+      "end_byte": 16010,
+      "original": "\"Well, I lost it.\"",
+      "translation": "嗯，我把它弄丢了。"
+    },
+    {
+      "id": "p129-s1",
+      "paragraph": 129,
+      "start_byte": 16014,
+      "end_byte": 16031,
+      "original": "\"How can that be?",
+      "translation": "这怎么可能？"
+    },
+    {
+      "id": "p129-s2",
+      "paragraph": 129,
+      "start_byte": 16031,
+      "end_byte": 16055,
+      "original": " You returned it to me.\"",
+      "translation": "你把它还给我了呀。"
+    },
+    {
+      "id": "p130-s1",
+      "paragraph": 130,
+      "start_byte": 16059,
+      "end_byte": 16102,
+      "original": "\"I returned to you another exactly like it.",
+      "translation": "我还给你的是另一条一模一样的。"
+    },
+    {
+      "id": "p130-s2",
+      "paragraph": 130,
+      "start_byte": 16102,
+      "end_byte": 16144,
+      "original": " These ten years we've been\npaying for it.",
+      "translation": "这十年来我们一直在为它还债。"
+    },
+    {
+      "id": "p130-s3",
+      "paragraph": 130,
+      "start_byte": 16144,
+      "end_byte": 16194,
+      "original": " You know it was not easy for us, who had nothing.",
+      "translation": "你知道这对我们来说不容易，因为我们一无所有。"
+    },
+    {
+      "id": "p130-s4",
+      "paragraph": 130,
+      "start_byte": 16194,
+      "end_byte": 16235,
+      "original": " At last\nit is over, and I am very glad.\"",
+      "translation": "现在终于还清了，我非常高兴。"
+    },
+    {
+      "id": "p131-s1",
+      "paragraph": 131,
+      "start_byte": 16239,
+      "end_byte": 16268,
+      "original": "Madame Forestier was stunned.",
+      "translation": "佛来思节夫人惊呆了。"
+    },
+    {
+      "id": "p132-s1",
+      "paragraph": 132,
+      "start_byte": 16272,
+      "end_byte": 16333,
+      "original": "\"You say that you bought a diamond necklace to replace mine?\"",
+      "translation": "你说你买了一条钻石项链来替换我的那条？"
+    },
+    {
+      "id": "p133-s1",
+      "paragraph": 133,
+      "start_byte": 16337,
+      "end_byte": 16371,
+      "original": "\"Yes; you did not notice it, then?",
+      "translation": "是的，那你没注意到吗？"
+    },
+    {
+      "id": "p133-s2",
+      "paragraph": 133,
+      "start_byte": 16371,
+      "end_byte": 16394,
+      "original": " They were just alike.\"",
+      "translation": "它们完全一样。"
+    },
+    {
+      "id": "p134-s1",
+      "paragraph": 134,
+      "start_byte": 16398,
+      "end_byte": 16446,
+      "original": "And she smiled with a proud and naïve pleasure.",
+      "translation": "她带着既骄傲又天真的喜悦微笑了。"
+    },
+    {
+      "id": "p135-s1",
+      "paragraph": 135,
+      "start_byte": 16450,
+      "end_byte": 16502,
+      "original": "Madame Forestier, deeply moved, took both her hands.",
+      "translation": "弗雷斯蒂埃太太深受感动，握住她的双手。"
+    },
+    {
+      "id": "p136-s1",
+      "paragraph": 136,
+      "start_byte": 16506,
+      "end_byte": 16528,
+      "original": "\"Oh, my poor Mathilde!",
+      "translation": "哦，我可怜的玛蒂尔德！"
+    },
+    {
+      "id": "p136-s2",
+      "paragraph": 136,
+      "start_byte": 16528,
+      "end_byte": 16556,
+      "original": " Why, my necklace was paste.",
+      "translation": "哎呀，我的项链是假的。"
+    },
+    {
+      "id": "p136-s3",
+      "paragraph": 136,
+      "start_byte": 16556,
+      "end_byte": 16599,
+      "original": " It was worth five\nhundred francs at most.\"",
+      "translation": "它最多值五百法郎。"
+    }
+  ],
+  "updated_at": "2026-09-14T09:11:35.437398Z",
+  "model": "deepseek-v4-pro",
+  "scope": "default"
+}

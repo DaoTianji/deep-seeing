@@ -1,0 +1,36 @@
+.cr-continuous{--muted:#69715f}
+.cr-continuous .cr-paper-heading{margin:24px 0 22px}
+.cr-continuous .cr-paper-heading h1{font-size:36px;margin:12px 0}
+.cr-continuous .cr-paper-heading p,.cr-continuous .cr-kicker,.cr-continuous .cr-source{font-size:13px;color:#68705f}
+.cr-continuous .cr-mini-cover{height:130px;transform:none;margin-top:14px}
+.cr-continuous .cr-mini-cover i{display:none}
+.cr-continuous .cr-selection-bar{position:sticky;top:0;z-index:3;margin-bottom:14px;border:1px solid #d5ddca;font-size:14px;background:#edf1e5}
+.cr-continuous .cr-paragraph{scroll-margin-top:95px}
+.cr-continuous .cr-paragraph-number{font-size:13px!important;top:15px;color:#667259!important}
+.cr-continuous .cr-paper-toolbar,.cr-continuous .cr-paper-toolbar select,.cr-continuous .cr-pagination,.cr-continuous .cr-notes{font-size:14px}
+.cr-continuous .cr-index-section button,.cr-continuous .cr-bookmarks button,.cr-continuous .cr-index-bottom button{font-size:14px}
+.cr-continuous .cr-turn p,.cr-continuous .cr-welcome p,.cr-continuous .cr-compose textarea{font-size:16px}
+.cr-continuous .cr-companion-heading small,.cr-continuous .cr-speaker-label,.cr-continuous .cr-scope,.cr-continuous .cr-turn small{font-size:13px}
+.cr-continuous .cr-source small{font-size:12px}
+.cr-reading-location{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:#68705f;margin:0 0 24px}
+.cr-reading-location select{font-size:14px;margin-left:8px}
+.cr-panel-tabs{display:flex;gap:4px;margin:0 18px 14px;border-bottom:1px solid #d8dfce}
+.cr-panel-tabs button{font-size:14px;padding:11px 10px;border-bottom:2px solid transparent}
+.cr-panel-tabs button[aria-pressed=true]{color:#435a37;border-color:#698257;background:#edf1e5}
+.cr-lesson-guide{overflow:auto;flex:1;min-height:0;padding:0 24px 28px;font-size:16px;line-height:1.85;overscroll-behavior:contain}
+.cr-lesson-guide h2{font:24px/1.6 "Songti SC",serif;margin:8px 0 12px}
+.cr-lesson-guide h3{font-size:18px;margin:15px 0 12px}
+.cr-lesson-guide>p,.cr-lesson-guide small{color:#737a68;font-size:14px;line-height:1.8}
+.cr-lesson-guide nav{display:grid;gap:8px;margin:22px 0}
+.cr-lesson-guide nav button{border:1px solid #cfd9c3;border-radius:4px;padding:9px 12px;text-align:left;font-size:15px}
+.cr-lesson-guide nav span{color:#7f8871;margin-right:12px}
+.cr-lesson-guide nav button[aria-pressed=true]{background:#e6eddc;border-color:#90a879}
+.cr-lesson-guide section{border-top:1px solid #dce1d4;padding:8px 0 24px}
+.cr-lesson-guide small{display:block}
+.cr-lesson-guide label{display:flex;align-items:center;justify-content:space-between;font-size:14px}
+.cr-lesson-guide select{font-size:16px}
+.cr-lesson-guide .cr-guide-action{display:block;width:100%;padding:10px 12px;background:#e5ecd9;color:#4a623b;border:1px solid #cdd9bf;border-radius:4px;font-size:15px;text-align:left;margin:16px 0}
+.cr-guide-time{display:flex;gap:18px}.cr-guide-time button{font-size:15px;padding:8px 0;border-bottom:2px solid transparent}.cr-guide-time button[aria-pressed=true]{border-color:#647d50;color:#425d32}
+.cr-lesson-guide details{border-bottom:1px solid #dee3d5;padding:16px 0}.cr-lesson-guide summary{cursor:pointer;font-size:16px}.cr-lesson-guide details a{font-size:14px;text-decoration:underline}.cr-lesson-guide details p{font-size:15px}
+@media(max-width:760px){.cr-continuous .cr-paper-toolbar>label{font-size:0}.cr-continuous .cr-selection-bar>span{font-size:13px}.cr-reading-location{font-size:13px;flex-wrap:wrap}.cr-continuous .cr-paper-heading{margin-top:22px}.cr-continuous .cr-paper{padding-left:40px;padding-right:24px}.cr-continuous .cr-panel-tabs button{font-size:15px}.cr-lesson-guide{padding:0 22px 25px}}
+.cr-guide-steps{padding:0;list-style:none;counter-reset:step;margin:20px 0}.cr-guide-steps li{counter-increment:step;border-left:2px solid #7b9272;padding:8px 0 16px 18px;font-size:16px;line-height:1.7}.cr-guide-steps li:before{content:counter(step) " · ";color:#50674c;font-weight:600}

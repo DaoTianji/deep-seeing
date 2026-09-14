@@ -6,6 +6,8 @@
 
 | 机制 | 文档 | 覆盖的子机制（摘要） |
 |------|------|----------------------|
+| 共读书房：伴读、读后分支与作者模式（最新设计） | [design-reading-companion.md](./design-reading-companion.md) | 原文优先、人物与安双视角伴读、背景研究、读后改写；后续跨作品作者理解与风格创作 |
+| 比赛版：共读书房与故事分支（设计） | [design-reading-story-world.md](./design-reading-story-world.md) | 生活工具赛道；故事地图、场景人物认知、交互后果、共享分支、展示与验收 |
 | 长期记忆 **设计** | [design-ltm.md](./design-ltm.md) | **完整目标架构**：三层权威、Graph/Episode/Raw、Writer、常模与双假设、召回、分期与评测 |
 | 长期记忆 **认知共识** | [memory-cognition.md](./memory-cognition.md) | 为何难、人脑近似、State-conditioned Retrieval、遗忘与 Prediction Error |
 | 长期记忆 **现状** | [memory-ltm.md](./memory-ltm.md) | Phase 1–4 + P5–P8：Self、Workspace、Agency、World |
@@ -37,6 +39,8 @@
 | 短期记忆（STM） | [memory-stm.md](./memory-stm.md) | Redis 会话 + 摘要 Compaction；配置 `REDIS_*` / `STM_*` / `COMPACT_*` |
 
 ## 维护约定
+
+比赛原型最新策划：[六篇课文，六个互动阅读专题](design-reading-six-lessons.md)（2026-09-11，待实现设计）。
 
 - 正文用中文；专有名词、包名、接口、配置键、命令保留英文。
 - **设计稿**（`design-*.md`）描述目标契约；**现状稿**（`memory-*.md`）描述已实现。

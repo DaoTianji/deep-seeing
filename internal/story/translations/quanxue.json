@@ -1,0 +1,132 @@
+{
+  "version": "d38e7808d12016a0a935fe83643e628919adb8ef5d2f9079b68427d214ed63a6-sentences-v1",
+  "style": "fluent",
+  "target": "zh",
+  "completed": 15,
+  "total": 15,
+  "sentences": [
+    {
+      "id": "p1-s1",
+      "paragraph": 1,
+      "start_byte": 0,
+      "end_byte": 30,
+      "original": "君子曰：学不可以已。",
+      "translation": "君子说：学习不可以停止。"
+    },
+    {
+      "id": "p2-s1",
+      "paragraph": 2,
+      "start_byte": 32,
+      "end_byte": 101,
+      "original": "青，取之于蓝，而青于蓝；冰，水为之，而寒于水。",
+      "translation": "靛青从蓝草中提取，却比蓝草更青；冰由水凝结而成，却比水更寒冷。"
+    },
+    {
+      "id": "p2-s2",
+      "paragraph": 2,
+      "start_byte": 101,
+      "end_byte": 147,
+      "original": "木直中绳，𫐓以为轮，其曲中规。",
+      "translation": "木材直得符合墨线，用火烤使它弯曲做成车轮，它的弯曲度符合圆规。"
+    },
+    {
+      "id": "p2-s3",
+      "paragraph": 2,
+      "start_byte": 147,
+      "end_byte": 196,
+      "original": "虽有槁暴，不复挺者，𫐓使之然也。",
+      "translation": "即使又晒干了，也不再挺直，这是用火烤使它变成这样的。"
+    },
+    {
+      "id": "p2-s4",
+      "paragraph": 2,
+      "start_byte": 196,
+      "end_byte": 295,
+      "original": "故木受绳则直，金就砺则利，君子博学而日参省乎己，则知明而行无过矣。",
+      "translation": "所以木材经墨线量过就直了，金属刀具在磨刀石上磨过就锋利了，君子广泛学习而且每天检查反省自己，就能智慧明达而行为没有过错了。"
+    },
+    {
+      "id": "p3-s1",
+      "paragraph": 3,
+      "start_byte": 297,
+      "end_byte": 396,
+      "original": "吾尝终日而思矣，不如须臾之所学也；吾尝跂而望矣，不如登高之博见也。",
+      "translation": "我曾经整天地思考，却不如片刻学习收获大；我曾经踮起脚跟远望，却不如登上高处看得广阔。"
+    },
+    {
+      "id": "p3-s2",
+      "paragraph": 3,
+      "start_byte": 396,
+      "end_byte": 492,
+      "original": "登高而招，臂非加长也，而见者远；顺风而呼，声非加疾也，而闻者彰。",
+      "translation": "登上高处招手，手臂并没有加长，但远处的人也能看见；顺着风呼喊，声音并没有更加宏亮，但听的人能听得清楚。"
+    },
+    {
+      "id": "p3-s3",
+      "paragraph": 3,
+      "start_byte": 492,
+      "end_byte": 582,
+      "original": "假舆马者，非利足也，而致千里；假舟楫者，非能水也，而绝江河。",
+      "translation": "借助车马的人，并不是脚走得快，却能到达千里之外；借助船只的人，并不是善于游泳，却能横渡江河。"
+    },
+    {
+      "id": "p3-s4",
+      "paragraph": 3,
+      "start_byte": 582,
+      "end_byte": 621,
+      "original": "君子生非异也，善假于物也。",
+      "translation": "君子的本性与一般人没有差别，只是善于借助外物罢了。"
+    },
+    {
+      "id": "p4-s1",
+      "paragraph": 4,
+      "start_byte": 623,
+      "end_byte": 731,
+      "original": "积土成山，风雨兴焉；积水成渊，蛟龙生焉；积善成德，而神明自得，圣心备焉。",
+      "translation": "堆积土石成为高山，风雨就从这里兴起；汇积水流成为深渊，蛟龙就在那里生长；积累善行养成品德，就能智慧通达，圣人的心境也就具备了。"
+    },
+    {
+      "id": "p4-s2",
+      "paragraph": 4,
+      "start_byte": 731,
+      "end_byte": 800,
+      "original": "故不积跬步，无以至千里；不积小流，无以成江海。",
+      "translation": "所以不积累每一小步，就无法到达千里之远；不汇聚细小的水流，就无法形成江海。"
+    },
+    {
+      "id": "p4-s3",
+      "paragraph": 4,
+      "start_byte": 800,
+      "end_byte": 860,
+      "original": "骐骥一跃，不能十步；驽马十驾，功在不舍。",
+      "translation": "骏马跳跃一次，不能超过十步；劣马连走十天也能走很远，它的成功在于坚持不懈。"
+    },
+    {
+      "id": "p4-s4",
+      "paragraph": 4,
+      "start_byte": 860,
+      "end_byte": 920,
+      "original": "锲而舍之，朽木不折；锲而不舍，金石可镂。",
+      "translation": "雕刻如果半途而废，那么朽木也刻不断；如果不停地雕刻，那么金属和石头也能雕出花纹。"
+    },
+    {
+      "id": "p4-s5",
+      "paragraph": 4,
+      "start_byte": 920,
+      "end_byte": 1001,
+      "original": "蚓无爪牙之利，筋骨之强，上食埃土，下饮黄泉，用心一也。",
+      "translation": "蚯蚓没有锋利的爪牙和强健的筋骨，却能上吃泥土，下饮地下水，这是用心专一的缘故。"
+    },
+    {
+      "id": "p4-s6",
+      "paragraph": 4,
+      "start_byte": 1001,
+      "end_byte": 1070,
+      "original": "蟹六跪而二螯，非蛇鳝之穴无可寄托者，用心躁也。",
+      "translation": "螃蟹有六条腿和两只大钳子，但如果没有蛇和鳝鱼的洞穴就没有藏身之处，这是用心浮躁的缘故。"
+    }
+  ],
+  "updated_at": "2026-09-14T08:46:52.154387Z",
+  "model": "deepseek-v4-pro",
+  "scope": "default"
+}
