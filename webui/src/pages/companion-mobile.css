@@ -1,0 +1,44 @@
+.cr-paragraph p{cursor:text}
+.cr-mobile-dock{display:none}
+@media(max-width:760px){
+ .cr-room{padding-bottom:calc(82px + env(safe-area-inset-bottom))}
+ .cr-room button,.cr-room select{touch-action:manipulation}
+ .cr-header{height:60px;padding:0 16px;gap:8px}
+ .cr-header button,.cr-header>a{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+ .cr-header .cr-finish-shortcut{font-size:13px}
+ .cr-paper,.cr-continuous .cr-paper{padding-left:38px;padding-right:20px}
+ .cr-paper-toolbar{height:auto;min-height:64px;gap:6px;flex-wrap:wrap;padding:8px 0}
+ .cr-paper-toolbar>div{gap:2px}.cr-paper-toolbar button{min-width:38px;min-height:44px}
+ .cr-room .cr-paper-toolbar select{font-size:16px;min-height:44px;max-width:142px}
+ .cr-continuous .cr-selection-bar,.cr-selection-bar{position:static;gap:8px;padding:8px 10px}
+ .cr-selection-bar>span{order:-1;width:100%;font-size:14px!important;font-weight:600}
+ .cr-selection-bar button{min-height:40px;font-size:13px}
+ .cr-reading-location{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:18px}
+ .cr-reading-location label{white-space:nowrap}.cr-reading-location select{font-size:16px;min-height:44px}
+ .cr-reading-location button{min-height:44px;padding:7px 9px;font-size:13px}
+ .cr-reading-location>span{grid-column:1/-1;font-size:12px}
+ .cr-paragraph-number{min-height:44px;width:32px!important;left:-29px!important}
+ .cr-mobile-dock{display:flex;align-items:center;gap:10px;position:fixed;bottom:0;left:0;right:0;z-index:15;border-top:1px solid #d8dfcf;background:#fbfaf5;padding:10px 16px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -6px 22px #343c3210}
+ .cr-mobile-dock>div{margin-right:auto;min-width:0}.cr-mobile-dock strong{display:block;font-size:14px}
+ .cr-mobile-dock>div button{display:block;font-size:12px;min-height:30px;padding:0;color:#67765c}
+ .cr-mobile-dock>button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;border-radius:8px;padding:0 10px;font-size:14px}
+ .cr-mobile-dock .cr-dock-primary{background:#586e4a;color:#fff;padding:0 14px}
+ .cr-room .cr-companion.mobile-open,.ra-content .cr-room .cr-companion.mobile-open{position:fixed;display:flex;inset:auto 0;top:var(--reader-viewport-top,0px);height:var(--reader-viewport-height,100dvh);min-height:0;z-index:50;overflow:hidden;padding-top:env(safe-area-inset-top);overscroll-behavior:contain}
+ .cr-companion-heading{padding:8px 14px;gap:10px;flex-shrink:0;min-height:64px;border-bottom:1px solid #e1e4d9}
+ .cr-companion-heading .cr-an{height:34px;width:34px;flex-shrink:0}.cr-companion-heading strong{font-size:16px}
+ .cr-companion-heading small{font-size:12px!important;margin-top:4px}
+ .cr-mobile-close{min-height:44px;gap:4px;align-items:center;white-space:nowrap;font-size:13px;padding:0 4px}
+ .cr-panel-tabs{margin:0 12px 8px;flex-shrink:0}.cr-continuous .cr-panel-tabs button{font-size:14px;min-height:42px;padding:8px 12px}
+ .cr-speaker-label{margin:2px 14px 8px;display:flex;flex-direction:row;align-items:center;gap:10px;font-size:13px;flex-shrink:0}
+ .cr-speaker-label select{font-size:16px;min-height:40px;flex:1;min-width:0;padding:6px 8px}
+ .cr-scope{padding:0 14px 8px;font-size:12px!important;flex-shrink:0;align-items:center}.cr-scope button{min-height:32px}
+ .cr-messages{padding:0 16px}.cr-welcome{padding:22px 0}.cr-welcome h3{font-size:20px;margin:0 0 10px}
+ .cr-messages .cr-turn p,.cr-welcome p{font-size:16px;line-height:1.85}
+ .cr-compose{padding:8px 12px calc(10px + env(safe-area-inset-bottom));flex-shrink:0}
+ .cr-compose form{padding:9px 10px}.cr-compose textarea,.cr-continuous .cr-compose textarea{font-size:16px;min-height:48px;max-height:110px;padding-right:42px}
+ .cr-compose form>button{min-width:44px;min-height:44px;justify-content:center;align-items:center;right:6px;bottom:6px}
+ .cr-compose-options{margin:4px 0 0;font-size:12px}.cr-compose-options input{width:18px;height:18px}
+ .cr-compose>small,.cr-search-channel{display:none}
+ .cr-notes{padding:10px 16px 24px}.cr-notes textarea{font-size:16px}.cr-notes>button{min-height:44px;font-size:14px}
+ .cr-backdrop{z-index:70}.cr-dialog{padding:28px 22px;max-height:calc(100dvh - 32px);overflow:auto}.cr-dialog-close{min-width:44px;min-height:44px;top:6px;right:6px}
+}

@@ -1,4 +1,4 @@
-import {cleanup,fireEvent,render,screen,waitFor} from "@testing-library/react";
+import {act,cleanup,fireEvent,render,screen,waitFor} from "@testing-library/react";
 import {afterEach,beforeEach,expect,it,vi} from "vitest";
 import {CompanionReader,type ReaderState} from "./CompanionReader";
 import {request,type Book} from "./reading-api";
@@ -24,6 +24,51 @@ function moveReadingAnchor(container:HTMLElement,id:number){
  }
  fireEvent.scroll(window);
 }
+it("selects a paragraph by clicking its text without moving the page",async()=>{
+ const scroll=vi.fn();vi.stubGlobal("scrollIntoView",scroll);
+ const {container}=render(<CompanionReader book={book} onStory={vi.fn()} continuous/>);await screen.findByText("原文段落 1");
+ for(const node of container.querySelectorAll("section"))node.scrollIntoView=scroll;
+ fireEvent.click(screen.getByText("原文段落 4"));
+ await waitFor(()=>expect(state.position.paragraph).toBe(4));
+ expect(screen.getByText("已固定第 4 段")).toBeInTheDocument();expect(scroll).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByText("原文段落 4"));
+ expect(vi.mocked(request).mock.calls.filter(([path])=>path==="/companion/position")).toHaveLength(1);
+});
+it("ignores text selection, swipe gestures and nested controls",async()=>{
+ vi.stubGlobal("PointerEvent",MouseEvent);
+ const {container}=render(<CompanionReader book={book} onStory={vi.fn()} continuous/>);await screen.findByText("原文段落 1");
+ const text=screen.getByText("原文段落 4");
+ const selection=vi.spyOn(window,"getSelection").mockReturnValue({isCollapsed:false} as Selection);
+ fireEvent.click(text);expect(state.position.paragraph).toBe(1);selection.mockRestore();
+ fireEvent.pointerDown(text,{clientX:50,clientY:100});fireEvent.pointerMove(text,{clientX:50,clientY:160});fireEvent.click(text);
+ expect(state.position.paragraph).toBe(1);
+ const control=document.createElement("button");control.textContent="句子工具";container.querySelector('[data-paragraph="4"]')!.append(control);
+ fireEvent.click(control);expect(state.position.paragraph).toBe(1);
+ expect(vi.mocked(request).mock.calls.filter(([path])=>path==="/companion/position")).toHaveLength(0);
+});
+it("offers mobile reading actions and returns from the panel with the draft intact",async()=>{
+ vi.stubGlobal("innerWidth",390);
+ render(<CompanionReader book={book} onStory={vi.fn()} continuous/>);await screen.findByText("原文段落 1");
+ expect(screen.getByRole("navigation",{name:"移动阅读工具"})).toBeInTheDocument();
+ fireEvent.click(screen.getByRole("button",{name:"讨论这段"}));
+ expect(screen.getByRole("dialog",{name:"伴读面板"})).toBeInTheDocument();
+ expect(screen.getByRole("button",{name:"关闭伴读"})).toHaveFocus();expect(document.body.style.overflow).toBe("hidden");
+ fireEvent.change(screen.getByRole("textbox",{name:"伴读问题"}),{target:{value:"先记下一个疑问"}});
+ fireEvent.click(screen.getByRole("button",{name:"关闭伴读"}));
+ expect(document.body.style.overflow).not.toBe("hidden");expect(screen.queryByRole("dialog",{name:"伴读面板"})).not.toBeInTheDocument();
+ fireEvent.click(screen.getByRole("button",{name:"讨论这段"}));
+ expect(screen.getByLabelText("伴读问题")).toHaveValue("先记下一个疑问");
+ fireEvent.keyDown(document,{key:"Escape"});expect(screen.queryByRole("dialog",{name:"伴读面板"})).not.toBeInTheDocument();
+});
+it("tracks the mobile visual viewport and releases the panel lock on desktop",async()=>{
+ vi.stubGlobal("innerWidth",390);
+ const visual=Object.assign(new EventTarget(),{height:800,offsetTop:0});vi.stubGlobal("visualViewport",visual);
+ const {container}=render(<CompanionReader book={book} onStory={vi.fn()}/>);await screen.findByText("原文段落 1");
+ fireEvent.click(screen.getByRole("button",{name:"讨论这段"}));visual.height=420;visual.offsetTop=12;act(()=>{visual.dispatchEvent(new Event("resize"));});
+ expect(container.querySelector(".cr-room")).toHaveStyle({"--reader-viewport-height":"420px","--reader-viewport-top":"12px"});
+ vi.stubGlobal("innerWidth",1200);fireEvent.resize(window);
+ expect(screen.queryByRole("dialog",{name:"伴读面板"})).not.toBeInTheDocument();expect(document.body.style.overflow).not.toBe("hidden");
+});
 it("follows scrolling, preserves manual selection, and resumes without a model call",async()=>{
  const {container}=render(<CompanionReader book={book} onStory={vi.fn()} continuous/>);await screen.findByText("原文段落 1");
  moveReadingAnchor(container,3);
