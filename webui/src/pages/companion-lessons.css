@@ -12,7 +12,8 @@
 .cr-continuous .cr-turn p,.cr-continuous .cr-welcome p,.cr-continuous .cr-compose textarea{font-size:16px}
 .cr-continuous .cr-companion-heading small,.cr-continuous .cr-speaker-label,.cr-continuous .cr-scope,.cr-continuous .cr-turn small{font-size:13px}
 .cr-continuous .cr-source small{font-size:12px}
-.cr-reading-location{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:#68705f;margin:0 0 24px}
+.cr-reading-location{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:14px;color:#68705f;margin:0 0 24px}
+.cr-reading-location button{border:1px solid #cfd9c3;border-radius:5px;padding:7px 10px}.cr-reading-location button[aria-pressed=true]{background:#e6eddc;color:#435a37}.cr-reading-location>span{font-size:12px}
 .cr-reading-location select{font-size:14px;margin-left:8px}
 .cr-panel-tabs{display:flex;gap:4px;margin:0 18px 14px;border-bottom:1px solid #d8dfce}
 .cr-panel-tabs button{font-size:14px;padding:11px 10px;border-bottom:2px solid transparent}

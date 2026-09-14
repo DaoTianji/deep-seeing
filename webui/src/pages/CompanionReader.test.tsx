@@ -15,7 +15,47 @@ beforeEach(()=>{
   throw Error("保存失败，稍后重试");
  });
 });
-afterEach(()=>{cleanup();vi.unstubAllGlobals();});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.restoreAllMocks();});
+
+function moveReadingAnchor(container:HTMLElement,id:number){
+ for(const node of container.querySelectorAll<HTMLElement>("[data-paragraph]")){
+  const top=(Number(node.dataset.paragraph)-id)*500+100;
+  vi.spyOn(node,"getBoundingClientRect").mockReturnValue({top,bottom:top+490,height:490} as DOMRect);
+ }
+ fireEvent.scroll(window);
+}
+it("follows scrolling, preserves manual selection, and resumes without a model call",async()=>{
+ const {container}=render(<CompanionReader book={book} onStory={vi.fn()} continuous/>);await screen.findByText("原文段落 1");
+ moveReadingAnchor(container,3);
+ await waitFor(()=>expect(screen.getByLabelText("定位原文段落")).toHaveValue("3"));
+ expect(state.position.paragraph).toBe(3);
+ fireEvent.change(screen.getByLabelText("定位原文段落"),{target:{value:"2"}});
+ await waitFor(()=>expect(state.position.paragraph).toBe(2));
+ expect(screen.getByText("已固定第 2 段")).toBeInTheDocument();
+ moveReadingAnchor(container,5);
+ expect(screen.getByRole("button",{name:"恢复自动跟随"})).toHaveAttribute("aria-pressed","false");
+ fireEvent.click(screen.getByRole("button",{name:"恢复自动跟随"}));
+ await waitFor(()=>expect(state.position.paragraph).toBe(5));
+ expect(vi.mocked(request).mock.calls.every(([path])=>!path.includes("/chat")&&!path.includes("/branches"))).toBe(true);
+});
+it("freezes the discussion paragraph while composing and sends that paragraph",async()=>{
+ const {container}=render(<CompanionReader book={book} onStory={vi.fn()} continuous/>);await screen.findByText("原文段落 1");
+ moveReadingAnchor(container,2);await waitFor(()=>expect(state.position.paragraph).toBe(2));
+ fireEvent.change(screen.getByLabelText("伴读问题"),{target:{value:"解释这一段"}});
+ moveReadingAnchor(container,5);
+ const answer={...state,revision:state.revision+1,turns:[]};
+ const fetch=vi.fn().mockResolvedValue(new Response(JSON.stringify({type:"result",data:answer})+"\n"));vi.stubGlobal("fetch",fetch);
+ fireEvent.click(screen.getByRole("button",{name:"发送伴读问题"}));
+ await waitFor(()=>expect(fetch).toHaveBeenCalledOnce());
+ expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({paragraph:2,revision:1});
+});
+it("does not claim the position changed when automatic saving fails",async()=>{
+ const {container}=render(<CompanionReader book={book} onStory={vi.fn()} continuous/>);await screen.findByText("原文段落 1");
+ vi.mocked(request).mockRejectedValueOnce(Error("位置保存失败"));moveReadingAnchor(container,4);
+ expect(await screen.findByRole("alert")).toHaveTextContent("位置保存失败");
+ expect(screen.getByLabelText("定位原文段落")).toHaveValue("1");
+ expect(screen.getByRole("button",{name:"恢复自动跟随"})).toBeInTheDocument();
+});
 it("identifies the no-key search channel without promising free model calls",async()=>{
  render(<CompanionReader book={book} onStory={vi.fn()}/>);await screen.findByText("原文段落 1");
  expect(screen.getByRole("note")).toHaveTextContent("Bing RSS · 无需新增 Key");
