@@ -54,6 +54,15 @@ it.each(["taohuayuan","quanxue","mulan"])("offers the shared modern Chinese edit
  expect(request).toHaveBeenCalledWith(expect.stringContaining(`book=${book}`),undefined,expect.any(AbortSignal));
 });
 afterEach(cleanup);
+it("keeps sentence actions beside the translation as accessible icon buttons",()=>{
+ const retry=vi.fn();const {container}=render(<SentenceTranslation sentences={[{id:"p1-s1",paragraph:1,original:"That was all.",translation:"这就是全部了。"}]} display="parallel" onRetranslate={retry}/>);
+ const button=screen.getByRole("button",{name:"重新翻译句子 p1-s1"});
+ expect(button).toHaveAttribute("title","重译此句 · 仅保存到我的译文");expect(button).toHaveTextContent("");
+ expect(container.querySelector(".cr-sentence-translation-line")).toContainElement(button);
+ expect(button.parentElement).toContainElement(screen.getByText("这就是全部了。"));
+ expect(screen.queryByText("AI 辅助译文 · 原文保持不变")).not.toBeInTheDocument();
+ fireEvent.click(button);expect(retry).toHaveBeenCalledExactlyOnceWith("p1-s1");
+});
 it("loads saved edition without translating, then batches and reuses on reopen",async()=>{
  const view=render(<Harness/>);
  await screen.findByText("已保存 0 / 2 句");

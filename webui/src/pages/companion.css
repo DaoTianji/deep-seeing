@@ -26,8 +26,11 @@
 .cr-book-translation button{display:inline-flex;align-items:center;gap:6px;border:1px solid #aebc9e;border-radius:6px;padding:8px 12px;background:#fffef8;color:#3f5636;font-size:14px}
 .cr-book-translation button:disabled{opacity:.5}.cr-book-translation progress{width:100%;height:5px;accent-color:#688152;margin:0 0 12px}
 .cr-sentence-pair{margin:0 0 1.3em}.cr-text .cr-sentence-pair p{margin:0;white-space:pre-line}
-.cr-retranslate-sentence{margin-top:8px;padding:5px 9px;border:1px solid #ccd5c1;border-radius:5px;background:#f7f8f1;color:#536446;font:13px/1.6 system-ui,sans-serif;cursor:pointer}.cr-retranslate-sentence:disabled{opacity:.5;cursor:default}.cr-retranslate-sentence:focus-visible{outline:2px solid #567345;outline-offset:3px}.cr-book-translation [role=dialog]{margin-top:14px;padding:14px;border:1px solid #aebc9e;border-radius:6px;background:#fffef8}.cr-book-translation [role=dialog]>p{flex-basis:100%;font-size:14px}
-.cr-text .cr-sentence-pair .cr-sentence-translation{margin-top:.45em;padding-left:14px;border-left:2px solid #c8d4ba;color:#536446;font-size:calc(var(--reader-font)*.9);line-height:1.85}
+.cr-sentence-translation-line{display:flex;align-items:flex-start;gap:8px;margin-top:.45em}
+/* Override the reader's generic button reset: tool text must not inherit prose typography. */
+.cr-room .cr-retranslate-sentence{display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;height:32px;margin:0;padding:0;border:0;border-radius:6px;background:transparent;color:#718066;font:12px/1 system-ui,sans-serif;cursor:pointer}.cr-room .cr-retranslate-sentence:hover,.cr-room .cr-retranslate-sentence:focus-visible{background:#e8ede0;color:#465d3d}.cr-room .cr-retranslate-sentence:disabled{opacity:.4;cursor:default}.cr-room .cr-retranslate-sentence:focus-visible{outline:2px solid #567345;outline-offset:2px}.cr-book-translation [role=dialog]{margin-top:14px;padding:14px;border:1px solid #aebc9e;border-radius:6px;background:#fffef8}.cr-book-translation [role=dialog]>p{flex-basis:100%;font-size:14px}
+.cr-text .cr-sentence-pair .cr-sentence-translation{flex:1;min-width:0;margin-top:0;padding-left:14px;border-left:2px solid #c8d4ba;color:#536446;font-size:calc(var(--reader-font)*.9);line-height:1.85}
+@media(pointer:coarse){.cr-room .cr-retranslate-sentence{flex-basis:44px;width:44px;height:44px}.cr-sentence-translation-line{gap:4px}}
 .cr-translation-credit{display:block;font-size:12px;color:#748069;margin-top:12px}
 
 /* Plain prompts, useful labels, and readable supporting copy. */

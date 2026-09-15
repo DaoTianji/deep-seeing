@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {Languages, Pause} from "lucide-react";
+import {Languages, Pause, RotateCcw} from "lucide-react";
 import {request} from "./reading-api";
 
 export type TranslatedSentence = {id:string;paragraph:number;original:string;translation?:string};
@@ -77,7 +77,7 @@ export function BookTranslationBar({translation,onShow}:{translation:ReturnType<
 export function SentenceTranslation({sentences,display,onRetranslate,busy=false}:{sentences:TranslatedSentence[];display:string;onRetranslate?:(id:string)=>void;busy?:boolean}) {
  return <div className="cr-sentence-pairs">{sentences.map(s=><div className="cr-sentence-pair" key={s.id}>
   {display!=="translation"&&<p>{s.original}</p>}
-  <p lang="zh" className={s.translation?"cr-sentence-translation":"cr-untranslated"}>{s.translation||"本句尚未翻译"}</p>
-  {s.translation&&onRetranslate&&<button className="cr-retranslate-sentence" aria-label={`重新翻译句子 ${s.id}`} disabled={busy} onClick={()=>onRetranslate(s.id)}>重译此句 · 仅自己可见</button>}
- </div>)}<small className="cr-translation-credit">AI 辅助译文 · 原文保持不变</small></div>;
+  <div className="cr-sentence-translation-line"><p lang="zh" className={s.translation?"cr-sentence-translation":"cr-untranslated"}>{s.translation||"本句尚未翻译"}</p>
+  {s.translation&&onRetranslate&&<button type="button" className="cr-retranslate-sentence" aria-label={`重新翻译句子 ${s.id}`} title="重译此句 · 仅保存到我的译文" disabled={busy} onClick={()=>onRetranslate(s.id)}><RotateCcw size={14} aria-hidden="true"/></button>}</div>
+ </div>)}</div>;
 }
